@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Sarah Wong - Wong & Lim Clinic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        nav { background-color: white; padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo { font-size: 24px; font-weight: bold; color: #1a3a5c; text-decoration: none;}
+        .nav-links a { text-decoration: none; color: #333; margin-left: 30px; font-size: 16px; }
+        
+        .container { max-width: 1000px; margin: 50px auto; padding: 0 20px; display: flex; gap: 40px; flex-wrap: wrap; }
+        .profile-image { flex: 1; min-width: 300px; }
+        .profile-image img { width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .profile-info { flex: 2; min-width: 300px; }
+        .profile-info h1 { color: #1a3a5c; margin-bottom: 10px; }
+        .specialty { color: #2563eb; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        
+        .info-section { margin-bottom: 20px; }
+        .info-section h3 { color: #333; margin-bottom: 10px; border-bottom: 2px solid #f3f4f6; padding-bottom: 5px; }
+        .info-section p, .info-section ul { color: #666; line-height: 1.6; }
+        .info-section ul { padding-left: 20px; }
+
+        .btn-book { display: inline-block; padding: 15px 30px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-size: 18px; margin-top: 20px; }
+        .btn-book:hover { background-color: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">Wong & Lim Clinic</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="about.html">About</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-image">
+            <img src="https://via.placeholder.com/400x500?text=Dr.+Sarah+Wong" alt="Dr. Sarah Wong">
+        </div>
+        <div class="profile-info">
+            <h1>Dr. Sarah Wong</h1>
+            <p class="specialty">Cosmetic Dentistry Specialist</p>
+
+            <div class="info-section">
+                <h3>Background</h3>
+                <p>Dr. Sarah Wong has over 10 years of experience in transforming smiles. She graduated with honors from the National University of Singapore and completed her master's in Cosmetic Dentistry in London.</p>
+            </div>
+
+            <div class="info-section">
+                <h3>Qualifications</h3>
+                <ul>
+                    <li>Bachelor of Dental Surgery (NUS)</li>
+                    <li>Master of Science in Cosmetic Dentistry (King's College London)</li>
+                    <li>Member of the Singapore Dental Council</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h3>Specialties</h3>
+                <p>Teeth Whitening, Veneers, Dental Implants, and Smile Makeovers.</p>
+            </div>
+
+            <a href="book.html" class="btn-book">Book Appointment with Dr. Sarah</a>
+        </div>
+    </div>
+</body>
+</html>

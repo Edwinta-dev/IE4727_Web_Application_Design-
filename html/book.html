@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Wong & Lim Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        nav {
+            background-color: white;
+            padding: 20px 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a3a5c;
+            text-align: center;
+        }
+
+        .booking-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #1a3a5c;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .schedule-info {
+            background-color: #eff6ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-info h3 {
+            color: #1a3a5c;
+            margin-bottom: 15px;
+        }
+
+        .time-slots {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .time-slot {
+            padding: 10px 20px;
+            border: 2px solid #2563eb;
+            border-radius: 5px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .time-slot:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .time-slot.selected {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .time-slot.unavailable {
+            border-color: #ccc;
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            color: #999;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Wong & Lim Clinic</div>
+    </nav>
+
+    <div class="booking-container">
+        <h2>Book Your Appointment</h2>
+        
+        <form id="bookingForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="doctor">Select Doctor</label>
+                    <select id="doctor" required>
+                        <option value="">-- Choose a Doctor --</option>
+                        <option value="sarah">Dr. Sarah Wong (Cosmetic Dentistry)</option>
+                        <option value="james">Dr. James Lim (Pediatric Dentistry)</option>
+                        <option value="emily">Dr. Emily Tan (Oral Surgery)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Preferred Date</label>
+                    <input type="date" id="date" required>
+                </div>
+            </div>
+
+            <div class="schedule-info">
+                <h3>Available Time Slots</h3>
+                <p>Select your preferred time:</p>
+                <div class="time-slots">
+                    <div class="time-slot" onclick="selectTime(this)">9:00 AM</div>
+                    <div class="time-slot" onclick="selectTime(this)">10:00 AM</div>
+                    <div class="time-slot unavailable">11:00 AM</div>
+                    <div class="time-slot" onclick="selectTime(this)">2:00 PM</div>
+                    <div class="time-slot" onclick="selectTime(this)">3:00 PM</div>
+                    <div class="time-slot" onclick="selectTime(this)">4:00 PM</div>
+                </div>
+                <input type="hidden" id="selectedTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Reason for Visit</label>
+                <textarea id="reason" placeholder="Please describe your dental concern or reason for appointment..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Contact Number</label>
+                <input type="tel" id="phone" placeholder="e.g., +65 9123 4567" required>
+            </div>
+
+            <button type="submit" class="btn">Confirm Booking</button>
+        </form>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        function selectTime(element) {
+            if(element.classList.contains('unavailable')) return;
+            
+            // Remove selected class from all slots
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked slot
+            element.classList.add('selected');
+            document.getElementById('selectedTime').value = element.textContent;
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if(!document.getElementById('selectedTime').value) {
+                alert('Please select a time slot');
+                return;
+            }
+            
+            alert('Appointment booked successfully! A confirmation email has been sent to you.');
+            window.location.href = 'patient-dashboard.html';
+        });
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').setAttribute('min', today);
+    </script>
+
+</body>
+</html>

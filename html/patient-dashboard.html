@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Wong & Lim Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a3a5c;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 30px;
+            font-size: 16px;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        .nav-links a.logout {
+            color: #dc2626;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+
+        .welcome-section h1 {
+            color: #1a3a5c;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            color: #666;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        /* Appointments Section */
+        .appointments-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            color: #1a3a5c;
+            font-size: 24px;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Appointment Cards */
+        .appointment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .appointment-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .appointment-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .appointment-info h3 {
+            color: #1a3a5c;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .appointment-details {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .appointment-details span {
+            margin-right: 20px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.confirmed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.completed {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
+        .no-appointments {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-appointments h3 {
+            margin-bottom: 15px;
+            color: #1a3a5c;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-section h2 {
+            color: #1a3a5c;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .profile-field {
+            padding: 15px;
+            background-color: #f9fafb;
+            border-radius: 5px;
+        }
+
+        .profile-field label {
+            display: block;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .profile-field .value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a3a5c;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            color: #1a3a5c;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close-modal {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .confirm-reschedule {
+            background-color: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Wong & Lim Clinic</div>
+        <div class="nav-links">
+            <a href="patient-dashboard.html">Dashboard</a>
+            <a href="book.html">Book Appointment</a>
+            <a href="#" class="logout" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome back, John Tan!</h1>
+            <p>Manage your appointments and view your medical history</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Upcoming Appointments</h3>
+                <div class="number">2</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Visits</h3>
+                <div class="number">5</div>
+            </div>
+            <div class="stat-card">
+                <h3>Last Visit</h3>
+                <div class="number" style="font-size: 20px;">15 Sep 2026</div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div class="appointments-section">
+            <div class="section-header">
+                <h2>Upcoming Appointments</h2>
+                <a href="book.html" class="btn-primary">Book New Appointment</a>
+            </div>
+
+            <div class="appointment-list">
+                <!-- Appointment 1 -->
+                <div class="appointment-card">
+                    <div class="appointment-info">
+                        <h3>Dr. Sarah Wong</h3>
+                        <div class="appointment-details">
+                            <span>📅 20 Sep 2026</span>
+                            <span>🕐 10:00 AM</span>
+                            <span>🏥 Cosmetic Dentistry</span>
+                        </div>
+                        <span class="status confirmed">Confirmed</span>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn-secondary" onclick="openRescheduleModal('Dr. Sarah Wong', '20 Sep 2026', '10:00 AM')">Reschedule</button>
+                        <button class="btn-danger" onclick="cancelAppointment('Dr. Sarah Wong', '20 Sep 2026')">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Appointment 2 -->
+                <div class="appointment-card">
+                    <div class="appointment-info">
+                        <h3>Dr. James Lim</h3>
+                        <div class="appointment-details">
+                            <span>📅 25 Sep 2026</span>
+                            <span>🕐 2:00 PM</span>
+                            <span>🏥 Pediatric Dentistry</span>
+                        </div>
+                        <span class="status pending">Pending</span>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn-secondary" onclick="openRescheduleModal('Dr. James Lim', '25 Sep 2026', '2:00 PM')">Reschedule</button>
+                        <button class="btn-danger" onclick="cancelAppointment('Dr. James Lim', '25 Sep 2026')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past Appointments -->
+        <div class="appointments-section">
+            <div class="section-header">
+                <h2>Past Appointments</h2>
+            </div>
+
+            <div class="appointment-list">
+                <!-- Past Appointment 1 -->
+                <div class="appointment-card" style="opacity: 0.7;">
+                    <div class="appointment-info">
+                        <h3>Dr. Emily Tan</h3>
+                        <div class="appointment-details">
+                            <span>📅 15 Sep 2026</span>
+                            <span>🕐 3:00 PM</span>
+                            <span> Oral Surgery</span>
+                        </div>
+                        <span class="status completed">Completed</span>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn-secondary" onclick="alert('View prescription and notes')">View Details</button>
+                    </div>
+                </div>
+
+                <!-- Past Appointment 2 -->
+                <div class="appointment-card" style="opacity: 0.7;">
+                    <div class="appointment-info">
+                        <h3>Dr. Sarah Wong</h3>
+                        <div class="appointment-details">
+                            <span> 01 Aug 2026</span>
+                            <span>🕐 11:00 AM</span>
+                            <span>🏥 Cosmetic Dentistry</span>
+                        </div>
+                        <span class="status completed">Completed</span>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn-secondary" onclick="alert('View prescription and notes')">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Profile -->
+        <div class="profile-section">
+            <h2>My Profile</h2>
+            <div class="profile-info">
+                <div class="profile-field">
+                    <label>Full Name</label>
+                    <div class="value">John Tan Wei Ming</div>
+                </div>
+                <div class="profile-field">
+                    <label>Email</label>
+                    <div class="value">john.tan@email.com</div>
+                </div>
+                <div class="profile-field">
+                    <label>Phone Number</label>
+                    <div class="value">+65 9123 4567</div>
+                </div>
+                <div class="profile-field">
+                    <label>NRIC/Passport</label>
+                    <div class="value">S1234567A</div>
+                </div>
+                <div class="profile-field">
+                    <label>Date of Birth</label>
+                    <div class="value">15 March 1990</div>
+                </div>
+                <div class="profile-field">
+                    <label>Blood Type</label>
+                    <div class="value">O+</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div id="rescheduleModal" class="modal">
+        <div class="modal-content">
+            <h2>Reschedule Appointment</h2>
+            <p>Current appointment with <strong id="modalDoctor"></strong></p>
+            <p>Date: <strong id="modalDate"></strong> at <strong id="modalTime"></strong></p>
+            
+            <div style="margin-top: 20px;">
+                <label style="display: block; margin-bottom: 8px;">New Date:</label>
+                <input type="date" id="newDate" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+                
+                <label style="display: block; margin-bottom: 8px;">New Time:</label>
+                <select id="newTime" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+                    <option value="">Select a time</option>
+                    <option value="9:00 AM">9:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="2:00 PM">2:00 PM</option>
+                    <option value="3:00 PM">3:00 PM</option>
+                    <option value="4:00 PM">4:00 PM</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="close-modal" onclick="closeRescheduleModal()">Cancel</button>
+                <button class="confirm-reschedule" onclick="confirmReschedule()">Confirm Reschedule</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Reschedule Modal Functions
+        function openRescheduleModal(doctor, date, time) {
+            document.getElementById('modalDoctor').textContent = doctor;
+            document.getElementById('modalDate').textContent = date;
+            document.getElementById('modalTime').textContent = time;
+            document.getElementById('rescheduleModal').style.display = 'flex';
+        }
+
+        function closeRescheduleModal() {
+            document.getElementById('rescheduleModal').style.display = 'none';
+        }
+
+        function confirmReschedule() {
+            const newDate = document.getElementById('newDate').value;
+            const newTime = document.getElementById('newTime').value;
+            
+            if(!newDate || !newTime) {
+                alert('Please select both date and time');
+                return;
+            }
+            
+            alert('Appointment rescheduled successfully! A confirmation email has been sent.');
+            closeRescheduleModal();
+            // In real app, this would update the database
+        }
+
+        // Cancel Appointment
+        function cancelAppointment(doctor, date) {
+            if(confirm(`Are you sure you want to cancel your appointment with ${doctor} on ${date}?`)) {
+                alert('Appointment cancelled successfully. You will receive a cancellation email.');
+                // In real app, this would remove from database
+                location.reload();
+            }
+        }
+
+        // Logout
+        function logout() {
+            if(confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('rescheduleModal');
+            if (event.target == modal) {
+                closeRescheduleModal();
+            }
+        }
+
+        // Set minimum date to today for rescheduling
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('newDate').setAttribute('min', today);
+    </script>
+
+</body>
+</html>

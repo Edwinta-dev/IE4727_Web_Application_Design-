@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Wong & Lim Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        nav {
+            background-color: white;
+            padding: 20px 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a3a5c;
+            text-align: center;
+            display: block;
+        }
+
+        .register-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a3a5c;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switch-form a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .user-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .user-type label {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+
+        .user-type input[type="radio"]:checked + label {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        .user-type input[type="radio"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Wong & Lim Clinic</div>
+    </nav>
+
+    <div class="register-container">
+        <h2>Create an Account</h2>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label>I want to register as:</label>
+                <div class="user-type">
+                    <input type="radio" id="patient" name="usertype" value="patient" checked>
+                    <label for="patient">Patient</label>
+                    
+                    <input type="radio" id="doctor" name="usertype" value="doctor">
+                    <label for="doctor">Doctor</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fullname">Full Name</label>
+                <input type="text" id="fullname" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="e.g., +65 9123 4567" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Create a password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmpassword">Confirm Password</label>
+                <input type="password" id="confirmpassword" placeholder="Confirm your password" required>
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+
+            <div class="switch-form">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmpassword').value;
+            
+            if(password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            const userType = document.querySelector('input[name="usertype"]:checked').value;
+            const fullName = document.getElementById('fullname').value;
+            
+            alert('Registration successful! Welcome ' + fullName + '. You will be redirected to login.');
+            
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>

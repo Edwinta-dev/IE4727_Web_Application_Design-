@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wong & Lim Clinic - Online Appointment Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: white;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a3a5c;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 30px;
+            font-size: 16px;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .btn-book {
+            background-color: #2563eb;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-book:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Doctors Section */
+        .doctors {
+            padding: 60px 50px;
+            text-align: center;
+        }
+
+        .doctors h2 {
+            font-size: 32px;
+            margin-bottom: 40px;
+            color: #1a3a5c;
+        }
+
+        .doctor-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 250px;
+        }
+
+        .doctor-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .doctor-card h3 {
+            color: #1a3a5c;
+            margin-bottom: 10px;
+        }
+
+        .doctor-card p {
+            color: #666;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #f3f4f6;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Wong & Lim Clinic</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="about.html">About</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <h1>Book Your Appointment Today</h1>
+        <a href="book.html" class="btn-book">Book Now</a>
+    </section>
+
+    <!-- Doctors Section -->
+    <section class="doctors">
+        <h2>Our Doctors</h2>
+        <div class="doctor-cards">
+            <div class="doctor-card">
+                <img src="https://via.placeholder.com/120" alt="Dr. Sarah Wong">
+                <h3>Dr. Sarah Wong</h3>
+                <p>Cosmetic Dentistry</p>
+            </div>
+            <div class="doctor-card">
+                <img src="https://via.placeholder.com/120" alt="Dr. James Lim">
+                <h3>Dr. James Lim</h3>
+                <p>Pediatric Dentistry</p>
+            </div>
+            <div class="doctor-card">
+                <img src="https://via.placeholder.com/120" alt="Dr. Emily Tan">
+                <h3>Dr. Emily Tan</h3>
+                <p>Oral Surgery</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Tel: +65 6123 4567 | Email: info@wonglimclinic.sg | Address: 123 Orchard Road, Singapore</p>
+    </footer>
+
+</body>
+</html>
