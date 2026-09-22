@@ -27,7 +27,11 @@ if ($free === []) {
 }
 
 $slot = $free[0];
-$appointmentId = book_appointment($patientId, (int) $slot['slotID']);
+$booking = book_appointment($patientId, (int) $slot['slotID'], 'Booked from the CLI demo.');
+if (!$booking['ok'] || $booking['appointment_id'] === null) {
+    throw new RuntimeException('CLI booking failed: ' . (string) $booking['error']);
+}
+$appointmentId = $booking['appointment_id'];
 
 $upcoming = appointments_for_patient($patientId, 'upcoming');
 $appointment = null;
