@@ -12,9 +12,9 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 require_login();
 csrf_check();
 
-$home = '/patient/home.php';
-if (!is_patient()) {
-    flash('Please sign in as a patient to manage appointments.', 'error');
+$home = is_doctor() ? '/doctor/home.php' : '/patient/home.php';
+if (!is_patient() && !is_doctor()) {
+    flash('Please sign in as a patient or doctor to manage appointments.', 'error');
     redirect('/index.php?next=' . rawurlencode($home));
 }
 
@@ -27,12 +27,26 @@ $appointment = $appointmentId > 0 ? find_appointment($appointmentId) : null;
 
 // Ownership is checked here even when the controls were rendered for a page
 // belonging to the current patient; posted ids are never trusted.
-if ($appointment === null || (int) $appointment['PatientID'] !== (int) $user['id']) {
+if ($appointment === null
+    || (is_patient() && (int) $appointment['PatientID'] !== (int) $user['id'])
+    || (is_doctor() && (int) $appointment['DoctorID'] !== (int) $user['id'])) {
     flash('That appointment does not belong to you.', 'error');
     redirect($home);
 }
 
-if (isset($_POST['cancel'])) {
+if (is_doctor() && isset($_POST['status'])) {
+    $status = is_string($_POST['status']) ? $_POST['status'] : '';
+    if (!in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
+        || !in_array($status, ['Completed', 'No show'], true)) {
+        flash('Only a future appointment can be marked for attendance.', 'error');
+    } else {
+        set_appointment_status($appointmentId, $status);
+        flash('Appointment marked as ' . $status . '.', 'success');
+    }
+    redirect($home . '?date=' . rawurlencode(substr((string) $appointment['appointmentDateTime'], 0, 10)));
+}
+
+if (is_patient() && isset($_POST['cancel'])) {
     if (!in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
         || strtotime((string) $appointment['appointmentDateTime']) <= time()) {
         flash('Only a future appointment can be cancelled.', 'error');
@@ -57,7 +71,7 @@ if (!isset($_POST['reschedule']) || $slot === null
     redirect('/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
 }
 
-$result = reschedule_appointment($appointmentId, $slotId, 'patient');
+$result = reschedule_appointment($appointmentId, $slotId, is_doctor() ? 'doctor' : 'patient');
 flash(
     $result['ok'] ? 'Your appointment has been rescheduled.' : (string) ($result['error'] ?? 'The appointment could not be rescheduled.'),
     $result['ok'] ? 'success' : 'error'

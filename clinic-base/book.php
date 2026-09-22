@@ -14,14 +14,19 @@ $rescheduleId = is_string($rescheduleIdInput) && ctype_digit($rescheduleIdInput)
     ? (int) $rescheduleIdInput
     : 0;
 $reschedule = null;
+$rescheduleActor = 'patient';
 if ($rescheduleId > 0) {
     require_login();
     $user = current_user();
-    $candidate = is_patient() ? find_appointment($rescheduleId) : null;
-    if ($candidate !== null && (int) $candidate['PatientID'] === (int) $user['id']
+    $candidate = (is_patient() || is_doctor()) ? find_appointment($rescheduleId) : null;
+    $ownsAppointment = is_patient()
+        ? ($candidate !== null && (int) $candidate['PatientID'] === (int) $user['id'])
+        : ($candidate !== null && (int) $candidate['DoctorID'] === (int) $user['id']);
+    if ($ownsAppointment
         && in_array((string) $candidate['Status'], ['Future', 'Rescheduled'], true)
         && strtotime((string) $candidate['appointmentDateTime']) > time()) {
         $reschedule = $candidate;
+        $rescheduleActor = is_doctor() ? 'doctor' : 'patient';
     } else {
         flash('That appointment cannot be rescheduled.', 'error');
         redirect('/patient/home.php');
@@ -159,6 +164,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($reschedule !== null): ?>
                 <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
                 <input type="hidden" name="reschedule" value="1">
+                <input type="hidden" name="actor" value="<?= e($rescheduleActor) ?>">
 <?php endif; ?>
                 <p>Confirm this appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>.</p>
                 <label for="reason-<?= e((string) $slot['slotID']) ?>">Reason for visit</label>

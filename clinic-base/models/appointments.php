@@ -89,6 +89,21 @@ function patient_history(int $patientId): array
     );
 }
 
+/** @return list<array<string, mixed>> */
+function patient_history_for_doctor(int $patientId, int $doctorId): array
+{
+    return q_all(
+        'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`appointmentDateTime`,
+                a.`Status`, a.`Diagnosis`, a.`Treatment`, a.`Prescription`, a.`FollowUp`, a.`Remarks`
+         FROM `appointment` a
+         WHERE a.`PatientID` = :patient_id
+           AND a.`DoctorID` = :doctor_id
+           AND a.`Status` = \'Completed\'
+         ORDER BY a.`appointmentDateTime` DESC',
+        ['patient_id' => $patientId, 'doctor_id' => $doctorId]
+    );
+}
+
 /** @return array<string, mixed>|null */
 function completed_appointment_for_patient(int $patientId, int $appointmentId): ?array
 {
