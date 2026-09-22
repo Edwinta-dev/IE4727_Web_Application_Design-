@@ -50,6 +50,6 @@ function csrf_check(): void
     if (!hash_equals(csrf_token(), $submitted)) {
         http_response_code(419);
         error_log('CSRF token validation failed');
-        exit;
+        render_status_page(419, 'Session expired', 'Your form could not be verified. Please go back and try again.');
     }
 }

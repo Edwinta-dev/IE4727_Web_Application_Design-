@@ -66,6 +66,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="featured-doctors" aria-labelledby="featured-doctors-heading">
         <h2 id="featured-doctors-heading">Meet our featured doctors</h2>
         <div class="doctor-cards">
+<?php if ($doctors === []): ?>
+            <p class="empty-state">No doctors are currently available.</p>
+<?php else: ?>
 <?php foreach ($doctors as $doctor):
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
@@ -79,6 +82,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <a href="<?= e('/doctor.php?id=' . (int) $doctor['DoctorID']) ?>">View doctor profile</a>
             </article>
 <?php endforeach; ?>
+<?php endif; ?>
         </div>
     </section>
 

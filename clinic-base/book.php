@@ -44,15 +44,21 @@ if ($reschedule !== null) {
     $doctor = find_doctor($doctorId);
 }
 if ($doctor === null) {
+    if ($doctorInput !== '') {
+        render_not_found('The selected doctor could not be found.');
+    }
     $doctorId = 0;
 }
 
 $dateInput = isset($_GET['date']) && is_string($_GET['date']) ? $_GET['date'] : '';
 $selectedDate = $today->format('Y-m-d');
+$pastDateRequested = false;
 $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $dateInput);
-if ($parsedDate !== false && $parsedDate->format('Y-m-d') === $dateInput
-    && $parsedDate >= $today && $parsedDate <= $lastBrowseDate) {
-    $selectedDate = $dateInput;
+if ($parsedDate !== false && $parsedDate->format('Y-m-d') === $dateInput) {
+    $pastDateRequested = $parsedDate < $today;
+    if (!$pastDateRequested && $parsedDate <= $lastBrowseDate) {
+        $selectedDate = $dateInput;
+    }
 }
 
 $fromTime = isset($_GET['from']) && is_string($_GET['from']) ? $_GET['from'] : '00:00';
@@ -136,7 +142,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <p>Every listed slot is shown. Only a future free slot can be selected.</p>
     <div class="schedule-grid" aria-label="Appointment schedule">
 <?php if ($slots === []): ?>
-        <p class="empty-state">No slots are available for this day and time range. Sunday and fully-booked days may have no selectable slots.</p>
+        <p class="empty-state"><?= e($pastDateRequested ? 'Past dates cannot be booked.' : $doctor['FullName'] . ' is not available on this date.') ?></p>
 <?php else: ?>
 <?php if (!$hasFreeSlot): ?>
         <p class="empty-state">This day is fully booked or has no future free slots. Please choose another day.</p>

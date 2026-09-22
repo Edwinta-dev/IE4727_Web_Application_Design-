@@ -38,6 +38,11 @@ if ($slot === null || $reason === '') {
     redirect($returnUrl());
 }
 
+if (strtotime((string) $slot['SlotDateTime']) <= time()) {
+    flash('That slot is in the past. Please choose a future slot.', 'error');
+    redirect($returnUrl());
+}
+
 $user = current_user();
 $booking = book_appointment((int) $user['id'], $slotId, $reason);
 if ($booking['ok']) {

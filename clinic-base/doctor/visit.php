@@ -27,8 +27,7 @@ $appointmentId = is_string($appointmentInput) && ctype_digit($appointmentInput)
 $appointment = $appointmentId > 0 ? find_appointment($appointmentId) : null;
 
 if ($appointment === null || (int) $appointment['DoctorID'] !== $doctorId) {
-    flash('That appointment does not belong to you.', 'error');
-    redirect('/doctor/home.php');
+    render_not_found('The appointment could not be found for this doctor.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

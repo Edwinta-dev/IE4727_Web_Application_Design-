@@ -30,6 +30,31 @@ function redirect(string $path): never
 }
 
 /**
+ * Render a user-facing error page with the normal site chrome.
+ */
+function render_status_page(int $status, string $title, string $message): never
+{
+    http_response_code($status);
+    $pageTitle = $title . ' - ' . (defined('APP_NAME') ? APP_NAME : 'Clinic Appointment Portal');
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+    echo '<main class="status-page">'
+        . '<section class="page-intro">'
+        . '<h1>' . e($title) . '</h1>'
+        . '<p>' . e($message) . '</p>'
+        . '<img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">'
+        . '<p><a href="/index.php">Return to the home page</a></p>'
+        . '</section></main>';
+    require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+    exit;
+}
+
+function render_not_found(string $message = 'The page or record you requested could not be found.'): never
+{
+    render_status_page(404, 'Page not found', $message);
+}
+
+/**
  * Return an escaped value saved for repopulating a form.
  */
 function old(string $key, mixed $default = ''): mixed

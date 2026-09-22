@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// Shipped deployments must never expose PHP diagnostics to visitors.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 // Local deployment credentials belong in config.local.php, which is ignored by git.
 $localConfig = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config.local.php';
 if (is_file($localConfig)) {
