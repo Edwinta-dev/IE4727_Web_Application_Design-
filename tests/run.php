@@ -54,3 +54,4 @@ foreach ($required as $phrase) {
 
 echo "PASS: issue #1 scaffold checks\n";
 require __DIR__ . '/test_seed.php';
+require __DIR__ . '/test_tools.php';
