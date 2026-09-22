@@ -99,7 +99,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <select id="doctor" name="doctor">
                 <option value="">Choose a doctor</option>
 <?php foreach ($doctors as $candidate): ?>
-                <option value="<?= e((string) $candidate['DoctorID']) ?>"<?= $doctorId === (int) $candidate['DoctorID'] ? ' selected' : '' ?>><?= e((string) $candidate['FullName']) ?></option>
+                <option value="<?= e((string) $candidate['DoctorID']) ?>"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' selected' : '') ?>><?= e((string) $candidate['FullName']) ?></option>
 <?php endforeach; ?>
             </select>
         </p>
@@ -123,7 +123,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(['doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime]);
 ?>
-        <a class="day-tab<?= $selectedDate === $day->format('Y-m-d') ? ' selected' : '' ?>" href="<?= e('/book.php?' . $dayQuery) ?>"><?= e($day->format('D d M')) ?></a>
+        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e('/book.php?' . $dayQuery) ?>"><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
     </nav>
 

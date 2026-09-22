@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
 
 /**
  * Validate submitted form data using pipe-separated or array rules.
@@ -98,21 +98,6 @@ function in_allowed_values(string $value, string $argument): bool
 function valid_regex(string $pattern, string $value): bool
 {
     return $pattern !== '' && @preg_match($pattern, $value) === 1;
-}
-
-function email_exists(string $email): bool
-{
-    $email = trim($email);
-    if ($email === '') {
-        return false;
-    }
-
-    $doctor = q_one('SELECT DoctorID FROM doctor WHERE Email = :email LIMIT 1', [':email' => $email]);
-    if ($doctor !== null) {
-        return true;
-    }
-
-    return q_one('SELECT PatientID FROM patient WHERE Email = :email LIMIT 1', [':email' => $email]) !== null;
 }
 
 function validation_message(string $field, string $rule, ?string $argument): string

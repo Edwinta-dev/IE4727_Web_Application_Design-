@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 /**
  * Log a notification before attempting local mail delivery.
@@ -13,20 +13,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.php';
  */
 function send_mail(string $toEmail, string $subject, string $body, ?int $appointmentId = null): int
 {
-    q(
-        'INSERT INTO `notifications`
-            (`sender`, `recipient`, `Subject`, `Body`, `appointmentID`, `deliveryStatus`)
-         VALUES (:sender, :recipient, :subject, :body, :appointment_id, \'logged\')',
-        [
-            'sender' => CLINIC_EMAIL,
-            'recipient' => $toEmail,
-            'subject' => $subject,
-            'body' => $body,
-            'appointment_id' => $appointmentId,
-        ]
-    );
-
-    $notificationId = (int) db()->lastInsertId();
+    $notificationId = log_notification($toEmail, $subject, $body, $appointmentId);
     $delivered = false;
 
     try {
@@ -35,15 +22,7 @@ function send_mail(string $toEmail, string $subject, string $body, ?int $appoint
         $delivered = false;
     }
 
-    q(
-        'UPDATE `notifications`
-         SET `deliveryStatus` = :delivery_status
-         WHERE `notificationID` = :notification_id',
-        [
-            'delivery_status' => $delivered ? 'sent' : 'failed',
-            'notification_id' => $notificationId,
-        ]
-    );
+    mark_notification_delivery($notificationId, $delivered);
 
     return $notificationId;
 }
@@ -128,4 +107,3 @@ function mail_date_time(string $date, ?string $time): array
 
     return [date('d M Y', $timestamp), date('g:i A', $timestamp)];
 }
-

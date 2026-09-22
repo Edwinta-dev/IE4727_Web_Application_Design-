@@ -143,7 +143,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <fieldset class="days-to-skip">
                 <legend>Days to skip</legend>
                 <?php foreach ([0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday'] as $dayNumber => $dayName): ?>
-                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= $dayNumber === 0 ? ' checked' : '' ?>> <?= e($dayName) ?></label>
+                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
                 <?php endforeach; ?>
             </fieldset>
             <button type="submit">Generate slots</button>
@@ -159,7 +159,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 $dayDate = $day->format('Y-m-d');
                 $dayCounts = $countsByDate[$dayDate] ?? ['Available' => 0, 'Booked' => 0, 'Blocked' => 0];
                 ?>
-                <article class="schedule-day<?= $dayDate === $selectedDate ? ' selected' : '' ?>">
+                <article class="schedule-day<?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
                     <h3><a href="<?= e('/doctor/schedule.php?date=' . rawurlencode($dayDate)) ?>"><?= e(fmt_date($dayDate)) ?></a></h3>
                     <p class="slot-count available">Available: <?= e((string) $dayCounts['Available']) ?></p>
                     <p class="slot-count booked">Booked: <?= e((string) $dayCounts['Booked']) ?></p>
@@ -181,7 +181,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     $stateClass = $status === 'Available' ? 'free' : ($status === 'Booked' ? 'taken' : 'blocked');
                     $timeClass = !is_bookable((string) $slot['SlotDate'], (string) $slot['SlotTime']) ? 'past' : '';
                     ?>
-                    <li class="slot <?= e($stateClass) ?><?= $timeClass !== '' ? ' ' . e($timeClass) : '' ?>">
+                    <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
                         <span class="slot-status"><?= e($status) ?></span>
                         <?php if ($status === 'Booked'): ?>

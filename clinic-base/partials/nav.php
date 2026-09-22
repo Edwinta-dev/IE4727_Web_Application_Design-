@@ -40,7 +40,7 @@ $links = match ($role) {
     <ul>
 <?php foreach ($links as $link): ?>
         <li>
-            <a href="<?= e($link['href']) ?>"<?= $currentPath === $link['page'] ? ' aria-current="page"' : '' ?>><?= e($link['label']) ?></a>
+            <a href="<?= e($link['href']) ?>"<?php if ($currentPath === $link['page']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
         </li>
 <?php endforeach; ?>
     </ul>

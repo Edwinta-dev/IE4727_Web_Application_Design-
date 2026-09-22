@@ -65,6 +65,25 @@ function verify_admin(string $userOrEmail, string $plain): bool
     return $usernameMatches && $passwordMatches;
 }
 
+function account_by_id(string $role, int $id): ?array
+{
+    if ($role === 'doctor') {
+        return q_one(
+            'SELECT * FROM `doctor` WHERE `DoctorID` = :id LIMIT 1',
+            ['id' => $id]
+        );
+    }
+
+    if ($role === 'patient') {
+        return q_one(
+            'SELECT * FROM `patient` WHERE `PatientID` = :id LIMIT 1',
+            ['id' => $id]
+        );
+    }
+
+    return null;
+}
+
 function user_or_email_taken(string $value): bool
 {
     $match = q_one(
@@ -86,6 +105,20 @@ function user_or_email_taken(string $value): bool
          LIMIT 1',
         ['username' => $value, 'email' => $value]
     ) !== null;
+}
+
+function email_exists(string $email): bool
+{
+    $email = trim($email);
+    if ($email === '') {
+        return false;
+    }
+
+    if (q_one('SELECT `DoctorID` FROM `doctor` WHERE `Email` = :email LIMIT 1', ['email' => $email]) !== null) {
+        return true;
+    }
+
+    return q_one('SELECT `PatientID` FROM `patient` WHERE `Email` = :email LIMIT 1', ['email' => $email]) !== null;
 }
 
 /** @param array<string, mixed> $fields */

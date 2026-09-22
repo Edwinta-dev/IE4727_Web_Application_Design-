@@ -31,7 +31,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <select id="deliveryStatus" name="deliveryStatus">
                 <option value="">All statuses</option>
                 <?php foreach ($allowedStatuses as $option): ?>
-                    <option value="<?= e($option) ?>"<?= $statusFilter === $option ? ' selected' : '' ?>><?= e($option) ?></option>
+                    <option value="<?= e($option) ?>"<?= e($statusFilter === $option ? ' selected' : '') ?>><?= e($option) ?></option>
                 <?php endforeach; ?>
             </select>
             <button type="submit">Apply filter</button>

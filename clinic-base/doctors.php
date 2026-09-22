@@ -37,7 +37,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <select id="specialty" name="specialty">
             <option value="">All specialties</option>
 <?php foreach ($specialtyOptions as $value): ?>
-            <option value="<?= e($value) ?>"<?= $selectedSpecialty === $value ? ' selected' : '' ?>><?= e($value) ?></option>
+            <option value="<?= e($value) ?>"<?= e($selectedSpecialty === $value ? ' selected' : '') ?>><?= e($value) ?></option>
 <?php endforeach; ?>
         </select>
         <button type="submit">Filter doctors</button>

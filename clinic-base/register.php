@@ -37,8 +37,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <fieldset>
             <legend>Account type</legend>
             <p>
-                <label><input type="radio" name="role" value="patient"<?= $role === 'patient' ? ' checked' : '' ?>> Patient</label>
-                <label><input type="radio" name="role" value="doctor"<?= $role === 'doctor' ? ' checked' : '' ?>> Doctor</label>
+                <label><input type="radio" name="role" value="patient"<?= e($role === 'patient' ? ' checked' : '') ?>> Patient</label>
+                <label><input type="radio" name="role" value="doctor"<?= e($role === 'doctor' ? ' checked' : '') ?>> Doctor</label>
             </p>
         </fieldset>
 
@@ -78,7 +78,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <select id="gender" name="Gender" required>
                     <option value="">Choose your gender</option>
                     <?php foreach (['Male', 'Female', 'Other'] as $gender): ?>
-                        <option value="<?= e($gender) ?>"<?= $oldValues['Gender'] === $gender ? ' selected' : '' ?>><?= e($gender) ?></option>
+                        <option value="<?= e($gender) ?>"<?= e($oldValues['Gender'] === $gender ? ' selected' : '') ?>><?= e($gender) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <span class="field-error" data-error-for="Gender" role="alert"><?= e(errors_for('Gender')) ?></span>

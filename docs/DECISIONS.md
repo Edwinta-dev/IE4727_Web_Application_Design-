@@ -16,3 +16,8 @@
 7. Account removal uses a hard `DELETE`. Removing a doctor therefore cascades
    to their slots and appointments through the schema foreign keys; there is no
    doctor `active` flag or soft-delete state.
+8. The M4 escaping audit permits helper-generated output such as
+   `<?= csrf_field() ?>` and `flash_render()`'s static wrapper because they do
+   not echo a raw variable; all dynamic page values use `e()` on the output
+   line. SQL is kept in `models/`; authentication, validation, and mail
+   helpers call model functions instead of embedding queries.

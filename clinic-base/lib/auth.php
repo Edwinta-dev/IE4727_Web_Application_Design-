@@ -68,12 +68,7 @@ function current_user(): ?array
         return auth_cache_current_user(null);
     }
 
-    $table = $role === 'doctor' ? 'doctor' : 'patient';
-    $idColumn = $role === 'doctor' ? 'DoctorID' : 'PatientID';
-    $profile = q_one(
-        'SELECT * FROM `' . $table . '` WHERE `' . $idColumn . '` = :id LIMIT 1',
-        ['id' => (int) $id]
-    );
+    $profile = account_by_id($role, (int) $id);
 
     if ($profile === null) {
         return auth_cache_current_user(null);

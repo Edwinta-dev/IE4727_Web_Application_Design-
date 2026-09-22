@@ -59,3 +59,38 @@ function notifications_for_appointment(int $id): array
         ['appointment_id' => $id]
     );
 }
+
+function log_notification(
+    string $toEmail,
+    string $subject,
+    string $body,
+    ?int $appointmentId = null
+): int {
+    q(
+        'INSERT INTO `notifications`
+            (`sender`, `recipient`, `Subject`, `Body`, `appointmentID`, `deliveryStatus`)
+         VALUES (:sender, :recipient, :subject, :body, :appointment_id, \'logged\')',
+        [
+            'sender' => CLINIC_EMAIL,
+            'recipient' => $toEmail,
+            'subject' => $subject,
+            'body' => $body,
+            'appointment_id' => $appointmentId,
+        ]
+    );
+
+    return (int) db()->lastInsertId();
+}
+
+function mark_notification_delivery(int $notificationId, bool $delivered): void
+{
+    q(
+        'UPDATE `notifications`
+         SET `deliveryStatus` = :delivery_status
+         WHERE `notificationID` = :notification_id',
+        [
+            'delivery_status' => $delivered ? 'sent' : 'failed',
+            'notification_id' => $notificationId,
+        ]
+    );
+}
