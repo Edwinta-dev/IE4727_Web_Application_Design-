@@ -8,6 +8,11 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 function all_doctors(?string $specialty = null): array
 {
     $sql = 'SELECT `DoctorID`, `FullName`, `Specialty`, `Qualifications`, `Languages`, `WriteUp`, `ImageURL`
+                , (SELECT MIN(`SlotDateTime`)
+                   FROM `slots`
+                   WHERE `slots`.`DoctorID` = `doctor`.`DoctorID`
+                     AND `slots`.`Status` = \'Available\'
+                     AND `slots`.`SlotDateTime` >= NOW()) AS `NextAvailable`
             FROM `doctor`';
     $params = [];
 
