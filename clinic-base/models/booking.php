@@ -115,3 +115,118 @@ function book_appointment(int $patientId, int $slotId, string $reason): array
         ];
     }
 }
+
+/**
+ * Move an appointment to another available slot atomically.
+ *
+ * @return array{ok: bool, appointment_id: int|null, error: string|null}
+ */
+function reschedule_appointment(int $appointmentId, int $newSlotId, string $actorRole): array
+{
+    $connection = db();
+    $connection->beginTransaction();
+
+    try {
+        $claim = q(
+            "UPDATE `slots`
+             SET `Status` = 'Booked'
+             WHERE `slotID` = :slot_id AND `Status` = 'Available'",
+            ['slot_id' => $newSlotId]
+        );
+
+        if ($claim->rowCount() !== 1) {
+            $connection->rollBack();
+
+            return [
+                'ok' => false,
+                'appointment_id' => null,
+                'error' => 'That slot has just been taken. Please choose another.',
+            ];
+        }
+
+        $appointment = q_one(
+            'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
+                    a.`appointmentDateTime`, d.`FullName` AS `DoctorName`,
+                    d.`Email` AS `DoctorEmail`, p.`FullName` AS `PatientName`,
+                    p.`Email` AS `PatientEmail`
+             FROM `appointment` a
+             INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
+             INNER JOIN `patient` p ON p.`PatientID` = a.`PatientID`
+             WHERE a.`appointmentID` = :appointment_id
+             LIMIT 1',
+            ['appointment_id' => $appointmentId]
+        );
+        $newSlot = q_one(
+            'SELECT `DoctorID`, `SlotDateTime`
+             FROM `slots`
+             WHERE `slotID` = :slot_id
+             LIMIT 1',
+            ['slot_id' => $newSlotId]
+        );
+
+        if ($appointment === null || $newSlot === null) {
+            throw new RuntimeException('The appointment or selected slot was not found.');
+        }
+
+        if ((int) $newSlot['DoctorID'] !== (int) $appointment['DoctorID']) {
+            throw new RuntimeException('The selected slot belongs to another doctor.');
+        }
+
+        if (strtotime((string) $newSlot['SlotDateTime']) <= time()) {
+            throw new RuntimeException('That slot is in the past. Please choose another.');
+        }
+
+        $oldDateTime = (string) $appointment['appointmentDateTime'];
+        $newDateTime = (string) $newSlot['SlotDateTime'];
+        $oldSlotId = $appointment['slotID'] === null ? null : (int) $appointment['slotID'];
+
+        if ($oldSlotId !== null) {
+            q(
+                "UPDATE `slots`
+                 SET `Status` = 'Available'
+                 WHERE `slotID` = :slot_id",
+                ['slot_id' => $oldSlotId]
+            );
+        }
+
+        q(
+            "UPDATE `appointment`
+             SET `slotID` = :new_slot_id,
+                 `appointmentDateTime` = :appointment_date_time,
+                 `Status` = 'Rescheduled'
+             WHERE `appointmentID` = :appointment_id",
+            [
+                'new_slot_id' => $newSlotId,
+                'appointment_date_time' => $newDateTime,
+                'appointment_id' => $appointmentId,
+            ]
+        );
+
+        $actor = $actorRole === 'doctor' ? 'doctor' : 'patient';
+        $message = "Your appointment was rescheduled by the {$actor} from "
+            . $oldDateTime . ' to ' . $newDateTime . ".\n"
+            . 'Clinic: ' . APP_NAME;
+        $subject = 'Appointment rescheduled - ' . APP_NAME;
+
+        send_mail((string) $appointment['PatientEmail'], $subject, $message, $appointmentId);
+        send_mail((string) $appointment['DoctorEmail'], $subject, $message, $appointmentId);
+
+        $connection->commit();
+
+        return [
+            'ok' => true,
+            'appointment_id' => $appointmentId,
+            'error' => null,
+        ];
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+
+        return [
+            'ok' => false,
+            'appointment_id' => null,
+            'error' => $exception->getMessage(),
+        ];
+    }
+}
