@@ -6,7 +6,27 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'help
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+
+$rescheduleIdInput = $_GET['reschedule'] ?? '';
+$rescheduleId = is_string($rescheduleIdInput) && ctype_digit($rescheduleIdInput)
+    ? (int) $rescheduleIdInput
+    : 0;
+$reschedule = null;
+if ($rescheduleId > 0) {
+    require_login();
+    $user = current_user();
+    $candidate = is_patient() ? find_appointment($rescheduleId) : null;
+    if ($candidate !== null && (int) $candidate['PatientID'] === (int) $user['id']
+        && in_array((string) $candidate['Status'], ['Future', 'Rescheduled'], true)
+        && strtotime((string) $candidate['appointmentDateTime']) > time()) {
+        $reschedule = $candidate;
+    } else {
+        flash('That appointment cannot be rescheduled.', 'error');
+        redirect('/patient/home.php');
+    }
+}
 
 $today = new DateTimeImmutable('today');
 $lastBrowseDate = $today->modify('+' . (BROWSE_DAYS - 1) . ' days');
@@ -14,6 +34,10 @@ $lastBrowseDate = $today->modify('+' . (BROWSE_DAYS - 1) . ' days');
 $doctorInput = $_GET['doctor'] ?? $_GET['doctor_id'] ?? '';
 $doctorId = is_string($doctorInput) && ctype_digit($doctorInput) ? (int) $doctorInput : 0;
 $doctor = $doctorId > 0 ? find_doctor($doctorId) : null;
+if ($reschedule !== null) {
+    $doctorId = (int) $reschedule['DoctorID'];
+    $doctor = find_doctor($doctorId);
+}
 if ($doctor === null) {
     $doctorId = 0;
 }
@@ -125,17 +149,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="slot <?= e($stateClass) ?>">
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
-            <form method="post" action="/actions/book.php">
+            <form method="post" action="<?= e($reschedule === null ? '/actions/book.php' : '/actions/appointment.php') ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
                 <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
                 <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
                 <input type="hidden" name="from" value="<?= e($fromTime) ?>">
                 <input type="hidden" name="to" value="<?= e($toTime) ?>">
+<?php if ($reschedule !== null): ?>
+                <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
+                <input type="hidden" name="reschedule" value="1">
+<?php endif; ?>
                 <p>Confirm this appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>.</p>
                 <label for="reason-<?= e((string) $slot['slotID']) ?>">Reason for visit</label>
                 <input id="reason-<?= e((string) $slot['slotID']) ?>" name="reason" type="text" maxlength="255" required>
-                <button type="submit">Confirm booking</button>
+                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
             </form>
 <?php else: ?>
             <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ucfirst($stateClass)) ?></span>

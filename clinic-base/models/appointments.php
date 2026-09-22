@@ -28,7 +28,7 @@ function appointments_for_patient(int $patientId, string $when = 'all'): array
         'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
                 a.`appointmentDateTime`, a.`CreatedAt`, a.`updatedAt`, a.`Status`,
                 a.`Diagnosis`, a.`Prescription`, a.`Treatment`, a.`FollowUp`, a.`Remarks`,
-                d.`FullName` AS `DoctorName`, d.`Email` AS `DoctorEmail`
+                d.`FullName` AS `DoctorName`, d.`Specialty`, d.`Email` AS `DoctorEmail`
          FROM `appointment` a
          INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
          WHERE ' . implode(' AND ', $where) . '
@@ -79,13 +79,31 @@ function patient_history(int $patientId): array
         'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
                 a.`appointmentDateTime`, a.`CreatedAt`, a.`updatedAt`, a.`Status`,
                 a.`Diagnosis`, a.`Treatment`, a.`Prescription`, a.`FollowUp`, a.`Remarks`,
-                d.`FullName` AS `DoctorName`
+                d.`FullName` AS `DoctorName`, d.`Specialty`
          FROM `appointment` a
          INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
          WHERE a.`PatientID` = :patient_id
            AND a.`Status` = \'Completed\'
          ORDER BY a.`appointmentDateTime` DESC',
         ['patient_id' => $patientId]
+    );
+}
+
+/** @return array<string, mixed>|null */
+function completed_appointment_for_patient(int $patientId, int $appointmentId): ?array
+{
+    return q_one(
+        'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
+                a.`appointmentDateTime`, a.`Status`, a.`Diagnosis`,
+                a.`Prescription`, a.`Treatment`, a.`FollowUp`, a.`Remarks`,
+                d.`FullName` AS `DoctorName`, d.`Specialty`
+         FROM `appointment` a
+         INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
+         WHERE a.`appointmentID` = :appointment_id
+           AND a.`PatientID` = :patient_id
+           AND a.`Status` = \'Completed\'
+         LIMIT 1',
+        ['appointment_id' => $appointmentId, 'patient_id' => $patientId]
     );
 }
 
