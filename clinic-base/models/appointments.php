@@ -3,6 +3,89 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
+
+/**
+ * Book an available slot for a patient and log the confirmation notification.
+ */
+function book_appointment(int $patientId, int $slotId): int
+{
+    $connection = db();
+    $connection->beginTransaction();
+
+    try {
+        $slot = q_one(
+            'SELECT `slotID`, `DoctorID`, `SlotDateTime`, `Status`
+             FROM `slots`
+             WHERE `slotID` = :slot_id
+             FOR UPDATE',
+            ['slot_id' => $slotId]
+        );
+
+        if ($slot === null || $slot['Status'] !== 'Available') {
+            throw new RuntimeException('Slot is no longer available.');
+        }
+
+        $patient = q_one(
+            'SELECT `FullName`, `Email`
+             FROM `patient`
+             WHERE `PatientID` = :patient_id
+             LIMIT 1',
+            ['patient_id' => $patientId]
+        );
+        $doctor = q_one(
+            'SELECT `FullName`
+             FROM `doctor`
+             WHERE `DoctorID` = :doctor_id
+             LIMIT 1',
+            ['doctor_id' => $slot['DoctorID']]
+        );
+
+        if ($patient === null || $doctor === null) {
+            throw new RuntimeException('Booking participant was not found.');
+        }
+
+        q(
+            'UPDATE `slots`
+             SET `Status` = \'Booked\'
+             WHERE `slotID` = :slot_id AND `Status` = \'Available\'',
+            ['slot_id' => $slotId]
+        );
+
+        if ((int) q_val('SELECT ROW_COUNT()') !== 1) {
+            throw new RuntimeException('Slot could not be reserved.');
+        }
+
+        q(
+            'INSERT INTO `appointment`
+                (`DoctorID`, `PatientID`, `slotID`, `appointmentDateTime`, `Status`)
+             VALUES (:doctor_id, :patient_id, :slot_id, :appointment_date_time, \'Future\')',
+            [
+                'doctor_id' => (int) $slot['DoctorID'],
+                'patient_id' => $patientId,
+                'slot_id' => $slotId,
+                'appointment_date_time' => $slot['SlotDateTime'],
+            ]
+        );
+
+        $appointmentId = (int) db()->lastInsertId();
+        $connection->commit();
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+        throw $exception;
+    }
+
+    [$subject, $body] = mail_booking_confirmed(
+        (string) $patient['FullName'],
+        (string) $doctor['FullName'],
+        (string) $slot['SlotDateTime']
+    );
+    send_mail((string) $patient['Email'], $subject, $body, $appointmentId);
+
+    return $appointmentId;
+}
 
 /** @return list<array<string, mixed>> */
 function appointments_for_patient(int $patientId, string $when = 'all'): array
