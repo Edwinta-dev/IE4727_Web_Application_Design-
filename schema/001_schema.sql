@@ -89,37 +89,4 @@ CREATE TABLE `notifications` (
   CONSTRAINT `fk_notif_appt` FOREIGN KEY (`appointmentID`) REFERENCES `appointment` (`appointmentID`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Demo credentials use Password123. Slots are intentionally materialised relative to today.
-INSERT INTO `doctor` (`FullName`,`User`,`HashPass`,`Email`,`Specialty`,`Qualifications`,`Languages`,`WriteUp`,`ImageURL`) VALUES
-('Dr. John Smith','drsmith','$2y$12$wX0H8ZbgBwJ5oN5s5YBj2.ugWP3VaiExp/AtezDcaJTkDkXsarfqm','drsmith@clinic.test','General Practice','MBBS (NUS), MRCP (UK)','English, Mandarin','A family physician with over fifteen years in primary care.','assets/img/dr-smith.jpg'),
-('Dr. Priya Nair','drnair','$2y$12$8s5qsRSwDIkk1N8.DTq/qeS1V5hKcO2JqruX0XSZkCJMd5g9yCGva','drnair@clinic.test','Dental','BDS (Manipal), MDS Orthodontics','English, Tamil, Hindi','Dr. Nair leads the dental practice.','assets/img/dr-nair.jpg'),
-('Dr. Wei Ming Tan','drtan','$2y$12$cLvQciWzmkfuOf7DkBwfKudCu1b1ra3osBypmlsiWuafP55BuIi5a','drtan@clinic.test','Paediatrics','MBBS (NTU), MRCPCH (UK)','English, Mandarin, Hokkien','A paediatrician caring for newborns through adolescents.','assets/img/dr-tan.jpg'),
-('Dr. Sarah Lim','drlim','$2y$12$mIHe6ziKW0TDcRCRtaZCcO63jxsI1o34BFmzuHovsSUla7HrW4NRy','drlim@clinic.test','Dermatology','MBBS (NUS), MRCP, Dip Dermatology','English, Mandarin, Cantonese','Dr. Lim treats the full range of skin conditions.','assets/img/dr-lim.jpg'),
-('Dr. Arjun Rao','drrao','$2y$12$3KqSIz9LoacwNSy9bx1oouXIm6TdElCvEMH5gHALLozpmyA6g8NU.','drrao@clinic.test','Physiotherapy','BSc Physiotherapy (SIT), MSc Sports Rehab','English, Tamil, Malay','A physiotherapist specialising in rehabilitation.','assets/img/dr-rao.jpg');
-
-INSERT INTO `patient` (`FullName`,`User`,`HashPass`,`Email`,`Gender`,`Phone`,`Allergies`) VALUES
-('Alex Tan','alextan','$2y$12$UNgGhEv6MYFq87zG7KhOf.wtmbAhgKB01YXPQyBPQofYJyX/6gtt6','alex.tan@example.com','Male','91112223','["Penicillin"]'),
-('Bethany Ong','bethong','$2y$12$89xrxjCzURljrr6HRn9oF.Ak9WENjf28PFGWZseMlBv1.PVRFeqtC','beth.ong@example.com','Female','92223334','[]'),
-('Chandran Kumar','chandrank','$2y$12$KuiJgar3wtBPDpMiRjfL6.7VNvm.eiaZysWzjrg43hc5Cc7bm2no2','chandran.k@example.com','Male','93334445','["Aspirin","Shellfish"]'),
-('Diana Lee','dianalee','$2y$12$RFgnQR1sgV00Hb2b76OyMu/kc3Rs5vpi3CxhVQ3bV03YL0eEPwd2e','diana.lee@example.com','Female','94445556','[]'),
-('Elijah Wong','elijahw','$2y$12$XzEyxElY4IzmVTSIdCV9IO4aRQi0y/L4jRlMzrr1TplF223bqZGhy','elijah.w@example.com','Male','95556667','["Latex"]'),
-('Farah Ismail','farahi','$2y$12$N6AalgbN0m3o10C2I7/.IuERUNlWlCwp609KHXpkhXSGM5C3r/.jO','farah.i@example.com','Female','96667778','["Peanuts"]'),
-('Gerald Sim','geralds','$2y$12$KzpOpam7duC2nHZLiXULhOeBf.FBWlx1UZqqkEYsaE2gGu7v/nYlq','gerald.s@example.com','Male','97778889','[]'),
-('Hui Ling Chua','huilingc','$2y$12$4bDtSGEi7WW5WR1gEjuijuNBqi0EKgCdA8vYKBDtkJnq025XAx0hC','huiling.c@example.com','Female','98889990','["Pollen","Dust mites"]');
-
-INSERT INTO `slots` (`DoctorID`,`SlotDateTime`,`Status`)
-WITH RECURSIVE days AS (
-  SELECT CURDATE() AS d
-  UNION ALL SELECT d + INTERVAL 1 DAY FROM days WHERE d < CURDATE() + INTERVAL 29 DAY
-), times AS (
-  SELECT '09:00:00' AS t UNION ALL SELECT '09:30:00' UNION ALL SELECT '10:00:00'
-  UNION ALL SELECT '10:30:00' UNION ALL SELECT '11:00:00' UNION ALL SELECT '11:30:00'
-  UNION ALL SELECT '12:00:00' UNION ALL SELECT '12:30:00' UNION ALL SELECT '14:00:00'
-  UNION ALL SELECT '14:30:00' UNION ALL SELECT '15:00:00' UNION ALL SELECT '15:30:00'
-  UNION ALL SELECT '16:00:00' UNION ALL SELECT '16:30:00'
-)
-SELECT d.DoctorID, TIMESTAMP(days.d, times.t), 'Available'
-FROM doctor d CROSS JOIN days CROSS JOIN times
-WHERE DAYOFWEEK(days.d) <> 1;
-
 SET FOREIGN_KEY_CHECKS = 1;

@@ -18,7 +18,7 @@ $pdo->exec('DROP DATABASE IF EXISTS ' . $identifier);
 $pdo->exec('CREATE DATABASE ' . $identifier . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci');
 $pdo->exec('USE ' . $identifier);
 
-foreach ([__DIR__ . '/../schema/001_schema.sql', __DIR__ . '/../schema/002_migrate.sql'] as $file) {
+foreach ([__DIR__ . '/../schema/001_schema.sql', __DIR__ . '/../schema/002_migrate.sql', __DIR__ . '/../schema/003_seed.sql'] as $file) {
     $sql = file_get_contents($file);
     if ($sql === false) {
         throw new RuntimeException('Unable to read ' . $file);
