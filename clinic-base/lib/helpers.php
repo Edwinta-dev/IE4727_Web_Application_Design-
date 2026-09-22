@@ -35,8 +35,13 @@ function redirect(string $path): never
 function old(string $key, mixed $default = ''): mixed
 {
     start_session_once();
+    $value = $_SESSION['old'][$key] ?? $default;
+    unset($_SESSION['old'][$key]);
+    if (isset($_SESSION['old']) && $_SESSION['old'] === []) {
+        unset($_SESSION['old']);
+    }
 
-    return $_SESSION['old'][$key] ?? $default;
+    return $value;
 }
 
 /**
@@ -77,6 +82,10 @@ function errors_for(string $field): string
 {
     start_session_once();
     $error = $_SESSION['errors'][$field] ?? '';
+    unset($_SESSION['errors'][$field]);
+    if (isset($_SESSION['errors']) && $_SESSION['errors'] === []) {
+        unset($_SESSION['errors']);
+    }
 
     return is_scalar($error) ? (string) $error : '';
 }
