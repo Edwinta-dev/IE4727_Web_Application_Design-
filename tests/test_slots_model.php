@@ -6,8 +6,11 @@ require_once dirname(__DIR__) . '/clinic-base/models/slots.php';
 
 $dateObject = new DateTimeImmutable('2099-01-01');
 do {
-    $date = $dateObject->modify('+' . random_int(0, 1000) . ' days')->format('Y-m-d');
-} while ((int) (new DateTimeImmutable($date))->format('w') === 0);
+    $date = $dateObject->modify('+' . random_int(0, 10000) . ' days')->format('Y-m-d');
+} while (
+    (int) (new DateTimeImmutable($date))->format('w') === 0
+    || slots_for_day(1, $date) !== []
+);
 $options = ['start' => '09:00', 'end' => '10:30', 'minutes' => 30, 'breaks' => []];
 
 $created = regenerate_schedule(1, $date, 1, $options);

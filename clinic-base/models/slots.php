@@ -52,15 +52,23 @@ function free_slots(int $doctorId, string $date): array
 }
 
 /** @return list<array<string, mixed>> */
-function slots_for_day(int $doctorId, string $date): array
+function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?string $toTime = null): array
 {
-    return q_all(
-        slot_select() . "
+    $sql = slot_select() . "
             WHERE `DoctorID` = :doctor_id
-              AND DATE(`SlotDateTime`) = :slot_date
-            ORDER BY `SlotDateTime`",
-        ['doctor_id' => $doctorId, 'slot_date' => $date]
-    );
+              AND DATE(`SlotDateTime`) = :slot_date";
+    $params = ['doctor_id' => $doctorId, 'slot_date' => $date];
+
+    if ($fromTime !== null) {
+        $sql .= ' AND TIME(`SlotDateTime`) >= :from_time';
+        $params['from_time'] = $fromTime;
+    }
+    if ($toTime !== null) {
+        $sql .= ' AND TIME(`SlotDateTime`) <= :to_time';
+        $params['to_time'] = $toTime;
+    }
+
+    return q_all($sql . " ORDER BY `SlotDateTime`", $params);
 }
 
 /** @return list<array<string, mixed>> */
