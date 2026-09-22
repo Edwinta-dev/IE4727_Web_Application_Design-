@@ -13,3 +13,6 @@
 6. `002_migrate.sql` is additive-only. The adopted dump already contains the
    later milestone fields and keys, so the migration is an intentional no-op
    that preserves existing data and avoids duplicate `ADD` errors.
+7. Account removal uses a hard `DELETE`. Removing a doctor therefore cascades
+   to their slots and appointments through the schema foreign keys; there is no
+   doctor `active` flag or soft-delete state.
