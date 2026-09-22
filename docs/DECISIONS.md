@@ -8,4 +8,8 @@
 3. Appointment availability uses materialised rows in `slots`.
 4. Administration is config-defined with `ADMIN_USER` and `ADMIN_HASH`; there
    is no admin table.
-5. `002_migrate.sql` is additive-only so existing rows survive migration.
+5. The schema is fixed and adopted from the cleaned `ie4727db` dump; existing
+   columns and names are not redesigned.
+6. `002_migrate.sql` is additive-only. The adopted dump already contains the
+   later milestone fields and keys, so the migration is an intentional no-op
+   that preserves existing data and avoids duplicate `ADD` errors.
