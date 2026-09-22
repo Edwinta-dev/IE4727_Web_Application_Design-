@@ -36,7 +36,8 @@ html {
 
 body {
     margin: 0;
-    min-width: 18rem;
+    min-width: 0;
+    overflow-x: hidden;
 }
 
 img {
@@ -190,16 +191,31 @@ main {
 
 .available-slots,
 .slot-list,
+.schedule-grid,
+.slot-grid,
 .doctor-list {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--space-2);
     list-style: none;
     padding: 0;
 }
 
+.day-board,
+.schedule-board,
+.schedule-grid,
+.slot-grid,
+.slot-list,
+.available-slots {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .slot a,
 .slot {
     display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
     border: 1px solid var(--line);
     border-left: 0.35rem solid var(--success);
     border-radius: 0.4rem;
@@ -208,12 +224,32 @@ main {
     text-decoration: none;
 }
 
+.slot.free {
+    border-left-style: solid;
+}
+
 .slot.taken,
 .slot.blocked,
 .slot.past {
-    border-left-color: var(--muted);
-    background: #eef1f3;
     color: var(--muted);
+}
+
+.slot.taken {
+    border-left-color: var(--danger);
+    border-left-style: dashed;
+    background: #fff5f5;
+}
+
+.slot.blocked {
+    border-left-color: var(--ink);
+    border-left-style: double;
+    background: #eef1f3;
+}
+
+.slot.past {
+    border-left-color: var(--muted);
+    border-left-style: dotted;
+    background: repeating-linear-gradient(-45deg, #eef1f3, #eef1f3 0.45rem, #e3e8eb 0.45rem, #e3e8eb 0.55rem);
 }
 
 .slot.taken a,
@@ -236,6 +272,7 @@ td {
     padding: var(--space-2) var(--space-3);
     text-align: left;
     vertical-align: top;
+    overflow-wrap: anywhere;
 }
 
 th {
@@ -369,8 +406,15 @@ input[type="button"]:hover {
     }
 
     table {
-        display: block;
-        overflow-x: auto;
+        table-layout: fixed;
+        font-size: 0.92rem;
+    }
+
+    .available-slots,
+    .slot-list,
+    .schedule-grid,
+    .slot-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -380,5 +424,70 @@ input[type="button"]:hover {
     *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+@media print {
+    @page {
+        margin: 1.2cm;
+    }
+
+    html,
+    body {
+        background: #fff;
+        color: #000;
+        font-size: 10pt;
+    }
+
+    .site-nav,
+    nav,
+    .site-header,
+    header,
+    .site-footer,
+    button,
+    .button,
+    input[type="submit"],
+    input[type="button"],
+    .print-button,
+    .no-print {
+        display: none !important;
+    }
+
+    main,
+    .site-header-inner,
+    .site-footer,
+    .flash,
+    .flash-banner {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding-block: 0;
+    }
+
+    .day-board,
+    .schedule-board,
+    .appointment-slip,
+    .print-slip {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #777;
+        box-shadow: none;
+    }
+
+    .schedule-grid,
+    .slot-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.35rem;
+    }
+
+    .slot,
+    .slot a,
+    table {
+        box-shadow: none;
+    }
+
+    a {
+        color: #000;
+        text-decoration: none;
     }
 }
