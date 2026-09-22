@@ -71,6 +71,39 @@ function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?s
     return q_all($sql . " ORDER BY `SlotDateTime`", $params);
 }
 
+/**
+ * Return state counts for each day in a doctor's requested schedule window.
+ * The page fills in dates with no rows so an empty day is still visible.
+ *
+ * @return array<string, array{Available: int, Booked: int, Blocked: int}>
+ */
+function slot_counts_for_range(int $doctorId, string $from, string $to): array
+{
+    $rows = q_all(
+        'SELECT DATE(`SlotDateTime`) AS `SlotDate`, `Status`, COUNT(*) AS `Count`
+         FROM `slots`
+         WHERE `DoctorID` = :doctor_id
+           AND DATE(`SlotDateTime`) BETWEEN :from_date AND :to_date
+         GROUP BY DATE(`SlotDateTime`), `Status`
+         ORDER BY `SlotDate`',
+        ['doctor_id' => $doctorId, 'from_date' => $from, 'to_date' => $to]
+    );
+
+    $counts = [];
+    foreach ($rows as $row) {
+        $date = (string) $row['SlotDate'];
+        $status = (string) $row['Status'];
+        if (!isset($counts[$date])) {
+            $counts[$date] = ['Available' => 0, 'Booked' => 0, 'Blocked' => 0];
+        }
+        if (array_key_exists($status, $counts[$date])) {
+            $counts[$date][$status] = (int) $row['Count'];
+        }
+    }
+
+    return $counts;
+}
+
 /** @return list<array<string, mixed>> */
 function next_available(int $doctorId, int $limit = 3): array
 {
