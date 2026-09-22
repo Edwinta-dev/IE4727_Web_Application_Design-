@@ -147,6 +147,80 @@ function delete_patient(int $id): void
     q('DELETE FROM `patient` WHERE `PatientID` = :id', ['id' => $id]);
 }
 
+/** @param array<string, mixed> $filters @return list<array<string, mixed>> */
+function admin_patients(array $filters = []): array
+{
+    $where = [];
+    $params = [];
+    $search = trim((string) ($filters['patient'] ?? ''));
+    if ($search !== '') {
+        $where[] = '(p.`FullName` LIKE :patient_name OR p.`Email` LIKE :patient_email)';
+        $params['patient_name'] = '%' . $search . '%';
+        $params['patient_email'] = '%' . $search . '%';
+    }
+
+    $appointmentWhere = admin_account_appointment_filters($filters, $params, 'p.`PatientID`');
+    if ($appointmentWhere !== '') {
+        $where[] = 'EXISTS (SELECT 1 FROM `appointment` ap WHERE ap.`PatientID` = p.`PatientID` AND ' . $appointmentWhere . ')';
+    }
+
+    $sql = 'SELECT p.`PatientID`, p.`FullName`, p.`User`, p.`Email`, p.`Gender`, p.`Phone`
+            FROM `patient` p';
+    if ($where !== []) {
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+    }
+    return q_all($sql . ' ORDER BY p.`FullName`', $params);
+}
+
+/** @param array<string, mixed> $filters @return list<array<string, mixed>> */
+function admin_doctors(array $filters = []): array
+{
+    $where = [];
+    $params = [];
+    $search = trim((string) ($filters['doctor_search'] ?? ''));
+    if ($search !== '') {
+        $where[] = '(d.`FullName` LIKE :doctor_name OR d.`Email` LIKE :doctor_email OR d.`Specialty` LIKE :doctor_specialty)';
+        $params['doctor_name'] = '%' . $search . '%';
+        $params['doctor_email'] = '%' . $search . '%';
+        $params['doctor_specialty'] = '%' . $search . '%';
+    }
+
+    $appointmentWhere = admin_account_appointment_filters($filters, $params, 'd.`DoctorID`');
+    if ($appointmentWhere !== '') {
+        $where[] = 'EXISTS (SELECT 1 FROM `appointment` ap WHERE ap.`DoctorID` = d.`DoctorID` AND ' . $appointmentWhere . ')';
+    }
+
+    $sql = 'SELECT d.`DoctorID`, d.`FullName`, d.`User`, d.`Email`, d.`Specialty`
+            FROM `doctor` d';
+    if ($where !== []) {
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+    }
+    return q_all($sql . ' ORDER BY d.`FullName`', $params);
+}
+
+/** @param array<string, mixed> $filters @param array<string, mixed> $params */
+function admin_account_appointment_filters(array $filters, array &$params, string $accountColumn): string
+{
+    $where = [];
+    if (($filters['doctor'] ?? '') !== '') {
+        $where[] = 'ap.`DoctorID` = :account_doctor';
+        $params['account_doctor'] = (int) $filters['doctor'];
+    }
+    if (($filters['status'] ?? '') !== '') {
+        $where[] = 'ap.`Status` = :account_status';
+        $params['account_status'] = (string) $filters['status'];
+    }
+    if (($filters['date_from'] ?? '') !== '') {
+        $where[] = 'DATE(ap.`appointmentDateTime`) >= :account_date_from';
+        $params['account_date_from'] = (string) $filters['date_from'];
+    }
+    if (($filters['date_to'] ?? '') !== '') {
+        $where[] = 'DATE(ap.`appointmentDateTime`) <= :account_date_to';
+        $params['account_date_to'] = (string) $filters['date_to'];
+    }
+    return implode(' AND ', $where);
+}
+
 /** @param array<string, mixed> $fields */
 function account_field(array $fields, string $key, ?string $alias = null): string
 {

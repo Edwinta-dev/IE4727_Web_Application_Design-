@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'stats.php';
+
+require_admin();
+
+$filters = [
+    'doctor' => trim((string) ($_GET['doctor'] ?? '')),
+    'status' => trim((string) ($_GET['status'] ?? '')),
+    'date_from' => trim((string) ($_GET['date_from'] ?? '')),
+    'date_to' => trim((string) ($_GET['date_to'] ?? '')),
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check();
+    $action = (string) ($_POST['action'] ?? '');
+    $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+    if ($id !== false && $id !== null && $id > 0) {
+        if ($action === 'delete_doctor') {
+            delete_doctor((int) $id);
+            flash('Doctor account and its slots and appointments were removed.', 'success');
+        } elseif ($action === 'delete_patient') {
+            delete_patient((int) $id);
+            flash('Patient account and its appointments were removed.', 'success');
+        }
+    }
+    redirect('/admin/console.php?' . http_build_query($filters));
+}
+
+$doctors = admin_doctors($filters);
+$patients = admin_patients($filters);
+$appointments = admin_search($filters);
+$allDoctors = all_doctors();
+$weekly = appointments_per_doctor_this_week();
+$noShowOverall = overall_no_show_rate();
+$noShowDoctors = no_show_rate_per_doctor();
+$peakHours = peak_booking_hours();
+$leadDays = mean_booking_lead_time();
+$weeklyMax = max(array_map(static fn (array $row): int => (int) $row['Bookings'], $weekly) ?: [0]);
+$peakMax = max(array_map(static fn (array $row): int => (int) $row['Bookings'], $peakHours) ?: [0]);
+$noShowMax = max(array_map(static fn (array $row): float => (float) $row['Rate'], $noShowDoctors) ?: [0]);
+
+$pageTitle = 'Administrator Console';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+?>
+<main class="admin-console">
+    <h1>Administrator console</h1>
+    <p>Review accounts, appointments and booking analytics.</p>
+    <p><a href="/admin/outbox.php">Open notification outbox</a></p>
+
+    <section class="stats-strip" aria-labelledby="stats-heading">
+        <h2 id="stats-heading">Statistics</h2>
+        <div class="stat-card"><h3>Appointments per doctor this week</h3>
+            <?php foreach ($weekly as $row): $width = $weeklyMax > 0 ? ((int) $row['Bookings'] / $weeklyMax) * 100 : 0; ?>
+                <p><?= e($row['DoctorName']) ?>: <?= e((string) $row['Bookings']) ?></p><div class="stat-bar" style="width: <?= e((string) $width) ?>%" role="img" aria-label="<?= e($row['DoctorName']) ?> bookings"></div>
+            <?php endforeach; ?>
+        </div>
+        <div class="stat-card"><h3>No-show rate overall</h3><p><?= e(number_format($noShowOverall['rate'], 1)) ?>% (<?= e((string) $noShowOverall['no_show']) ?>/<?= e((string) $noShowOverall['total']) ?>)</p><div class="stat-bar" style="width: <?= e((string) $noShowOverall['rate']) ?>%"></div><h3>No-show rate per doctor</h3>
+            <?php foreach ($noShowDoctors as $row): $width = $noShowMax > 0 ? ((float) $row['Rate'] / $noShowMax) * 100 : 0; ?><p><?= e($row['DoctorName']) ?>: <?= e(number_format((float) $row['Rate'], 1)) ?>%</p><div class="stat-bar" style="width: <?= e((string) $width) ?>%"></div><?php endforeach; ?>
+        </div>
+        <div class="stat-card"><h3>Peak booking hours</h3>
+            <?php foreach ($peakHours as $row): $width = $peakMax > 0 ? ((int) $row['Bookings'] / $peakMax) * 100 : 0; ?><p><?= e(str_pad((string) $row['BookingHour'], 2, '0', STR_PAD_LEFT)) ?>:00 — <?= e((string) $row['Bookings']) ?></p><div class="stat-bar" style="width: <?= e((string) $width) ?>%"></div><?php endforeach; ?>
+        </div>
+        <div class="stat-card"><h3>Mean booking lead time</h3><p><?= e(number_format($leadDays, 1)) ?> days</p><div class="stat-bar" style="width: <?= e((string) min(100, max(0, $leadDays))) ?>%"></div></div>
+    </section>
+
+    <section class="console-filters" aria-labelledby="filters-heading"><h2 id="filters-heading">Filters</h2>
+        <form method="get" action="/admin/console.php"><?= csrf_field() ?><label>Doctor <select name="doctor"><option value="">All doctors</option><?php foreach ($allDoctors as $doctor): ?><option value="<?= e((string) $doctor['DoctorID']) ?>"<?= $filters['doctor'] === (string) $doctor['DoctorID'] ? ' selected' : '' ?>><?= e($doctor['FullName']) ?></option><?php endforeach; ?></select></label>
+            <label>Status <select name="status"><option value="">All statuses</option><?php foreach (['Future', 'Cancelled', 'No show', 'Completed', 'Rescheduled'] as $status): ?><option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option><?php endforeach; ?></select></label>
+            <label>From <input type="date" name="date_from" value="<?= e($filters['date_from']) ?>"></label><label>To <input type="date" name="date_to" value="<?= e($filters['date_to']) ?>"></label><button type="submit">Apply filters</button><a href="/admin/console.php">Clear</a>
+        </form>
+    </section>
+
+    <section class="console-section"><h2>Patients</h2><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead><tbody><?php foreach ($patients as $patient): ?><tr><td><?= e($patient['FullName']) ?></td><td><?= e($patient['User']) ?></td><td><?= e($patient['Email']) ?></td><td><?= e($patient['Phone']) ?></td><td><form method="post" action="/admin/console.php" data-confirmation="<?= e('Delete patient ' . $patient['FullName'] . '? This removes the patient account and its appointments.') ?>" onsubmit="return confirm(this.dataset.confirmation);"><?= csrf_field() ?><input type="hidden" name="action" value="delete_patient"><input type="hidden" name="id" value="<?= e((string) $patient['PatientID']) ?>"><button type="submit">Delete account</button></form></td></tr><?php endforeach; ?></tbody></table></section>
+    <section class="console-section"><h2>Doctors</h2><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Specialty</th><th>Action</th></tr></thead><tbody><?php foreach ($doctors as $doctor): ?><tr><td><?= e($doctor['FullName']) ?></td><td><?= e($doctor['User']) ?></td><td><?= e($doctor['Email']) ?></td><td><?= e($doctor['Specialty']) ?></td><td><form method="post" action="/admin/console.php" data-confirmation="<?= e('Delete doctor ' . $doctor['FullName'] . '? This removes the doctor account, slots and appointments.') ?>" onsubmit="return confirm(this.dataset.confirmation);"><?= csrf_field() ?><input type="hidden" name="action" value="delete_doctor"><input type="hidden" name="id" value="<?= e((string) $doctor['DoctorID']) ?>"><button type="submit">Delete account</button></form></td></tr><?php endforeach; ?></tbody></table></section>
+    <section class="console-section"><h2>Appointments</h2><table><thead><tr><th>Date/time</th><th>Doctor</th><th>Patient</th><th>Status</th></tr></thead><tbody><?php foreach ($appointments as $appointment): ?><tr><td><?= e($appointment['appointmentDateTime']) ?></td><td><?= e($appointment['DoctorName']) ?></td><td><?= e($appointment['PatientName']) ?></td><td><?= e($appointment['Status']) ?></td></tr><?php endforeach; ?></tbody></table></section>
+</main>
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
