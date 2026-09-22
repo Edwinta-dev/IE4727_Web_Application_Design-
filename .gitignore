@@ -1,1 +1,5 @@
 .idea/
+config.local.php
+mail/
+*.log
+.DS_Store
