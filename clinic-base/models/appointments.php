@@ -73,8 +73,18 @@ function find_appointment(int $id): ?array
 }
 
 /** @return list<array<string, mixed>> */
-function patient_history(int $patientId): array
+function patient_history(int $patientId, ?int $doctorId = null): array
 {
+    $where = [
+        'a.`PatientID` = :patient_id',
+        "a.`Status` = 'Completed'",
+    ];
+    $params = ['patient_id' => $patientId];
+    if ($doctorId !== null) {
+        $where[] = 'a.`DoctorID` = :doctor_id';
+        $params['doctor_id'] = $doctorId;
+    }
+
     return q_all(
         'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
                 a.`appointmentDateTime`, a.`CreatedAt`, a.`updatedAt`, a.`Status`,
@@ -82,10 +92,9 @@ function patient_history(int $patientId): array
                 d.`FullName` AS `DoctorName`, d.`Specialty`
          FROM `appointment` a
          INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
-         WHERE a.`PatientID` = :patient_id
-           AND a.`Status` = \'Completed\'
+         WHERE ' . implode(' AND ', $where) . '
          ORDER BY a.`appointmentDateTime` DESC',
-        ['patient_id' => $patientId]
+        $params
     );
 }
 

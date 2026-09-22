@@ -50,7 +50,7 @@ if ($patient === null) {
     redirect('/doctor/home.php');
 }
 
-$history = patient_history((int) $appointment['PatientID']);
+$history = patient_history((int) $appointment['PatientID'], $doctorId);
 $allergies = is_array($patient['Allergies'] ?? null) ? $patient['Allergies'] : [];
 $pageTitle = 'Doctor Visit';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
