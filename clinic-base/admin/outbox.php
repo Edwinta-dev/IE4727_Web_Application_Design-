@@ -20,6 +20,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-outbox">
+    <img src="/assets/img/clinic-logo.svg" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
     <h1>Notification outbox</h1>
     <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
 
@@ -44,7 +45,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php if ($notifications === []): ?>
             <p class="empty-state">No messages match this filter.</p>
         <?php else: ?>
-            <table>
+        <table><caption>Logged appointment notification delivery status</caption>
                 <thead>
                     <tr>
                         <th scope="col">Sent at</th>

@@ -16,6 +16,15 @@ function e(mixed $s): string
 function start_session_once(): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
+        $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+            || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'secure' => $https,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
         session_start();
     }
 }
@@ -42,7 +51,7 @@ function render_status_page(int $status, string $title, string $message): never
         . '<section class="page-intro">'
         . '<h1>' . e($title) . '</h1>'
         . '<p>' . e($message) . '</p>'
-        . '<img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">'
+        . '<img src="/assets/img/clinic-logo.svg" width="96" height="96" loading="eager" decoding="async" alt="Clinic Appointment Portal" class="page-intro-image">'
         . '<p><a href="/index.php">Return to the home page</a></p>'
         . '</section></main>';
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

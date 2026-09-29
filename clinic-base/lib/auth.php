@@ -1,19 +1,40 @@
 <?php
 
 declare(strict_types=1);
+// Authorization responses use http_response_code(401) and http_response_code(403).
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
 
 defined('AUTH_REMEMBER_COOKIE') || define('AUTH_REMEMBER_COOKIE', 'clinic_remember');
+defined('AUTH_MAX_FAILURES') || define('AUTH_MAX_FAILURES', 5);
+defined('AUTH_FAILURE_WINDOW') || define('AUTH_FAILURE_WINDOW', 900);
 
 /**
  * Log a user in using either role table or the configuration-defined admin.
+ * Repeated failures lock out further attempts for AUTH_FAILURE_WINDOW seconds.
  */
 function attempt_login(string $userOrEmail, string $plain): bool
 {
     start_session_once();
 
+    if (auth_is_limited()) {
+        return false;
+    }
+
+    if (!auth_try_credentials($userOrEmail, $plain)) {
+        auth_record_failure();
+
+        return false;
+    }
+
+    unset($_SESSION['auth_failures'][auth_client_key()]);
+
+    return true;
+}
+
+function auth_try_credentials(string $userOrEmail, string $plain): bool
+{
     $login = find_login($userOrEmail);
     if ($login !== null && password_verify($plain, $login['hash'])) {
         session_regenerate_id(true);
@@ -110,6 +131,7 @@ function logout(): void
 function require_login(): void
 {
     if (current_user() === null) {
+        http_response_code(401);
         auth_redirect_to_login();
     }
 }
@@ -118,6 +140,7 @@ function require_doctor(): void
 {
     $user = current_user();
     if ($user === null || !is_doctor()) {
+        http_response_code($user === null ? 401 : 403);
         auth_redirect_to_login();
     }
 }
@@ -126,6 +149,16 @@ function require_admin(): void
 {
     $user = current_user();
     if ($user === null || !is_admin()) {
+        http_response_code($user === null ? 401 : 403);
+        auth_redirect_to_login();
+    }
+}
+
+function require_role(string $role): void
+{
+    $user = current_user();
+    if ($user === null || (string) ($user['role'] ?? '') !== $role) {
+        http_response_code($user === null ? 401 : 403);
         auth_redirect_to_login();
     }
 }
@@ -173,6 +206,32 @@ function auth_redirect_to_login(): never
 {
     $next = (string) ($_SERVER['REQUEST_URI'] ?? '/');
     redirect('/index.php?next=' . rawurlencode($next));
+}
+
+function auth_client_key(): string
+{
+    return hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+}
+
+function auth_is_limited(): bool
+{
+    $record = $_SESSION['auth_failures'][auth_client_key()] ?? null;
+    if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+        return false;
+    }
+
+    return (int) ($record['count'] ?? 0) >= AUTH_MAX_FAILURES;
+}
+
+function auth_record_failure(): void
+{
+    $key = auth_client_key();
+    $record = $_SESSION['auth_failures'][$key] ?? null;
+    if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+        $record = ['started' => time(), 'count' => 0];
+    }
+    $record['count'] = min(AUTH_MAX_FAILURES, (int) $record['count'] + 1);
+    $_SESSION['auth_failures'][$key] = $record;
 }
 
 function auth_cache_current_user(?array $user): ?array

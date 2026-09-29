@@ -10,14 +10,14 @@ if (!is_file($budgetPath) || !is_file($asset)) {
     exit(1);
 }
 $budget = (string) file_get_contents($budgetPath);
-foreach (['Rendered PHP page source', 'Images per page', 'Total local image bytes', 'SQL calls per request', 'Slow query threshold', 'clinic-logo.svg', '160 × 100', '282'] as $needle) {
+foreach (['Rendered PHP page source', 'Images per page', 'Total local image bytes', 'SQL calls per request', 'Slow query threshold', 'clinic-logo.svg', '160 × 160', '372'] as $needle) {
     if (strpos($budget, $needle) === false) {
         fwrite(STDERR, "FAIL: performance budget is missing {$needle}\n");
         exit(1);
     }
 }
 $bytes = filesize($asset);
-if ($bytes !== 282) {
+if ($bytes !== 372) {
     fwrite(STDERR, "FAIL: clinic-logo.svg byte inventory is stale\n");
     exit(1);
 }

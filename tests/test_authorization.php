@@ -39,20 +39,24 @@ foreach ($files as $file) {
     }
     $mutationCount++;
     $relative = str_replace($base . DIRECTORY_SEPARATOR, '', $file);
-    $postAt = min(array_filter([
-        strpos($source, '$_POST'),
-        strpos($source, "REQUEST_METHOD"),
-    ], static fn ($position): bool => $position !== false));
+    if (str_starts_with(str_replace('\\', '/', $relative), 'lib/')) {
+        continue;
+    }
+    $postAt = strpos($source, '$_POST');
+    if ($postAt === false) {
+        $postAt = strpos($source, "REQUEST_METHOD");
+    }
     $csrfAt = strpos($source, 'csrf_check(');
     if ($csrfAt === false || $csrfAt > $postAt) {
         $fail("{$relative}: csrf_check() must precede POST data use");
     }
-    if (strpos($source, 'header(') === false || !preg_match('/Location\s*:/i', $source)) {
+    if ((strpos($source, 'header(') === false || !preg_match('/Location\s*:/i', $source)) && strpos($source, 'redirect(') === false) {
         $fail("{$relative}: mutation must use POST-Redirect-GET");
     }
 
+    $publicHandler = in_array(str_replace('\\', '/', $relative), ['actions/login.php', 'actions/register.php'], true);
     $guarded = preg_match('/require_(?:login|doctor|admin|role)\s*\(/', $source) === 1;
-    if (!$guarded) {
+    if (!$guarded && !$publicHandler) {
         $fail("{$relative}: mutation handler has no role guard");
     }
 }

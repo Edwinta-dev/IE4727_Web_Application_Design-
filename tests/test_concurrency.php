@@ -7,7 +7,7 @@ if (!extension_loaded('pdo_mysql')) {
     exit(0);
 }
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
 
 try {
     q('SELECT 1');
@@ -16,7 +16,7 @@ try {
     exit(0);
 }
 
-$slot = q_one("SELECT `slotID`, `DoctorID` FROM `slots` WHERE `Status` = 'Available' ORDER BY `slotID` LIMIT 1");
+$slot = q_one("SELECT `slotID`, `DoctorID` FROM `slots` WHERE `Status` = 'Available' AND `SlotDateTime` > NOW() ORDER BY `slotID` LIMIT 1");
 if ($slot === null) {
     throw new RuntimeException('no available slot for concurrency test');
 }
@@ -25,17 +25,18 @@ if (count($patientIds) < 2) {
     throw new RuntimeException('two patients are required for concurrency test');
 }
 
-$first = book_appointment((int) $slot['DoctorID'], (int) $patientIds[0]['PatientID'], (int) $slot['slotID']);
-$second = book_appointment((int) $slot['DoctorID'], (int) $patientIds[1]['PatientID'], (int) $slot['slotID']);
-if (!$first['ok'] || $second['ok'] || ($second['reason'] ?? '') !== 'conflict') {
+$first = book_appointment((int) $patientIds[0]['PatientID'], (int) $slot['slotID'], 'Concurrency test');
+$second = book_appointment((int) $patientIds[1]['PatientID'], (int) $slot['slotID'], 'Concurrency test');
+if (!$first['ok'] || $second['ok'] || strpos((string) $second['error'], 'just been taken') === false) {
     throw new RuntimeException('expected one booking and one safe conflict');
 }
 
-$rollbackSlot = q_one("SELECT `slotID`, `DoctorID` FROM `slots` WHERE `Status` = 'Available' ORDER BY `slotID` LIMIT 1");
+$rollbackSlot = q_one("SELECT `slotID`, `DoctorID` FROM `slots` WHERE `Status` = 'Available' AND `SlotDateTime` > NOW() ORDER BY `slotID` LIMIT 1");
 if ($rollbackSlot === null) {
     throw new RuntimeException('no second available slot for rollback test');
 }
-$failed = book_appointment((int) $rollbackSlot['DoctorID'], (int) $patientIds[0]['PatientID'], (int) $rollbackSlot['slotID'], 'after_claim');
+// An unknown patient fails after the slot has been claimed, forcing a rollback.
+$failed = book_appointment(PHP_INT_MAX, (int) $rollbackSlot['slotID'], 'Rollback test');
 if ($failed['ok'] || q_one('SELECT `Status` FROM `slots` WHERE `slotID` = :slot', ['slot' => $rollbackSlot['slotID']])['Status'] !== 'Available') {
     throw new RuntimeException('failed transaction left divergent state');
 }

@@ -17,6 +17,7 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="site-header">
     <a class="clinic-logo" href="/index.php">
         <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal logo">

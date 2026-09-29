@@ -16,7 +16,7 @@ on a CDN or a third-party image service. The following limits are checked by
 
 | Asset | Format | Intrinsic dimensions | Bytes |
 |---|---|---:|---:|
-| `clinic-base/assets/img/clinic-logo.svg` | SVG | 160 × 100 | 282 |
+| `clinic-base/assets/img/clinic-logo.svg` | SVG | 160 × 160 | 372 |
 
 Images must retain intrinsic `width` and `height`, meaningful `alt` text, and
 `loading="lazy"` when they are below the initial viewport. Data needed by a

@@ -21,3 +21,7 @@ defined('CLINIC_EMAIL') || define('CLINIC_EMAIL', 'clinic@example.local');
 defined('SLOT_MINUTES') || define('SLOT_MINUTES', 30);
 defined('SCHEDULE_DAYS') || define('SCHEDULE_DAYS', 30);
 defined('BROWSE_DAYS') || define('BROWSE_DAYS', 7);
+defined('APP_TIMEZONE') || define('APP_TIMEZONE', 'Asia/Singapore');
+
+// PHP and MariaDB must agree on "now"; db() applies the same offset to its session.
+date_default_timezone_set(APP_TIMEZONE);

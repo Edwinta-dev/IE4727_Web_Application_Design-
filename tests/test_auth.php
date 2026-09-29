@@ -40,4 +40,12 @@ test('authentication and role guards', static function (): void {
     assert_true(attempt_login('admin', 'Password123'), 'admin login');
     assert_true(is_admin(), 'admin role is stored');
     logout();
+
+    for ($i = 0; $i < AUTH_MAX_FAILURES; $i++) {
+        assert_true(!attempt_login('alextan', 'wrong password'), 'wrong password fails before lockout');
+    }
+    assert_true(!attempt_login('alextan', 'Password123'), 'correct password is refused while locked out');
+    unset($_SESSION['auth_failures']);
+    assert_true(attempt_login('alextan', 'Password123'), 'login works once the lockout window resets');
+    logout();
 });

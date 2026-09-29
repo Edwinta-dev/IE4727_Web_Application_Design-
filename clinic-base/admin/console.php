@@ -53,6 +53,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-console">
+    <img src="/assets/img/clinic-logo.svg" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
     <h1>Administrator console</h1>
     <p>Review accounts, appointments and booking analytics.</p>
     <p><a href="/admin/outbox.php">Open notification outbox</a></p>
