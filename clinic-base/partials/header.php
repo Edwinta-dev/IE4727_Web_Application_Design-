@@ -14,3 +14,4 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) ? $pageTitle : APP_NAME;
     <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>

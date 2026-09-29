@@ -31,6 +31,10 @@ if (($argv[1] ?? '') === 'test_mail') {
     require __DIR__ . DIRECTORY_SEPARATOR . 'test_mail.php';
     exit(0);
 }
+if (($argv[1] ?? '') === 'test_accessibility') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_accessibility.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',

@@ -24,7 +24,7 @@ $pageTitle = (string) $doctor['FullName'] . ' - Doctor Profile';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
-<main class="doctor-profile">
+<main id="main-content" class="doctor-profile">
     <section class="doctor-profile-header">
         <img class="doctor-photo" src="<?= e($image) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
         <div>
@@ -52,7 +52,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     $href = '/book.php?doctor=' . $doctorId . '&date=' . rawurlencode($date) . '&slot=' . $slotId;
                 ?>
                     <li class="slot free">
-                        <a href="<?= e($href) ?>">
+                        <a href="<?= e($href) ?>" aria-label="Book an appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($date)) ?> at <?= e(fmt_time((string) $slot['SlotTime'])) ?>">
                             <?= e(fmt_date($date)) ?> at <?= e(fmt_time((string) $slot['SlotTime'])) ?>
                         </a>
                     </li>
