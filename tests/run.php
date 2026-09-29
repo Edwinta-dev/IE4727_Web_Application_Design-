@@ -47,6 +47,10 @@ if (($argv[1] ?? '') === 'test_release_handoff') {
     require __DIR__ . DIRECTORY_SEPARATOR . 'test_release_handoff.php';
     exit(0);
 }
+if (($argv[1] ?? '') === 'test_freeze_boundary') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_freeze_boundary.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',
