@@ -16,6 +16,8 @@ function book_appointment(int $doctorId, int $patientId, int $slotId, ?string $f
 {
     try {
         $appointmentId = db_transaction(static function () use ($doctorId, $patientId, $slotId, $failurePoint): int {
+            // Lock the exact slot row before changing it; uq_slot and this transaction
+            // together prevent two requests from claiming the same appointment time.
             $slot = q_one(
                 'SELECT `slotID`, `DoctorID`, `SlotDateTime`, `Status`
                  FROM `slots` WHERE `slotID` = :slot_id FOR UPDATE',
@@ -63,7 +65,9 @@ function book_appointment(int $doctorId, int $patientId, int $slotId, ?string $f
     } catch (RuntimeException $exception) {
         return ['ok' => false, 'reason' => 'failed'];
     } catch (PDOException $exception) {
-        $code = (string) $exception->errorInfo[1] ?? $exception->getCode();
+        $code = isset($exception->errorInfo[1])
+            ? (string) $exception->errorInfo[1]
+            : (string) $exception->getCode();
         if (in_array($code, ['1062', '1205', '1213'], true) || $exception->getCode() === '40001') {
             return ['ok' => false, 'reason' => 'conflict'];
         }

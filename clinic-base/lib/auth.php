@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
 
 const AUTH_MAX_FAILURES = 5;
 const AUTH_FAILURE_WINDOW = 900;
@@ -65,9 +66,10 @@ function authenticate(string $username, string $password): array
         return ['ok' => false, 'error' => $generic];
     }
 
-    $account = q_one('SELECT `PatientID` AS `id`, `FullName`, `User`, `HashPass`, \'patient\' AS `role` FROM `patient` WHERE `User` = :username LIMIT 1', ['username' => $username]);
+    // Credentials are kept in the role-specific tables; admin remains config-defined.
+    $account = find_patient_account($username);
     if ($account === null) {
-        $account = q_one('SELECT `DoctorID` AS `id`, `FullName`, `User`, `HashPass`, \'doctor\' AS `role` FROM `doctor` WHERE `User` = :username LIMIT 1', ['username' => $username]);
+        $account = find_doctor_account($username);
     }
     $valid = $account !== null && password_verify($password, (string) $account['HashPass']);
     if (!$valid && hash_equals((string) ADMIN_USER, $username) && ADMIN_HASH !== '' && password_verify($password, ADMIN_HASH)) {
@@ -112,10 +114,10 @@ function require_login(): void
 
 function require_role(string $role): void
 {
+    // Role checks are deliberately server-side and must precede protected work.
     $user = current_user();
     if ($user === null || ($user['role'] ?? '') !== $role) {
         http_response_code(403);
         exit('Access denied.');
     }
 }
-
