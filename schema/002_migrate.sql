@@ -1,0 +1,5 @@
+-- Issue #4 migration.
+-- The cleaned adopted dump already contains every structural/content field
+-- originally listed for this migration. It must therefore remain a no-op:
+-- re-adding any of these columns or keys would make db_reset fail.
+-- This file is intentionally idempotent and preserves existing data.

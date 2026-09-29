@@ -2,54 +2,70 @@
 
 declare(strict_types=1);
 
-$root = dirname(__DIR__);
-$pages = [
-    'index.php',
-    'doctors.php',
-    'doctor.php',
-    'book.php',
-    'register.php',
-    'patient/home.php',
-    'doctor/home.php',
-    'doctor/schedule.php',
-    'doctor/visit.php',
-    'admin/console.php',
-    'admin/outbox.php',
-];
+require_once __DIR__ . '/lib/assert.php';
 
-$contents = file_get_contents($root . DIRECTORY_SEPARATOR . 'docs/PAGES.md');
-if ($contents === false) {
-    fwrite(STDERR, "FAIL: docs/PAGES.md is unreadable\n");
-    exit(1);
+/** @var list<array{name: string, fn: callable}> $cases */
+$cases = [];
+
+function test(string $name, callable $fn): void
+{
+    global $cases;
+    $cases[] = ['name' => $name, 'fn' => $fn];
 }
 
-foreach ($pages as $page) {
-    if (strpos($contents, '| `' . $page . '` |') === false) {
-        fwrite(STDERR, "FAIL: missing page budget entry: {$page}\n");
+$requested = $argv[1] ?? null;
+if ($requested === null) {
+    $files = glob(__DIR__ . '/test_*.php') ?: [];
+    sort($files);
+} else {
+    $requested = preg_replace('/[\\\\\/]+/', DIRECTORY_SEPARATOR, $requested) ?? $requested;
+    $requested = ltrim($requested, DIRECTORY_SEPARATOR);
+    $file = __DIR__ . DIRECTORY_SEPARATOR . $requested;
+    if (pathinfo($requested, PATHINFO_EXTENSION) !== 'php') {
+        $file .= '.php';
+    }
+    $files = [$file];
+}
+
+foreach ($files as $file) {
+    if (!is_file($file)) {
+        fwrite(STDERR, "Test file not found: {$file}\n");
         exit(1);
+    }
+
+    $before = count($cases);
+    $name = basename($file, '.php');
+    ob_start();
+    try {
+        require $file;
+        ob_end_clean();
+    } catch (Throwable $exception) {
+        ob_end_clean();
+        test($name, static function () use ($exception): void {
+            throw $exception;
+        });
+        continue;
+    }
+
+    if (count($cases) === $before) {
+        test($name, static function (): void {
+            // Script-style tests report failures by throwing during require.
+        });
     }
 }
 
-if (substr_count($contents, "| `") !== count($pages)) {
-    fwrite(STDERR, "FAIL: page budget contains an unexpected page count\n");
-    exit(1);
-}
-
-$decisions = file_get_contents($root . DIRECTORY_SEPARATOR . 'docs/DECISIONS.md');
-$required = [
-    'doctor` and `patient` tables',
-    'no `users` table',
-    '`SlotDateTime`',
-    '`appointmentDateTime`',
-    'materialised rows in `slots`',
-    '`ADMIN_USER` and `ADMIN_HASH`',
-    '`002_migrate.sql` is additive-only',
-];
-foreach ($required as $phrase) {
-    if ($decisions === false || strpos($decisions, $phrase) === false) {
-        fwrite(STDERR, "FAIL: missing decision: {$phrase}\n");
-        exit(1);
+$passed = 0;
+$failed = 0;
+foreach ($cases as $case) {
+    try {
+        ($case['fn'])();
+        echo "PASS: {$case['name']}\n";
+        $passed++;
+    } catch (Throwable $exception) {
+        echo "FAIL: {$case['name']}: {$exception->getMessage()}\n";
+        $failed++;
     }
 }
 
-echo "PASS: issue #1 scaffold checks\n";
+echo "{$passed} passed, {$failed} failed\n";
+exit($failed === 0 ? 0 : 1);

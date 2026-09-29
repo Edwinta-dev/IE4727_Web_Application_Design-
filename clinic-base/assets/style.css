@@ -74,6 +74,25 @@ a:active {
     color: var(--danger);
 }
 
+.skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -5rem;
+    z-index: 10;
+    padding: 0.65rem 1rem;
+    background: var(--ink);
+    color: #fff;
+}
+
+.skip-link:focus {
+    top: 0.75rem;
+}
+
+:focus-visible {
+    outline: 0.2rem solid var(--accent);
+    outline-offset: 0.15rem;
+}
+
 h1,
 h2,
 h3 {
@@ -264,6 +283,13 @@ table {
     border-collapse: collapse;
     background: var(--paper);
     box-shadow: var(--shadow);
+}
+
+caption {
+    padding: var(--space-2);
+    color: var(--ink);
+    font-weight: 700;
+    text-align: left;
 }
 
 th,

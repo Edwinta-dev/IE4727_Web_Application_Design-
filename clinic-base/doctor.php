@@ -10,36 +10,29 @@ $idInput = $_GET['id'] ?? '';
 $doctorId = is_string($idInput) && ctype_digit($idInput) ? (int) $idInput : 0;
 $doctor = $doctorId > 0 ? find_doctor($doctorId) : null;
 if ($doctor === null) {
-    render_not_found();
+    render_not_found('The requested doctor profile could not be found.');
 }
 
 $slots = next_available($doctorId);
 $image = trim((string) ($doctor['ImageURL'] ?? ''));
-if ($image === '') {
-    $image = '/assets/img/clinic-logo.svg';
-} elseif (!preg_match('/^https?:\\/\\//i', $image) && $image[0] !== '/') {
-    $image = '/' . $image;
-}
+$image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 $pageTitle = (string) $doctor['FullName'] . ' - Doctor Profile';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
-<main class="doctor-profile">
-    <section class="doctor-profile-header">
-        <img class="doctor-photo" src="<?= e($image) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
-        <div>
-            <h1><?= e((string) $doctor['FullName']) ?></h1>
-            <p class="doctor-specialty"><?= e((string) ($doctor['Specialty'] ?? 'General practice')) ?></p>
-        </div>
+<main id="main-content" class="doctor-profile">
+    <section class="page-intro">
+        <h1><?= e((string) $doctor['FullName']) ?></h1>
+        <p><?= e((string) ($doctor['Specialty'] ?? 'General practice')) ?></p>
+        <img src="<?= e($image) ?>" width="160" height="160" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" class="page-intro-image">
     </section>
-
-    <section class="doctor-details">
-        <h2>Background</h2>
+    <section>
+        <h2>About this doctor</h2>
         <p><?= e((string) ($doctor['WriteUp'] ?? 'Profile information is not available.')) ?></p>
         <p><strong>Qualifications:</strong> <?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></p>
         <p><strong>Languages:</strong> <?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></p>
+        <p><a aria-label="Book an appointment with <?= e($doctor['FullName']) ?>" href="<?= e('/book.php?doctor=' . $doctorId) ?>">Book an appointment</a></p>
     </section>
-
     <section class="doctor-availability">
         <h2>Next available appointments</h2>
         <?php if ($slots === []): ?>
@@ -48,13 +41,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <ul class="available-slots">
                 <?php foreach ($slots as $slot):
                     $date = (string) $slot['SlotDate'];
-                    $slotId = (int) $slot['slotID'];
-                    $href = '/book.php?doctor=' . $doctorId . '&date=' . rawurlencode($date) . '&slot=' . $slotId;
+                    $href = '/book.php?doctor=' . $doctorId . '&date=' . rawurlencode($date) . '&slot=' . (int) $slot['slotID'];
                 ?>
                     <li class="slot free">
-                        <a href="<?= e($href) ?>">
-                            <?= e(fmt_date($date)) ?> at <?= e(fmt_time((string) $slot['SlotTime'])) ?>
-                        </a>
+                        <a href="<?= e($href) ?>"><?= e(fmt_date($date)) ?> at <?= e(fmt_time((string) $slot['SlotTime'])) ?></a>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -62,4 +52,4 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <p><a class="full-schedule-link" href="<?= e('/book.php?doctor=' . $doctorId) ?>">View the full schedule</a></p>
     </section>
 </main>
-<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>
+<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

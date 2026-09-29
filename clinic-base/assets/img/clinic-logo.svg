@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" role="img" aria-labelledby="title">
-  <title id="title">Clinic Appointment Portal</title>
-  <rect width="160" height="100" fill="#e8f3f5"/>
-  <path d="M80 18v64M48 50h64" stroke="#24727b" stroke-width="14"/>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 160 160">
+  <title id="title">Clinic logo</title>
+  <desc id="desc">A blue medical cross inside a circle</desc>
+  <circle cx="80" cy="80" r="72" fill="#e8f3f8" stroke="#176b87" stroke-width="8"/>
+  <path fill="#176b87" d="M64 30h32v34h34v32H96v34H64V96H30V64h34z"/>
 </svg>
