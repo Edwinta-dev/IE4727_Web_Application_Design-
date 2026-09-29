@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+if (($argv[1] ?? '') === 'test_pages') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_pages.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',
