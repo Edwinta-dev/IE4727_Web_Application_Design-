@@ -17,7 +17,7 @@ function render_not_found(string $message = 'Doctor not found.'): never
     <main class="status-page">
         <h1>Doctor not found</h1>
         <p><?= e($message) ?></p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal logo">
+        <img src="/assets/img/clinic-logo.svg" width="160" height="100" loading="eager" decoding="async" alt="Clinic Appointment Portal logo">
     </main>
     <?php
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

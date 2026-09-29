@@ -16,7 +16,7 @@ $notifications = list_notifications();
 <main id="main-content">
 <h1>Notification outbox</h1>
 <p>Local delivery audit for appointment and cancellation notifications.</p>
-<img src="/assets/img/clinic-logo.svg" alt="Clinic logo">
+<img src="/assets/img/clinic-logo.svg" width="160" height="100" loading="lazy" decoding="async" alt="Clinic logo">
 <?php if ($notifications === []): ?>
 <p class="empty-state" role="status" aria-live="polite">No notifications have been logged.</p>
 <?php else: ?>

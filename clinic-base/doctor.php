@@ -26,7 +26,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
 <main id="main-content" class="doctor-profile">
     <section class="doctor-profile-header">
-        <img class="doctor-photo" src="<?= e($image) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
+        <img class="doctor-photo" src="<?= e($image) ?>" width="160" height="100" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
         <div>
             <h1><?= e((string) $doctor['FullName']) ?></h1>
             <p class="doctor-specialty"><?= e((string) ($doctor['Specialty'] ?? 'General practice')) ?></p>
