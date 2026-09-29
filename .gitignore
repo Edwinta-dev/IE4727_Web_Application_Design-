@@ -3,3 +3,8 @@ config.local.php
 mail/
 *.log
 .DS_Store
+node_modules/
+vendor/
+test-results/
+playwright-report/
+__pycache__/

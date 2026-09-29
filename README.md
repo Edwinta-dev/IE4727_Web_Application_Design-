@@ -59,10 +59,28 @@ finds any.
 Read AGENTS.md and schema/001_schema.sql. Then pick the lowest-numbered open issue
 whose dependencies are all closed and whose milestone is not M6. Implement it against
 the existing schema and files, make its acceptance command pass, run `php tests/run.php`,
-commit on a branch named issue/<n>-<slug>, and open a PR that closes the issue. If
-satisfying the issue would require breaking a rule in AGENTS.md section 1–3, stop and
-comment on the issue instead.
+and commit on the active work branch with `Closes #N.` in the message (AGENTS.md
+section 6). Do not push or open a PR. If satisfying the issue would require breaking a
+rule in AGENTS.md section 1–3, stop and comment on the issue instead.
 ```
+
+To run it unattended, the issue runner lives outside this repo with the other projects'
+configs (`Agentic_Development/`); this project's config is `IE4727_Web_Proj/`:
+
+```
+python run_issues.py --project IE4727_Web_Proj
+```
+
+It works through the open issues on the active branch (`automation/ie4727-clinic` when
+`main` is checked out) and stops without pushing. Review, push and open one PR into `main`:
+
+```
+git log --oneline origin/main..automation/ie4727-clinic
+git push -u origin automation/ie4727-clinic
+gh pr create --base main --head automation/ie4727-clinic --fill
+```
+
+Merge it with a merge commit; the next run fast-forwards the branch automatically.
 
 ## Milestones
 
