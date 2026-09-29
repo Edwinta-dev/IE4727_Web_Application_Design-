@@ -23,6 +23,10 @@ if (($argv[1] ?? '') === 'test_errors') {
     require __DIR__ . DIRECTORY_SEPARATOR . 'test_errors.php';
     exit(0);
 }
+if (($argv[1] ?? '') === 'test_concurrency') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_concurrency.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',
