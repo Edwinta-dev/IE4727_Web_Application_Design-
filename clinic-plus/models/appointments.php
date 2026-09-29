@@ -54,6 +54,20 @@ function appointments_for_doctor_day(int $doctorId, string $date): array
     );
 }
 
+/** Return the newest appointment update for a doctor's day. */
+function latest_appointment_update_for_doctor(int $doctorId, string $date): ?string
+{
+    $value = q_one(
+        'SELECT MAX(a.`updatedAt`) AS `latestUpdatedAt`
+         FROM `appointment` a
+         WHERE a.`DoctorID` = :doctor_id
+           AND DATE(a.`appointmentDateTime`) = :appointment_date',
+        ['doctor_id' => $doctorId, 'appointment_date' => $date]
+    );
+    $latest = is_array($value) ? ($value['latestUpdatedAt'] ?? null) : null;
+    return is_string($latest) && $latest !== '' ? $latest : null;
+}
+
 /** @return array<string, mixed>|null */
 function find_appointment(int $id): ?array
 {
