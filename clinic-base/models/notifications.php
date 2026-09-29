@@ -7,5 +7,5 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 function list_notifications(): array
 {
     return q_all('SELECT `notificationID`, `sender`, `recipient`, `Subject`, `Body`, `appointmentID`, `deliveryStatus`, `SentAt`
-                  FROM `notifications` ORDER BY `notificationID` DESC');
+                  FROM `notifications` ORDER BY `notificationID` DESC LIMIT 100');
 }
