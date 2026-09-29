@@ -87,6 +87,14 @@ foreach ($slots as $slot) {
     }
 }
 
+// htmx requests receive only the schedule markup; normal requests keep the
+// complete page and the existing progressive-enhancement fallback.
+$isHtmxRequest = isset($_SERVER['HTTP_HX_REQUEST']) && $_SERVER['HTTP_HX_REQUEST'] === 'true';
+if ($isHtmxRequest) {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'slots_fragment.php';
+    exit;
+}
+
 $pageTitle = 'Book an Appointment';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
@@ -98,7 +106,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
-    <form class="booking-filters" method="get" action="/book.php">
+    <form class="booking-filters" method="get" action="/book.php"
+          hx-get="/book.php" hx-target="#schedule-panel" hx-swap="innerHTML"
+          hx-push-url="true">
         <?= csrf_field() ?>
         <p>
             <label for="doctor">Doctor</label>
@@ -129,12 +139,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(['doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime]);
 ?>
-        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e('/book.php?' . $dayQuery) ?>"><?= e($day->format('D d M')) ?></a>
+        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>"
+           href="<?= e('/book.php?' . $dayQuery) ?>"
+           hx-get="/book.php?<?= e($dayQuery) ?>" hx-target="#schedule-panel"
+           hx-swap="innerHTML" hx-push-url="true"><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
     </nav>
 
 <?php flash_render(); ?>
 
+    <div id="schedule-panel">
+<?php require __DIR__ . DIRECTORY_SEPARATOR . 'slots_fragment.php'; ?>
+<?php if (false): ?>
 <?php if ($doctor === null): ?>
     <p class="empty-state">Choose a doctor to view their schedule.</p>
 <?php else: ?>
@@ -185,6 +201,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
     </div>
 <?php endif; ?>
+<?php endif; ?>
+    </div>
 </main>
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
