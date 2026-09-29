@@ -1,0 +1,11 @@
+<?php
+
+// Copy this file to config.local.php and adjust it for the local XAMPP setup.
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'ie4727db');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+
+// The admin account is configuration-defined; there is no admin table.
+define('ADMIN_USER', 'admin');
+define('ADMIN_HASH', '');
