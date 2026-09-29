@@ -15,6 +15,10 @@ if (($argv[1] ?? '') === 'test_authorization') {
     require __DIR__ . DIRECTORY_SEPARATOR . 'test_authorization.php';
     exit(0);
 }
+if (($argv[1] ?? '') === 'test_errors') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_errors.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',

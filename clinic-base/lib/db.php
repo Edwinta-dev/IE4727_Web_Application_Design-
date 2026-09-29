@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'errors.php';
+install_error_handling();
 
 function db(): PDO
 {
@@ -24,9 +26,32 @@ function db(): PDO
 
 function q(string $sql, array $params = []): PDOStatement
 {
-    $statement = db()->prepare($sql);
-    $statement->execute($params);
-    return $statement;
+    try {
+        $statement = db()->prepare($sql);
+        $statement->execute($params);
+        return $statement;
+    } catch (Throwable $exception) {
+        app_log('database failure', ['exception' => $exception, 'sql' => $sql]);
+        throw $exception;
+    }
+}
+
+/** Run a write atomically; failed writes always roll back before the error propagates. */
+function db_transaction(callable $operation): mixed
+{
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $result = $operation();
+        $connection->commit();
+        return $result;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+        app_log('transaction rolled back', ['exception' => $exception]);
+        throw $exception;
+    }
 }
 
 function q_one(string $sql, array $params = []): ?array
