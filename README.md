@@ -64,9 +64,15 @@ section 6). Do not push or open a PR. If satisfying the issue would require brea
 rule in AGENTS.md section 1–3, stop and comment on the issue instead.
 ```
 
-To run it unattended, `py automation/run_issues.py` works through the open issues on
-the active branch (`automation/ie4727-clinic` when `main` is checked out) and stops
-without pushing. Review, push and open one PR into `main`:
+To run it unattended, the issue runner lives outside this repo with the other projects'
+configs (`Agentic_Development/`); this project's config is `IE4727_Web_Proj/`:
+
+```
+python run_issues.py --project IE4727_Web_Proj
+```
+
+It works through the open issues on the active branch (`automation/ie4727-clinic` when
+`main` is checked out) and stops without pushing. Review, push and open one PR into `main`:
 
 ```
 git log --oneline origin/main..automation/ie4727-clinic

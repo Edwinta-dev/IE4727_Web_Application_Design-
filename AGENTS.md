@@ -123,7 +123,7 @@ Do **not** improvise around a constraint. In order:
 This is a solo project. Keep **one active work branch** and nothing else.
 
 - **Use the branch that is checked out.** If it is not `main`, it is the active work branch: commit there. Do not create, switch, rename or delete branches.
-- **If `main` is checked out,** work goes on `automation/ie4727-clinic` (created from `origin/main` if it does not exist). `automation/run_issues.py` does this for you.
+- **If `main` is checked out,** work goes on `automation/ie4727-clinic` (created from `origin/main` if it does not exist). The issue runner (`run_issues.py --project IE4727_Web_Proj`, kept outside this repo) does this for you.
 - **Never** create per-issue, per-run or timestamped branches, and never park work on a backup branch. Unfinished work for an issue is saved as the tag `deferred/issue-<N>` (restore with `git stash apply deferred/issue-<N>`).
 - **One issue per commit.** The commit message must carry `Closes #N.` Do **not** close issues by hand; they close when the branch's PR is merged into `main`.
 - **Never push, merge, rebase or open PRs.** The owner reviews the branch, pushes it and opens one PR into `main`. Merge it with a merge commit (not squash), so the next run fast-forwards the branch automatically.
