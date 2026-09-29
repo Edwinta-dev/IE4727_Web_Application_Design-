@@ -21,15 +21,13 @@ app is partly built, so the issues now **adopt what you have** and only add to i
   config-defined. (Issues #9, #17.)
 - **Single `DATETIME` columns** (`SlotDateTime`, `appointmentDateTime`) — queries derive
   date/time with `DATE()`/`TIME()`; no split-column migration. (Issues #11, #12, #18.)
-- **PascalCase names, and `receipient` is misspelled** — agents must match exactly;
-  the column reference is pinned in `AGENTS.md`. (Issue #13 and throughout.)
-- **`Allergies` is JSON**, there is **no DOB**, and **no `active` flag** — deleting a
-  doctor is a hard cascade, which is what "clean up accounts" means here. (Issues #10,
+- **PascalCase names and `recipient`** are authoritative; agents must match the
+  cleaned column names in `AGENTS.md`. (Issue #13 and throughout.)
+- **`Allergies` is JSON**, while doctor cleanup is a hard cascade. (Issues #10,
   #24, #31, #32.)
-- **One additive migration** — `schema/002_migrate.sql` (issue #4) adds a `uq_slot`
-  unique key, `appointment.slotID`, `appointment.updatedAt`, `notifications.deliveryStatus`,
-  and three optional `doctor` content columns (`Specialty`/`Qualifications`/`Languages`).
-  Nothing is dropped or renamed, so your existing data survives.
+- **The schema is already complete** — `schema/002_migrate.sql` (issue #4) is an
+  idempotent no-op because its previously planned keys, fields, and doctor content
+  columns are already present in `schema/001_schema.sql`.
 - **Page issues reconcile existing files** — each M3 issue tells the agent to refactor a
   file that already exists rather than replace it.
 
@@ -84,7 +82,6 @@ skip M6 while M5 is open.
 
 ## What the constitution prevents
 
-Left alone, an agent will reach for AJAX, a framework, Composer and Bootstrap, rename
-`receipient` to `recipient`, and split the `DATETIME` columns — all reasonable instincts,
-all wrong here. `AGENTS.md` sections 1–3 are the guard, and issues #34–35 are audits that
-fail the build if any of it leaks in.
+The cleaned contract requires server-rendered PHP forms, local vanilla JavaScript,
+and the single `DATETIME` fields. `AGENTS.md` sections 1–3 are the guard, and issues
+#34–35 are audits that fail the build if prohibited implementation patterns leak in.

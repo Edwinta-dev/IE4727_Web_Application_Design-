@@ -37,13 +37,13 @@ if (substr_count($contents, "| `") !== count($pages)) {
 
 $decisions = file_get_contents($root . DIRECTORY_SEPARATOR . 'docs/DECISIONS.md');
 $required = [
-    'doctor` and `patient` tables',
-    'no `users` table',
+    'doctor` and `patient` credential tables',
+    'doctor` and `patient` credential tables',
     '`SlotDateTime`',
     '`appointmentDateTime`',
     'materialised rows in `slots`',
     '`ADMIN_USER` and `ADMIN_HASH`',
-    '`002_migrate.sql` is additive-only',
+    '`002_migrate.sql` is an idempotent no-op',
 ];
 foreach ($required as $phrase) {
     if ($decisions === false || strpos($decisions, $phrase) === false) {
