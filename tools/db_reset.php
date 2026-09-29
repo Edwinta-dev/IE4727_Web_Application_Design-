@@ -2,57 +2,44 @@
 
 declare(strict_types=1);
 
-$testMode = in_array('--test', $argv, true);
-$productionMode = in_array('--production', $argv, true);
-$hasUnknownOption = count(array_filter(array_slice($argv, 1), static function (string $argument): bool {
-    return !in_array($argument, ['--test', '--production'], true);
-})) > 0;
+// Rebuild the configured local database from the repository schema and seed.
+$host = getenv('DB_HOST') ?: '127.0.0.1';
+$name = getenv('DB_NAME') ?: 'clinic_ie4727db';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: '';
 
-// A bare reset is deliberately safe: it targets the isolated test database.
-// Production always requires the explicit --production switch.
-if (!$testMode && !$productionMode && !$hasUnknownOption) {
-    $testMode = true;
-}
-if ($hasUnknownOption || ($testMode && $productionMode)) {
-    fwrite(STDERR, "Usage: php tools/db_reset.php [--test]|--production\n");
-    exit(2);
+if (stripos($name, 'clinic') === false) {
+    fwrite(STDERR, "Refusing to reset database '{$name}': DB_NAME must contain 'clinic'.\n");
+    exit(1);
 }
 
-$root = dirname(__DIR__);
-require $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'config.php';
-$database = $testMode ? 'ie4727db_test' : DB_NAME;
-$pdo = new PDO('mysql:host=' . DB_HOST . ';charset=utf8mb4', DB_USER, DB_PASS, [
+$pdo = new PDO('mysql:host=' . $host . ';charset=utf8mb4', $user, $pass, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_EMULATE_PREPARES => false,
+    PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
 ]);
-$quotedDatabase = '`' . str_replace('`', '``', $database) . '`';
-$pdo->exec('CREATE DATABASE IF NOT EXISTS ' . $quotedDatabase . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci');
-$pdo->exec('USE ' . $quotedDatabase);
 
-// The existing full dump is the repository's 001 schema plus relative seed.
-$schema = $root . DIRECTORY_SEPARATOR . 'schema' . DIRECTORY_SEPARATOR . '001_schema.sql';
-$source = is_file($schema) ? $schema : $root . DIRECTORY_SEPARATOR . 'ie4727db_fixed.sql';
-$sql = file_get_contents($source);
-if ($sql === false) {
-    throw new RuntimeException('Schema source is unreadable: ' . $source);
-}
-$sql = preg_replace('/CREATE DATABASE IF NOT EXISTS `[^`]+`[^;]*;\s*/i', '', $sql);
-$sql = preg_replace('/USE `[^`]+`\s*;/i', '', $sql);
-$sql = preg_replace('/^\s*(?:--|#).*$/m', '', (string) $sql);
-foreach (preg_split('/;\s*(?:\r?\n|$)/', (string) $sql) as $statement) {
-    $statement = trim($statement);
-    if ($statement !== '' && !preg_match('/^(--|#)/', $statement)) {
-        $pdo->exec($statement);
+$identifier = '`' . str_replace('`', '``', $name) . '`';
+$pdo->exec('DROP DATABASE IF EXISTS ' . $identifier);
+$pdo->exec('CREATE DATABASE ' . $identifier . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci');
+$pdo->exec('USE ' . $identifier);
+
+foreach ([__DIR__ . '/../schema/001_schema.sql', __DIR__ . '/../schema/002_migrate.sql', __DIR__ . '/../schema/003_seed.sql'] as $file) {
+    $sql = file_get_contents($file);
+    if ($sql === false) {
+        throw new RuntimeException('Unable to read ' . $file);
     }
+    // The repository SQL files are also directly importable and contain their
+    // historical database-selection statements. Keep this reset on the
+    // guarded database selected above when applying them here.
+    $sql = preg_replace('/^\s*CREATE DATABASE IF NOT EXISTS `[^`]+`[^;]*;\s*$/mi', '', $sql);
+    $sql = preg_replace('/^\s*USE `[^`]+`;\s*$/mi', '', $sql);
+    if ($sql === null) {
+        throw new RuntimeException('Unable to prepare ' . $file);
+    }
+    $pdo->exec($sql);
 }
 
-$migration = $root . DIRECTORY_SEPARATOR . 'schema' . DIRECTORY_SEPARATOR . '002_migrate.sql';
-$migrationSql = is_file($migration) ? file_get_contents($migration) : '';
-$migrationSql = preg_replace('/^\s*(?:--|#).*$/m', '', (string) $migrationSql);
-foreach (preg_split('/;\s*(?:\r?\n|$)/', (string) $migrationSql) as $statement) {
-    $statement = trim($statement);
-    if ($statement !== '' && !preg_match('/^(--|#)/', $statement)) {
-        $pdo->exec($statement);
-    }
+foreach (['doctor', 'patient', 'slots', 'appointment', 'notifications'] as $table) {
+    $count = $pdo->query('SELECT COUNT(*) FROM `' . $table . '`')->fetchColumn();
+    echo $table . ': ' . $count . " row(s)\n";
 }
-echo 'OK: reset ' . ($testMode ? 'isolated test database ' : 'production database ') . $database . "\n";

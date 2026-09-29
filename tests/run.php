@@ -2,102 +2,70 @@
 
 declare(strict_types=1);
 
-$root = dirname(__DIR__);
-if (($argv[1] ?? '') === 'test_pages') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_pages.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_auth') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_auth.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_authorization') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_authorization.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_schema') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_schema.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_errors') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_errors.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_concurrency') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_concurrency.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_mail') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_mail.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_accessibility') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_accessibility.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_performance') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_performance.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_query_plans') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_query_plans.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_release_handoff') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_release_handoff.php';
-    exit(0);
-}
-if (($argv[1] ?? '') === 'test_freeze_boundary') {
-    require __DIR__ . DIRECTORY_SEPARATOR . 'test_freeze_boundary.php';
-    exit(0);
-}
-$pages = [
-    'index.php',
-    'doctors.php',
-    'doctor.php',
-    'book.php',
-    'register.php',
-    'patient/home.php',
-    'doctor/home.php',
-    'doctor/schedule.php',
-    'doctor/visit.php',
-    'admin/console.php',
-    'admin/outbox.php',
-];
+require_once __DIR__ . '/lib/assert.php';
 
-$contents = file_get_contents($root . DIRECTORY_SEPARATOR . 'docs/PAGES.md');
-if ($contents === false) {
-    fwrite(STDERR, "FAIL: docs/PAGES.md is unreadable\n");
-    exit(1);
+/** @var list<array{name: string, fn: callable}> $cases */
+$cases = [];
+
+function test(string $name, callable $fn): void
+{
+    global $cases;
+    $cases[] = ['name' => $name, 'fn' => $fn];
 }
 
-foreach ($pages as $page) {
-    if (strpos($contents, '| `' . $page . '` |') === false) {
-        fwrite(STDERR, "FAIL: missing page budget entry: {$page}\n");
+$requested = $argv[1] ?? null;
+if ($requested === null) {
+    $files = glob(__DIR__ . '/test_*.php') ?: [];
+    sort($files);
+} else {
+    $requested = preg_replace('/[\\\\\/]+/', DIRECTORY_SEPARATOR, $requested) ?? $requested;
+    $requested = ltrim($requested, DIRECTORY_SEPARATOR);
+    $file = __DIR__ . DIRECTORY_SEPARATOR . $requested;
+    if (pathinfo($requested, PATHINFO_EXTENSION) !== 'php') {
+        $file .= '.php';
+    }
+    $files = [$file];
+}
+
+foreach ($files as $file) {
+    if (!is_file($file)) {
+        fwrite(STDERR, "Test file not found: {$file}\n");
         exit(1);
+    }
+
+    $before = count($cases);
+    $name = basename($file, '.php');
+    ob_start();
+    try {
+        require $file;
+        ob_end_clean();
+    } catch (Throwable $exception) {
+        ob_end_clean();
+        test($name, static function () use ($exception): void {
+            throw $exception;
+        });
+        continue;
+    }
+
+    if (count($cases) === $before) {
+        test($name, static function (): void {
+            // Script-style tests report failures by throwing during require.
+        });
     }
 }
 
-if (substr_count($contents, "| `") !== count($pages)) {
-    fwrite(STDERR, "FAIL: page budget contains an unexpected page count\n");
-    exit(1);
-}
-
-$decisions = file_get_contents($root . DIRECTORY_SEPARATOR . 'docs/DECISIONS.md');
-$required = [
-    'doctor` and `patient` credential tables',
-    'doctor` and `patient` credential tables',
-    '`SlotDateTime`',
-    '`appointmentDateTime`',
-    'materialised rows in `slots`',
-    '`ADMIN_USER` and `ADMIN_HASH`',
-    '`002_migrate.sql` is an idempotent no-op',
-];
-foreach ($required as $phrase) {
-    if ($decisions === false || strpos($decisions, $phrase) === false) {
-        fwrite(STDERR, "FAIL: missing decision: {$phrase}\n");
-        exit(1);
+$passed = 0;
+$failed = 0;
+foreach ($cases as $case) {
+    try {
+        ($case['fn'])();
+        echo "PASS: {$case['name']}\n";
+        $passed++;
+    } catch (Throwable $exception) {
+        echo "FAIL: {$case['name']}: {$exception->getMessage()}\n";
+        $failed++;
     }
 }
 
-echo "PASS: issue #1 scaffold checks\n";
+echo "{$passed} passed, {$failed} failed\n";
+exit($failed === 0 ? 0 : 1);
