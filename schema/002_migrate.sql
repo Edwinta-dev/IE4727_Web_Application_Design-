@@ -1,0 +1,2 @@
+-- Issue #56: required columns and keys already exist in 001.
+-- Intentional idempotent no-op migration.
