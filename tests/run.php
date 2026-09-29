@@ -43,6 +43,10 @@ if (($argv[1] ?? '') === 'test_query_plans') {
     require __DIR__ . DIRECTORY_SEPARATOR . 'test_query_plans.php';
     exit(0);
 }
+if (($argv[1] ?? '') === 'test_release_handoff') {
+    require __DIR__ . DIRECTORY_SEPARATOR . 'test_release_handoff.php';
+    exit(0);
+}
 $pages = [
     'index.php',
     'doctors.php',
