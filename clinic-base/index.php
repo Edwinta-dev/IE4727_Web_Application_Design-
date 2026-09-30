@@ -77,7 +77,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
     <section class="featured-doctors band" aria-labelledby="featured-doctors-heading">
         <h2 id="featured-doctors-heading">Meet our featured doctors</h2>
-        <div class="doctor-tiles">
+        <div class="doctor-tiles grow-row">
 <?php if ($doctors === []): ?>
             <p class="empty-state">No doctors are currently available.</p>
 <?php else: ?>
@@ -85,7 +85,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 ?>
-            <a class="doctor-tile" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
+            <a class="doctor-tile grow-item" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
                 <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" width="440" height="550" loading="eager">
                 <h3><?= e((string) $doctor['FullName']) ?></h3>
 <?php if (trim((string) ($doctor['Specialty'] ?? '')) !== ''): ?>
