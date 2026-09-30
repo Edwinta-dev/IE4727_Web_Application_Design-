@@ -13,8 +13,17 @@ if ($page === false || $action === false || $script === false) {
 }
 
 foreach (['name="FullName"', 'name="User"', 'name="Email"', 'name="Gender"', 'name="Phone"', 'name="Allergies"',
-    'name="<?= e($field) ?>"', 'csrf_field()', 'onsubmit="return validateRegistrationForm(event)"'] as $needle) {
+    'name="<?= e($field) ?>"', 'csrf_field()', 'onsubmit="return validateRegistrationForm(event)"',
+    'class="registration-layout"', 'class="registration-support"', 'What you’ll need', 'What happens next',
+    'Clinic_Assisting_Elderly_woman.jpg', 'class="registration-role-options"'] as $needle) {
     assert_contains($page, $needle, 'registration page');
+}
+$styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
+if ($styles === false) {
+    throw new RuntimeException('registration stylesheet could not be read');
+}
+foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', '.registration-role-options', 'aspect-ratio: 4 / 3', '@media (max-width: 56rem)'] as $needle) {
+    assert_contains($styles, $needle, 'registration layout styles');
 }
 foreach (['csrf_check()', 'validate(', 'create_patient_account(', 'create_doctor_account(', 'beginTransaction()'] as $needle) {
     assert_contains($action, $needle, 'registration action');

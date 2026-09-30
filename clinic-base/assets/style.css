@@ -277,6 +277,173 @@ main {
     padding-block: 1.5rem;
 }
 
+.registration-page {
+    max-width: 76rem;
+    margin-inline: auto;
+}
+
+.registration-intro {
+    margin-bottom: var(--space-3);
+}
+
+.registration-intro h1 {
+    display: block;
+}
+
+.registration-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 36rem) minmax(18rem, 1fr);
+    align-items: start;
+    gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+#registration-form {
+    gap: var(--space-3);
+}
+
+#registration-form fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 1rem 1.125rem 1.125rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+}
+
+#registration-form [hidden] {
+    display: none;
+}
+
+#registration-form legend {
+    padding-inline: 0.4rem;
+    color: var(--brand-dark);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.registration-role-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.registration-role-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-tile);
+    background: var(--surface);
+    cursor: pointer;
+}
+
+.registration-role-options input[type="radio"] {
+    flex: 0 0 auto;
+    width: 1.15rem;
+    min-height: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    accent-color: var(--brand);
+}
+
+.registration-details,
+#patient-fields,
+#doctor-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-3);
+    row-gap: var(--space-2);
+}
+
+#registration-form fieldset p {
+    min-width: 0;
+    margin: 0;
+}
+
+.registration-details p:nth-of-type(n+3),
+#patient-fields p:nth-of-type(3),
+#doctor-fields p:nth-of-type(4) {
+    grid-column: 1 / -1;
+}
+
+#registration-form input:not([type="radio"]),
+#registration-form select,
+#registration-form textarea {
+    border-color: var(--line);
+}
+
+#registration-form .field-error:empty {
+    display: none;
+}
+
+#registration-form .field-error {
+    display: block;
+    margin-top: 0.3rem;
+    padding: 0.2rem 0.45rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.95rem;
+}
+
+.registration-support {
+    display: grid;
+    gap: 1.25rem;
+    padding-top: 0.15rem;
+}
+
+.registration-support-image {
+    display: block;
+    width: 100%;
+    max-width: 32rem;
+    height: min(20vw, 16rem);
+    min-height: 12rem;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.registration-support section {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.registration-support h2 {
+    margin-bottom: 0.35rem;
+    font-size: 1.35rem;
+}
+
+.registration-support p {
+    margin: 0;
+}
+
+@media (max-width: 56rem) {
+    .registration-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .registration-support-image {
+        width: min(100%, 32rem);
+        height: auto;
+        max-height: 16rem;
+    }
+}
+
+@media (max-width: 34rem) {
+    .registration-details,
+    #patient-fields,
+    #doctor-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .registration-details p,
+    #patient-fields p,
+    #doctor-fields p {
+        grid-column: 1;
+    }
+}
+
 .page-intro {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
