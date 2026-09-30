@@ -24,10 +24,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro">
+    <section class="page-intro band">
         <h1>Find a doctor</h1>
         <p>Browse our doctors, learn about their experience and choose a convenient appointment.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
 <?php if ($specialtyOptions !== []): ?>
@@ -44,6 +43,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </form>
 <?php endif; ?>
 
+    <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">
         <caption>Clinic doctor directory</caption>
         <thead>
@@ -84,6 +84,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </main>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
