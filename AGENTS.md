@@ -84,9 +84,8 @@ The brief allows **one home page plus a maximum of ten additional content pages*
 5. **All SQL lives in `models/`.** A page calls a model function. A page never contains the word `SELECT`.
 6. **POST-Redirect-GET for every mutation.** A refresh must never re-submit.
 7. **Every page has a distinct `<title>`** and **both text and at least one image** — stated requirements, trivially missed.
-8. **No CSS until milestone M5.** Emit the real markup with the real class names and every real state (`.slot.free`, `.slot.taken`, `.slot.blocked`, `.slot.past`, empty states, error banners, repopulated fields) and leave it unstyled — so M5 is a styling pass, not a rewrite.
-9. **Derive date and time from the `DATETIME` columns** with `DATE()` / `TIME()`. Never add split columns.
-10. **JSON for `Allergies`**; the exact column names and enum casing from section 1 everywhere.
+8. **Derive date and time from the `DATETIME` columns** with `DATE()` / `TIME()`. Never add split columns.
+9. **JSON for `Allergies`**; the exact column names and enum casing from section 1 everywhere.
 
 ---
 
