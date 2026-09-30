@@ -95,10 +95,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="page-intro">
         <h1>Book an appointment</h1>
         <p>Choose a doctor and a time within the next seven days. The schedule shows available, booked, blocked and past slots.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
-    <form class="booking-filters" method="get" action="/book.php">
+    <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
         <?= csrf_field() ?>
         <p>
             <label for="doctor">Doctor</label>
@@ -129,7 +129,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(['doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime]);
 ?>
-        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e('/book.php?' . $dayQuery) ?>"><?= e($day->format('D d M')) ?></a>
+        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
     </nav>
 
@@ -160,7 +160,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="slot <?= e($stateClass) ?>">
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
-            <form method="post" action="<?= e($reschedule === null ? '/actions/book.php' : '/actions/appointment.php') ?>">
+            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
                 <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">

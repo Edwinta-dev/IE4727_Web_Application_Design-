@@ -20,13 +20,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-outbox">
-    <img src="/assets/img/clinic-logo.svg" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
+    <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
     <h1>Notification outbox</h1>
     <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
 
     <section class="outbox-filters" aria-labelledby="outbox-filters-heading">
         <h2 id="outbox-filters-heading">Filter messages</h2>
-        <form method="get" action="/admin/outbox.php">
+        <form method="get" action="<?= e(url('/admin/outbox.php')) ?>">
             <?= csrf_field() ?>
             <label for="deliveryStatus">Delivery status</label>
             <select id="deliveryStatus" name="deliveryStatus">
@@ -36,7 +36,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <?php endforeach; ?>
             </select>
             <button type="submit">Apply filter</button>
-            <a href="/admin/outbox.php">Clear</a>
+            <a href="<?= e(url('/admin/outbox.php')) ?>">Clear</a>
         </form>
     </section>
 

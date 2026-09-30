@@ -8,3 +8,6 @@ vendor/
 test-results/
 playwright-report/
 __pycache__/
+
+# Local UI ground truth: owner screenshots (UIPROBLEMS/*.png) and agent before/after captures (UIPROBLEMS/after/)
+UIPROBLEMS/

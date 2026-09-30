@@ -30,11 +30,82 @@ function start_session_once(): void
 }
 
 /**
- * Redirect and stop processing the current request.
+ * URL prefix of the app folder: "/IE4727_Web_Application_Design-/clinic-base" when served from a
+ * subfolder of XAMPP htdocs, "" when the app folder is the web root. Worked out per request from
+ * the running script, so a fresh XAMPP install needs no configuration.
+ */
+function base_path(): string
+{
+    static $base = null;
+    if ($base !== null) {
+        return $base;
+    }
+
+    $base = '';
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $file = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
+    $root = realpath(dirname(__DIR__));
+    if ($script === '' || $file === false || $root === false || !str_starts_with($file, $root)) {
+        return $base;
+    }
+
+    // e.g. "/doctor/home.php": the script's path inside the app folder.
+    $inApp = str_replace('\\', '/', substr($file, strlen($root)));
+    if ($inApp !== '' && strcasecmp(substr($script, -strlen($inApp)), $inApp) === 0) {
+        $base = rtrim(substr($script, 0, -strlen($inApp)), '/');
+    }
+
+    return $base;
+}
+
+/**
+ * Turn an app path such as "/book.php?doctor=1" into a URL that works under any base folder.
+ */
+function url(string $path): string
+{
+    if ($path === '' || $path[0] !== '/' || str_starts_with($path, '//')) {
+        return $path;
+    }
+
+    return base_path() . $path;
+}
+
+/**
+ * The current request URI as an app path, with the base folder removed.
+ */
+function app_request_uri(): string
+{
+    $uri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+    $base = base_path();
+    if ($base !== '' && strncasecmp($uri, $base, strlen($base)) === 0) {
+        $uri = substr($uri, strlen($base));
+    }
+
+    return $uri === '' ? '/' : $uri;
+}
+
+/**
+ * Practice photo for a doctor's specialty, shown on their profile page.
+ */
+function specialty_image(string $specialty): string
+{
+    $images = [
+        'General Practice' => 'General_Practice_in_Action.jpg',
+        'Dental' => 'Dentist_in_action.jpg',
+        'Paediatrics' => 'Paediatrics_in_Action.jpg',
+        'Dermatology' => 'Dermatologist_in_Action.jpg',
+        'Physiotherapy' => 'Physiotherapist_in_Action.jpg',
+    ];
+
+    return '/assets/img/' . ($images[$specialty] ?? 'Clinic_Assisting_Elderly_woman.jpg');
+}
+
+/**
+ * Redirect to an app path and stop processing the current request.
  */
 function redirect(string $path): never
 {
-    header('Location: ' . $path);
+    header('Location: ' . url($path));
     exit;
 }
 
@@ -51,8 +122,8 @@ function render_status_page(int $status, string $title, string $message): never
         . '<section class="page-intro">'
         . '<h1>' . e($title) . '</h1>'
         . '<p>' . e($message) . '</p>'
-        . '<img src="/assets/img/clinic-logo.svg" width="96" height="96" loading="eager" decoding="async" alt="Clinic Appointment Portal" class="page-intro-image">'
-        . '<p><a href="/index.php">Return to the home page</a></p>'
+        . '<img src="' . e(url('/assets/img/clinic-logo.svg')) . '" width="96" height="96" loading="eager" decoding="async" alt="Clinic Appointment Portal" class="page-intro-image">'
+        . '<p><a href="' . e(url('/index.php')) . '">Return to the home page</a></p>'
         . '</section></main>';
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
     exit;

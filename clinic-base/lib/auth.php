@@ -204,7 +204,7 @@ function auth_remember_token_matches(): bool
 
 function auth_redirect_to_login(): never
 {
-    $next = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+    $next = app_request_uri();
     redirect('/index.php?next=' . rawurlencode($next));
 }
 

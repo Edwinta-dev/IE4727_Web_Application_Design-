@@ -27,11 +27,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="page-intro">
         <h1>Find a doctor</h1>
         <p>Browse our doctors, learn about their experience and choose a convenient appointment.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
 <?php if ($specialtyOptions !== []): ?>
-    <form class="specialty-filter" method="get" action="/doctors.php">
+    <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
         <?= csrf_field() ?>
         <label for="specialty">Filter by specialty</label>
         <select id="specialty" name="specialty">
@@ -71,14 +71,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
             <tr>
                 <td>
-                    <img src="<?= e($image) ?>" alt="Photo of <?= e((string) ($doctor['FullName'] ?? 'doctor')) ?>" class="doctor-photo">
+                    <img src="<?= e(url($image)) ?>" alt="Photo of <?= e((string) ($doctor['FullName'] ?? 'doctor')) ?>" class="doctor-photo">
                 </td>
-                <th scope="row"><a href="<?= e('/doctor.php?id=' . $doctorId) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
+                <th scope="row"><a href="<?= e(url('/doctor.php?id=' . $doctorId)) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
                 <td><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
                 <td><?= e($nextAvailable !== null ? fmt_date((string) $nextAvailable) . ' ' . fmt_time((string) $nextAvailable) : 'Not available') ?></td>
-                <td><a href="<?= e('/book.php?doctor_id=' . $doctorId) ?>">Book</a></td>
+                <td><a href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
             </tr>
 <?php endforeach; ?>
 <?php endif; ?>

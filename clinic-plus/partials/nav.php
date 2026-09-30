@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
 
-$currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
+$currentPath = parse_url(app_request_uri(), PHP_URL_PATH);
 $currentPath = is_string($currentPath) && $currentPath !== '' ? $currentPath : '/index.php';
 $user = current_user();
 $role = is_array($user) ? (string) ($user['role'] ?? '') : '';
@@ -40,7 +40,7 @@ $links = match ($role) {
     <ul>
 <?php foreach ($links as $link): ?>
         <li>
-            <a href="<?= e($link['href']) ?>"<?php if ($currentPath === $link['page']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
+            <a href="<?= e(url($link['href'])) ?>"<?php if ($currentPath === $link['page']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
         </li>
 <?php endforeach; ?>
     </ul>

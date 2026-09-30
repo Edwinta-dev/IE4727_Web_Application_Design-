@@ -10,7 +10,7 @@ if ($index === false || $login === false) {
 }
 
 foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="username_or_email"',
-    'name="password"', 'name="remember_me"', 'name="next"', 'action="/actions/login.php"', 'doctor.php?id='] as $needle) {
+    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id='] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing {$needle}");
     }

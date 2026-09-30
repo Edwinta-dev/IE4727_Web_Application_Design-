@@ -116,14 +116,14 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <h1>30-day schedule editor</h1>
         <p>Create working slots and manage availability for the next 30 days.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
     <?php flash_render(); ?>
 
     <section class="schedule-generator" aria-labelledby="generate-heading">
         <h2 id="generate-heading">Generate schedule</h2>
-        <form method="post" action="/doctor/schedule.php">
+        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="generate">
             <label for="start-date">Start date</label>
@@ -160,7 +160,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 $dayCounts = $countsByDate[$dayDate] ?? ['Available' => 0, 'Booked' => 0, 'Blocked' => 0];
                 ?>
                 <article class="schedule-day<?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
-                    <h3><a href="<?= e('/doctor/schedule.php?date=' . rawurlencode($dayDate)) ?>"><?= e(fmt_date($dayDate)) ?></a></h3>
+                    <h3><a href="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>"><?= e(fmt_date($dayDate)) ?></a></h3>
                     <p class="slot-count available">Available: <?= e((string) $dayCounts['Available']) ?></p>
                     <p class="slot-count booked">Booked: <?= e((string) $dayCounts['Booked']) ?></p>
                     <p class="slot-count blocked">Blocked: <?= e((string) $dayCounts['Blocked']) ?></p>
@@ -185,7 +185,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
                         <span class="slot-status"><?= e($status) ?></span>
                         <?php if ($status === 'Booked'): ?>
-                            <form method="post" action="/doctor/schedule.php?date=<?= e(rawurlencode($selectedDate)) ?>">
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="toggle">
                                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
@@ -193,7 +193,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                 <button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button>
                             </form>
                         <?php elseif ($status === 'Blocked'): ?>
-                            <form method="post" action="/doctor/schedule.php?date=<?= e(rawurlencode($selectedDate)) ?>">
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="toggle">
                                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
@@ -201,7 +201,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                 <button type="submit">Make available</button>
                             </form>
                         <?php else: ?>
-                            <form method="post" action="/doctor/schedule.php?date=<?= e(rawurlencode($selectedDate)) ?>">
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="toggle">
                                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
