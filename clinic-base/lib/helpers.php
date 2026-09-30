@@ -10,6 +10,24 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/** Return a word-boundary excerpt for compact doctor previews. */
+function text_excerpt(string $text, int $limit = 140): string
+{
+    $text = trim(preg_replace('/\s+/u', ' ', $text) ?? $text);
+    if ($limit < 1 || preg_match_all('/./us', $text) <= $limit) {
+        return $text;
+    }
+
+    preg_match_all('/./us', $text, $characters);
+    $excerpt = implode('', array_slice($characters[0], 0, $limit));
+    $boundary = strrpos($excerpt, ' ');
+    if ($boundary !== false) {
+        $excerpt = substr($excerpt, 0, $boundary);
+    }
+
+    return rtrim($excerpt) . '…';
+}
+
 /**
  * Start the session once so library includes can safely be repeated.
  */

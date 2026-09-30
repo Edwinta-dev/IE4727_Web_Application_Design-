@@ -572,26 +572,55 @@ input[type="button"]:active {
     text-underline-offset: 0.15em;
 }
 
-.doctor-card {
+.doctor-tile {
+    display: block;
     border: 1px solid var(--line);
     border-radius: var(--radius-tile);
     background: var(--c-surface-tile);
     box-shadow: var(--shadow-doctor-tile);
     padding: var(--space-3);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
-.doctor-cards {
+.doctor-tile:hover,
+.doctor-tile:focus-visible {
+    transform: translateY(-0.15rem);
+    box-shadow: 0 0.55rem 1.25rem rgba(41, 37, 36, 0.16);
+}
+
+.doctor-tile:focus-visible { outline: 0.2rem solid var(--accent); outline-offset: 0.2rem; }
+
+.doctor-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--space-3);
 }
 
-.doctor-card img {
+.doctor-tile img {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    max-width: 176px;
+    height: 220px;
+    margin-inline: auto;
+    aspect-ratio: 4 / 5;
     border-radius: var(--radius-control);
     object-fit: cover;
+    object-position: top;
+}
+
+.doctor-tile h3,
+.doctor-tile .doctor-specialty,
+.doctor-tile .doctor-excerpt,
+.doctor-tile-link { text-align: center; }
+.doctor-tile h3 { margin-block: var(--space-2) var(--space-1); }
+.doctor-tile .doctor-specialty { color: var(--c-accent); margin: 0 0 var(--space-1); }
+.doctor-tile .doctor-excerpt { margin: 0; }
+.doctor-tile-link { display: block; min-height: 2.75rem; padding-top: var(--space-2); color: var(--c-primary-dark); text-decoration: underline; text-underline-offset: 0.15em; }
+
+@media (prefers-reduced-motion: reduce) {
+    .doctor-tile { transition: none; }
 }
 
 .table-scroll {
@@ -822,7 +851,7 @@ label:has(input[type="radio"]) {
 
 .featured-doctors { margin-inline: calc(50% - 50vw); }
 .featured-doctors > h2,
-.featured-doctors > .doctor-cards { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+.featured-doctors > .doctor-tiles { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
 .featured-doctors > h2 { margin-bottom: var(--space-3); }
 
 .services { padding-block: var(--space-5); }
@@ -838,6 +867,7 @@ label:has(input[type="radio"]) {
 }
 
 @media (max-width: 40rem) {
+    .doctor-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hero-copy { grid-template-columns: 1fr; }
     .hero-copy .hero-image { max-height: 12rem; }
     .hero-actions { align-items: stretch; }

@@ -14,7 +14,7 @@ if (isset($_GET['logout'])) {
 }
 
 $pageTitle = 'Clinic Appointment Portal';
-$doctors = array_slice(all_doctors(), 0, 3);
+$doctors = all_doctors();
 $specialties = all_specialties();
 $user = current_user();
 $next = isset($_GET['next']) && is_string($_GET['next']) ? $_GET['next'] : '';
@@ -72,7 +72,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
     <section class="featured-doctors band" aria-labelledby="featured-doctors-heading">
         <h2 id="featured-doctors-heading">Meet our featured doctors</h2>
-        <div class="doctor-cards">
+        <div class="doctor-tiles">
 <?php if ($doctors === []): ?>
             <p class="empty-state">No doctors are currently available.</p>
 <?php else: ?>
@@ -80,14 +80,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 ?>
-            <article class="doctor-card">
-                <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
+            <a class="doctor-tile" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
+                <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" width="440" height="550" loading="eager">
                 <h3><?= e((string) $doctor['FullName']) ?></h3>
 <?php if (trim((string) ($doctor['Specialty'] ?? '')) !== ''): ?>
                 <p class="doctor-specialty"><?= e((string) $doctor['Specialty']) ?></p>
 <?php endif; ?>
-                <a href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">View doctor profile</a>
-            </article>
+                <p class="doctor-excerpt"><?= e(text_excerpt((string) ($doctor['WriteUp'] ?? ''))) ?></p>
+                <span class="doctor-tile-link">View doctor profile</span>
+            </a>
 <?php endforeach; ?>
 <?php endif; ?>
         </div>
