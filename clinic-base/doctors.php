@@ -35,7 +35,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($specialtyOptions !== []): ?>
     <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
         <?= csrf_field() ?>
-        <label for="specialty">Filter by specialty</label>
+        <label for="specialty">Specialty</label>
         <select id="specialty" name="specialty">
             <option value="">All specialties</option>
 <?php foreach ($specialtyOptions as $value): ?>
@@ -43,12 +43,25 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
         </select>
         <button type="submit">Filter doctors</button>
+<?php if ($selectedSpecialty !== ''): ?>
+        <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
+        <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
+<?php endif; ?>
     </form>
 <?php endif; ?>
 
     <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">
         <caption>Clinic doctor directory</caption>
+        <colgroup>
+            <col class="doctor-column-photo">
+            <col class="doctor-column-name">
+            <col class="doctor-column-specialty">
+            <col class="doctor-column-qualifications">
+            <col class="doctor-column-languages">
+            <col class="doctor-column-next">
+            <col class="doctor-column-action">
+        </colgroup>
         <thead>
             <tr>
                 <th scope="col">Photo</th>
@@ -80,8 +93,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <td><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
-                <td><?= e($nextAvailable !== null ? fmt_date((string) $nextAvailable) . ' ' . fmt_time((string) $nextAvailable) : 'Not available') ?></td>
-                <td><a href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
+                <td class="doctor-next-available">
+<?php if ($nextAvailable !== null): ?>
+                    <span><?= e(fmt_date((string) $nextAvailable)) ?></span>
+                    <span><?= e(fmt_time((string) $nextAvailable)) ?></span>
+<?php else: ?>
+                    Not available
+<?php endif; ?>
+                </td>
+                <td><a class="doctor-directory-book" href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
             </tr>
 <?php endforeach; ?>
 <?php endif; ?>
