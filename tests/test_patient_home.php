@@ -14,6 +14,8 @@ foreach ([
     'appointments_for_patient($patientId, \'past\')',
     'Specialty',
     'Reschedule',
+    'appointment-action',
+    'appointment-cancel',
     'name="cancel"',
     'csrf_field()',
     'confirm(',

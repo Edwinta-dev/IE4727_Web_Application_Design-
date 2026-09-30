@@ -184,7 +184,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     ?>
                     <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
-                        <span class="slot-status"><?= e($status) ?></span>
+                        <span class="slot-status"><?= e($timeClass !== '' ? 'Past' : ($status === 'Blocked' ? 'Unavailable' : $status)) ?></span>
                         <?php if ($status === 'Booked'): ?>
                             <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>

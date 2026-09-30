@@ -92,12 +92,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro">
+    <section class="page-intro booking-intro">
         <div class="page-intro-copy">
             <h1>Book an appointment</h1>
-            <p>Choose a doctor, date and time. You can book an available slot in the next seven days.</p>
+            <p>Choose a clinician and a time in the next seven days. Bring your medication list and any relevant test results.</p>
         </div>
-        <img src="<?= e(url('/assets/img/General_Practice_in_Action.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="A general practitioner caring for a patient" class="page-intro-image">
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
@@ -140,8 +139,13 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($doctor === null): ?>
     <p class="empty-state">Choose a doctor to view their schedule.</p>
 <?php else: ?>
-    <h2><?= e((string) $doctor['FullName']) ?> — <?= e(fmt_date($selectedDate)) ?></h2>
-    <p>Every listed slot is shown. Only a future free slot can be selected.</p>
+    <section class="booking-results" aria-label="Doctor schedule">
+        <aside class="booking-doctor">
+            <img src="<?= e(url(!empty($doctor['ImageURL']) ? '/' . ltrim((string) $doctor['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="112" height="112" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
+            <div><h2><?= e((string) $doctor['FullName']) ?></h2><p><?= e((string) $doctor['Specialty']) ?></p><p><?= e(fmt_date($selectedDate)) ?></p></div>
+        </aside>
+        <div class="booking-slots">
+    <p>Choose a free time. Your appointment is confirmed after you submit the reason for your visit.</p>
     <div class="schedule-grid" aria-label="Appointment schedule">
 <?php if ($slots === []): ?>
         <p class="empty-state"><?= e($pastDateRequested ? 'Past dates cannot be booked.' : $doctor['FullName'] . ' is not available on this date.') ?></p>
@@ -162,6 +166,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="slot <?= e($stateClass) ?>">
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
+            <details class="slot-booking"><summary>Select time</summary>
             <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
@@ -179,13 +184,16 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <input id="reason-<?= e((string) $slot['slotID']) ?>" name="reason" type="text" maxlength="255" required>
                 <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
             </form>
+            </details>
 <?php else: ?>
-            <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ucfirst($stateClass)) ?></span>
+            <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ($stateClass === 'blocked' ? 'Unavailable' : 'Past')) ?></span>
 <?php endif; ?>
         </div>
 <?php endforeach; ?>
 <?php endif; ?>
     </div>
+        </div>
+    </section>
 <?php endif; ?>
 </main>
 <?php

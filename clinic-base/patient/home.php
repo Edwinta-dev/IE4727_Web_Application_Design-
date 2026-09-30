@@ -25,7 +25,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <div class="page-intro-copy">
             <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">My appointments</h1>
-            <p>Review upcoming appointments and your completed visits.</p>
+            <p>Check appointment times, change a future booking, or read notes from a completed visit.</p>
         </div>
     </section>
 
@@ -33,8 +33,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="appointments upcoming-appointments">
         <h2>Upcoming appointments</h2>
-<?php if ($upcoming === []): ?>
-<?php endif; ?>
         <table>
             <thead><tr><th>Doctor</th><th>Specialty</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
@@ -49,12 +47,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
                     <td><?= e((string) $appointment['Status']) ?></td>
                     <td>
-                        <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
+                        <a class="button appointment-action" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
                         <form method="post" action="<?= e(url('/actions/appointment.php')) ?>" onsubmit="return confirm('Cancel this appointment?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
                             <input type="hidden" name="cancel" value="1">
-                            <button type="submit">Cancel</button>
+                            <button class="appointment-action appointment-cancel" type="submit">Cancel</button>
                         </form>
                     </td>
                 </tr>
@@ -66,8 +64,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="appointments past-appointments">
         <h2>Past appointments</h2>
-<?php if ($past === []): ?>
-<?php endif; ?>
         <table>
             <thead><tr><th>Doctor</th><th>Specialty</th><th>Date</th><th>Time</th><th>Status</th><th>Visit notes</th></tr></thead>
             <tbody>
