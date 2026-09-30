@@ -16,7 +16,7 @@ foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="us
     }
 }
 
-foreach (['hero-copy-text', 'hero-actions', 'class="member-login"', 'register.php',
+foreach (['class="photo-banner"', 'class="photo-scrim"', 'class="photo-caption"', 'class="hero-subtitle"', 'hero-actions', 'class="member-login"', 'register.php',
     'class="specialty-strip"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
     'class="specialty-item"', 'class="featured-doctors band"'] as $needle) {
     if (strpos($index, $needle) === false) {

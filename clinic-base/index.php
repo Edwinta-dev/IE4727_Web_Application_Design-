@@ -30,16 +30,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <main>
     <section class="hero-band band split">
         <div class="hero-copy">
-            <div class="hero-copy-text">
-                <p class="eyebrow">Appointments at your neighbourhood clinic</p>
-                <h1>Care for every stage of life</h1>
+            <div class="photo-banner">
+                <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="1280" height="853" decoding="async" alt="A doctor discussing care with a patient" class="hero-image">
+                <div class="photo-scrim" aria-hidden="true"></div>
+                <div class="photo-caption">
+                    <p class="eyebrow">Appointments at your neighbourhood clinic</p>
+                    <h1>Care for every stage of life</h1>
+                </div>
+            </div>
+            <div class="hero-subtitle">
                 <p>Choose a doctor in general practice, dental care, paediatrics, dermatology or physiotherapy. Book online and manage your appointments here.</p>
                 <div class="hero-actions">
                     <a class="button" href="<?= e(url('/doctors.php')) ?>">Find a doctor</a>
                     <a class="button secondary" href="<?= e(url('/doctors.php')) ?>">Book an appointment</a>
                 </div>
             </div>
-            <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="1280" height="853" decoding="async" alt="A doctor discussing care with a patient" class="hero-image">
         </div>
         <section class="member-login" aria-labelledby="member-login-heading">
 <?php if ($user !== null): ?>
