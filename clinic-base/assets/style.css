@@ -312,7 +312,7 @@ main,
 }
 
 main {
-    padding-block: 1.5rem;
+    padding-block: 0 1.5rem;
 }
 
 main p { max-width: 70ch; }
