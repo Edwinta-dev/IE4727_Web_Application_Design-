@@ -95,12 +95,15 @@ No browser in this environment. Everything is verified from the command line.
 
 ```bash
 php -l <file>                      # lint every file you touch
-php tools/db_reset.php             # drop, recreate, apply 001 + 002 + seed
+php tools/db_reset.php             # rebuild the TEST database ie4727db_test from 001 + 002 + seed
+php tools/db_reset.php --production   # rebuild the app database ie4727db (destroys demo data; owner only)
 php tests/run.php                  # the whole suite
 php tests/run.php test_slots       # one file
 bash tools/serve.sh &              # php -S localhost:8000 for smoke tests only
                                    # (production is XAMPP/Apache — never rely on -S behaviour)
 ```
+
+**Tests never touch `ie4727db`.** `tests/run.php` sets `CLINIC_DB_NAME=ie4727db_test`, rebuilds it from the seed before every run, and `lib/config.php` refuses to start if a local config overrides it. Never point a test, fixture or script that writes data at `ie4727db`, and never run `--production` in an issue.
 
 A task is done when: every file you touched lints, `php tests/run.php` is green, and the issue's own acceptance command prints `OK`. **Write the test in the same commit as the code.**
 

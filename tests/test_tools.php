@@ -16,9 +16,10 @@ foreach (['001_schema.sql', '002_migrate.sql', '003_seed.sql'] as $schema) {
     }
 }
 
-if (strpos($reset, "stripos(\$name, 'clinic')") === false
+if (strpos($reset, "str_ends_with(\$name, '_test')") === false
+    || strpos($reset, "'--production'") === false
     || strpos($reset, "['doctor', 'patient', 'slots', 'appointment', 'notifications']") === false) {
-    throw new RuntimeException('db_reset is missing its safety guard or table summaries');
+    throw new RuntimeException('db_reset is missing its test/production guards or table summaries');
 }
 
 if (strpos($serve, 'php -S localhost:8000 -t clinic-base') === false

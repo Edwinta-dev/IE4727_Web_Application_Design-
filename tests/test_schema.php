@@ -5,7 +5,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 require $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'config.php';
 
-$database = DB_NAME . '_test';
+$database = DB_NAME; // tests/run.php pins this to the test database
 $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . $database . ';charset=utf8mb4', DB_USER, DB_PASS, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);

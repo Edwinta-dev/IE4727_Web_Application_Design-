@@ -2,7 +2,7 @@
 
 // Copy this file to config.local.php and adjust it for the local XAMPP setup.
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'ie4727db');
+define('DB_NAME', getenv('CLINIC_DB_NAME') ?: 'ie4727db'); // tests set CLINIC_DB_NAME
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
