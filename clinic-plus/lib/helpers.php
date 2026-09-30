@@ -10,6 +10,24 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/** Return a word-boundary excerpt for compact doctor previews. */
+function text_excerpt(string $text, int $limit = 140): string
+{
+    $text = trim(preg_replace('/\s+/u', ' ', $text) ?? $text);
+    if ($limit < 1 || preg_match_all('/./us', $text) <= $limit) {
+        return $text;
+    }
+
+    preg_match_all('/./us', $text, $characters);
+    $excerpt = implode('', array_slice($characters[0], 0, $limit));
+    $boundary = strrpos($excerpt, ' ');
+    if ($boundary !== false) {
+        $excerpt = substr($excerpt, 0, $boundary);
+    }
+
+    return rtrim($excerpt) . '…';
+}
+
 /**
  * Start the session once so library includes can safely be repeated.
  */
@@ -98,6 +116,20 @@ function specialty_image(string $specialty): string
     ];
 
     return '/assets/img/' . ($images[$specialty] ?? 'Clinic_Assisting_Elderly_woman.jpg');
+}
+
+/** @return array{summary: string, who_should_book: list<string>} */
+function specialty_profile(string $specialty): array
+{
+    $profiles = [
+        'General Practice' => ['summary' => 'Our general practice team provides first assessments, routine health reviews and ongoing care for common illnesses and long-term conditions. Your doctor can help coordinate referrals when specialist care is needed.', 'who_should_book' => ['Adults seeking a check-up or advice about a new, non-emergency concern.', 'People managing conditions such as high blood pressure, diabetes or asthma.', 'Families arranging vaccinations and routine preventive care.', 'Patients who need follow-up after a recent illness or treatment.']],
+        'Dental' => ['summary' => 'Dental appointments at our clinic cover preventive checks, common tooth and gum concerns, restorative treatment and orthodontic assessment. Your dentist will explain findings and options before treatment begins.', 'who_should_book' => ['People due for a routine dental examination or cleaning.', 'Patients with toothache, sensitivity or bleeding gums.', 'Adults and young people seeking advice about alignment or bite concerns.', 'Anyone who wants a review of a filling, crown or other previous dental work.']],
+        'Paediatrics' => ['summary' => 'Our paediatric service assesses children from infancy through adolescence, including everyday illness, growth and development, and ongoing childhood conditions. Parents and caregivers are included in each care plan.', 'who_should_book' => ['Parents arranging a routine health review or vaccination.', 'Caregivers seeking advice about a child’s new illness.', 'Families discussing growth, development or a continuing condition.']],
+        'Dermatology' => ['summary' => 'Our dermatology service assesses common skin, hair and nail concerns and explains suitable treatment or follow-up options.', 'who_should_book' => ['People with persistent rashes, acne or eczema.', 'Patients who want a review of changing skin concerns.', 'Anyone seeking advice about a recurring skin condition.']],
+        'Physiotherapy' => ['summary' => 'Physiotherapy appointments focus on movement, strength and recovery. Your physiotherapist will assess your needs and agree practical exercises and follow-up.', 'who_should_book' => ['People recovering after an injury or operation.', 'Patients with pain that affects everyday movement.', 'Anyone seeking help with mobility, strength or balance.']],
+    ];
+
+    return $profiles[$specialty] ?? $profiles['General Practice'];
 }
 
 /**

@@ -39,9 +39,11 @@ $links = match ($role) {
 <nav class="site-nav" aria-label="Main navigation">
     <ul>
 <?php foreach ($links as $link): ?>
-        <li>
+        <li<?php if ($link['label'] === 'Log out'): ?> class="nav-logout"<?php endif; ?>>
             <a href="<?= e(url($link['href'])) ?>"<?php if ($currentPath === $link['page']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
         </li>
 <?php endforeach; ?>
     </ul>
 </nav>
+</div>
+</header>

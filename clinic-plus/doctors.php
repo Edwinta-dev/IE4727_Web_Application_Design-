@@ -24,16 +24,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro">
-        <h1>Find a doctor</h1>
-        <p>Browse our doctors, learn about their experience and choose a convenient appointment.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
+    <section class="page-intro public-page-intro">
+        <div class="page-intro-copy">
+            <h1>Find a doctor</h1>
+            <p>Compare our doctors by specialty, experience and language before choosing a visit.</p>
+        </div>
+        <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="A doctor speaking with a patient" class="page-intro-image">
     </section>
 
 <?php if ($specialtyOptions !== []): ?>
     <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
         <?= csrf_field() ?>
-        <label for="specialty">Filter by specialty</label>
+        <label for="specialty">Specialty</label>
         <select id="specialty" name="specialty">
             <option value="">All specialties</option>
 <?php foreach ($specialtyOptions as $value): ?>
@@ -41,11 +43,25 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
         </select>
         <button type="submit">Filter doctors</button>
+<?php if ($selectedSpecialty !== ''): ?>
+        <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
+        <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
+<?php endif; ?>
     </form>
 <?php endif; ?>
 
+    <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">
         <caption>Clinic doctor directory</caption>
+        <colgroup>
+            <col class="doctor-column-photo">
+            <col class="doctor-column-name">
+            <col class="doctor-column-specialty">
+            <col class="doctor-column-qualifications">
+            <col class="doctor-column-languages">
+            <col class="doctor-column-next">
+            <col class="doctor-column-action">
+        </colgroup>
         <thead>
             <tr>
                 <th scope="col">Photo</th>
@@ -77,13 +93,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <td><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
                 <td><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
-                <td><?= e($nextAvailable !== null ? fmt_date((string) $nextAvailable) . ' ' . fmt_time((string) $nextAvailable) : 'Not available') ?></td>
-                <td><a href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
+                <td class="doctor-next-available">
+<?php if ($nextAvailable !== null): ?>
+                    <span><?= e(fmt_date((string) $nextAvailable)) ?></span>
+                    <span><?= e(fmt_time((string) $nextAvailable)) ?></span>
+<?php else: ?>
+                    Not available
+<?php endif; ?>
+                </td>
+                <td><a class="doctor-directory-book" href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
             </tr>
 <?php endforeach; ?>
 <?php endif; ?>
         </tbody>
     </table>
+    </div>
 </main>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
