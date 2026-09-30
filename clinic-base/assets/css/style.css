@@ -80,3 +80,163 @@
     .specialty-filter label { flex-basis: 100%; }
     .specialty-filter select { flex: 1 1 12rem; }
 }
+
+
+/* Staff work surfaces: compact filters, wide tables and readable state labels. */
+#appointments { width: min(78rem, calc(100% - 2rem)); }
+.day-board-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); border-bottom: 1px solid var(--c-line); }
+.day-board-heading .page-intro-copy { flex: 1 1 auto; }
+.day-board-heading h1 { margin-bottom: 0; }
+.day-board-filter { flex: 0 1 30rem; display: grid; grid-template-columns: auto minmax(9rem, 1fr) auto; align-items: end; gap: var(--space-2); }
+.day-board-filter label { min-height: 2.75rem; align-content: end; }
+.day-summary { display: flex; flex-wrap: wrap; gap: var(--space-4); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+.day-summary p { margin: 0; }
+.day-schedule table, .patient-history table, .admin-console table, .admin-outbox table { border-top: 1px solid var(--c-line); }
+.day-schedule th, .patient-history th, .admin-console th, .admin-outbox th { background: var(--c-surface-band); color: var(--c-ink); font-weight: 700; }
+.day-schedule td, .patient-history td, .admin-console td, .admin-outbox td { border-bottom: 1px solid var(--c-line); }
+.day-board td:first-child, .day-board td:nth-child(4), .day-board td:last-child,
+.appointment-table td:first-child, .appointment-table td:last-child,
+.outbox-list td:first-child, .outbox-list td:nth-child(4), .outbox-list td:last-child,
+.admin-console form button { white-space: nowrap; }
+.day-board td:last-child { min-width: 14rem; }
+.day-board td:last-child form { display: inline; }
+.day-board td:last-child button { margin: 0.15rem; }
+.status-label { display: inline-block; font-weight: 700; white-space: nowrap; }
+.status-future, .status-available, .status-sent { color: var(--c-success); }
+.status-completed, .status-booked { color: var(--c-primary-dark); }
+.status-cancelled, .status-no-show, .status-failed { color: var(--c-danger); }
+.status-rescheduled, .status-blocked, .status-logged, .status-past { color: var(--c-muted); }
+.schedule-month-grid { display: grid; width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--c-line); border-left: 1px solid var(--c-line); }
+.schedule-day { min-width: 0; padding: var(--space-2); border: 0; border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: transparent; }
+.schedule-day.selected { background: var(--c-surface-band); }
+.schedule-day h3 { font-size: 1rem; }
+.schedule-day .slot-count { margin: 0.15rem 0; }
+.slot-list .slot { border: 0; border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
+.slot-list .slot.free, .slot-list .slot.taken, .slot-list .slot.blocked, .slot-list .slot.past { border-left: 0; }
+.slot-list .slot-status { min-width: 8rem; }
+.visit-layout { display: grid; grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.8fr); gap: var(--space-5); align-items: start; }
+.visit-sidebar { min-width: 0; }
+.visit-sidebar > section { border-bottom: 1px solid var(--c-line); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
+.visit-sidebar h2, .visit-form-section h2 { margin-top: 0; }
+.visit-form-section { min-width: 0; }
+.visit-form textarea { min-height: 10rem; }
+.visit-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.visit-form-actions label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
+.visit-form-actions input[type="checkbox"] { flex: 0 0 1.5rem; }
+.console-filters { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: end; border-block: 1px solid var(--c-line); padding-block: var(--space-3); }
+.console-filters h2 { margin: 0; white-space: nowrap; }
+.console-filters form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.console-filters form label { flex: 1 1 9rem; }
+.console-filters form a { display: inline-flex; min-height: 2.75rem; align-items: center; padding-inline: var(--space-2); }
+.admin-console .table-scroll { overflow-x: auto; }
+.admin-console table { min-width: 42rem; }
+.admin-console td form { display: block; }
+.outbox-list { overflow-x: auto; }
+.admin-outbox table { min-width: 48rem; }
+.staff-table-scroll { overflow-x: auto; }
+.day-board { min-width: 58rem; table-layout: auto; }
+.console-filters { display: flex; flex-wrap: wrap; }
+.console-filters h2 { flex: 0 0 auto; }
+.console-filters form { flex: 1 1 40rem; }
+.outbox-filters form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.outbox-filters form label { flex: 0 0 auto; }
+.outbox-filters select { min-width: 12rem; }
+.admin-console .console-section { overflow-x: auto; }
+.day-schedule th, .day-schedule td, .patient-history th, .patient-history td,
+.admin-console th, .admin-console td, .admin-outbox th, .admin-outbox td { padding-block: 0.4rem; }
+.day-schedule th, .day-schedule td, .admin-console th, .admin-console td { line-height: 1.95; padding-block: 0; }
+.admin-console table button, .day-schedule table button { box-sizing: border-box; padding-block: 0.25rem; }
+.day-board td:last-child button { box-sizing: border-box; height: 2.75rem; margin: 0; padding-block: 0; }
+.admin-console table { table-layout: auto; }
+.day-schedule table th, .day-schedule table td,
+.admin-console table th, .admin-console table td { white-space: nowrap; }
+.day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
+.admin-outbox .notification-details summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; }
+
+@media (max-width: 56rem) {
+    .schedule-month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .visit-layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+    .visit-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+    .visit-sidebar > section { margin: 0; }
+}
+@media (max-width: 40rem) {
+    .day-board td { line-height: 2.2; }
+    .day-board-heading { align-items: stretch; flex-direction: column; gap: var(--space-2); }
+    .day-board-filter { flex: auto; grid-template-columns: minmax(0, 1fr) auto; }
+    .day-board-filter label { grid-column: 1 / -1; }
+    .schedule-month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .visit-sidebar { grid-template-columns: minmax(0, 1fr); }
+    .console-filters { grid-template-columns: minmax(0, 1fr); }
+    .console-filters h2 { white-space: normal; }
+    .console-filters form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .console-filters form label { min-width: 0; }
+    .console-filters form label:first-child, .console-filters form button { grid-column: 1 / -1; }
+}
+
+/* Booking and appointment views */
+.booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
+.booking-filters p { flex: 1 1 10rem; min-width: 9rem; margin: 0; }
+.booking-filters button { min-height: 2.75rem; }
+.day-tabs { display: flex; max-width: 100%; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin-bottom: var(--space-4); }
+.day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); text-decoration: none; }
+.day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
+.booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
+.booking-doctor { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
+.booking-doctor img { flex: 0 0 5.5rem; width: 5.5rem; height: 5.5rem; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
+.booking-doctor h2 { margin: 0 0 0.2rem; font-size: 1.3rem; }
+.booking-doctor p { margin: 0; }
+.booking-slots { min-width: 0; }
+.booking-slots > p { margin-bottom: var(--space-2); }
+.schedule-grid { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); }
+.schedule-grid .slot { min-height: 2.75rem; border: 1px solid var(--c-line); padding: var(--space-2); }
+.schedule-grid .slot.free { background: #e7f2ed; border-color: var(--c-success); }
+.schedule-grid .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.schedule-grid .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.schedule-grid .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.schedule-grid .slot-time, .schedule-grid .slot-state { display: block; }
+.schedule-grid .slot-state { font-weight: 700; }
+.schedule-grid .slot-booking summary { display: flex; min-height: 2.75rem; align-items: center; cursor: pointer; color: var(--c-primary-dark); font-weight: 700; }
+.schedule-grid .slot-booking[open] summary { margin-bottom: var(--space-2); }
+.schedule-grid .slot form { margin-top: var(--space-2); }
+.schedule-grid .slot form p { margin-bottom: 0.5rem; }
+.schedule-grid .slot form input { margin-bottom: var(--space-2); }
+.schedule-grid .slot button { width: 100%; min-height: 2.75rem; }
+.slot-list .slot { border: 1px solid var(--c-line); }
+.slot-list .slot.free { background: #e7f2ed; border-color: var(--c-success); }
+.slot-list .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.doctor-profile .slot a { background: #e7f2ed; border: 1px solid var(--c-success); }
+.appointments { margin-block: var(--space-5); }
+.appointments table { border-top: 1px solid var(--c-line); }
+.appointments th { background: var(--c-surface-band); }
+.appointments th, .appointments td { padding-block: 0; line-height: 2.25rem; }
+.appointments td { vertical-align: middle; }
+.appointments td:last-child { white-space: nowrap; }
+.appointments td:last-child form { display: inline; margin: 0; }
+.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-primary); border-radius: var(--radius-control); background: var(--c-primary); color: white; text-decoration: none; }
+.appointment-action:visited, .appointment-action:hover { color: white; background: var(--c-primary-dark); }
+.appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
+.visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
+.empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
+.schedule-grid .slot.blocked, .slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.schedule-grid .slot.past, .slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.schedule-grid .slot-booking:not([open]) > form { display: none; }
+.schedule-grid .slot-booking[open] > form { display: block; }
+@media (max-width: 56rem) { .booking-results { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 40rem) {
+    .booking-filters { align-items: stretch; }
+    .booking-filters p { flex-basis: calc(50% - var(--space-2)); }
+    .booking-filters button { flex: 1 1 100%; }
+    .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .appointments { overflow-x: auto; }
+    .appointments table { min-width: 46rem; width: max-content; table-layout: auto; }
+}
+@media (max-width: 56rem) {
+    .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+    .doctor-profile-identity { grid-row: auto; }
+    .doctor-profile-portrait { max-width: 14rem; }
+}
+@media (max-width: 40rem) {
+    .doctor-specialty-content { grid-template-columns: minmax(0, 1fr); }
+}

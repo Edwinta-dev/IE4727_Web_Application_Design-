@@ -41,21 +41,19 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="appointments">
-    <section class="page-intro">
+    <section class="page-intro day-board-heading">
         <div class="page-intro-copy">
             <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Day board</h1>
-            <p>Review appointments, attendance and patient history for your clinic schedule.</p>
         </div>
+        <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
+            <?= csrf_field() ?>
+            <label for="day">Schedule date</label>
+            <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
+            <button type="submit">Show day</button>
+        </form>
     </section>
 
     <?php flash_render(); ?>
-
-    <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
-        <?= csrf_field() ?>
-        <label for="day">Schedule date</label>
-        <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
-        <button type="submit">Show day</button>
-    </form>
 
     <section class="day-summary summary-strip" aria-label="Day summary">
         <p class="summary-future">Future: <?= e((string) $counts['Future']) ?></p>
@@ -68,7 +66,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php if ($appointments === []): ?>
             <p class="empty-state">There are no appointments for this day.</p>
         <?php else: ?>
-            <table class="day-board">
+            <div class="table-scroll staff-table-scroll"><table class="day-board">
                 <thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
                 <tbody>
                 <?php foreach ($appointments as $appointment): ?>
@@ -104,7 +102,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
-            </table>
+            </table></div>
         <?php endif; ?>
     </section>
 
