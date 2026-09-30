@@ -824,6 +824,21 @@ input[type="button"]:active {
 .grow-item img { transition: height 180ms ease; }
 
 @media (min-width: 64rem) {
+    .doctor-tiles {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .doctor-tiles > .doctor-tile {
+        flex: 1 1 0%;
+        min-width: 0;
+    }
+
+    .doctor-tiles > .doctor-tile:hover,
+    .doctor-tiles > .doctor-tile:focus-visible {
+        flex-grow: 1.35;
+    }
+
     .grow-row {
         display: flex;
         align-items: flex-start;
@@ -929,6 +944,12 @@ input[type="button"]:active {
 }
 
 @media (prefers-reduced-motion: reduce) and (min-width: 64rem) {
+    .doctor-tiles > .doctor-tile:hover,
+    .doctor-tiles > .doctor-tile:focus-visible {
+        flex-grow: 1;
+        transform: none;
+    }
+
     .grow-row > .grow-item:hover,
     .grow-row > .grow-item:focus-visible {
         flex-grow: 1;
