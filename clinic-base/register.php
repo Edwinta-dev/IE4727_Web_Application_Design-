@@ -36,11 +36,16 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <div class="registration-layout">
     <form id="registration-form" method="post" action="<?= e(url('/actions/register.php')) ?>" onsubmit="return validateRegistrationForm(event)">
         <?= csrf_field() ?>
-        <fieldset class="registration-type">
+        <fieldset class="registration-type" id="registration-type">
             <legend>Account type</legend>
             <div class="registration-role-options">
                 <label><input type="radio" name="role" value="patient"<?= e($role === 'patient' ? ' checked' : '') ?>> <span>Patient</span></label>
                 <label><input type="radio" name="role" value="doctor"<?= e($role === 'doctor' ? ' checked' : '') ?>> <span>Doctor</span></label>
+            </div>
+            <div class="registration-role-switcher" hidden>
+                <button type="button" class="registration-role-arrow" data-role-switch="patient" aria-label="Switch to patient account">←</button>
+                <h2 class="registration-role-heading" aria-live="polite"><?= e(ucfirst($role)) ?> account</h2>
+                <button type="button" class="registration-role-arrow" data-role-switch="doctor" aria-label="Switch to doctor account">→</button>
             </div>
         </fieldset>
 
@@ -73,7 +78,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
         </fieldset>
 
-        <fieldset id="patient-fields" data-role-fields="patient">
+        <div class="registration-role-viewport">
+        <div class="registration-role-track" data-active-role="<?= e($role) ?>">
+        <fieldset id="patient-fields" data-role-fields="patient"<?= e($role === 'patient' ? '' : ' hidden') ?>>
             <legend>Patient details</legend>
             <p>
                 <label for="gender">Gender</label>
@@ -97,7 +104,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
         </fieldset>
 
-        <fieldset id="doctor-fields" data-role-fields="doctor" hidden>
+        <fieldset id="doctor-fields" data-role-fields="doctor"<?= e($role === 'doctor' ? '' : ' hidden') ?>>
             <legend>Doctor details</legend>
             <?php foreach ([
                 'Specialty' => ['Specialty', 'Your medical specialty'],
@@ -116,6 +123,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <span class="field-error" data-error-for="WriteUp" role="alert"><?= e(errors_for('WriteUp')) ?></span>
             </p>
         </fieldset>
+        </div>
+        </div>
 
         <button type="submit">Create account</button>
     </form>

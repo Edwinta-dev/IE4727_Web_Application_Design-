@@ -847,6 +847,82 @@ input[type="button"]:active {
     .grow-row > .grow-item:focus-visible img { height: 242px; }
 }
 
+.registration-type.has-role-switcher .registration-role-options {
+    display: none;
+}
+
+.registration-role-switcher {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    text-align: center;
+}
+
+.registration-role-heading {
+    margin: 0;
+    color: var(--brand-dark);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+}
+
+.registration-role-arrow {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    min-height: 3rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--brand-dark);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.registration-role-arrow:focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: 2px;
+}
+
+.registration-role-viewport {
+    overflow: hidden;
+}
+
+.registration-role-track {
+    display: flex;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 190ms ease;
+}
+
+#registration-form.has-role-switcher .registration-role-track[data-active-role="doctor"] {
+    transform: translateX(-50%);
+}
+
+#registration-form.has-role-switcher .registration-role-track > [data-role-fields] {
+    flex: 0 0 50%;
+    width: 50%;
+    align-self: start;
+    visibility: hidden;
+    transition: visibility 0s linear 190ms;
+}
+
+#registration-form.has-role-switcher .registration-role-track > [data-role-fields][aria-hidden="false"] {
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .registration-role-track {
+        transition: none;
+    }
+
+    #registration-form.has-role-switcher .registration-role-track > [data-role-fields] {
+        transition: none;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .doctor-tile { transition: none; transform: none; }
     .grow-item img { transition: none; }
