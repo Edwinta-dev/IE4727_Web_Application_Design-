@@ -114,9 +114,10 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 ?>
 <main id="schedule-editor">
     <section class="page-intro">
-        <h1>30-day schedule editor</h1>
-        <p>Create working slots and manage availability for the next 30 days.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">30-day schedule editor</h1>
+            <p>Create working slots and manage availability for the next 30 days.</p>
+        </div>
     </section>
 
     <?php flash_render(); ?>
@@ -183,7 +184,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     ?>
                     <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
-                        <span class="slot-status"><?= e($status) ?></span>
+                        <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : ($status === 'Blocked' ? 'Unavailable' : $status)) ?></span>
                         <?php if ($status === 'Booked'): ?>
                             <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>

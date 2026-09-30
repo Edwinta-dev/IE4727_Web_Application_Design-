@@ -53,9 +53,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-console">
-    <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
-    <h1>Administrator console</h1>
-    <p>Review accounts, appointments and booking analytics.</p>
+    <section class="page-intro">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Administrator console</h1>
+            <p>Review clinic accounts, appointments and booking patterns.</p>
+        </div>
+    </section>
     <p><a href="<?= e(url('/admin/outbox.php')) ?>">Open notification outbox</a></p>
 
     <section class="stats-strip" aria-labelledby="stats-heading">
@@ -83,6 +86,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="console-section"><h2>Patients</h2><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead><tbody><?php if ($patients === []): ?><tr><td colspan="5"><p class="empty-state">No patients match these filters.</p></td></tr><?php else: ?><?php foreach ($patients as $patient): ?><tr><td><?= e($patient['FullName']) ?></td><td><?= e($patient['User']) ?></td><td><?= e($patient['Email']) ?></td><td><?= e($patient['Phone']) ?></td><td><form method="post" action="<?= e(url('/admin/console.php')) ?>" data-confirmation="<?= e('Delete patient ' . $patient['FullName'] . '? This removes the patient account and its appointments.') ?>" onsubmit="return confirm(this.dataset.confirmation);"><?= csrf_field() ?><input type="hidden" name="action" value="delete_patient"><input type="hidden" name="id" value="<?= e((string) $patient['PatientID']) ?>"><button type="submit">Delete account</button></form></td></tr><?php endforeach; ?><?php endif; ?></tbody></table></section>
     <section class="console-section"><h2>Doctors</h2><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Specialty</th><th>Action</th></tr></thead><tbody><?php if ($doctors === []): ?><tr><td colspan="5"><p class="empty-state">No doctors match these filters.</p></td></tr><?php else: ?><?php foreach ($doctors as $doctor): ?><tr><td><?= e($doctor['FullName']) ?></td><td><?= e($doctor['User']) ?></td><td><?= e($doctor['Email']) ?></td><td><?= e($doctor['Specialty']) ?></td><td><form method="post" action="<?= e(url('/admin/console.php')) ?>" data-confirmation="<?= e('Delete doctor ' . $doctor['FullName'] . '? This removes the doctor account, slots and appointments.') ?>" onsubmit="return confirm(this.dataset.confirmation);"><?= csrf_field() ?><input type="hidden" name="action" value="delete_doctor"><input type="hidden" name="id" value="<?= e((string) $doctor['DoctorID']) ?>"><button type="submit">Delete account</button></form></td></tr><?php endforeach; ?><?php endif; ?></tbody></table></section>
-    <section class="console-section"><h2>Appointments</h2><table><thead><tr><th>Date/time</th><th>Doctor</th><th>Patient</th><th>Status</th></tr></thead><tbody><?php if ($appointments === []): ?><tr><td colspan="4"><p class="empty-state">No appointments match these filters.</p></td></tr><?php else: ?><?php foreach ($appointments as $appointment): ?><tr><td><?= e($appointment['appointmentDateTime']) ?></td><td><?= e($appointment['DoctorName']) ?></td><td><?= e($appointment['PatientName']) ?></td><td><?= e($appointment['Status']) ?></td></tr><?php endforeach; ?><?php endif; ?></tbody></table></section>
+    <section class="console-section"><h2>Appointments</h2><div class="table-scroll"><table class="staff-table appointment-table"><thead><tr><th>Date/time</th><th>Doctor</th><th>Patient</th><th>Status</th></tr></thead><tbody><?php if ($appointments === []): ?><tr><td colspan="4"><p class="empty-state">No appointments match these filters.</p></td></tr><?php else: ?><?php foreach ($appointments as $appointment): ?><tr><td class="nowrap"><?= e($appointment['appointmentDateTime']) ?></td><td><?= e($appointment['DoctorName']) ?></td><td><?= e($appointment['PatientName']) ?></td><td class="nowrap"><span class="status-label status-<?= e(strtolower(str_replace(' ', '-', (string) $appointment['Status']))) ?>"><?= e($appointment['Status']) ?></span></td></tr><?php endforeach; ?><?php endif; ?></tbody></table></div></section>
 </main>
 <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -24,7 +24,7 @@ test('typography and surface system uses the clinic design tokens', static funct
     assert_contains($style, '.band {', 'full bleed section utility');
     assert_contains($style, '.split {', 'column utility');
     assert_contains($style, '@media (max-width: 56rem)', 'split mobile breakpoint');
-    assert_contains($style, '.doctor-card img {', 'sized doctor preview image');
+    assert_contains($style, '.doctor-tile img {', 'sized doctor preview image');
     assert_contains($style, '.clinic-logo img {', 'sized clinic logo');
     assert_contains($style, '.site-nav ul {', 'unbulleted flexible navigation');
     assert_contains($style, 'prefers-reduced-motion: reduce', 'reduced motion support');

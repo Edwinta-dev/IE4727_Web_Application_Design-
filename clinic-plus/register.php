@@ -23,26 +23,28 @@ foreach ($fields as $field) {
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
-<main class="registration-page">
-    <section class="registration-intro">
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
-        <h1>Create your clinic account</h1>
-        <p>Register as a patient or doctor to use the appointment portal.</p>
+<main id="main-content" class="registration-page">
+    <section class="page-intro public-page-intro registration-intro">
+        <div class="page-intro-copy">
+            <h1>Create your clinic account</h1>
+            <p>Register for patient appointments or join the clinic as a doctor.</p>
+        </div>
     </section>
 
     <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 
+    <div class="registration-layout">
     <form id="registration-form" method="post" action="<?= e(url('/actions/register.php')) ?>" onsubmit="return validateRegistrationForm(event)">
         <?= csrf_field() ?>
-        <fieldset>
+        <fieldset class="registration-type">
             <legend>Account type</legend>
-            <p>
-                <label><input type="radio" name="role" value="patient"<?= e($role === 'patient' ? ' checked' : '') ?>> Patient</label>
-                <label><input type="radio" name="role" value="doctor"<?= e($role === 'doctor' ? ' checked' : '') ?>> Doctor</label>
-            </p>
+            <div class="registration-role-options">
+                <label><input type="radio" name="role" value="patient"<?= e($role === 'patient' ? ' checked' : '') ?>> <span>Patient</span></label>
+                <label><input type="radio" name="role" value="doctor"<?= e($role === 'doctor' ? ' checked' : '') ?>> <span>Doctor</span></label>
+            </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="registration-details">
             <legend>Account details</legend>
             <p>
                 <label for="full-name">Full name</label>
@@ -117,6 +119,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
         <button type="submit">Create account</button>
     </form>
+    <aside class="registration-support" aria-label="Registration information">
+        <img src="<?= e(url('/assets/img/Clinic_Assisting_Elderly_woman.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="Clinic staff assisting an older patient" class="registration-support-image">
+        <section>
+            <h2>What you’ll need</h2>
+            <p>Patients need a phone number and a list of known allergies. Doctors should have their specialty, qualifications and spoken languages ready.</p>
+        </section>
+        <section>
+            <h2>What happens next</h2>
+            <p>After registration, patients can choose a doctor and request an appointment. Doctors can sign in to manage their clinic schedule.</p>
+        </section>
+    </aside>
+    </div>
 </main>
 <script src="<?= e(url('/assets/app.js')) ?>"></script>
 <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>

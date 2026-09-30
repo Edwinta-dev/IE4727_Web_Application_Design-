@@ -10,9 +10,17 @@ if ($index === false || $login === false) {
 }
 
 foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="username_or_email"',
-    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id='] as $needle) {
+    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id=', 'text_excerpt(', 'class="doctor-tile"', 'class="doctor-tiles"', 'WriteUp'] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing {$needle}");
+    }
+}
+
+foreach (['hero-copy-text', 'hero-actions', 'class="member-login"', 'register.php',
+    'class="specialty-strip"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
+    'class="specialty-item"', 'class="featured-doctors band"'] as $needle) {
+    if (strpos($index, $needle) === false) {
+        throw new RuntimeException("homepage is missing redesigned section {$needle}");
     }
 }
 
@@ -23,3 +31,9 @@ foreach (['csrf_check()', 'validate(', 'attempt_login(', 'login_return_path', 'f
 }
 
 echo "PASS: homepage and login structure checks\n";
+
+require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
+$excerpt = text_excerpt(str_repeat('care ', 35));
+if (preg_match_all('/./us', $excerpt) > 141 || !str_ends_with($excerpt, '…') || str_ends_with(substr($excerpt, 0, -3), ' ')) {
+    throw new RuntimeException('doctor write-up excerpt is not truncated at a word boundary');
+}

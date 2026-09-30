@@ -4,6 +4,20 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/lib/assert.php';
 
+// The suite never touches the application database (ie4727db). Every run uses
+// its own database, rebuilt from 001 + 002 + 003 first so results never depend
+// on what an earlier run left behind. The environment variable (not just a
+// constant) is what child PHP processes spawned by tests inherit.
+const TEST_DATABASE = 'ie4727db_test';
+putenv('CLINIC_DB_NAME=' . TEST_DATABASE);
+// Do not load clinic-base/config.php here: some tests define config constants
+// themselves before their first include. test_db_isolation verifies the database.
+exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/tools/db_reset.php') . ' --test 2>&1', $resetOutput, $resetStatus);
+if ($resetStatus !== 0 || !in_array('Reset ' . TEST_DATABASE . ' (--test)', $resetOutput, true)) {
+    fwrite(STDERR, "Could not rebuild the test database " . TEST_DATABASE . ":\n" . implode("\n", $resetOutput) . "\n");
+    exit(1);
+}
+
 /** @var list<array{name: string, fn: callable}> $cases */
 $cases = [];
 

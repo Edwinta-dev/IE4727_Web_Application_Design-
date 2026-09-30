@@ -13,7 +13,9 @@ if (is_file($localConfig)) {
 }
 
 defined('DB_HOST') || define('DB_HOST', '127.0.0.1');
-defined('DB_NAME') || define('DB_NAME', 'ie4727db');
+// CLINIC_DB_NAME is set only by the test runner (tests/run.php) and dev tools;
+// XAMPP never sets it, so the site always uses ie4727db.
+defined('DB_NAME') || define('DB_NAME', getenv('CLINIC_DB_NAME') ?: 'ie4727db');
 defined('DB_USER') || define('DB_USER', 'root');
 defined('DB_PASS') || define('DB_PASS', '');
 defined('APP_NAME') || define('APP_NAME', 'Clinic Appointment Portal');
@@ -22,6 +24,14 @@ defined('SLOT_MINUTES') || define('SLOT_MINUTES', 30);
 defined('SCHEDULE_DAYS') || define('SCHEDULE_DAYS', 30);
 defined('BROWSE_DAYS') || define('BROWSE_DAYS', 7);
 defined('APP_TIMEZONE') || define('APP_TIMEZONE', 'Asia/Singapore');
+
+// A config.local.php that hard-codes DB_NAME must not silently redirect a test
+// run (which asked for its own database) onto the application database.
+$requestedDatabase = getenv('CLINIC_DB_NAME');
+if (is_string($requestedDatabase) && $requestedDatabase !== '' && DB_NAME !== $requestedDatabase) {
+    throw new RuntimeException('CLINIC_DB_NAME requests ' . $requestedDatabase . ' but config defines DB_NAME as ' . DB_NAME . '.');
+}
+unset($requestedDatabase);
 
 // PHP and MariaDB must agree on "now"; db() applies the same offset to its session.
 date_default_timezone_set(APP_TIMEZONE);

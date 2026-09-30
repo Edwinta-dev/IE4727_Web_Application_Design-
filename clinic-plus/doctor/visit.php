@@ -57,15 +57,19 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 ?>
 <main id="visit">
     <section class="page-intro">
-        <h1>Patient visit</h1>
-        <p>Review the patient's medical history before recording this visit.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Patient visit</h1>
+            <p>Review the patient's medical history before recording this visit.</p>
+        </div>
     </section>
 
     <?php flash_render(); ?>
 
+    <div class="visit-layout">
+    <aside class="visit-sidebar">
     <section class="patient-profile" aria-label="Patient profile">
         <h2><?= e((string) $patient['FullName']) ?></h2>
+        <p><strong>Appointment:</strong> <?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></p>
         <p><strong>Gender:</strong> <?= e((string) ($patient['Gender'] ?? 'Not provided')) ?></p>
         <p><strong>Phone:</strong> <?= e((string) ($patient['Phone'] ?? 'Not provided')) ?></p>
         <p><strong>Allergies:</strong>
@@ -98,13 +102,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php endif; ?>
     </section>
 
+    </aside>
     <section class="visit-form-section" aria-label="Record visit notes">
         <h2>Record this visit</h2>
         <form class="visit-form" method="post" action="<?= e(url('/doctor/visit.php?appt=' . $appointmentId)) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="appointment_id" value="<?= e((string) $appointmentId) ?>">
-
-            <p><strong>Appointment:</strong> <?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></p>
 
             <label for="diagnosis">Diagnosis</label>
             <textarea id="diagnosis" name="Diagnosis" rows="3"><?= e((string) ($appointment['Diagnosis'] ?? '')) ?></textarea>
@@ -118,13 +121,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <label for="remarks">Remarks</label>
             <textarea id="remarks" name="Remarks" rows="3"><?= e((string) ($appointment['Remarks'] ?? '')) ?></textarea>
 
-            <label for="follow-up">
+            <div class="visit-form-actions"><label for="follow-up">
                 <input id="follow-up" type="checkbox" name="FollowUp" value="1"<?= (int) ($appointment['FollowUp'] ?? 0) === 1 ? ' checked' : '' ?>>
                 Follow-up required
-            </label>
-
-            <button type="submit">Save visit notes</button>
+            </label><button type="submit">Save visit notes</button></div>
         </form>
     </section>
+    </div>
 </main>
 <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

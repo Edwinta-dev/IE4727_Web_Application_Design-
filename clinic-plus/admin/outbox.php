@@ -20,9 +20,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-outbox">
-    <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
-    <h1>Notification outbox</h1>
-    <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
+    <section class="page-intro">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Notification outbox</h1>
+            <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
+        </div>
+    </section>
 
     <section class="outbox-filters" aria-labelledby="outbox-filters-heading">
         <h2 id="outbox-filters-heading">Filter messages</h2>
@@ -58,10 +61,10 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <tbody>
                     <?php foreach ($notifications as $notification): ?>
                         <tr>
-                            <td><?= e($notification['SentAt']) ?></td>
+                            <td class="nowrap"><?= e($notification['SentAt']) ?></td>
                             <td><?= e($notification['recipient']) ?></td>
                             <td><?= e($notification['Subject']) ?></td>
-                            <td><?= e($notification['deliveryStatus']) ?></td>
+                            <td class="nowrap"><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
                             <td>
                                 <details class="notification-details">
                                     <summary>View full message</summary>
