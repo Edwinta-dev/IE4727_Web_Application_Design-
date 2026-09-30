@@ -149,3 +149,52 @@ Never commit `config.local.php`, `.env`, anything under `mail/`, or dependency f
 2. *Then* attempts delivery via PHP `mail()`, which XAMPP dumps to disk via `mailtodisk`, and updates `deliveryStatus` to `sent` or `failed`.
 
 Row first, delivery second. If delivery fails the demo still works, because `admin/outbox.php` reads the table, not the mailbox. Delivery failure is logged, never fatal, never shown to the patient.
+
+---
+
+## 8. UI, design and copy — do not ship "AI slop"
+
+The owner's rule for all visual and copy work. It applies to every page in both apps and **overrides any issue text that asks for the patterns banned here** (including older issues that mandated left-accent borders or banned cards outright). Source material and owner screenshots: `UIPROBLEMS/ISSUEDESCRIPTION.txt` (local, gitignored).
+
+"Slop" is what you get when nobody overrides the defaults: output that is statistically common, so it looks like every other AI-built site and says nothing about this clinic. The fix is **intention and restraint**, not more decoration.
+
+### Look at it before you call it done
+
+- Screenshot every page you touch, at 1280x800 and 390x844, **before and after**, and open the images (`node tools/ui/shoot.mjs --serve --label <slug> <pages>`, once it exists). A passing audit plus a page you never looked at is not done.
+- Never screenshot `http://localhost:8000`: that is XAMPP, which may be serving a stale copy.
+
+### Layout and integration
+
+- **Nothing is "slapped on".** Every image has a deliberate size and aspect ratio (`object-fit: cover`) and sits next to the text it belongs to. It never renders at its natural pixel size, and it is never the biggest thing on a page unless it is the home hero.
+- **Use the width.** At desktop, related blocks sit side by side in columns. A page is not one centred vertical stack of full-width blocks.
+- **Cards are a tool, not the default.** Use them only for clickable entity previews (the home page doctor tiles). Everything else is sections, tinted bands, columns, tables and thin divider rules.
+- **No "fingernail" cards:** a box with a thick coloured strip down its left edge. The current stylesheet uses this on panels, forms and slots; phase it out. A left bar is allowed only where it carries meaning (an error or warning message), never as decoration.
+- **Intentional variation, not uniform everything.** Controls get a small radius, tiles a slightly larger one, sections none. Spacing follows the scale in the tokens, but not the same padding on every element. Pill shapes only where the thing is genuinely a pill (a nav tab, a filter chip).
+- **Alignment is checked, not assumed.** Icons, images, labels and inputs line up on a shared edge or baseline. Misaligned loose elements are the most visible tell.
+
+### Colour and type
+
+- **Colour is semantic, not decorative.** Use the tokens in `assets/tokens.css` (teal = primary action, burnt orange = accent, success/danger = feedback, warm neutrals = surfaces) and name any new token by purpose (`--c-feedback-warning`, not `--c-orange-2`). Roughly 70% neutral surfaces, 20–30% primary, 10% or less accent.
+- **Banned:** purple/blue gradients, decorative gradients of any kind, glassmorphism/backdrop blur, "rainbow" screens where colours mark nothing, and blue as the primary colour (see the palette audit).
+- **Typography carries the identity.** Pair a serif display stack for headings with a readable sans body stack. No Inter, no bare `system-ui` everywhere, no monospace or `//` decorations as a "tech" look. Fonts are system stacks or committed OFL `.woff2` files under `assets/fonts/` with their licence; never a font CDN.
+- Body text is at least `1rem`. Avoid uppercase letter-spaced labels as a default style; sentence case reads better, including table headers.
+
+### Motion and state
+
+- Motion only communicates a state change (hover, press, focus, panel open) or directs attention. Use 120–200ms ease transitions, all disabled under `prefers-reduced-motion`.
+- **Banned:** scroll-triggered fade-ins, the same animation on every element, and pulsing or glowing badges.
+- **No badge that carries no information.** "Active", "Verified" or "Online" labels that can never be false are noise. A status label must reflect real data (appointment `Status`, `deliveryStatus`) and be readable as text, not colour alone.
+
+### Copy
+
+- Write like a specific clinic, not a template. Say what the page does and for whom, concretely: specialties, what to bring, what happens after booking.
+- **Banned words and patterns:** "Elevate", "Seamless", "Next-generation", "Supercharge", "Unleash", "Empower", "Revolutionise", "cutting-edge", "best-in-class". Also hedging ("may help you potentially…"), every H1 followed by a vague grey tagline, and "Welcome back, Name ✨"-style greetings.
+- **No emoji** in UI copy or headings.
+- **No redundant or context-leaking text:** nothing about how the site was built ("Built with PHP", "Hand-crafted with vanilla CSS"), no copy that echoes the prompt or the issue, and no restating what the heading already said.
+- Working pages (doctor, admin, patient home) are tools, not landing pages: dense, calm, no marketing voice.
+
+### Restraint
+
+- Do not over-correct by adding complexity: no parallax, custom cursors, animated backgrounds or layers of effects. Fewer choices, each deliberate, applied consistently.
+- Change design **and** content together: a restyled page with generic copy is still slop.
+- One system, not one-off tweaks. New styles go through the tokens and shared classes, so the next page starts from the same foundation.
