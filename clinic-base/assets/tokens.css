@@ -1,0 +1,12 @@
+:root {
+    --c-ink: #292524;
+    --c-muted: #57534e;
+    --c-paper: #fffdf9;
+    --c-surface: #faf7f2;
+    --c-line: #ded6ca;
+    --c-primary: #0f766e;
+    --c-primary-dark: #115e59;
+    --c-accent: #c2410c;
+    --c-success: #166534;
+    --c-danger: #b91c1c;
+}

@@ -10,7 +10,7 @@ if ($spec === false) {
     exit(1);
 }
 
-preg_match_all('/\| `([^`]+\.php)` \| (PENDING|IMPLEMENTED) \|/', $spec, $matches);
+preg_match_all('/\| `([^`]+\.php)` \| (PENDING|IMPLEMENTED|BUILT) \|/', $spec, $matches);
 $pages = $matches[1];
 $expected = [
     'index.php', 'doctors.php', 'doctor.php', 'book.php', 'register.php',

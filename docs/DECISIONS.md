@@ -21,3 +21,8 @@
    not echo a raw variable; all dynamic page values use `e()` on the output
    line. SQL is kept in `models/`; authentication, validation, and mail
    helpers call model functions instead of embedding queries.
+9. The live clinic board uses Server-Sent Events rather than WebSockets because
+   the enhancement is one-way and PHP can provide the stream without requiring
+   a second server on a machine we do not own. The stream is capped at 45
+   seconds so the browser can reconnect, and it releases the session lock before
+   polling.

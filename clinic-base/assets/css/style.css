@@ -1,0 +1,3 @@
+/* Compatibility entry point for the established stylesheet URL. */
+@import url("../tokens.css");
+@import url("../style.css");

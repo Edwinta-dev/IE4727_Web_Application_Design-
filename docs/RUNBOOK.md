@@ -2,8 +2,33 @@
 
 ## XAMPP deployment
 
-Deployment instructions will be filled in during M4. This scaffold reserves
-the runbook location and does not yet include application code.
+Copy the repository folders beneath XAMPP's `htdocs` directory so both
+versions are available at the same time:
+
+```text
+htdocs/clinic-base/
+htdocs/clinic-plus/
+```
+
+Both folders use the same `ie4727db` database. Configure each ignored
+`config.local.php` with the local XAMPP credentials if they differ from the
+defaults, then start Apache and MariaDB.
+
+## Demo sequence
+
+1. Open `http://localhost/clinic-base/` and demonstrate the completed base
+   flow first: public doctor browsing, patient login, slot booking, and the
+   doctor/admin pages.
+2. Leave the base tab open as the frozen baseline, then switch to
+   `http://localhost/clinic-plus/` to demonstrate enhancements against the
+   same database and seed accounts.
+3. Use the same seeded credentials in either folder (`Password123` for demo
+   doctor and patient accounts). Do not reset the database between the two
+   demonstrations unless restarting the demo from the beginning.
+
+`clinic-base/` is frozen for enhancement work. Any defect fix discovered
+after this fork must be applied to both folders so the two deployments remain
+independent but equivalent at their shared baseline.
 
 ## Demo database credentials
 
