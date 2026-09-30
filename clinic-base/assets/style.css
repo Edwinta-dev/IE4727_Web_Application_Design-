@@ -129,9 +129,9 @@ ol {
 }
 
 .band {
-    width: 100vw;
-    margin-inline: calc(50% - 50vw);
-    padding: var(--space-5) max(1rem, calc((100% - 72rem) / 2));
+    width: 100%;
+    margin-inline: 0;
+    padding: var(--space-5);
     background: var(--c-surface-band);
 }
 
@@ -148,7 +148,7 @@ ol {
 .site-header-inner,
 main,
 .site-footer {
-    width: min(72rem, calc(100% - 2rem));
+    width: var(--page-width);
     margin-inline: auto;
 }
 
@@ -277,10 +277,7 @@ main {
     padding-block: 1.5rem;
 }
 
-.registration-page {
-    max-width: 76rem;
-    margin-inline: auto;
-}
+main p { max-width: 70ch; }
 
 .registration-intro {
     margin-bottom: var(--space-3);
@@ -796,7 +793,7 @@ input[type="button"]:active {
 }
 
 .doctor-directory {
-    min-width: 48rem;
+    width: 100%;
 }
 
 input[type="checkbox"],
@@ -826,7 +823,7 @@ label:has(input[type="radio"]) {
 
 .flash,
 .flash-banner {
-    width: min(72rem, calc(100% - 2rem));
+    width: var(--page-width);
     margin: var(--space-3) auto 0;
     border: 1px solid #e5c36b;
     border-left: 0.35rem solid var(--accent);
@@ -1016,9 +1013,9 @@ label:has(input[type="radio"]) {
 .member-login form > p:last-of-type input { width: 1.25rem; flex: 0 0 1.25rem; }
 .register-prompt { margin-top: var(--space-2); margin-bottom: 0; }
 
-.featured-doctors { margin-inline: calc(50% - 50vw); }
+.featured-doctors { margin-inline: 0; }
 .featured-doctors > h2,
-.featured-doctors > .doctor-tiles { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+.featured-doctors > .doctor-tiles { width: 100%; margin-inline: 0; }
 .featured-doctors > h2 { margin-bottom: var(--space-3); }
 
 .services { padding-block: var(--space-5); }
