@@ -875,3 +875,40 @@ label:has(input[type="radio"]) {
     .member-login { padding: var(--space-3); }
     .specialty-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-2); }
 }
+
+/* Doctor profile: a compact identity column beside clinical detail. */
+.doctor-profile { display: grid; grid-template-columns: minmax(15rem, 1fr) minmax(0, 2fr); gap: var(--space-5); align-items: start; }
+.doctor-profile-identity, .doctor-profile-content > section { min-width: 0; border-bottom: 1px solid var(--line); padding-bottom: var(--space-4); }
+.doctor-profile-identity { grid-row: 1; }
+.doctor-profile-portrait { display: block; width: 100%; max-width: 14rem; height: 17.5rem; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 28%; }
+.doctor-profile-identity h1 { margin: var(--space-3) 0 0; }
+.doctor-profile-specialty { margin-top: 0.2rem; color: var(--muted); }
+.doctor-profile-facts { margin: var(--space-3) 0; }
+.doctor-profile-facts div { display: grid; grid-template-columns: minmax(6.5rem, 0.8fr) minmax(0, 1.5fr); gap: var(--space-2); padding-block: 0.5rem; border-bottom: 1px solid var(--line); }
+.doctor-profile-facts dt { font-weight: 700; }
+.doctor-profile-facts dd { margin: 0; }
+.doctor-book-button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; padding: 0.65rem 1rem; border-radius: var(--radius-control); background: var(--c-primary); color: white; text-decoration: none; }
+.doctor-book-button:hover, .doctor-book-button:visited { color: white; background: var(--c-primary-dark); }
+.doctor-profile-identity .doctor-book-button:link { color: white; }
+.doctor-profile-content { display: grid; gap: var(--space-4); min-width: 0; }
+.doctor-profile-content > section { margin: 0; }
+.doctor-profile-content > .page-intro { display: block; }
+.doctor-profile-content h2 { margin-top: 0; }
+.doctor-specialty-content { display: grid; grid-template-columns: minmax(13rem, 0.9fr) minmax(0, 1.1fr); gap: var(--space-3); align-items: start; }
+.doctor-specialty-content img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.doctor-specialty-content p { margin-top: 0; }
+.doctor-specialty-content h3 { margin-bottom: 0.35rem; }
+.doctor-specialty-content ul { margin-top: 0; padding-left: 1.25rem; }
+.doctor-profile .available-slots { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+.doctor-profile .slot { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.doctor-profile .slot.free { border-left: 0; }
+.doctor-profile .slot a { display: flex; min-height: 2.75rem; align-items: center; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--c-paper); padding: 0.5rem 0.75rem; text-decoration: none; }
+.doctor-profile .slot a:hover { border-color: var(--c-primary); background: var(--c-surface); }
+@media (max-width: 56rem) {
+    .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+    .doctor-profile-identity { grid-row: auto; }
+    .doctor-profile-portrait { max-width: 14rem; }
+}
+@media (max-width: 40rem) {
+    .doctor-specialty-content { grid-template-columns: minmax(0, 1fr); }
+}
