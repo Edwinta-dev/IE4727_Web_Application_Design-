@@ -20,7 +20,9 @@
     --space-4: 1.5rem;
     --space-5: 2.25rem;
     --space-6: 3.5rem;
-    --radius: 0.2rem;
+    --radius: var(--radius-control);
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-body: "Segoe UI", "Gill Sans", "Trebuchet MS", sans-serif;
 }
 
 * {
@@ -30,7 +32,7 @@
 html {
     color: var(--ink);
     background: var(--surface);
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: var(--font-body);
     font-size: 100%;
     line-height: 1.6;
 }
@@ -63,7 +65,7 @@ a:link {
 }
 
 a:visited {
-    color: #704f8b;
+    color: var(--brand-dark);
 }
 
 a:hover {
@@ -96,16 +98,18 @@ a:active {
 h1,
 h2,
 h3 {
+    font-family: var(--font-display);
     line-height: 1.2;
+    letter-spacing: -0.025em;
     margin: 0 0 var(--space-3);
 }
 
 h1 {
-    font-size: clamp(1.8rem, 4vw, 2.65rem);
+    font-size: clamp(2rem, 4vw, 2.5rem);
 }
 
 h2 {
-    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
 }
 
 h3 {
@@ -124,6 +128,23 @@ header {
     border-bottom: 0.25rem solid var(--accent);
 }
 
+.band {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding: var(--space-5) max(1rem, calc((100% - 72rem) / 2));
+    background: var(--c-surface-band);
+}
+
+.band > :first-child { margin-top: 0; }
+.band > :last-child { margin-bottom: 0; }
+
+.split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    align-items: start;
+}
+
 .site-header-inner,
 .site-nav,
 main,
@@ -133,11 +154,34 @@ main,
 }
 
 .site-nav {
+    display: block;
+    padding-block: var(--space-2);
+}
+
+.clinic-logo {
+    display: flex;
+    width: min(72rem, calc(100% - 2rem));
+    min-height: 4.5rem;
+    margin-inline: auto;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+}
+
+.clinic-logo img {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+}
+
+.site-nav ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
+    gap: var(--space-1) var(--space-2);
     align-items: center;
-    padding-block: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .site-nav a {
@@ -179,7 +223,7 @@ main {
 .form-card,
 .status-page {
     background: var(--paper);
-    border-left: 0.35rem solid var(--brand);
+    border-left: 0;
     border-bottom: 1px solid var(--line);
     padding: var(--space-4) var(--space-3);
 }
@@ -189,7 +233,7 @@ main {
     grid-column: 1 / -1;
     gap: var(--space-4);
     align-items: center;
-    background: linear-gradient(135deg, #e7f5f5, var(--paper));
+    background: var(--c-surface-band);
 }
 
 .doctor-photo {
@@ -235,7 +279,7 @@ main {
     min-width: 0;
     overflow-wrap: anywhere;
     border: 1px solid var(--line);
-    border-left: 0.35rem solid var(--success);
+    border-left: 1px solid var(--line);
     min-height: 2.75rem;
     border-radius: 0.2rem;
     background: #f4fbf8;
@@ -268,7 +312,7 @@ main {
 .slot.past {
     border-left-color: var(--muted);
     border-left-style: dotted;
-    background: repeating-linear-gradient(-45deg, #eef1f3, #eef1f3 0.45rem, #e3e8eb 0.45rem, #e3e8eb 0.55rem);
+    background: #eef1f3;
 }
 
 .slot.taken a,
@@ -303,9 +347,7 @@ td {
 th {
     background: #e7f3ef;
     color: var(--brand-dark);
-    font-size: 0.9rem;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    font-size: 1rem;
 }
 
 tr:nth-child(even) td {
@@ -329,7 +371,7 @@ select,
 textarea {
     width: 100%;
     border: 1px solid #aebfca;
-    border-radius: 0.4rem;
+    border-radius: var(--radius-control);
     background: var(--paper);
     color: var(--ink);
     font: inherit;
@@ -379,6 +421,7 @@ input[type="button"] {
     font-weight: 700;
     padding: 0.65rem 1.1rem;
     text-decoration: none;
+    transition: background-color 160ms ease, transform 160ms ease;
 }
 
 button:hover,
@@ -388,10 +431,56 @@ input[type="button"]:hover {
     background: var(--brand-dark);
 }
 
+button:active,
+.button:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    transform: translateY(1px);
+}
+
 .button.secondary {
     border-color: var(--line);
     background: var(--paper);
     color: var(--brand-dark);
+}
+
+.button.quiet {
+    border-color: transparent;
+    background: transparent;
+    color: var(--brand-dark);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.doctor-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-tile);
+    background: var(--c-surface-tile);
+    box-shadow: var(--shadow-doctor-tile);
+    padding: var(--space-3);
+}
+
+.doctor-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-3);
+}
+
+.doctor-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-control);
+    object-fit: cover;
+}
+
+.table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.doctor-directory {
+    min-width: 48rem;
 }
 
 input[type="checkbox"],
@@ -445,7 +534,9 @@ label:has(input[type="radio"]) {
     margin: 0;
 }
 
-@media (max-width: 46rem) {
+@media (max-width: 56rem) {
+    .split { grid-template-columns: 1fr; }
+    .band { padding: var(--space-4) 1rem; }
     .page-layout,
     .two-column,
     .content-layout,

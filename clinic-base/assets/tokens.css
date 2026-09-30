@@ -3,10 +3,16 @@
     --c-muted: #57534e;
     --c-paper: #fffdf9;
     --c-surface: #faf7f2;
+    --c-surface-band: #f1ece3;
+    --c-surface-tile: #fffefa;
     --c-line: #ded6ca;
     --c-primary: #0f766e;
     --c-primary-dark: #115e59;
     --c-accent: #c2410c;
     --c-success: #166534;
     --c-danger: #b91c1c;
+    --shadow-doctor-tile: 0 0.35rem 1rem rgba(41, 37, 36, 0.10);
+    --radius-control: 0.2rem;
+    --radius-tile: 0.45rem;
+    --radius-section: 0;
 }

@@ -27,7 +27,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="hero-band">
+    <section class="hero-band band split">
         <div class="hero-copy">
             <p class="eyebrow">Thoughtful care, close to home</p>
             <h1>Clinic Appointment Portal</h1>
