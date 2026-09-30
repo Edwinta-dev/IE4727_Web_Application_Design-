@@ -22,9 +22,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
 <main id="main-content" class="doctor-profile">
     <section class="page-intro">
-        <h1><?= e((string) $doctor['FullName']) ?></h1>
-        <p><?= e((string) ($doctor['Specialty'] ?? 'General practice')) ?></p>
-        <img src="<?= e(url($image)) ?>" width="160" height="160" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" class="page-intro-image">
+        <div class="page-intro-copy">
+            <h1><?= e((string) $doctor['FullName']) ?></h1>
+            <p><?= e((string) ($doctor['Specialty'] ?? 'General practice')) ?> at our clinic</p>
+        </div>
+        <img src="<?= e(url($image)) ?>" width="600" height="400" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" class="page-intro-image">
     </section>
     <section>
         <h2>About this doctor</h2>

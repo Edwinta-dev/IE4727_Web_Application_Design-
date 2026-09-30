@@ -42,9 +42,10 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 ?>
 <main id="appointments">
     <section class="page-intro">
-        <h1>Day board</h1>
-        <p>Review appointments, attendance and patient history for your clinic schedule.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Day board</h1>
+            <p>Review appointments, attendance and patient history for your clinic schedule.</p>
+        </div>
     </section>
 
     <?php flash_render(); ?>

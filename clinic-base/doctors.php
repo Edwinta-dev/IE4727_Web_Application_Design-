@@ -24,9 +24,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro band">
-        <h1>Find a doctor</h1>
-        <p>Browse our doctors, learn about their experience and choose a convenient appointment.</p>
+    <section class="page-intro public-page-intro">
+        <div class="page-intro-copy">
+            <h1>Find a doctor</h1>
+            <p>Compare our doctors by specialty, experience and language before choosing a visit.</p>
+        </div>
+        <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="A doctor speaking with a patient" class="page-intro-image">
     </section>
 
 <?php if ($specialtyOptions !== []): ?>

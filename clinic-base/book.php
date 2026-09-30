@@ -93,9 +93,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
 <main>
     <section class="page-intro">
-        <h1>Book an appointment</h1>
-        <p>Choose a doctor and a time within the next seven days. The schedule shows available, booked, blocked and past slots.</p>
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
+        <div class="page-intro-copy">
+            <h1>Book an appointment</h1>
+            <p>Choose a doctor, date and time. You can book an available slot in the next seven days.</p>
+        </div>
+        <img src="<?= e(url('/assets/img/General_Practice_in_Action.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="A general practitioner caring for a patient" class="page-intro-image">
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">

@@ -274,7 +274,51 @@ main,
 }
 
 main {
-    padding-block: var(--space-6);
+    padding-block: 1.5rem;
+}
+
+.page-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-2);
+    min-height: 0;
+}
+
+.page-intro h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+}
+
+.page-intro p { margin-bottom: 0; }
+
+.page-intro-image {
+    display: block;
+    width: min(100%, 18.75rem);
+    height: 12.5rem;
+    max-height: 200px;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.page-intro-mark {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.public-page-intro .page-intro-image { width: 18.75rem; }
+
+.status-page .page-intro { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 40rem) {
+    .page-intro { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+    .page-intro-image { width: 100%; height: auto; max-width: 20rem; }
+    .public-page-intro .page-intro-image { width: 100%; }
 }
 
 .page-layout,

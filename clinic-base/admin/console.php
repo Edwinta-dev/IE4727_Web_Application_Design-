@@ -53,9 +53,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="admin-console">
-    <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="96" height="96" loading="eager" decoding="async" alt="Clinic logo">
-    <h1>Administrator console</h1>
-    <p>Review accounts, appointments and booking analytics.</p>
+    <section class="page-intro">
+        <div class="page-intro-copy">
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Administrator console</h1>
+            <p>Review clinic accounts, appointments and booking patterns.</p>
+        </div>
+    </section>
     <p><a href="<?= e(url('/admin/outbox.php')) ?>">Open notification outbox</a></p>
 
     <section class="stats-strip" aria-labelledby="stats-heading">

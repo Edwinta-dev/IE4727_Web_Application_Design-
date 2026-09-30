@@ -24,10 +24,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main class="registration-page">
-    <section class="registration-intro">
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
-        <h1>Create your clinic account</h1>
-        <p>Register as a patient or doctor to use the appointment portal.</p>
+    <section class="page-intro public-page-intro registration-intro">
+        <div class="page-intro-copy">
+            <h1>Create your clinic account</h1>
+            <p>Choose patient or doctor access, then enter the details used for your clinic account.</p>
+        </div>
+        <img src="<?= e(url('/assets/img/Clinic_Assisting_Elderly_woman.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="Clinic staff assisting an older patient" class="page-intro-image">
     </section>
 
     <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>

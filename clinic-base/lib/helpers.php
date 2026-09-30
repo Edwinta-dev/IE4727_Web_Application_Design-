@@ -120,9 +120,8 @@ function render_status_page(int $status, string $title, string $message): never
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
     echo '<main class="status-page">'
         . '<section class="page-intro">'
-        . '<h1>' . e($title) . '</h1>'
-        . '<p>' . e($message) . '</p>'
-        . '<img src="' . e(url('/assets/img/clinic-logo.svg')) . '" width="96" height="96" loading="eager" decoding="async" alt="Clinic Appointment Portal" class="page-intro-image">'
+        . '<div class="page-intro-copy"><h1><img src="' . e(url('/assets/img/clinic-logo.svg')) . '" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">' . e($title) . '</h1>'
+        . '<p>' . e($message) . '</p></div>'
         . '<p><a href="' . e(url('/index.php')) . '">Return to the home page</a></p>'
         . '</section></main>';
     require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
