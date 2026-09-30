@@ -16,6 +16,14 @@ foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="us
     }
 }
 
+foreach (['hero-copy-text', 'hero-actions', 'class="member-login"', 'register.php',
+    'class="specialty-strip"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
+    'class="specialty-item"', 'class="featured-doctors band"'] as $needle) {
+    if (strpos($index, $needle) === false) {
+        throw new RuntimeException("homepage is missing redesigned section {$needle}");
+    }
+}
+
 foreach (['csrf_check()', 'validate(', 'attempt_login(', 'login_return_path', 'flash('] as $needle) {
     if (strpos($login, $needle) === false) {
         throw new RuntimeException("login action is missing {$needle}");
