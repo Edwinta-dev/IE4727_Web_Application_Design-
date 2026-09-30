@@ -18,13 +18,13 @@
 .table-scroll { max-width: 100%; overflow-x: auto; }
 .doctor-directory { min-width: 70rem; table-layout: fixed; }
 .doctor-directory caption { padding: 0.75rem 0; font-size: 1.15rem; }
-.doctor-directory col.doctor-column-photo { width: 5.5rem; }
+.doctor-directory col.doctor-column-photo { width: 5rem; }
 .doctor-directory col.doctor-column-name { width: 10rem; }
-.doctor-directory col.doctor-column-specialty { width: 10rem; }
-.doctor-directory col.doctor-column-qualifications { width: 19rem; }
-.doctor-directory col.doctor-column-languages { width: 11rem; }
-.doctor-directory col.doctor-column-next { width: 9rem; }
-.doctor-directory col.doctor-column-action { width: 5.5rem; }
+.doctor-directory col.doctor-column-specialty { width: 9rem; }
+.doctor-directory col.doctor-column-qualifications { width: 16rem; }
+.doctor-directory col.doctor-column-languages { width: 9rem; }
+.doctor-directory col.doctor-column-next { width: 8rem; }
+.doctor-directory col.doctor-column-action { width: 5rem; }
 .doctor-directory th,
 .doctor-directory td { padding: 0.75rem 0.65rem; vertical-align: middle; overflow-wrap: normal; }
 .doctor-directory thead th {
@@ -55,7 +55,6 @@
 .doctor-directory thead th { line-height: 3.25rem; }
 .doctor-directory tbody td:nth-child(3),
 .doctor-directory tbody td:nth-child(7) { line-height: 4.75rem; }
-.doctor-directory tbody td:nth-child(5) { white-space: nowrap; }
 .doctor-directory .doctor-photo { display: block; width: 3.5rem; height: 3.5rem; border: 0; box-shadow: 0 0 0 1px var(--c-line); }
 .doctor-directory tbody tr:nth-child(even) { background: var(--c-surface); }
 .doctor-next-available span { display: block; white-space: nowrap; }
