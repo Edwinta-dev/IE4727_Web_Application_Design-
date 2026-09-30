@@ -20,8 +20,8 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
 <body>
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="site-header">
-    <a class="clinic-logo" href="<?= e(url('/index.php')) ?>">
-        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
-        <span class="accent">Clinic Appointment Portal</span>
-    </a>
-</header>
+    <div class="site-header-inner">
+        <a class="clinic-logo" href="<?= e(url('/index.php')) ?>">
+            <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
+            <span class="site-brand">Clinic Appointment Portal</span>
+        </a>

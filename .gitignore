@@ -11,3 +11,5 @@ __pycache__/
 
 # Local UI ground truth: owner screenshots (UIPROBLEMS/*.png) and agent before/after captures (UIPROBLEMS/after/)
 UIPROBLEMS/
+# Per-run PHP session dirs created by tools/ui --serve (removed on exit; ignored in case a run is killed)
+.ui-sessions-*/

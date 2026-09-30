@@ -27,6 +27,24 @@ checks are `palette`, `contrast`, and `focus`; choose them with
 `--checks=palette,contrast,focus`. Run `node tools/ui/audit.mjs --selftest` to
 verify the good and bad HTML fixtures against every audit category.
 
+### Auditing one region: `--within <selector>`
+
+An issue that owns one part of the page (the header, the doctor tiles, the
+directory table) gates on that part only, so it is not blocked by defects that
+later issues own:
+
+```
+node tools/ui/audit.mjs --serve --within .site-header layout,tap-targets,focus,slop index.php
+```
+
+With `--within`, element checks (images, tap targets, focus, table cells,
+borders, effects, copy) only look inside elements matching the selector, and
+the overflow rule asks whether that region overflows the viewport. Page-wide
+typography rules (body/heading font, body size) are skipped; they belong to
+the full-page gate. The header/nav geometry rules always run. A selector that
+matches nothing is a failure, not a pass. The final gate always runs without
+`--within`.
+
 Open captured PNGs at both viewport widths and compare with the owner references
 in `UIPROBLEMS/` before declaring a visual task complete. Screenshots are
 gitignored evidence and must not be committed.

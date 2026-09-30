@@ -10,8 +10,9 @@ export const appBase = 'http://127.0.0.1:8123/clinic-base/';
 const pages = ['index.php','doctors.php','doctor.php?id=1','book.php?doctor=1','register.php','patient/home.php','doctor/home.php','doctor/schedule.php','doctor/visit.php','admin/console.php','admin/outbox.php'];
 export const slug = (p) => p.replace(/\.php.*/, '').replace(/[/?=&]+/g, '-').replace(/^-|-$/g, '').replace(/\.php$/, '') || 'home';
 export function parseArgs(args) {
-  const out={serve:false,label:null,paths:[]};
-  for(let i=0;i<args.length;i++){ if(args[i]==='--serve')out.serve=true; else if(args[i]==='--label')out.label=args[++i]; else if(args[i].startsWith('--')){} else out.paths.push(args[i]); }
+  const out={serve:false,label:null,within:null,paths:[]};
+  for(let i=0;i<args.length;i++){ if(args[i]==='--serve')out.serve=true; else if(args[i]==='--label')out.label=args[++i]; else if(args[i]==='--within')out.within=args[++i]; else if(args[i].startsWith('--within='))out.within=args[i].slice(9); else if(args[i].startsWith('--')){} else out.paths.push(args[i]); }
+  if(out.within==='' || (out.within===undefined))throw Error('--within needs a CSS selector, e.g. --within .site-header');
   if(out.paths.some(x=>/^https?:\/\//i.test(x))){if(out.paths.some(x=>/:8000(?:\/|$)/.test(x)))throw Error('Port 8000 is the stale XAMPP copy. Use --serve on 127.0.0.1:8123.'); throw Error('Pass app paths (for example patient/home.php), not URLs.');}
   if(out.serve && process.env.UI_BASE_URL && /:8000(?:\/|$)/.test(process.env.UI_BASE_URL))throw Error('Port 8000 is the stale XAMPP copy; --serve uses 127.0.0.1:8123.');
   out.paths=out.paths.flatMap(p=>p==='all'?pages:[p]); return out;
