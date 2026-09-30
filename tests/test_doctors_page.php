@@ -14,6 +14,12 @@ foreach (['<table', '<caption>', '<thead>', '<tbody>', 'all_specialties()', 'nam
     'aria-label="Doctor directory" tabindex="0"', 'doctor-next-available'] as $needle) {
     assert_contains($page, $needle);
 }
+foreach (['class="photo-banner doctor-directory-banner"', 'class="photo-scrim"', 'class="hero-image"',
+    'class="photo-caption"', 'Find a doctor</h1>', 'class="doctor-directory-subtitle"',
+    '/assets/img/Clinic_Assisting_Elderly_woman.jpg', 'class="specialty-filter"'] as $needle) {
+    assert_contains($page, $needle);
+}
+assert_true(!str_contains($page, 'class="page-intro-image"'), 'directory uses its photo banner instead of the floating intro image');
 
 echo "PASS: doctors page markup checks\n";
 

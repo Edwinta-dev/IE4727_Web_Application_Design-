@@ -24,13 +24,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro public-page-intro">
-        <div class="page-intro-copy">
-            <h1>Find a doctor</h1>
-            <p>Compare our doctors by specialty, experience and language before choosing a visit.</p>
+    <section class="doctor-directory-intro" aria-labelledby="doctor-directory-heading">
+        <div class="photo-banner doctor-directory-banner">
+            <img src="<?= e(url('/assets/img/Clinic_Assisting_Elderly_woman.jpg')) ?>" width="1280" height="853" loading="eager" decoding="async" alt="Clinic staff assisting an older patient" class="hero-image">
+            <div class="photo-scrim" aria-hidden="true"></div>
+            <div class="photo-caption">
+                <h1 id="doctor-directory-heading">Find a doctor</h1>
+                <p class="doctor-directory-subtitle">Compare specialties, experience and languages before choosing a visit.</p>
+            </div>
         </div>
-        <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="A doctor speaking with a patient" class="page-intro-image">
-    </section>
 
 <?php if ($specialtyOptions !== []): ?>
     <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
@@ -49,6 +51,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
     </form>
 <?php endif; ?>
+
+    </section>
 
     <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">

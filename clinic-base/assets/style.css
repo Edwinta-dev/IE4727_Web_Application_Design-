@@ -1070,6 +1070,11 @@ label:has(input[type="radio"]) {
     background: var(--c-ink);
 }
 
+.doctor-directory-intro { margin-bottom: var(--space-3); }
+.photo-banner.doctor-directory-banner { height: clamp(15rem, 22vw, 20rem); }
+.doctor-directory-subtitle { max-width: 50rem; margin: var(--space-1) 0 0; color: #fff; }
+.doctor-directory-intro .specialty-filter { margin: var(--space-2) 0 0; }
+
 .photo-banner .hero-image { object-position: center 42%; }
 
 .photo-scrim {
