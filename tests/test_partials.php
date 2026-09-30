@@ -50,8 +50,11 @@ foreach ([
     '/\.site-header-inner\s*\{[^}]*display:\s*flex/s',
     '/\.site-nav ul\s*\{[^}]*display:\s*flex/s',
     '/\.site-nav ul\s*\{[^}]*list-style:\s*none/s',
-    '/\.site-nav a\[aria-current="page"\]\s*\{[^}]*box-shadow:/s',
+    '/\.site-nav a\[aria-current="page"\]::before\s*\{[^}]*box-shadow:/s',
     '/\.site-nav a\s*\{[^}]*min-width:\s*2\.75rem/s',
+    '/\.site-nav a\[aria-current="page"\]::before\s*\{[^}]*animation:\s*nav-tab-rise 180ms ease-out both/s',
+    '/\.site-nav a:hover::before,\s*\.site-nav a:focus-visible::before\s*\{[^}]*transform:\s*translateY\(-0\.25rem\)/s',
+    '/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.site-nav a\[aria-current="page"\]::before\s*\{[^}]*animation:\s*none;[^}]*transform:\s*translateY\(-0\.25rem\)/',
     '/@media\s*\(max-width:\s*42rem\)/',
 ] as $requiredStyle) {
     if (preg_match($requiredStyle, $styles) !== 1) {

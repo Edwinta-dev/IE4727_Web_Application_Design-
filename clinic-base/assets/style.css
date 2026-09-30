@@ -156,6 +156,7 @@ main,
     display: flex;
     flex: 1 1 auto;
     justify-content: flex-end;
+    align-self: stretch;
     min-width: 0;
 }
 
@@ -182,13 +183,15 @@ main,
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
-    align-items: center;
+    align-items: flex-end;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .site-nav a {
+    position: relative;
+    isolation: isolate;
     border-radius: 0.2rem;
     font-weight: 700;
     min-width: 2.75rem;
@@ -196,18 +199,44 @@ main,
     padding: 0.55rem 0.75rem;
     color: #fff;
     text-decoration: none;
-    transition: background-color 160ms ease, color 160ms ease;
+    transition: color 160ms ease;
+}
+
+.site-nav a::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 -0.25rem;
+    border-radius: inherit;
+    background: transparent;
+    content: "";
+    transition: background-color 180ms ease, transform 180ms ease;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-    background: rgba(255, 255, 255, 0.14);
     color: #fff;
 }
 
+.site-nav a:hover::before,
+.site-nav a:focus-visible::before {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-0.25rem);
+}
+
 .site-nav a[aria-current="page"] {
+    z-index: 0;
+}
+
+.site-nav a[aria-current="page"]::before {
     background: rgba(255, 255, 255, 0.14);
     box-shadow: inset 0 -0.2rem 0 var(--c-accent);
+    transform: translateY(-0.25rem);
+    animation: nav-tab-rise 180ms ease-out both;
+}
+
+@keyframes nav-tab-rise {
+    from { transform: translateY(0); }
+    to { transform: translateY(-0.25rem); }
 }
 
 .site-nav .nav-logout {
@@ -270,6 +299,15 @@ main,
 @media (prefers-reduced-motion: reduce) {
     .site-nav a {
         transition: none;
+    }
+
+    .site-nav a::before {
+        transition: none;
+    }
+
+    .site-nav a[aria-current="page"]::before {
+        animation: none;
+        transform: translateY(-0.25rem);
     }
 }
 
