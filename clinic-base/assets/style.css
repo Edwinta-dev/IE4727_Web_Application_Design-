@@ -1134,7 +1134,7 @@ label:has(input[type="radio"]) {
 .services { padding-block: var(--space-5); }
 .specialty-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-3); }
 .specialty-item { color: var(--ink); text-decoration: none; }
-.specialty-item img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: var(--space-2); }
+.specialty-item img { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-tile); object-fit: cover; margin-bottom: var(--space-2); }
 .specialty-item h3 { margin-bottom: var(--space-1); color: var(--brand-dark); }
 .specialty-item p { margin: 0; color: var(--muted); }
 
