@@ -25,7 +25,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <h1>My appointments</h1>
         <p>Review upcoming appointments and your completed visits.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
 <?php flash_render(); ?>
@@ -48,8 +48,8 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
                     <td><?= e((string) $appointment['Status']) ?></td>
                     <td>
-                        <a href="<?= e('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']])) ?>">Reschedule</a>
-                        <form method="post" action="/actions/appointment.php" onsubmit="return confirm('Cancel this appointment?');">
+                        <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
+                        <form method="post" action="<?= e(url('/actions/appointment.php')) ?>" onsubmit="return confirm('Cancel this appointment?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
                             <input type="hidden" name="cancel" value="1">
@@ -82,7 +82,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td><?= e((string) $appointment['Status']) ?></td>
                     <td>
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
-                        <a href="<?= e('/patient/home.php?view=' . (int) $appointment['appointmentID']) ?>">View visit notes</a>
+                        <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
 <?php else: ?>
                         Not available
 <?php endif; ?>

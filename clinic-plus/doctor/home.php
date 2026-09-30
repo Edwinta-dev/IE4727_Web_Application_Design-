@@ -44,12 +44,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <h1>Day board</h1>
         <p>Review appointments, attendance and patient history for your clinic schedule.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
     <?php flash_render(); ?>
 
-    <form class="day-board-filter" method="get" action="/doctor/home.php">
+    <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
         <?= csrf_field() ?>
         <label for="day">Schedule date</label>
         <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
@@ -74,7 +74,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <tr>
                         <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
                         <td>
-                            <a href="<?= e('/doctor/home.php?' . http_build_query(['date' => $date, 'patient' => (int) $appointment['PatientID']])) ?>">
+                            <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $date, 'patient' => (int) $appointment['PatientID']]))) ?>">
                                 <?= e((string) $appointment['PatientName']) ?>
                             </a>
                         </td>
@@ -82,20 +82,20 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <td><?= e((string) $appointment['Status']) ?></td>
                         <td>
                             <?php if (in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)): ?>
-                                <a href="<?= e('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor'])) ?>">Reschedule</a>
-                                <form method="post" action="/actions/appointment.php">
+                                <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
+                                <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
                                     <input type="hidden" name="status" value="Completed">
                                     <button type="submit">Mark completed</button>
                                 </form>
-                                <form method="post" action="/actions/appointment.php">
+                                <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
                                     <input type="hidden" name="status" value="No show">
                                     <button type="submit">Mark no-show</button>
                                 </form>
-                                <a href="<?= e('/doctor/visit.php?appt=' . (int) $appointment['appointmentID']) ?>">Start visit</a>
+                                <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
                             <?php else: ?>
                                 <span>No attendance action</span>
                             <?php endif; ?>

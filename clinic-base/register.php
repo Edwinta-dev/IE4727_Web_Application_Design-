@@ -25,14 +25,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
 <main class="registration-page">
     <section class="registration-intro">
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal logo">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
         <h1>Create your clinic account</h1>
         <p>Register as a patient or doctor to use the appointment portal.</p>
     </section>
 
     <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 
-    <form id="registration-form" method="post" action="/actions/register.php" onsubmit="return validateRegistrationForm(event)">
+    <form id="registration-form" method="post" action="<?= e(url('/actions/register.php')) ?>" onsubmit="return validateRegistrationForm(event)">
         <?= csrf_field() ?>
         <fieldset>
             <legend>Account type</legend>
@@ -118,5 +118,5 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <button type="submit">Create account</button>
     </form>
 </main>
-<script src="/assets/app.js"></script>
+<script src="<?= e(url('/assets/app.js')) ?>"></script>
 <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>

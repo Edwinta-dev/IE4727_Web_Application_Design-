@@ -59,7 +59,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <h1>Patient visit</h1>
         <p>Review the patient's medical history before recording this visit.</p>
-        <img src="/assets/img/clinic-logo.svg" alt="Clinic Appointment Portal" class="page-intro-image">
+        <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal" class="page-intro-image">
     </section>
 
     <?php flash_render(); ?>
@@ -100,7 +100,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="visit-form-section" aria-label="Record visit notes">
         <h2>Record this visit</h2>
-        <form class="visit-form" method="post" action="<?= e('/doctor/visit.php?appt=' . $appointmentId) ?>">
+        <form class="visit-form" method="post" action="<?= e(url('/doctor/visit.php?appt=' . $appointmentId)) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="appointment_id" value="<?= e((string) $appointmentId) ?>">
 

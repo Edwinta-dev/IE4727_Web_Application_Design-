@@ -28,7 +28,7 @@ declare(strict_types=1);
         <div class="slot <?= e($stateClass) ?>">
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
-            <form method="post" action="<?= e($reschedule === null ? '/actions/book.php' : '/actions/appointment.php') ?>">
+            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
                 <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
