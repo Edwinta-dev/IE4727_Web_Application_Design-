@@ -81,7 +81,7 @@ UPDATE slots SET Status = 'Blocked' WHERE DoctorID = 3 AND DATE(SlotDateTime) = 
 CREATE TEMPORARY TABLE demo_future AS
 SELECT s.slotID, s.DoctorID, s.SlotDateTime
 FROM slots s
-WHERE s.SlotDateTime >= CURDATE()
+WHERE s.SlotDateTime >= CURDATE() + INTERVAL 1 DAY
   AND s.Status = 'Available'
   AND NOT (s.DoctorID = 1 AND DATE(s.SlotDateTime) = CURDATE() + INTERVAL 1 DAY AND TIME(s.SlotDateTime) = '10:30:00')
   AND NOT (s.DoctorID = 3 AND DATE(s.SlotDateTime) = @blocked_day AND TIME(s.SlotDateTime) >= '14:00:00')

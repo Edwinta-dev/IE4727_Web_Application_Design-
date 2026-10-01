@@ -48,7 +48,7 @@ $weekly = appointments_per_doctor_this_week();
 $noShowOverall = overall_no_show_rate();
 $noShowDoctors = no_show_rate_per_doctor();
 $peakHours = peak_booking_hours();
-$leadDays = mean_booking_lead_time();
+$leadTime = mean_booking_lead_time($filters);
 $weeklyMax = max(array_map(static fn (array $row): int => (int) $row['Bookings'], $weekly) ?: [0]);
 $peakMax = max(array_map(static fn (array $row): int => (int) $row['Bookings'], $peakHours) ?: [0]);
 $noShowMax = max(array_map(static fn (array $row): float => (float) $row['Rate'], $noShowDoctors) ?: [0]);
@@ -80,7 +80,15 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <div class="stat-card"><h3>Peak booking hours</h3>
             <?php foreach ($peakHours as $row): $width = $peakMax > 0 ? ((int) $row['Bookings'] / $peakMax) * 100 : 0; ?><p><?= e(str_pad((string) $row['BookingHour'], 2, '0', STR_PAD_LEFT)) ?>:00 — <?= e((string) $row['Bookings']) ?></p><div class="stat-bar" style="width: <?= e((string) $width) ?>%"></div><?php endforeach; ?>
         </div>
-        <div class="stat-card"><h3>Mean booking lead time</h3><p><?= e(number_format($leadDays, 1)) ?> days</p><div class="stat-bar" style="width: <?= e((string) min(100, max(0, $leadDays))) ?>%"></div></div>
+        <div class="stat-card"><h3>Mean booking lead time</h3>
+            <?php if ($leadTime['mean_days'] === null): ?>
+                <p class="empty-state">Unavailable: no valid booking times in this selection.</p>
+            <?php else: ?>
+                <p><?= e(number_format($leadTime['mean_days'], 1)) ?> days</p>
+            <?php endif; ?>
+            <p>Appointment start minus booking time, in elapsed days (24 hours); rounded to one decimal. All statuses are eligible; filters apply.</p>
+            <p><?= e((string) $leadTime['valid']) ?> valid; <?= e((string) $leadTime['invalid']) ?> excluded (booking time missing or after appointment).</p>
+        </div>
     </section>
 
     <section class="console-filters" aria-labelledby="filters-heading"><h2 id="filters-heading">Filters</h2>
