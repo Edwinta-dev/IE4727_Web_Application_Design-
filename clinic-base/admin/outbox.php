@@ -31,7 +31,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="outbox-filters" aria-labelledby="outbox-filters-heading">
         <h2 id="outbox-filters-heading">Filter messages</h2>
         <form method="get" action="<?= e(url('/admin/outbox.php')) ?>">
-            <?= csrf_field() ?>
             <label for="deliveryStatus">Delivery status</label>
             <select id="deliveryStatus" name="deliveryStatus">
                 <option value="">All statuses</option>

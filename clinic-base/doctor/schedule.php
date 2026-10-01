@@ -171,7 +171,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="month-grid" aria-labelledby="month-heading">
         <h2 id="month-heading">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?></h2>
         <form method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
-            <?= csrf_field() ?>
             <label for="schedule-date">Open a date</label>
             <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
             <button type="submit">Show date</button>

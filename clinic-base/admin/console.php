@@ -92,7 +92,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
 
     <section class="console-filters" aria-labelledby="filters-heading"><h2 id="filters-heading">Filters</h2>
-        <form method="get" action="<?= e(url('/admin/console.php')) ?>"><?= csrf_field() ?><label>Doctor <select name="doctor"><option value="">All doctors</option><?php foreach ($allDoctors as $doctor): ?><option value="<?= e((string) $doctor['DoctorID']) ?>"<?= e($filters['doctor'] === (string) $doctor['DoctorID'] ? ' selected' : '') ?>><?= e($doctor['FullName']) ?></option><?php endforeach; ?></select></label>
+        <form method="get" action="<?= e(url('/admin/console.php')) ?>"><label>Doctor <select name="doctor"><option value="">All doctors</option><?php foreach ($allDoctors as $doctor): ?><option value="<?= e((string) $doctor['DoctorID']) ?>"<?= e($filters['doctor'] === (string) $doctor['DoctorID'] ? ' selected' : '') ?>><?= e($doctor['FullName']) ?></option><?php endforeach; ?></select></label>
             <label>Status <select name="status"><option value="">All statuses</option><?php foreach (['Future', 'Cancelled', 'No show', 'Completed', 'Rescheduled'] as $status): ?><option value="<?= e($status) ?>"<?= e($filters['status'] === $status ? ' selected' : '') ?>><?= e($status) ?></option><?php endforeach; ?></select></label>
             <label>From <input type="date" name="date_from" value="<?= e($filters['date_from']) ?>"></label><label>To <input type="date" name="date_to" value="<?= e($filters['date_to']) ?>"></label><button type="submit">Apply filters</button><a href="<?= e(url('/admin/console.php')) ?>">Clear</a>
         </form>

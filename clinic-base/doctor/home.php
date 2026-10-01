@@ -46,7 +46,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Day board</h1>
         </div>
         <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
-            <?= csrf_field() ?>
             <label for="day">Schedule date</label>
             <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
             <button type="submit">Show day</button>

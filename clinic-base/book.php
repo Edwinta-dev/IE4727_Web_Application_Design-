@@ -103,7 +103,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
-        <?= csrf_field() ?>
 <?php if ($reschedule !== null): ?>
         <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
 <?php endif; ?>
