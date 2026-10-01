@@ -37,8 +37,6 @@ $rules = [
     'Email' => 'required|email|max:100',
     'password' => 'required|min:8',
     'confirm_password' => 'required|matches:password',
-    'Gender' => 'required|in:Male,Female,Other',
-    'Phone' => ['required', 'regex:/^\+?[0-9 ()-]{7,20}$/'],
 ];
 if ($data['role'] === 'doctor') {
     $rules += [
@@ -46,6 +44,11 @@ if ($data['role'] === 'doctor') {
         'Qualifications' => 'required|max:255',
         'WriteUp' => 'required|max:65535',
         'Languages' => 'required|max:120',
+    ];
+} else {
+    $rules += [
+        'Gender' => 'required|in:Male,Female,Other',
+        'Phone' => ['required', 'regex:/^\+?[0-9 ()-]{7,20}$/'],
     ];
 }
 

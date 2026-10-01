@@ -8,9 +8,9 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 $currentPath = parse_url(app_request_uri(), PHP_URL_PATH);
 $currentPath = is_string($currentPath) && $currentPath !== '' ? $currentPath : '/index.php';
 $user = current_user();
-$role = is_array($user) ? (string) ($user['role'] ?? '') : '';
+$navigationRole = is_array($user) ? (string) ($user['role'] ?? '') : '';
 
-$links = match ($role) {
+$links = match ($navigationRole) {
     'patient' => [
         ['label' => 'Home', 'href' => '/patient/home.php', 'page' => '/patient/home.php'],
         ['label' => 'Find a doctor', 'href' => '/doctors.php', 'page' => '/doctors.php'],

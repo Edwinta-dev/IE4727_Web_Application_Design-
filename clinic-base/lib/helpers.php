@@ -274,6 +274,16 @@ function errors_for(string $field): string
     return is_scalar($error) ? (string) $error : '';
 }
 
+/** Consume and return all validation errors for a form summary. @return array<string, string> */
+function errors_all(): array
+{
+    start_session_once();
+    $errors = $_SESSION['errors'] ?? [];
+    unset($_SESSION['errors']);
+
+    return is_array($errors) ? array_filter($errors, 'is_string') : [];
+}
+
 /**
  * Format a date value for display.
  */
