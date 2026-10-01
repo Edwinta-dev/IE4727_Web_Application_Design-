@@ -103,7 +103,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="phone">Phone</label>
-                <input id="phone" name="Phone" type="tel" value="<?= e((string) $oldValues['Phone']) ?>" pattern="^\+?[0-9 ()-]{7,20}$" placeholder="e.g. +65 6123 4567">
+                <input id="phone" name="Phone" type="tel" value="<?= e((string) $oldValues['Phone']) ?>" pattern="^\+?[0-9 \(\)\-]{7,20}$" placeholder="e.g. +65 6123 4567" title="Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +." required>
                 <span class="field-error" data-error-for="Phone" role="alert"><?= e($registrationErrors['Phone'] ?? '') ?></span>
             </p>
             <p>

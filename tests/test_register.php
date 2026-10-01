@@ -31,6 +31,20 @@ foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', '.r
 foreach (['csrf_check()', 'validate(', 'create_patient_account(', 'create_doctor_account(', 'beginTransaction()'] as $needle) {
     assert_contains($action, $needle, 'registration action');
 }
+if (!preg_match('/\'Phone\'\s*=>\s*\[\'required\',\s*\'regex:([^\']+)\'\]/', $action, $phoneRule)) {
+    throw new RuntimeException('patient phone must keep authoritative required and regex validation');
+}
+assert_contains($action, "\$errors['Phone'] = 'Use 7 to 20 characters:", 'specific server phone error');
+foreach (['+65 6123 4567', '(65) 6123-4567', '61234567'] as $validPhone) {
+    if (validate(['Phone' => $validPhone], ['Phone' => ['required', 'regex:' . $phoneRule[1]]]) !== []) {
+        throw new RuntimeException('supported patient phone was rejected by PHP');
+    }
+}
+foreach (['', '6123abc8', '6123/4567'] as $invalidPhone) {
+    if (!isset(validate(['Phone' => $invalidPhone], ['Phone' => ['required', 'regex:' . $phoneRule[1]]])['Phone'])) {
+        throw new RuntimeException('invalid patient phone passed PHP validation');
+    }
+}
 assert_contains(file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php') ?: '', '$navigationRole', 'navigation role isolation');
 foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldError', 'return false', 'data-role-switch', 'ArrowLeft', 'ArrowRight', 'setRegistrationRole(role)'] as $needle) {
     assert_contains($script, $needle, 'registration javascript');

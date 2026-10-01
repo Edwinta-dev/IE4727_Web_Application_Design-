@@ -53,6 +53,9 @@ if ($data['role'] === 'doctor') {
 }
 
 $errors = validate($data, $rules);
+if ($data['role'] === 'patient' && $data['Phone'] !== '' && isset($errors['Phone'])) {
+    $errors['Phone'] = 'Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +.';
+}
 if ($errors === [] && user_or_email_taken($data['User'])) {
     $errors['User'] = 'Choose a username that is not already registered';
 }
