@@ -178,6 +178,7 @@ The owner's rule for all visual and copy work. It applies to every page in both 
 
 - **Colour is semantic, not decorative.** Use the tokens in `assets/tokens.css` (teal = primary action, burnt orange = accent, success/danger = feedback, warm neutrals = surfaces) and name any new token by purpose (`--c-feedback-warning`, not `--c-orange-2`). Roughly 70% neutral surfaces, 20–30% primary, 10% or less accent.
 - **Banned:** purple/blue gradients, decorative gradients of any kind, glassmorphism/backdrop blur, "rainbow" screens where colours mark nothing, and blue as the primary colour (see the palette audit).
+- A neutral black-to-transparent `.photo-scrim` over a photo is allowed for text legibility; every other gradient stays banned.
 - **Typography carries the identity.** Pair a serif display stack for headings with a readable sans body stack. No Inter, no bare `system-ui` everywhere, no monospace or `//` decorations as a "tech" look. Fonts are system stacks or committed OFL `.woff2` files under `assets/fonts/` with their licence; never a font CDN.
 - Body text is at least `1rem`. Avoid uppercase letter-spaced labels as a default style; sentence case reads better, including table headers.
 

@@ -15,20 +15,22 @@ if ($page === false || $action === false || $script === false) {
 foreach (['name="FullName"', 'name="User"', 'name="Email"', 'name="Gender"', 'name="Phone"', 'name="Allergies"',
     'name="<?= e($field) ?>"', 'csrf_field()', 'onsubmit="return validateRegistrationForm(event)"',
     'class="registration-layout"', 'class="registration-support"', 'What you’ll need', 'What happens next',
-    'Clinic_Assisting_Elderly_woman.jpg', 'class="registration-role-options"'] as $needle) {
+    'Clinic_Assisting_Elderly_woman.jpg', 'name="role" value="patient"', 'name="role" value="doctor"',
+    'class="registration-role-switcher"', 'data-role-switch="patient"', 'data-role-switch="doctor"',
+    'aria-label="Switch to doctor account"', 'class="registration-role-track" data-active-role="<?= e($role) ?>"'] as $needle) {
     assert_contains($page, $needle, 'registration page');
 }
 $styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 if ($styles === false) {
     throw new RuntimeException('registration stylesheet could not be read');
 }
-foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', '.registration-role-options', 'aspect-ratio: 4 / 3', '@media (max-width: 56rem)'] as $needle) {
+foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', '.registration-role-switcher', 'transition: transform 190ms ease', 'prefers-reduced-motion: reduce', 'aspect-ratio: 4 / 3', '@media (max-width: 56rem)'] as $needle) {
     assert_contains($styles, $needle, 'registration layout styles');
 }
 foreach (['csrf_check()', 'validate(', 'create_patient_account(', 'create_doctor_account(', 'beginTransaction()'] as $needle) {
     assert_contains($action, $needle, 'registration action');
 }
-foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldError', 'return false'] as $needle) {
+foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldError', 'return false', 'data-role-switch', 'ArrowLeft', 'ArrowRight', 'setRegistrationRole(role)'] as $needle) {
     assert_contains($script, $needle, 'registration javascript');
 }
 

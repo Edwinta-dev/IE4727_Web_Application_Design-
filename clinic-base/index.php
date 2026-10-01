@@ -30,16 +30,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <main>
     <section class="hero-band band split">
         <div class="hero-copy">
-            <div class="hero-copy-text">
-                <p class="eyebrow">Appointments at your neighbourhood clinic</p>
-                <h1>Care for every stage of life</h1>
+            <div class="photo-banner">
+                <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="1280" height="853" decoding="async" alt="A doctor discussing care with a patient" class="hero-image">
+                <div class="photo-scrim" aria-hidden="true"></div>
+                <div class="photo-caption">
+                    <p class="eyebrow">Appointments at your neighbourhood clinic</p>
+                    <h1>Care for every stage of life</h1>
+                </div>
+            </div>
+            <div class="hero-subtitle">
                 <p>Choose a doctor in general practice, dental care, paediatrics, dermatology or physiotherapy. Book online and manage your appointments here.</p>
                 <div class="hero-actions">
                     <a class="button" href="<?= e(url('/doctors.php')) ?>">Find a doctor</a>
                     <a class="button secondary" href="<?= e(url('/doctors.php')) ?>">Book an appointment</a>
                 </div>
             </div>
-            <img src="<?= e(url('/assets/img/Doctor_Consulting.jpg')) ?>" width="1280" height="853" decoding="async" alt="A doctor discussing care with a patient" class="hero-image">
         </div>
         <section class="member-login" aria-labelledby="member-login-heading">
 <?php if ($user !== null): ?>
@@ -72,7 +77,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
     <section class="featured-doctors band" aria-labelledby="featured-doctors-heading">
         <h2 id="featured-doctors-heading">Meet our featured doctors</h2>
-        <div class="doctor-tiles">
+        <div class="doctor-tiles grow-row">
 <?php if ($doctors === []): ?>
             <p class="empty-state">No doctors are currently available.</p>
 <?php else: ?>
@@ -80,7 +85,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 ?>
-            <a class="doctor-tile" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
+            <a class="doctor-tile grow-item" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
                 <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" width="440" height="550" loading="eager">
                 <h3><?= e((string) $doctor['FullName']) ?></h3>
 <?php if (trim((string) ($doctor['Specialty'] ?? '')) !== ''): ?>
@@ -97,7 +102,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="services" aria-labelledby="services-heading">
         <h2 id="services-heading">Care for the whole you</h2>
         <p>Choose a specialty to see the doctors and appointment times available.</p>
-        <div class="specialty-strip">
+        <div class="specialty-strip grow-row">
 <?php foreach ($specialties as $specialtyRow):
     $specialty = trim((string) ($specialtyRow['Specialty'] ?? ''));
     if ($specialty === '') { continue; }
@@ -109,7 +114,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         'Physiotherapy' => 'Movement and rehabilitation support after injury.',
     ][$specialty] ?? 'Talk with a doctor about your care needs.';
 ?>
-            <a class="specialty-item" href="<?= e(url('/doctors.php?specialty=' . rawurlencode($specialty))) ?>">
+            <a class="specialty-item grow-item" href="<?= e(url('/doctors.php?specialty=' . rawurlencode($specialty))) ?>">
                 <img src="<?= e(url(specialty_image($specialty))) ?>" alt="" width="640" height="360" loading="lazy">
                 <h3><?= e($specialty) ?></h3>
                 <p><?= e($specialtyCopy) ?></p>

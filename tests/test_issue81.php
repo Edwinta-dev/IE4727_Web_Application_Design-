@@ -17,7 +17,10 @@ $pages = [
 
 foreach ($pages as $pagePath) {
     $page = file_get_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . $pagePath);
-    if ($page === false || !str_contains($page, 'class="page-intro')) {
+    $usesExpectedIntro = $pagePath === 'clinic-base/doctors.php'
+        ? str_contains((string) $page, 'class="photo-banner doctor-directory-banner"')
+        : str_contains((string) $page, 'class="page-intro');
+    if ($page === false || !$usesExpectedIntro) {
         throw new RuntimeException($pagePath . ' must use the shared page-intro pattern');
     }
     if (!str_contains($page, '/assets/img/')) {

@@ -15,4 +15,9 @@
     --radius-control: 0.2rem;
     --radius-tile: 0.45rem;
     --radius-section: 0;
+    --page-width: calc(100% - 2rem);
+}
+
+@media (min-width: 64rem) {
+    :root { --page-width: 80vw; }
 }

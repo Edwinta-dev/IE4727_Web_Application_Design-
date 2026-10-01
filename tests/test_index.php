@@ -10,15 +10,15 @@ if ($index === false || $login === false) {
 }
 
 foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="username_or_email"',
-    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id=', 'text_excerpt(', 'class="doctor-tile"', 'class="doctor-tiles"', 'WriteUp'] as $needle) {
+    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id=', 'text_excerpt(', 'class="doctor-tile grow-item"', 'class="doctor-tiles grow-row"', 'WriteUp'] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing {$needle}");
     }
 }
 
-foreach (['hero-copy-text', 'hero-actions', 'class="member-login"', 'register.php',
-    'class="specialty-strip"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
-    'class="specialty-item"', 'class="featured-doctors band"'] as $needle) {
+foreach (['class="photo-banner"', 'class="photo-scrim"', 'class="photo-caption"', 'class="hero-subtitle"', 'hero-actions', 'class="member-login"', 'register.php',
+    'class="specialty-strip grow-row"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
+    'class="specialty-strip grow-row"', 'class="specialty-item grow-item"', 'class="featured-doctors band"'] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing redesigned section {$needle}");
     }
@@ -31,6 +31,16 @@ foreach (['csrf_check()', 'validate(', 'attempt_login(', 'login_return_path', 'f
 }
 
 echo "PASS: homepage and login structure checks\n";
+
+$style = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
+if ($style === false) {
+    throw new RuntimeException('shared stylesheet could not be read');
+}
+foreach (['.grow-row > .grow-item:hover', 'flex-grow: 1.17;', 'height: 242px;', 'prefers-reduced-motion: reduce', '.specialty-item img', 'border-radius: var(--radius-tile)'] as $needle) {
+    if (strpos($style, $needle) === false) {
+        throw new RuntimeException("featured doctor growth behaviour is missing {$needle}");
+    }
+}
 
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
 $excerpt = text_excerpt(str_repeat('care ', 35));
