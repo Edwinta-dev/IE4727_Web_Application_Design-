@@ -8,6 +8,9 @@
     --c-line: #ded6ca;
     --c-primary: #0f766e;
     --c-primary-dark: #115e59;
+    --c-button-background: var(--c-primary);
+    --c-button-background-hover: var(--c-primary-dark);
+    --c-button-foreground: #ffffff;
     --c-accent: #c2410c;
     --c-success: #166534;
     --c-danger: #b91c1c;

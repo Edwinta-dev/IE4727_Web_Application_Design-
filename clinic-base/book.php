@@ -9,16 +9,17 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'd
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
 
+$rescheduleRequested = array_key_exists('reschedule', $_GET);
 $rescheduleIdInput = $_GET['reschedule'] ?? '';
 $rescheduleId = is_string($rescheduleIdInput) && ctype_digit($rescheduleIdInput)
     ? (int) $rescheduleIdInput
     : 0;
 $reschedule = null;
 $rescheduleActor = 'patient';
-if ($rescheduleId > 0) {
+if ($rescheduleRequested) {
     require_login();
     $user = current_user();
-    $candidate = (is_patient() || is_doctor()) ? find_appointment($rescheduleId) : null;
+    $candidate = $rescheduleId > 0 && (is_patient() || is_doctor()) ? find_appointment($rescheduleId) : null;
     $ownsAppointment = is_patient()
         ? ($candidate !== null && (int) $candidate['PatientID'] === (int) $user['id'])
         : ($candidate !== null && (int) $candidate['DoctorID'] === (int) $user['id']);
@@ -29,7 +30,7 @@ if ($rescheduleId > 0) {
         $rescheduleActor = is_doctor() ? 'doctor' : 'patient';
     } else {
         flash('That appointment cannot be rescheduled.', 'error');
-        redirect('/patient/home.php');
+        redirect(is_doctor() ? '/doctor/home.php' : '/patient/home.php');
     }
 }
 
@@ -87,20 +88,28 @@ foreach ($slots as $slot) {
     }
 }
 
-$pageTitle = 'Book an Appointment';
+$pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
     <section class="page-intro booking-intro">
         <div class="page-intro-copy">
-            <h1>Book an appointment</h1>
+            <h1><?= e($reschedule !== null ? 'Reschedule an appointment' : 'Book an appointment') ?></h1>
+<?php if ($reschedule !== null): ?>
+            <p class="reschedule-context">Current appointment: <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?>.</p>
+            <p>Your current booking stays in place until the replacement is confirmed. <a href="<?= e(url($rescheduleActor === 'doctor' ? '/doctor/home.php' : '/patient/home.php')) ?>">Back to appointments</a></p>
+<?php else: ?>
             <p>Choose a clinician and a time in the next seven days. Bring your medication list and any relevant test results.</p>
+<?php endif; ?>
         </div>
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
         <?= csrf_field() ?>
+<?php if ($reschedule !== null): ?>
+        <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
+<?php endif; ?>
         <p>
             <label for="doctor">Doctor</label>
             <select id="doctor" name="doctor">
@@ -128,7 +137,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <nav class="day-tabs" aria-label="Choose a day">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
-    $dayQuery = http_build_query(['doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime]);
+    $dayQuery = http_build_query(array_merge(
+        ['doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        $reschedule !== null ? ['reschedule' => $rescheduleId] : []
+    ));
 ?>
         <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
@@ -179,7 +191,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <input type="hidden" name="reschedule" value="1">
                 <input type="hidden" name="actor" value="<?= e($rescheduleActor) ?>">
 <?php endif; ?>
+<?php if ($reschedule !== null): ?>
+                <p>Replace your appointment with <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?> with this time: <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>. Your current booking stays in place until this change succeeds.</p>
+<?php else: ?>
                 <p>Confirm this appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>.</p>
+<?php endif; ?>
                 <label for="reason-<?= e((string) $slot['slotID']) ?>">Reason for visit</label>
                 <input id="reason-<?= e((string) $slot['slotID']) ?>" name="reason" type="text" maxlength="255" required>
                 <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>

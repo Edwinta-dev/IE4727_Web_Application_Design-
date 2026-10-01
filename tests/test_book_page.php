@@ -39,5 +39,17 @@ foreach (['csrf_check()', 'book_appointment(', 'redirect('] as $needle) {
 
 assert_true(strpos($page, 'fetch(') === false, 'booking page must not use AJAX');
 assert_true(strpos($page, 'SELECT ') === false, 'booking page must not contain SQL');
+foreach (['$rescheduleRequested', 'name="reschedule" value="<?= e((string) $rescheduleId)',
+    '[\'reschedule\' => $rescheduleId]', 'Current appointment:',
+    'Your current booking stays in place until the replacement is confirmed.',
+    'Back to appointments', 'Replace your appointment with'] as $needle) {
+    assert_contains($page, $needle, 'rescheduling context and filter routing');
+}
+$tokens = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/tokens.css');
+$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+assert_true($tokens !== false && $css !== false, 'button styles should be readable');
+assert_contains($tokens, '--c-button-foreground: #ffffff;');
+assert_contains($css, '.appointment-action:focus');
+assert_contains($css, 'color: var(--c-button-foreground);');
 
 echo "PASS: booking page markup checks\n";

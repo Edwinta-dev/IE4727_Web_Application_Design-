@@ -206,9 +206,9 @@
 .appointments td { vertical-align: middle; }
 .appointments td:last-child { white-space: nowrap; }
 .appointments td:last-child form { display: inline; margin: 0; }
-.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-primary); border-radius: var(--radius-control); background: var(--c-primary); color: white; text-decoration: none; }
-.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:active { color: white; }
-.appointment-action:hover { background: var(--c-primary-dark); }
+.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-button-background); border-radius: var(--radius-control); background: var(--c-button-background); color: var(--c-button-foreground); text-decoration: none; }
+.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:focus, .appointment-action:active { color: var(--c-button-foreground); }
+.appointment-action:hover, .appointment-action:focus, .appointment-action:active { background: var(--c-button-background-hover); }
 .appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
 .visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
 .empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
