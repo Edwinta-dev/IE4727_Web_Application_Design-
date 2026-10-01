@@ -1321,14 +1321,23 @@ label:has(input[type="radio"]) {
 .slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
 .doctor-profile .slot a { background: #e7f2ed; border: 1px solid var(--c-success); }
 .appointments { margin-block: var(--space-5); }
+/* Patient tables keep every column in a labelled, keyboard-scrollable region. Empty tables fit the page. */
+.appointment-table-scroll { max-width: 100%; overflow-x: auto; }
+.appointment-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
+.appointment-table-scroll.is-empty thead { display: none; }
+.appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
+.appointment-table-scroll.is-empty .empty-state { max-width: none; }
+.table-scroll-hint { display: none; }
 .appointments table { border-top: 1px solid var(--c-line); }
 .appointments th { background: var(--c-surface-band); }
 .appointments th, .appointments td { padding-block: 0; line-height: 2.25rem; }
+.appointment-table-scroll:not(.is-empty) :is(th, td) { overflow-wrap: normal; white-space: nowrap; }
 .appointments td { vertical-align: middle; }
 .appointments td:last-child { white-space: nowrap; }
 .appointments td:last-child form { display: inline; margin: 0; }
 .appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-primary); border-radius: var(--radius-control); background: var(--c-primary); color: white; text-decoration: none; }
-.appointment-action:visited, .appointment-action:hover { color: white; background: var(--c-primary-dark); }
+.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:active { color: white; }
+.appointment-action:hover { background: var(--c-primary-dark); }
 .appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
 .visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
 .empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
@@ -1342,8 +1351,9 @@ label:has(input[type="radio"]) {
     .booking-filters p { flex-basis: calc(50% - var(--space-2)); }
     .booking-filters button { flex: 1 1 100%; }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .appointments { overflow-x: auto; }
-    .appointments table { min-width: 46rem; width: max-content; table-layout: auto; }
+    .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
+    .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
+    .table-scroll-hint { display: block; margin: 0 0 var(--space-2); color: var(--c-muted); }
 }
 @media (max-width: 56rem) {
     .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
