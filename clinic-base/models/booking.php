@@ -334,17 +334,28 @@ function set_appointment_status(int $appointmentId, string $status, int $doctorI
 }
 
 /**
- * Mark a slot unavailable. A booked slot is cancelled first so its patient
- * receives the same cancellation notification as an explicit cancellation.
+ * Mark a future owned slot unavailable. A booked slot's appointment is
+ * cancelled in the same transaction and both parties receive a notice.
  */
-function block_slot(int $slotId): bool
+function schedule_slot_editable(array $slot, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if ((int) ($slot['DoctorID'] ?? 0) !== $doctorId) {
+        return false;
+    }
+
+    $timezone = new DateTimeZone(APP_TIMEZONE);
+    $start = new DateTimeImmutable((string) $slot['SlotDateTime'], $timezone);
+    return $start > ($now ?? new DateTimeImmutable('now', $timezone));
+}
+
+function block_slot(int $slotId, int $doctorId): bool
 {
     $connection = db();
     $connection->beginTransaction();
 
     try {
         $slot = q_one(
-            'SELECT `Status`
+            'SELECT `DoctorID`, `SlotDateTime`, `Status`
              FROM `slots`
              WHERE `slotID` = :slot_id
              LIMIT 1
@@ -352,8 +363,23 @@ function block_slot(int $slotId): bool
             ['slot_id' => $slotId]
         );
 
-        if ($slot === null) {
-            throw new RuntimeException('The slot was not found.');
+        if ($slot === null || !schedule_slot_editable($slot, $doctorId)
+            || !in_array((string) $slot['Status'], ['Available', 'Booked'], true)) {
+            $connection->rollBack();
+            return false;
+        }
+
+        // The database cutoff also covers a form that crosses the boundary
+        // while this request is waiting for the row lock.
+        $changed = q(
+            "UPDATE `slots` SET `Status` = 'Blocked'
+             WHERE `slotID` = :slot_id AND `DoctorID` = :doctor_id
+               AND `SlotDateTime` > NOW() AND `Status` IN ('Available', 'Booked')",
+            ['slot_id' => $slotId, 'doctor_id' => $doctorId]
+        );
+        if ($changed->rowCount() !== 1) {
+            $connection->rollBack();
+            return false;
         }
 
         if ((string) $slot['Status'] === 'Booked') {
@@ -385,10 +411,6 @@ function block_slot(int $slotId): bool
             }
         }
 
-        q(
-            "UPDATE `slots` SET `Status` = 'Blocked' WHERE `slotID` = :slot_id",
-            ['slot_id' => $slotId]
-        );
         $connection->commit();
 
         return true;
@@ -404,16 +426,38 @@ function block_slot(int $slotId): bool
 /**
  * Make a blocked slot available again. Booked slots are never unblocked.
  */
-function unblock_slot(int $slotId): bool
+function unblock_slot(int $slotId, int $doctorId): bool
 {
-    $statement = q(
-        "UPDATE `slots`
-         SET `Status` = 'Available'
-         WHERE `slotID` = :slot_id AND `Status` = 'Blocked'",
-        ['slot_id' => $slotId]
-    );
-
-    return $statement->rowCount() === 1;
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $slot = q_one(
+            'SELECT `DoctorID`, `SlotDateTime`, `Status` FROM `slots`
+             WHERE `slotID` = :slot_id FOR UPDATE',
+            ['slot_id' => $slotId]
+        );
+        if ($slot === null || !schedule_slot_editable($slot, $doctorId) || $slot['Status'] !== 'Blocked') {
+            $connection->rollBack();
+            return false;
+        }
+        $statement = q(
+            "UPDATE `slots` SET `Status` = 'Available'
+             WHERE `slotID` = :slot_id AND `DoctorID` = :doctor_id
+               AND `SlotDateTime` > NOW() AND `Status` = 'Blocked'",
+            ['slot_id' => $slotId, 'doctor_id' => $doctorId]
+        );
+        if ($statement->rowCount() !== 1) {
+            $connection->rollBack();
+            return false;
+        }
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+        return false;
+    }
 }
 
 /**

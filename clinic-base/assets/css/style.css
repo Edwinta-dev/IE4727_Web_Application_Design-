@@ -106,6 +106,7 @@
 .slot-list .slot { border: 0; border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
 .slot-list .slot.free, .slot-list .slot.taken, .slot-list .slot.blocked, .slot-list .slot.past { border-left: 0; }
 .slot-list .slot-status { min-width: 8rem; }
+.slot-list .slot-readonly { display: block; margin-top: var(--space-1); line-height: 1.4; }
 .visit-layout { display: grid; grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.8fr); gap: var(--space-5); align-items: start; }
 .visit-sidebar { min-width: 0; }
 .visit-sidebar > section { border-bottom: 1px solid var(--c-line); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }

@@ -14,7 +14,7 @@ foreach ([
     'name="start_date"', 'name="days"', 'name="start_time"', 'name="end_time"',
     'name="slot_length"', 'name="skip_days[]"', 'Next 30 days', 'class="schedule-month-grid"',
     'class="slot <?=', "'free'", "'taken'", "'blocked'", "'past'", 'csrf_field()',
-    'confirm(', 'No new slots were created',
+    'confirm(', 'name="confirm_booking"', "(\$_POST['confirm_booking'] ?? '') !== '1'", 'No new slots were created',
 ] as $needle) {
     assert_contains($page, $needle);
 }

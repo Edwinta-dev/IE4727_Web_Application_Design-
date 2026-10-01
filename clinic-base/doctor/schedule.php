@@ -84,13 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($slot === null || (int) $slot['DoctorID'] !== $doctorId) {
                 throw new RuntimeException('The slot was not found in your schedule.');
             }
+            if (!schedule_slot_editable($slot, $doctorId)) {
+                throw new RuntimeException('This slot has already started and can no longer be changed.');
+            }
             if ($status === 'Blocked') {
-                if (!block_slot((int) $slotId)) {
+                if ((string) $slot['Status'] === 'Booked' && ($_POST['confirm_booking'] ?? '') !== '1') {
+                    throw new InvalidArgumentException('Confirm that blocking this slot cancels the booking and notifies both parties.');
+                }
+                if (!block_slot((int) $slotId, $doctorId)) {
                     throw new RuntimeException('The slot could not be blocked.');
                 }
                 flash('The slot was blocked. Any booked appointment was cancelled and both parties were notified.', 'success');
             } else {
-                if (!unblock_slot((int) $slotId)) {
+                if (!unblock_slot((int) $slotId, $doctorId)) {
                     throw new RuntimeException('Only a blocked slot can be made available.');
                 }
                 flash('The slot is available again.', 'success');
@@ -180,17 +186,20 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <?php
                     $status = (string) $slot['Status'];
                     $stateClass = $status === 'Available' ? 'free' : ($status === 'Booked' ? 'taken' : 'blocked');
-                    $timeClass = !is_bookable((string) $slot['SlotDate'], (string) $slot['SlotTime']) ? 'past' : '';
+                    $timeClass = !schedule_slot_editable($slot, $doctorId) ? 'past' : '';
                     ?>
                     <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
                         <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : ($status === 'Blocked' ? 'Unavailable' : $status)) ?></span>
-                        <?php if ($status === 'Booked'): ?>
+                        <?php if ($timeClass !== ''): ?>
+                            <span class="slot-readonly">This slot has started; availability can no longer be changed.</span>
+                        <?php elseif ($status === 'Booked'): ?>
                             <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="toggle">
                                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
                                 <input type="hidden" name="status" value="Blocked">
+                                <label><input type="checkbox" name="confirm_booking" value="1" required> Cancel the appointment and notify the patient and doctor</label>
                                 <button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button>
                             </form>
                         <?php elseif ($status === 'Blocked'): ?>

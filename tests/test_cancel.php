@@ -67,10 +67,10 @@ assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID
 
 $freeSlotId = cancel_test_slot($doctorId, 101);
 $notificationTotal = (int) q_val('SELECT COUNT(*) FROM `notifications`');
-assert_true(block_slot($freeSlotId), 'free slot should block');
+assert_true(block_slot($freeSlotId, $doctorId), 'free slot should block');
 assert_eq(q_val('SELECT `Status` FROM `slots` WHERE `slotID` = :id', ['id' => $freeSlotId]), 'Blocked', 'free slot blocked');
 assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications`'), $notificationTotal, 'free block writes no notification');
-assert_true(unblock_slot($freeSlotId), 'blocked slot should unblock');
+assert_true(unblock_slot($freeSlotId, $doctorId), 'blocked slot should unblock');
 assert_eq(q_val('SELECT `Status` FROM `slots` WHERE `slotID` = :id', ['id' => $freeSlotId]), 'Available', 'slot unblocked');
 
 $bookedSlotId = cancel_test_slot($doctorId, 102);
@@ -78,11 +78,11 @@ $booked = book_appointment($patientId, $bookedSlotId, 'Block booked test');
 assert_true($booked['ok'], 'block booked setup should book');
 $bookedAppointmentId = (int) $booked['appointment_id'];
 $bookedNotifications = (int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID` = :id', ['id' => $bookedAppointmentId]);
-assert_true(block_slot($bookedSlotId), 'booked slot should block');
+assert_true(block_slot($bookedSlotId, $doctorId), 'booked slot should block');
 assert_eq(q_val('SELECT `Status` FROM `appointment` WHERE `appointmentID` = :id', ['id' => $bookedAppointmentId]), 'Cancelled', 'blocking booked slot cancels appointment');
 assert_eq(q_val('SELECT `Status` FROM `slots` WHERE `slotID` = :id', ['id' => $bookedSlotId]), 'Blocked', 'booked slot becomes blocked');
 assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID` = :id', ['id' => $bookedAppointmentId]), $bookedNotifications + 2, 'blocking booked slot notifies both');
-assert_true(unblock_slot($bookedSlotId), 'cancelled blocked slot can be reopened');
+assert_true(unblock_slot($bookedSlotId, $doctorId), 'cancelled blocked slot can be reopened');
 
 function cancel_test_past_appointment(int $doctorId, int $patientId, int $days): array
 {
