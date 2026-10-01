@@ -17,6 +17,34 @@ check(Object.values(counts()).slice(0, 5).every(value => value === 1), 'syntheti
 await withServer(true, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
+    const confirmationPage = await browser.newPage();
+    await login(confirmationPage, 'admin', appBase);
+    for (const width of [1280, 390]) {
+      await confirmationPage.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
+      const styles = await confirmationPage.evaluate(() => {
+        const destructive = document.querySelector('.destructive-action');
+        const ordinary = document.querySelector('.console-filters button');
+        const rect = destructive.getBoundingClientRect();
+        const danger = getComputedStyle(destructive);
+        const primary = getComputedStyle(ordinary);
+        const luminance = color => color.match(/\d+/g).slice(0, 3).map(Number).map(value => value / 255).map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+        const a = luminance(danger.backgroundColor), b = luminance(danger.color);
+        return { width: rect.width, height: rect.height, danger: danger.backgroundColor, foreground: danger.color, primary: primary.backgroundColor, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+      });
+      check(styles.width >= 44 && styles.height >= 44, `${width}px destructive target must be at least 44px square`);
+      check(styles.foreground === 'rgb(255, 255, 255)' && styles.danger !== styles.primary && styles.contrast >= 4.5, `${width}px delete action must be readable and distinct from apply filters: ${JSON.stringify(styles)}`);
+      await confirmationPage.locator('.destructive-action').first().focus();
+      check(await confirmationPage.locator('.destructive-action').first().evaluate(button => getComputedStyle(button).outlineStyle !== 'none'), `${width}px delete action must show keyboard focus`);
+    }
+    const appointmentTimes = await confirmationPage.locator('.appointment-table td:first-child time').evaluateAll(times => times.map(time => ({ visible: time.textContent.trim(), machine: time.dateTime })));
+    check(appointmentTimes.length > 0 && appointmentTimes.every(time => /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(time.machine) && !/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(time.visible)), 'appointment cells must have readable text and machine-readable local times');
+    const beforeCancel = counts();
+    confirmationPage.once('dialog', dialog => dialog.dismiss());
+    await confirmationPage.locator('section.console-section tr', { hasText: 'Flash Test Doctor' }).getByRole('button', { name: 'Delete account' }).click();
+    check(JSON.stringify(counts()) === JSON.stringify(beforeCancel), 'cancelling confirmation must leave accounts, appointments, and notifications unchanged');
+    check(await confirmationPage.locator('.flash').count() === 0, 'cancelled confirmation must not show a deletion flash');
+    await confirmationPage.close();
+
     const page = await browser.newPage({ javaScriptEnabled: false });
     await login(page, 'admin', appBase);
     check(page.url().includes('/admin/console.php'), 'admin console must be authenticated');

@@ -141,6 +141,12 @@
 .admin-console th, .admin-console td, .admin-outbox th, .admin-outbox td { padding-block: 0.4rem; }
 .day-schedule th, .day-schedule td, .admin-console th, .admin-console td { line-height: 1.95; padding-block: 0; }
 .admin-console table button, .day-schedule table button { box-sizing: border-box; padding-block: 0.25rem; }
+.destructive-action { border-color: var(--c-danger); background: var(--c-danger); color: #fff; min-height: 2.75rem; }
+.destructive-action:hover, .destructive-action:focus-visible { border-color: var(--c-danger-hover); background: var(--c-danger-hover); color: #fff; }
+.stats-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); }
+.stats-strip > h2 { grid-column: 1 / -1; margin-bottom: 0; }
+.stats-strip .stat-card { min-width: 0; border-top: 1px solid var(--c-line); }
+.stats-strip .stat-card p { overflow-wrap: anywhere; }
 .day-board td:last-child button { box-sizing: border-box; height: 2.75rem; margin: 0; padding-block: 0; }
 .admin-console table { table-layout: auto; }
 .day-schedule table th, .day-schedule table td,
@@ -158,6 +164,7 @@
     .visit-sidebar > section { margin: 0; }
 }
 @media (max-width: 40rem) {
+    .stats-strip { grid-template-columns: minmax(0, 1fr); }
     .day-board td { line-height: 2.2; }
     .day-board-heading { align-items: stretch; flex-direction: column; gap: var(--space-2); }
     .day-board-filter { flex: auto; grid-template-columns: minmax(0, 1fr) auto; }
