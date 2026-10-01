@@ -104,6 +104,15 @@ function slot_counts_for_range(int $doctorId, string $from, string $to): array
     return $counts;
 }
 
+/** Allow a doctor to revisit owned future rows generated before the management limit. */
+function has_owned_slots_on_day(int $doctorId, string $date): bool
+{
+    return (int) q_val(
+        'SELECT COUNT(*) FROM `slots` WHERE `DoctorID` = :doctor_id AND DATE(`SlotDateTime`) = :slot_date',
+        ['doctor_id' => $doctorId, 'slot_date' => $date]
+    ) > 0;
+}
+
 /** @return list<array<string, mixed>> */
 function next_available(int $doctorId, int $limit = 3): array
 {
