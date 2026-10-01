@@ -40,8 +40,8 @@ if (is_doctor() && isset($_POST['status'])) {
         || !in_array($status, ['Completed', 'No show'], true)) {
         flash('Only a future appointment can be marked for attendance.', 'error');
     } else {
-        set_appointment_status($appointmentId, $status);
-        flash('Appointment marked as ' . $status . '.', 'success');
+        $updated = set_appointment_status($appointmentId, $status, (int) $user['id']);
+        flash($updated ? 'Appointment marked as ' . $status . '.' : 'Attendance can only be recorded from the appointment start time by its doctor.', $updated ? 'success' : 'error');
     }
     redirect($home . '?date=' . rawurlencode(substr((string) $appointment['appointmentDateTime'], 0, 10)));
 }

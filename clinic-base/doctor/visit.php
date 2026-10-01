@@ -31,7 +31,7 @@ if ($appointment === null || (int) $appointment['DoctorID'] !== $doctorId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    save_visit_notes($appointmentId, [
+    $saved = save_visit_notes($appointmentId, $doctorId, [
         'Diagnosis' => is_string($_POST['Diagnosis'] ?? null) ? $_POST['Diagnosis'] : '',
         'Treatment' => is_string($_POST['Treatment'] ?? null) ? $_POST['Treatment'] : '',
         'Prescription' => is_string($_POST['Prescription'] ?? null) ? $_POST['Prescription'] : '',
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'Remarks' => is_string($_POST['Remarks'] ?? null) ? $_POST['Remarks'] : '',
     ]);
 
-    flash('Visit notes saved and appointment marked completed.', 'success');
+    flash($saved ? 'Visit notes saved and appointment marked completed.' : 'Visit notes can only be saved from the appointment start time by its doctor.', $saved ? 'success' : 'error');
     redirect('/doctor/home.php?date=' . rawurlencode(substr((string) $appointment['appointmentDateTime'], 0, 10)));
 }
 
@@ -51,6 +51,7 @@ if ($patient === null) {
 
 $history = patient_history((int) $appointment['PatientID'], $doctorId);
 $allergies = is_array($patient['Allergies'] ?? null) ? $patient['Allergies'] : [];
+$visitEligible = appointment_outcome_eligible($appointment, $doctorId);
 $pageTitle = 'Doctor Visit';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
@@ -105,26 +106,27 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </aside>
     <section class="visit-form-section" aria-label="Record visit notes">
         <h2>Record this visit</h2>
+        <?php if (!$visitEligible): ?><p class="empty-state">Visit notes and attendance can be recorded from <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?> on the appointment date.</p><?php endif; ?>
         <form class="visit-form" method="post" action="<?= e(url('/doctor/visit.php?appt=' . $appointmentId)) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="appointment_id" value="<?= e((string) $appointmentId) ?>">
 
             <label for="diagnosis">Diagnosis</label>
-            <textarea id="diagnosis" name="Diagnosis" rows="3"><?= e((string) ($appointment['Diagnosis'] ?? '')) ?></textarea>
+            <textarea id="diagnosis" name="Diagnosis" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Diagnosis'] ?? '')) ?></textarea>
 
             <label for="treatment">Treatment</label>
-            <textarea id="treatment" name="Treatment" rows="3"><?= e((string) ($appointment['Treatment'] ?? '')) ?></textarea>
+            <textarea id="treatment" name="Treatment" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Treatment'] ?? '')) ?></textarea>
 
             <label for="prescription">Prescription</label>
-            <textarea id="prescription" name="Prescription" rows="3"><?= e((string) ($appointment['Prescription'] ?? '')) ?></textarea>
+            <textarea id="prescription" name="Prescription" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Prescription'] ?? '')) ?></textarea>
 
             <label for="remarks">Remarks</label>
-            <textarea id="remarks" name="Remarks" rows="3"><?= e((string) ($appointment['Remarks'] ?? '')) ?></textarea>
+            <textarea id="remarks" name="Remarks" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Remarks'] ?? '')) ?></textarea>
 
             <div class="visit-form-actions"><label for="follow-up">
-                <input id="follow-up" type="checkbox" name="FollowUp" value="1"<?= (int) ($appointment['FollowUp'] ?? 0) === 1 ? ' checked' : '' ?>>
+                <input id="follow-up" type="checkbox" name="FollowUp" value="1"<?= e((int) ($appointment['FollowUp'] ?? 0) === 1 ? ' checked' : '') ?> <?= e($visitEligible ? '' : 'disabled') ?>>
                 Follow-up required
-            </label><button type="submit">Save visit notes</button></div>
+            </label><button type="submit" <?= e($visitEligible ? '' : 'disabled') ?>>Save visit notes</button></div>
         </form>
     </section>
     </div>

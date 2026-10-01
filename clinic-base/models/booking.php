@@ -289,18 +289,48 @@ function cancel_appointment(int $appointmentId, string $actorRole): bool
 /**
  * Set attendance status from the doctor's day board.
  */
-function set_appointment_status(int $appointmentId, string $status): void
+function appointment_outcome_eligible(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId
+        || !in_array((string) ($appointment['Status'] ?? ''), ['Future', 'Rescheduled'], true)) {
+        return false;
+    }
+
+    $timezone = new DateTimeZone(APP_TIMEZONE);
+    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], $timezone);
+    return $start <= ($now ?? new DateTimeImmutable('now', $timezone));
+}
+
+/** Set an attendance outcome only once the owned appointment has started. */
+function set_appointment_status(int $appointmentId, string $status, int $doctorId): bool
 {
     if (!in_array($status, ['Completed', 'No show'], true)) {
         throw new InvalidArgumentException('Invalid appointment status.');
     }
 
-    q(
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $appointment = q_one(
+            'SELECT `appointmentDateTime`, `DoctorID`, `Status` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
+            ['appointment_id' => $appointmentId]
+        );
+        if ($appointment === null || !appointment_outcome_eligible($appointment, $doctorId)) {
+            $connection->rollBack();
+            return false;
+        }
+        q(
         'UPDATE `appointment`
          SET `Status` = :status
          WHERE `appointmentID` = :appointment_id',
         ['status' => $status, 'appointment_id' => $appointmentId]
-    );
+        );
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) $connection->rollBack();
+        throw $exception;
+    }
 }
 
 /**
@@ -391,9 +421,20 @@ function unblock_slot(int $slotId): bool
  *
  * @param array<string, mixed> $fields
  */
-function save_visit_notes(int $appointmentId, array $fields): void
+function save_visit_notes(int $appointmentId, int $doctorId, array $fields): bool
 {
-    q(
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $appointment = q_one(
+            'SELECT `appointmentDateTime`, `DoctorID`, `Status` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
+            ['appointment_id' => $appointmentId]
+        );
+        if ($appointment === null || !appointment_outcome_eligible($appointment, $doctorId)) {
+            $connection->rollBack();
+            return false;
+        }
+        q(
         "UPDATE `appointment`
          SET `Diagnosis` = :diagnosis,
              `Prescription` = :prescription,
@@ -410,7 +451,13 @@ function save_visit_notes(int $appointmentId, array $fields): void
             'remarks' => $fields['Remarks'] ?? null,
             'appointment_id' => $appointmentId,
         ]
-    );
+        );
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) $connection->rollBack();
+        throw $exception;
+    }
 }
 
 /** @param array<string, mixed> $appointment */
