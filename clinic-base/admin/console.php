@@ -23,14 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $action = (string) ($_POST['action'] ?? '');
     $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-    if ($id !== false && $id !== null && $id > 0) {
-        if ($action === 'delete_doctor') {
+    if ($id !== false && $id !== null && $id > 0 && in_array($action, ['delete_doctor', 'delete_patient'], true)) {
+        $role = $action === 'delete_doctor' ? 'doctor' : 'patient';
+        if (account_by_id($role, (int) $id) === null) {
+            flash('That account could not be found. No account was removed.', 'error');
+        } elseif ($action === 'delete_doctor') {
             delete_doctor((int) $id);
             flash('Doctor account and its slots and appointments were removed.', 'success');
-        } elseif ($action === 'delete_patient') {
+        } else {
             delete_patient((int) $id);
             flash('Patient account and its appointments were removed.', 'success');
         }
+    } else {
+        flash('Choose a valid account to remove. No account was removed.', 'error');
     }
     redirect('/admin/console.php?' . http_build_query($filters));
 }
@@ -59,6 +64,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <p>Review clinic accounts, appointments and booking patterns.</p>
         </div>
     </section>
+    <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
     <p><a href="<?= e(url('/admin/outbox.php')) ?>">Open notification outbox</a></p>
 
     <section class="stats-strip" aria-labelledby="stats-heading">

@@ -126,6 +126,7 @@
 .admin-console table { min-width: 42rem; }
 .admin-console td form { display: block; }
 .outbox-list { overflow-x: auto; }
+.outbox-scroll-hint { color: var(--c-muted); margin: 0 0 var(--space-2); }
 .admin-outbox table { min-width: 48rem; }
 .staff-table-scroll { overflow-x: auto; }
 .day-board { min-width: 58rem; table-layout: auto; }
@@ -146,6 +147,9 @@
 .admin-console table th, .admin-console table td { white-space: nowrap; }
 .day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
 .admin-outbox .notification-details summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; }
+.admin-outbox table { width: max-content; min-width: 100%; }
+.admin-outbox th, .admin-outbox td { line-height: 1.95; padding-block: 0; }
+.admin-outbox th, .admin-outbox td:nth-child(-n+4) { white-space: nowrap; }
 
 @media (max-width: 56rem) {
     .schedule-month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }

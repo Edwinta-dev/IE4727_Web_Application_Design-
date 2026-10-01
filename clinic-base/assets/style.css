@@ -1013,6 +1013,23 @@ label:has(input[type="radio"]) {
     padding: var(--space-2) var(--space-3);
 }
 
+main .flash {
+    width: 100%;
+    margin: var(--space-3) 0;
+}
+
+.flash-success {
+    border-color: var(--c-success);
+    background: #eef7ef;
+    color: var(--c-success);
+}
+
+.flash-error {
+    border-color: var(--c-danger);
+    background: var(--danger-soft);
+    color: var(--c-danger);
+}
+
 .empty-state {
     color: var(--muted);
     font-style: italic;

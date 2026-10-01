@@ -277,7 +277,8 @@ function flash_render(): void
     }
 
     $type = (string) ($message['type'] ?? 'info');
-    echo '<div class="flash flash-' . e($type) . '" role="alert">'
+    $role = $type === 'error' ? 'alert' : 'status';
+    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">'
         . e($message['message'])
         . '</div>';
 }
