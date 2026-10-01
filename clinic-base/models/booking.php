@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'visit_remarks.php';
 
 /**
  * Claim a slot and create its appointment atomically.
@@ -12,6 +13,11 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
  */
 function book_appointment(int $patientId, int $slotId, string $reason): array
 {
+    try {
+        $storedReason = encode_visit_remarks($reason);
+    } catch (InvalidArgumentException $exception) {
+        return ['ok' => false, 'appointment_id' => null, 'error' => $exception->getMessage()];
+    }
     $connection = db();
     $connection->beginTransaction();
 
@@ -76,7 +82,7 @@ function book_appointment(int $patientId, int $slotId, string $reason): array
                 'patient_id' => $patientId,
                 'doctor_id' => (int) $slot['DoctorID'],
                 'appointment_date_time' => $slot['SlotDateTime'],
-                'reason' => $reason,
+                'reason' => $storedReason,
                 'slot_id' => $slotId,
             ]
         );
@@ -460,6 +466,19 @@ function unblock_slot(int $slotId, int $doctorId): bool
     }
 }
 
+/** Allow the owner to edit a completed visit after its start, too. */
+function visit_notes_editable(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if (appointment_outcome_eligible($appointment, $doctorId, $now)) {
+        return true;
+    }
+    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId || ($appointment['Status'] ?? '') !== 'Completed') {
+        return false;
+    }
+    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], new DateTimeZone(APP_TIMEZONE));
+    return $start <= ($now ?? new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)));
+}
+
 /**
  * Save the doctor's visit notes and complete the appointment.
  *
@@ -471,13 +490,15 @@ function save_visit_notes(int $appointmentId, int $doctorId, array $fields): boo
     $connection->beginTransaction();
     try {
         $appointment = q_one(
-            'SELECT `appointmentDateTime`, `DoctorID`, `Status` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
+            'SELECT `appointmentDateTime`, `DoctorID`, `Status`, `Remarks` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
             ['appointment_id' => $appointmentId]
         );
-        if ($appointment === null || !appointment_outcome_eligible($appointment, $doctorId)) {
+        if ($appointment === null || !visit_notes_editable($appointment, $doctorId)) {
             $connection->rollBack();
             return false;
         }
+        $parts = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']);
+        $remarks = encode_visit_remarks($parts['reason'], (string) ($fields['Remarks'] ?? ''), $parts['legacy']);
         q(
         "UPDATE `appointment`
          SET `Diagnosis` = :diagnosis,
@@ -492,7 +513,7 @@ function save_visit_notes(int $appointmentId, int $doctorId, array $fields): boo
             'prescription' => $fields['Prescription'] ?? null,
             'treatment' => $fields['Treatment'] ?? null,
             'follow_up' => !empty($fields['FollowUp']) ? 1 : 0,
-            'remarks' => $fields['Remarks'] ?? null,
+            'remarks' => $remarks,
             'appointment_id' => $appointmentId,
         ]
         );

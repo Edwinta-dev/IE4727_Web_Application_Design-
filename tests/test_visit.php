@@ -14,7 +14,7 @@ foreach ([
     'patient_history(', 'find_patient(', 'Allergies', 'Gender', 'Phone',
     'No previous visits recorded', 'name="Diagnosis"', 'name="Treatment"',
     'name="Prescription"', 'name="Remarks"', 'name="FollowUp"',
-    'save_visit_notes(', 'doctor/home.php?date=', 'csrf_field()',
+    'save_visit_notes(', 'doctor/visit.php?appt=', 'csrf_field()',
 ] as $needle) {
     assert_contains($page, $needle);
 }

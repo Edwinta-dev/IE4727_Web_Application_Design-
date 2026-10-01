@@ -102,6 +102,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
 
 <?php if ($visit !== null): ?>
+    <?php $visitRemarks = decode_visit_remarks($visit['Remarks'], (string) $visit['Status']); ?>
     <section class="visit-notes" aria-label="Read-only visit notes">
         <h2>Visit notes</h2>
         <p><strong>Doctor:</strong> <?= e((string) $visit['DoctorName']) ?> (<?= e((string) ($visit['Specialty'] ?? '')) ?>)</p>
@@ -110,7 +111,9 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <p><strong>Prescription:</strong> <?= e((string) ($visit['Prescription'] ?? '')) ?></p>
         <p><strong>Treatment:</strong> <?= e((string) ($visit['Treatment'] ?? '')) ?></p>
         <p><strong>Follow-up:</strong> <?= e((int) $visit['FollowUp'] === 1 ? 'Yes' : 'No') ?></p>
-        <p><strong>Remarks:</strong> <?= e((string) ($visit['Remarks'] ?? '')) ?></p>
+        <?php if ($visitRemarks['legacy'] !== null): ?><p><strong>Earlier text (author unknown):</strong> <?= e($visitRemarks['legacy']) ?></p><?php endif; ?>
+        <p><strong>Your reason for booking:</strong> <?= e($visitRemarks['reason'] !== '' ? $visitRemarks['reason'] : 'Not separately recorded') ?></p>
+        <p><strong>Doctor remarks:</strong> <?= e($visitRemarks['doctor_remarks']) ?></p>
     </section>
 <?php endif; ?>
 </main>

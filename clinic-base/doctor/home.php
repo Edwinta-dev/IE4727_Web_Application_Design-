@@ -77,7 +77,8 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                 <?= e((string) $appointment['PatientName']) ?>
                             </a>
                         </td>
-                        <td><?= e((string) ($appointment['Remarks'] ?? '')) ?></td>
+                        <?php $boardRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']); ?>
+                        <td><?= e($boardRemarks['reason'] !== '' ? $boardRemarks['reason'] : ($boardRemarks['legacy'] !== null ? 'Earlier text (author unknown)' : 'Not separately recorded')) ?></td>
                         <td><?= e((string) $appointment['Status']) ?></td>
                         <td>
                             <?php if (in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)): ?>
@@ -99,6 +100,8 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                     <span>Attendance actions open at the appointment start time.</span>
                                 <?php endif; ?>
                                 <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
+                            <?php elseif ((string) $appointment['Status'] === 'Completed'): ?>
+                                <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
                             <?php else: ?>
                                 <span>No attendance action</span>
                             <?php endif; ?>

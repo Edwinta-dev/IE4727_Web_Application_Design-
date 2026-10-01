@@ -113,6 +113,7 @@
 .visit-sidebar h2, .visit-form-section h2 { margin-top: 0; }
 .visit-form-section { min-width: 0; }
 .visit-form textarea { min-height: 10rem; }
+.visit-form-section p, .visit-history-record p, .visit-notes p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .visit-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .visit-form-actions label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
 .visit-form-actions input[type="checkbox"] { flex: 0 0 1.5rem; }
