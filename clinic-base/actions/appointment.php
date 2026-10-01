@@ -66,7 +66,8 @@ $slotId = is_string($slotInput) && ctype_digit($slotInput) ? (int) $slotInput : 
 $slot = $slotId > 0 ? find_slot($slotId) : null;
 if (!isset($_POST['reschedule']) || $slot === null
     || !in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
-    || strtotime((string) $appointment['appointmentDateTime']) <= time()) {
+    || strtotime((string) $appointment['appointmentDateTime']) <= time()
+    || booking_date_error(substr((string) $slot['SlotDateTime'], 0, 10), new DateTimeImmutable('today'), BROWSE_DAYS) !== null) {
     flash('Choose a valid future slot to reschedule this appointment.', 'error');
     redirect('/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
 }

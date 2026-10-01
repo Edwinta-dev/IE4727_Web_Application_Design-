@@ -124,10 +124,11 @@ function next_available(int $doctorId, int $limit = 3): array
         slot_select() . "
             WHERE `DoctorID` = :doctor_id
               AND `SlotDateTime` >= NOW()
+              AND DATE(`SlotDateTime`) <= :last_date
               AND `Status` = 'Available'
             ORDER BY `SlotDateTime`
             LIMIT :slot_limit",
-        ['doctor_id' => $doctorId, 'slot_limit' => $limit]
+        ['doctor_id' => $doctorId, 'last_date' => (new DateTimeImmutable('today'))->modify('+' . (BROWSE_DAYS - 1) . ' days')->format('Y-m-d'), 'slot_limit' => $limit]
     );
 }
 

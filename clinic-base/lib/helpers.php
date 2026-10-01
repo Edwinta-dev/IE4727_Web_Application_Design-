@@ -10,6 +10,29 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/** Explain why a requested patient booking date is outside the selectable window. */
+function booking_date_error(mixed $date, DateTimeImmutable $today, int $days): ?string
+{
+    if (!is_string($date)) {
+        return 'Enter a valid date.';
+    }
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date)) {
+        return 'Enter a valid date in YYYY-MM-DD format.';
+    }
+    $parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+    if ($parsed === false || $parsed->format('Y-m-d') !== $date) {
+        return 'Enter a valid date in YYYY-MM-DD format.';
+    }
+    if ($parsed < $today) {
+        return 'Past dates cannot be booked.';
+    }
+    if ($parsed > $today->modify('+' . ($days - 1) . ' days')) {
+        return 'Choose a date within the next ' . $days . ' days.';
+    }
+
+    return null;
+}
+
 /** Return a word-boundary excerpt for compact doctor previews. */
 function text_excerpt(string $text, int $limit = 140): string
 {

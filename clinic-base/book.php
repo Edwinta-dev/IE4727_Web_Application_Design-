@@ -51,15 +51,12 @@ if ($doctor === null) {
     $doctorId = 0;
 }
 
-$dateInput = isset($_GET['date']) && is_string($_GET['date']) ? $_GET['date'] : '';
+$dateRequested = array_key_exists('date', $_GET);
+$dateInput = $_GET['date'] ?? null;
 $selectedDate = $today->format('Y-m-d');
-$pastDateRequested = false;
-$parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $dateInput);
-if ($parsedDate !== false && $parsedDate->format('Y-m-d') === $dateInput) {
-    $pastDateRequested = $parsedDate < $today;
-    if (!$pastDateRequested && $parsedDate <= $lastBrowseDate) {
-        $selectedDate = $dateInput;
-    }
+$dateError = $dateRequested ? booking_date_error($dateInput, $today, BROWSE_DAYS) : null;
+if ($dateRequested && $dateError === null) {
+    $selectedDate = $dateInput;
 }
 
 $fromTime = isset($_GET['from']) && is_string($_GET['from']) ? $_GET['from'] : '00:00';
@@ -134,6 +131,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <button type="submit">Show schedule</button>
     </form>
 
+<?php if ($dateError !== null): ?>
+    <p class="error-summary" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?> instead. Choose another date to view its schedule.</p>
+<?php endif; ?>
+
     <nav class="day-tabs" aria-label="Choose a day">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
@@ -160,7 +161,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <p>Choose a free time. Your appointment is confirmed after you submit the reason for your visit.</p>
     <div class="schedule-grid" aria-label="Appointment schedule">
 <?php if ($slots === []): ?>
-        <p class="empty-state"><?= e($pastDateRequested ? 'Past dates cannot be booked.' : $doctor['FullName'] . ' is not available on this date.') ?></p>
+        <p class="empty-state"><?= e($doctor['FullName'] . ' is not available on this date.') ?></p>
 <?php else: ?>
 <?php if (!$hasFreeSlot): ?>
         <p class="empty-state">This day is fully booked or has no future free slots. Please choose another day.</p>
