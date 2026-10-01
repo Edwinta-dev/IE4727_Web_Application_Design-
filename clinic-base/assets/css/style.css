@@ -76,7 +76,6 @@
 
 
 /* Staff work surfaces: compact filters, wide tables and readable state labels. */
-#appointments { width: 100%; }
 .day-board-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); border-bottom: 1px solid var(--c-line); }
 .day-board-heading .page-intro-copy { flex: 1 1 auto; }
 .day-board-heading h1 { margin-bottom: 0; }
