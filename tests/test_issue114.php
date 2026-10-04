@@ -52,8 +52,12 @@ foreach ($navigationCases as [$role, $route, $expected]) {
             throw new RuntimeException('Patient navigation must have distinct appointments, doctor search and booking destinations');
         }
     }
-    if ($role === 'doctor' && !str_contains($html, 'href="/doctor/home.php#appointments"')) {
-        throw new RuntimeException('Doctor appointment preview link changed');
+    if ($role === 'doctor') {
+        preg_match_all('/<a href="([^"]+)"/', $html, $doctorLinks);
+        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php?logout=1']
+            || !str_contains($html, '>Day board</a>')) {
+            throw new RuntimeException('Doctor navigation must have one day board destination, schedule and logout');
+        }
     }
 }
 

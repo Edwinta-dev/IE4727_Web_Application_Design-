@@ -15,11 +15,20 @@ $today = new DateTimeImmutable('today');
 $dateInput = $_GET['date'] ?? '';
 $date = is_string($dateInput) ? $dateInput : '';
 $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+$explicitDate = $parsedDate !== false && $parsedDate->format('Y-m-d') === $date;
 if ($parsedDate === false || $parsedDate->format('Y-m-d') !== $date) {
     $date = $today->format('Y-m-d');
 }
 
 $appointments = appointments_for_doctor_day($doctorId, $date);
+if (!$explicitDate && $appointments === []) {
+    $date = next_appointment_day_for_doctor($doctorId, $today->format('Y-m-d')) ?? $date;
+    $appointments = appointments_for_doctor_day($doctorId, $date);
+}
+$boardDay = new DateTimeImmutable($date);
+$previousDay = $boardDay->modify('-1 day')->format('Y-m-d');
+$followingDay = $boardDay->modify('+1 day')->format('Y-m-d');
+$nextAppointmentDay = next_appointment_day_for_doctor($doctorId, max($followingDay, $today->format('Y-m-d')));
 $counts = ['Future' => 0, 'Rescheduled' => 0, 'Cancelled' => 0, 'Completed' => 0, 'No show' => 0];
 foreach ($appointments as $appointment) {
     $status = (string) $appointment['Status'];
@@ -49,6 +58,16 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <button type="submit">Show day</button>
         </form>
     </section>
+
+    <nav class="day-board-navigation" aria-label="Day navigation">
+        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>"><span aria-hidden="true">&larr; </span>Previous day</a>
+        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>">Next day<span aria-hidden="true"> &rarr;</span></a>
+        <?php if ($nextAppointmentDay !== null): ?>
+            <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
+        <?php else: ?>
+            <span>No upcoming appointments after this day.</span>
+        <?php endif; ?>
+    </nav>
 
     <?php flash_render(); ?>
 

@@ -47,9 +47,8 @@ $links = match ($navigationRole) {
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'doctor' => [
-        ['label' => 'Home', 'href' => '/doctor/home.php'],
+        ['label' => 'Day board', 'href' => '/doctor/home.php'],
         ['label' => 'Schedule', 'href' => '/doctor/schedule.php'],
-        ['label' => 'Appointments', 'href' => '/doctor/home.php#appointments'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'admin' => [

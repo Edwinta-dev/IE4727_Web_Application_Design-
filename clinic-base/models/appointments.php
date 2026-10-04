@@ -57,6 +57,22 @@ function appointments_for_doctor_day(int $doctorId, string $date): array
     );
 }
 
+/** Find the next booked day on or after the supplied date for this doctor. */
+function next_appointment_day_for_doctor(int $doctorId, string $fromDate): ?string
+{
+    $row = q_one(
+        "SELECT DATE(`appointmentDateTime`) AS `AppointmentDay`
+         FROM `appointment`
+         WHERE `DoctorID` = :doctor_id
+           AND `appointmentDateTime` >= :from_date
+           AND `Status` IN ('Future', 'Rescheduled')
+         ORDER BY `appointmentDateTime`
+         LIMIT 1",
+        ['doctor_id' => $doctorId, 'from_date' => $fromDate . ' 00:00:00']
+    );
+    return $row === null ? null : (string) $row['AppointmentDay'];
+}
+
 /** @return array<string, mixed>|null */
 function find_appointment(int $id): ?array
 {

@@ -81,6 +81,8 @@
 .day-board-heading h1 { margin-bottom: 0; }
 .day-board-filter { flex: 0 1 30rem; display: grid; grid-template-columns: auto minmax(9rem, 1fr) auto; align-items: end; gap: var(--space-2); }
 .day-board-filter label { min-height: 2.75rem; align-content: end; }
+.day-board-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding-block: var(--space-2); }
+.day-board-navigation a { display: inline-flex; align-items: center; gap: 0.25rem; min-height: 2.75rem; }
 .day-summary { display: flex; flex-wrap: wrap; gap: var(--space-4); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
 .day-summary p { margin: 0; }
 .day-schedule table, .patient-history table, .admin-console table, .admin-outbox table { border-top: 1px solid var(--c-line); }
