@@ -84,7 +84,8 @@ await withTestServer(true, async (base) => {
     if (!(await page.locator('[name="role"][value="doctor"]').isChecked())) throw Error('doctor switch did not select doctor role');
     if (await page.locator('#patient-fields input, #patient-fields select, #patient-fields textarea').evaluateAll((fields) => fields.some((field) => !field.disabled))) throw Error('inactive patient fields remained enabled');
     for (const [name, value] of Object.entries(credentials('doctor'))) await page.locator(`[name="${name}"]`).fill(value);
-    for (const [name, value] of Object.entries({ Specialty: 'General Practice', Qualifications: 'MBBS', Languages: 'English', WriteUp: 'Synthetic doctor profile.' })) await page.locator(`[name="${name}"]`).fill(value);
+    await page.locator('[name="Specialty"]').selectOption('General Practice');
+    for (const [name, value] of Object.entries({ Qualifications: 'MBBS', Languages: 'English', WriteUp: 'Synthetic doctor profile.' })) await page.locator(`[name="${name}"]`).fill(value);
     await page.locator('button[type="submit"]').click();
     await page.waitForURL('**/doctor/home.php', { timeout: 12000 });
     await capture(page, 'after', 'doctor');

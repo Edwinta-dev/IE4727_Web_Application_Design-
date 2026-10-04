@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . '/lib/specialties.php';
 
 /** @return list<array<string, mixed>> */
 function all_doctors(?string $specialty = null): array
@@ -16,31 +17,41 @@ function all_doctors(?string $specialty = null): array
             FROM `doctor`';
     $params = [];
 
-    if ($specialty !== null) {
-        $sql .= ' WHERE `Specialty` = :specialty';
-        $params['specialty'] = $specialty;
-    }
-
     $sql .= ' ORDER BY `FullName`';
 
-    return q_all($sql, $params);
+    $doctors = array_map('doctor_display_profile', q_all($sql, $params));
+    if ($specialty !== null) {
+        $filter = canonical_specialty($specialty) ?? $specialty;
+        $doctors = array_values(array_filter($doctors,
+            static fn (array $doctor): bool => $doctor['Specialty'] === $filter));
+    }
+    return $doctors;
 }
 
 /** @return list<array{Specialty: string|null}> */
 function all_specialties(): array
 {
-    return q_all(
+    $rows = q_all(
         'SELECT DISTINCT `Specialty`
          FROM `doctor`
          WHERE `Specialty` IS NOT NULL
          ORDER BY `Specialty`'
     );
+    $present = [];
+    foreach ($rows as $row) {
+        $specialty = canonical_specialty($row['Specialty']);
+        if ($specialty !== null) {
+            $present[$specialty] = ['Specialty' => $specialty];
+        }
+    }
+    ksort($present);
+    return array_values($present);
 }
 
 /** @return array<string, mixed>|null */
 function find_doctor(int $id): ?array
 {
-    return q_one(
+    $doctor = q_one(
         'SELECT `DoctorID`, `FullName`, `User`, `HashPass`, `Email`, `Specialty`,
                 `Qualifications`, `Languages`, `WriteUp`, `ImageURL`
          FROM `doctor`
@@ -48,6 +59,7 @@ function find_doctor(int $id): ?array
          LIMIT 1',
         ['id' => $id]
     );
+    return $doctor === null ? null : doctor_display_profile($doctor);
 }
 
 /** @param array<string, mixed> $fields */

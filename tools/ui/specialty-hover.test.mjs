@@ -44,8 +44,11 @@ try {
             const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, reducedMotion: motion });
             try {
               await visit(page, 'index.php', base);
-              assert.equal((await measure(page)).items.length, count);
-              for (const index of [...new Set([0, Math.floor(count / 2), count - 1])]) {
+              // Legacy arbitrary categories are retained in doctor profiles,
+              // while public services are capped by the canonical clinic list.
+              const specialtyCount = Math.min(count, 5);
+              assert.equal((await measure(page)).items.length, specialtyCount);
+              for (const index of [...new Set([0, Math.floor(specialtyCount / 2), specialtyCount - 1])]) {
                 for (const state of ['hover', 'focus']) {
                   await page.mouse.move(0, 0);
                   await page.evaluate(() => document.activeElement.blur());

@@ -53,7 +53,11 @@ try {
               if (width === 1280 || width === 390) await page.screenshot({ path: resolve(output, `${count}-${width}-${motion}.png`), fullPage: true });
               if (before) continue;
               assert.deepEqual(errors, []);
-              assert.equal(normal.items.length, count);
+              // The fixture includes Dentistry and arbitrary legacy categories.
+              // Only the five clinic services belong in the public strip.
+              assert.equal(normal.items.length, Math.min(count - 1, 5));
+              assert.deepEqual(await page.locator('.specialty-item h3').allTextContents(),
+                ['Dental', 'Dermatology', 'General Practice', 'Paediatrics', 'Physiotherapy'].slice(0, Math.min(count - 1, 5)));
               assert.equal(new Set(normal.items.map(t => t.y)).size, 1, 'One scrollable row, no orphan rows');
               assert.ok(normal.items.every(t => t.layoutWidth >= 180), 'Readable specialty width');
               assert.equal(normal.documentWidth, width, 'No document overflow');
