@@ -152,3 +152,12 @@ change under reduced motion. `--before` records the original geometry.
 Measurements and hover screenshots go to `UIPROBLEMS/after/issue135-*-matrix`.
 The guarded fixture/server use only `ie4727db_test`; the seed is restored in
 `finally`. Run serially with other database/browser tests.
+
+For booking slot expansion (#139), run `node tools/ui/booking-slots.test.mjs`.
+It prints `OK` after measuring unchanged sibling heights and a single open
+confirmation with JavaScript, keyboard opening, and usable native forms without
+JavaScript at 1280 and 390px with 3, 7 and 12 database-backed slots. Existing
+time filters select the list lengths from the seed. `--before` captures original
+measurements; screenshots and measurements go to `UIPROBLEMS/after/issue139-*-matrix`.
+The guarded server uses `ie4727db_test`, and the seed is restored in `finally`.
+Run serially with other database/browser tests.
