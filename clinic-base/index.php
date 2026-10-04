@@ -77,7 +77,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
     <section class="featured-doctors band" aria-labelledby="featured-doctors-heading">
         <h2 id="featured-doctors-heading">Meet our featured doctors</h2>
-        <div class="doctor-tiles grow-row">
+        <div class="doctor-carousel" data-doctor-carousel>
+            <button type="button" class="doctor-carousel-arrow" data-doctor-previous aria-label="Previous featured doctors" aria-controls="featured-doctor-tiles" hidden>&#8592;</button>
+        <div class="doctor-tiles" id="featured-doctor-tiles">
 <?php if ($doctors === []): ?>
             <p class="empty-state">No doctors are currently available.</p>
 <?php else: ?>
@@ -85,7 +87,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 ?>
-            <a class="doctor-tile grow-item" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
+            <a class="doctor-tile" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
                 <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" width="440" height="550" loading="eager">
                 <h3><?= e((string) $doctor['FullName']) ?></h3>
 <?php if (trim((string) ($doctor['Specialty'] ?? '')) !== ''): ?>
@@ -96,6 +98,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </a>
 <?php endforeach; ?>
 <?php endif; ?>
+        </div>
+            <button type="button" class="doctor-carousel-arrow" data-doctor-next aria-label="Next featured doctors" aria-controls="featured-doctor-tiles" hidden>&#8594;</button>
+            <p data-doctor-status aria-live="polite" aria-atomic="true"></p>
         </div>
     </section>
 
@@ -123,6 +128,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </div>
     </section>
 </main>
+<script src="<?= e(url('/assets/featured-doctors.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

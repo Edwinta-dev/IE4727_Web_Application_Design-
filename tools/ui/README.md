@@ -117,3 +117,13 @@ controls in disabled fieldsets, cannot receive focus; selftests verify these
 pass while an enabled input without a focus indicator fails at both widths.
 Asset teardown errors are ignored only after the page closes. Active-page
 failures still propagate; navigation waits for decoded images and the load event.
+
+For featured-doctor paging (#134), run `node tools/ui/featured-doctors.test.mjs`.
+It prints `OK` after testing 3, 7 and 12 database-backed doctors at 1280,
+1024, 768 and 390px, including hover/focus stability, keyboard arrows and end
+states, resizing, reduced motion and the no-JS scroll-snap fallback. Screenshots
+and measurements are saved under `UIPROBLEMS/after/issue134-after-matrix`.
+`--before` captures the original geometry without asserting carousel behavior.
+The fixture and server require resolved `ie4727db_test`; the test rebuilds it
+before each doctor count and restores the seed in `finally`. Run serially with
+other database tests.

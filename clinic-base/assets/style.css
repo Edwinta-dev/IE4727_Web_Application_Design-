@@ -791,7 +791,7 @@ input[type="button"]:active {
     padding: var(--space-3);
     color: var(--ink);
     text-decoration: none;
-    transition: transform 180ms ease, box-shadow 180ms ease, flex-grow 180ms ease, padding 180ms ease;
+    transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 .doctor-tile:hover,
@@ -832,21 +832,6 @@ input[type="button"]:active {
 .grow-item img { transition: height 180ms ease; }
 
 @media (min-width: 64rem) {
-    .doctor-tiles {
-        display: flex;
-        align-items: stretch;
-    }
-
-    .doctor-tiles > .doctor-tile {
-        flex: 1 1 0%;
-        min-width: 0;
-    }
-
-    .doctor-tiles > .doctor-tile:hover,
-    .doctor-tiles > .doctor-tile:focus-visible {
-        flex-grow: 1.35;
-    }
-
     .grow-row {
         display: flex;
         align-items: flex-start;
@@ -858,9 +843,6 @@ input[type="button"]:active {
         min-width: 0;
         padding-inline: var(--space-2);
     }
-
-    /* Doctor biographies need equal-height tiles; specialties grow in flow. */
-    .doctor-tiles > .doctor-tile { min-height: 38rem; }
 
     .grow-row > .grow-item:hover,
     .grow-row > .grow-item:focus-visible {
@@ -1284,6 +1266,79 @@ main .flash {
 .featured-doctors > h2,
 .featured-doctors > .doctor-tiles { width: 100%; margin-inline: 0; }
 .featured-doctors > h2 { margin-bottom: var(--space-3); }
+
+/* Fixed page widths and scale gutters keep doctor text stable during hover.
+   Without JavaScript this is the same keyboard-accessible scroll-snap row. */
+.doctor-carousel { position: relative; min-width: 0; }
+.doctor-carousel.has-doctor-carousel {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+    align-items: center;
+}
+.doctor-carousel .doctor-tiles {
+    --doctors-per-page: 1;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--space-2);
+    scroll-behavior: smooth;
+    padding: var(--space-3) var(--space-2);
+    margin: 0;
+    min-width: 0;
+}
+.has-doctor-carousel .doctor-tiles { grid-column: 2; grid-row: 1; }
+.has-doctor-carousel [data-doctor-previous] { grid-column: 1; grid-row: 1; }
+.has-doctor-carousel [data-doctor-next] { grid-column: 3; grid-row: 1; }
+.doctor-carousel .doctor-tiles > .doctor-tile {
+    flex: 0 0 calc((100% - (var(--doctors-per-page) - 1) * var(--space-3)) / var(--doctors-per-page));
+    min-width: 0;
+    scroll-snap-align: start;
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+}
+.doctor-carousel .doctor-tiles > .doctor-tile:hover,
+.doctor-carousel .doctor-tiles > .doctor-tile:focus-visible {
+    transform: scale(1.025);
+}
+.doctor-carousel .doctor-tile-link { margin-top: auto; }
+.doctor-carousel-arrow {
+    width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    font-size: 1.25rem;
+}
+.doctor-carousel-arrow[hidden] { display: none; }
+.doctor-carousel-arrow:disabled {
+    color: var(--muted);
+    background: var(--c-surface);
+    border-color: var(--line);
+    cursor: default;
+}
+.doctor-carousel [data-doctor-status] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+@media (min-width: 40rem) {
+    .doctor-carousel .doctor-tiles { --doctors-per-page: 2; }
+}
+@media (min-width: 75rem) {
+    .featured-doctors { padding-inline: var(--space-4); }
+    .doctor-carousel .doctor-tiles { --doctors-per-page: 4; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .doctor-carousel .doctor-tiles { scroll-behavior: auto; }
+    .doctor-carousel .doctor-tiles > .doctor-tile:hover,
+    .doctor-carousel .doctor-tiles > .doctor-tile:focus-visible { transform: none; }
+}
 
 .services { padding-block: var(--space-5); }
 .specialty-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-3); }
