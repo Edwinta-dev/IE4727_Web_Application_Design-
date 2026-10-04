@@ -22,7 +22,7 @@ assert_true($hours !== [], 'peak booking hours aggregation is populated');
 assert_true(array_key_exists('BookingHour', $hours[0]), 'peak hours include grouped hour');
 
 $seedLead = mean_booking_lead_time();
-assert_true($seedLead['valid'] > 0 && $seedLead['invalid'] > 0, 'seed has both future bookings and historical records with invalid booking times: ' . var_export($seedLead, true));
+assert_true($seedLead['valid'] > 0 && $seedLead['invalid'] === 0, 'seed booking times are chronological: ' . var_export($seedLead, true));
 assert_true($seedLead['mean_days'] !== null && $seedLead['mean_days'] >= 0, 'seed mean uses valid booking times only');
 
 // Isolate controlled clinic-local DATETIME samples from the rolling seed by date.
@@ -44,6 +44,7 @@ assert_true(abs($measured['mean_days'] - 4 / 3) < 0.000001, '0, 1 and 3 elapsed 
 assert_eq([$measured['valid'], $measured['invalid']], [3, 2], 'invalid timestamps are counted, not averaged');
 assert_eq(mean_booking_lead_time($range + ['status' => 'Completed']), ['mean_days' => 1.0, 'valid' => 1, 'invalid' => 0], 'status filter selects completed booking');
 assert_eq(mean_booking_lead_time($range + ['status' => 'Cancelled']), ['mean_days' => null, 'valid' => 0, 'invalid' => 1], 'all-invalid selection is unavailable');
+assert_eq(mean_booking_lead_time($range + ['status' => 'Rescheduled']), ['mean_days' => null, 'valid' => 0, 'invalid' => 1], 'missing booking time alone is unavailable');
 assert_eq(mean_booking_lead_time($range + ['doctor' => '2']), ['mean_days' => null, 'valid' => 0, 'invalid' => 0], 'doctor filter is applied');
 
 // Crossing midnight measures elapsed hours, not calendar date boundaries.

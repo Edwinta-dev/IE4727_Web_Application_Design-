@@ -38,6 +38,14 @@ app is partly built, so the issues now **adopt what you have** and only add to i
 
 ## Use
 
+For a fresh isolated demo and owner-reviewed fixture cleanup, see
+[Demo data separation](docs/DEMO_DATA_RECONCILIATION.md). Unattended reset tools
+support only `ie4727db_test`; live cleanup remains an owner action.
+
+For authorized local review of the fixed `appointment.Remarks` column, see
+[Remarks storage and read-only inspection](docs/REMARKS.md). The command uses
+the app's decoder to show patient reason and doctor remarks separately.
+
 ```bash
 gh repo create <you>/clinic-portal --private --clone
 cd clinic-portal

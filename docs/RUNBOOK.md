@@ -37,7 +37,7 @@ patient account. Each `HashPass` value is a genuine bcrypt output produced by
 PHP's `password_hash('Password123', PASSWORD_DEFAULT)`; the plaintext password
 is never stored in the database.
 
-An isolated `php tools/db_reset.php` reports 5 doctors, 8 patients, 25
+An isolated `php tools/db_reset.php` reports 5 doctors, 8 patients, 27
 appointments and 2 notifications (the slot count varies with Sundays in the
 rolling 60-day window). The two notifications are synthetic `logged` rows for
 the first future appointment: one for its patient and one for its doctor.
@@ -45,3 +45,42 @@ Their bodies identify them as fixtures. Seeding does not attempt mail delivery,
 so neither row claims `sent` or `failed`. A fresh admin outbox shows both rows,
 newest first, and “Messages generated today: 2”. Booking, cancellation and
 rescheduling append live audit rows after reset.
+
+
+For the attendance demo, sign in as `drsmith` / `Password123` and select the
+most recent clinic day before today on the day board (yesterday, or Saturday
+when today is Monday). Alex Tan at 09:00 and Bethany Ong at 09:30 are pending
+`Future` appointments whose start times have passed. Mark one Completed and
+one No show; their linked slots remain Booked. The other 25 examples remain:
+18 Completed, 2 No show, 1 Cancelled and 4 upcoming Future appointments.
+The two pending rows deliberately retain Future until the doctor records
+attendance; historical Future records are never automatically completed.
+
+The seed captures one Asia/Singapore now (SQL session offset +08:00). Slots
+are created before booking, and historical appointments are booked seven days
+before their start. The four upcoming bookings are created exactly eight days
+before their start, also before seed now. All 27 appointments have valid
+booking times: 23 at seven days and four at eight days, totalling 193 elapsed
+days. Mean lead time is 193/27 = 7.148148 days (displayed as 7.1 days), with
+27/27 included and zero excluded, independent of reset time or weekday.
+Use only the existing isolated `php tools/db_reset.php` workflow for tests;
+this change does not authorize a live reset. No mail is sent during seeding.
+
+### Booking lead-time definition
+
+The admin metric uses the current doctor, status and appointment-date filters.
+Every status represents a booking, including cancellations and pending outcomes.
+It averages `TIMESTAMPDIFF(SECOND, CreatedAt, appointmentDateTime) / 86400`
+over records with a non-null `CreatedAt` at or before the scheduled start.
+The DATETIME values are Asia/Singapore clinic time; a day is 24 elapsed hours,
+and the display rounds to one decimal. Same-time bookings contribute zero.
+Missing or reversed booking times are counted as excluded, never made positive
+or clamped to zero. Included plus excluded is the selected appointment total.
+An empty or all-invalid selection displays Unavailable, rather than zero days.
+
+Only synthetic reset fixtures receive the documented lead times. Do not infer
+or backfill booking timestamps in the owner's live records. Invalid regression
+samples live in the isolated test database: three valid leads (0, 1, 3 days)
+and two excluded records (one reversed, one missing), mean 4/3 days, 3/5
+included. `tests/test_stats.php` checks those cases and empty/all-invalid
+selections; the authenticated UI regression checks their displayed coverage.

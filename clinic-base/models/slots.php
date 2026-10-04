@@ -72,6 +72,44 @@ function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?s
 }
 
 /**
+ * Read-only availability for the existing patient window and time filters.
+ * Use the same captured now as the grid, including the strict future boundary.
+ * @return array<string, array{total: int, matching: int, future: int, available: int}>
+ */
+function booking_day_availability(int $doctorId, DateTimeImmutable $now, int $days, string $fromTime, string $toTime): array
+{
+    $today = $now->setTime(0, 0);
+    $availability = [];
+    for ($offset = 0; $offset < $days; $offset++) {
+        $availability[$today->modify('+' . $offset . ' days')->format('Y-m-d')] =
+            ['total' => 0, 'matching' => 0, 'future' => 0, 'available' => 0];
+    }
+    $rows = q_all(
+        slot_select() . ' WHERE `DoctorID` = :doctor_id
+            AND `SlotDateTime` >= :start AND `SlotDateTime` < :end ORDER BY `SlotDateTime`',
+        ['doctor_id' => $doctorId, 'start' => $today->format('Y-m-d H:i:s'),
+            'end' => $today->modify('+' . $days . ' days')->format('Y-m-d H:i:s')]
+    );
+    foreach ($rows as $slot) {
+        $counts = &$availability[(string) $slot['SlotDate']];
+        $counts['total']++;
+        $time = (string) $slot['SlotTime'];
+        if ($time >= $fromTime . ':00' && $time <= $toTime . ':00') {
+            $counts['matching']++;
+            if (new DateTimeImmutable((string) $slot['SlotDateTime']) > $now) {
+                $counts['future']++;
+                if ($slot['Status'] === 'Available') {
+                    $counts['available']++;
+                }
+            }
+        }
+        unset($counts);
+    }
+
+    return $availability;
+}
+
+/**
  * Return state counts for each day in a doctor's requested schedule window.
  * The page fills in dates with no rows so an empty day is still visible.
  *

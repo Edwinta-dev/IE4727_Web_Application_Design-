@@ -118,7 +118,7 @@ if (strpos($doctorHome, 'appointments_for_doctor_day($doctorId, $date)') === fal
 if (strpos($doctorVisit, '(int) $appointment[\'DoctorID\'] !== $doctorId') === false) {
     $violations[] = 'doctor visit does not enforce appointment ownership';
 }
-if (strpos($doctorVisit, 'patient_history((int) $appointment[\'PatientID\'], $doctorId)') === false
+if (strpos($doctorVisit, 'patient_history((int) $appointment[\'PatientID\'], $doctorId, $appointmentId)') === false
     || strpos($appointmentsModel, "a.`DoctorID` = :doctor_id") === false) {
     $violations[] = 'doctor visit history is not scoped to the authenticated doctor';
 }

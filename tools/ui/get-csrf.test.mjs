@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
-import { withServer, visit } from './lib.mjs';
+import { withTestServer, visit } from './lib.mjs';
+
+process.env.CLINIC_DB_NAME = 'ie4727db_test';
 
 const cases = [
   ['doctors.php', '.specialty-filter', 'specialty', 'General Practice'],
@@ -10,7 +12,7 @@ const cases = [
   ['doctor/schedule.php', '.month-grid form', 'date', null],
 ];
 
-await withServer(true, async base => {
+await withTestServer(true, async base => {
   const browser = await chromium.launch({ headless: true });
   try {
     for (const [route, selector, field, choice] of cases) {

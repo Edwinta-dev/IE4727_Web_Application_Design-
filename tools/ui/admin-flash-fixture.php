@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-if (getenv('CLINIC_DB_NAME') !== 'ie4727db_test') {
-    throw new RuntimeException('Admin flash fixture only runs on ie4727db_test');
-}
+require_once __DIR__ . '/test-database.php';
 
 require_once dirname(__DIR__, 2) . '/clinic-base/lib/db.php';
 require_once dirname(__DIR__, 2) . '/clinic-base/lib/helpers.php';

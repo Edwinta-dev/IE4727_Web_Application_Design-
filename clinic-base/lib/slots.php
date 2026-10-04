@@ -2,6 +2,42 @@
 
 declare(strict_types=1);
 
+/** Choose only among permitted days with a future Available slot. */
+function reschedule_landing_date(string $originalDay, array $availability, string $fallback): string
+{
+    if (($availability[$originalDay]['available'] ?? 0) > 0) {
+        return $originalDay;
+    }
+    foreach ($availability as $day => $counts) {
+        if ($counts['available'] > 0) {
+            return $day;
+        }
+    }
+
+    return $fallback;
+}
+
+/** Explain the displayed day without confusing elapsed slots with booked ones. */
+function booking_day_empty_message(array $counts): ?string
+{
+    if ($counts['available'] > 0) {
+        return null;
+    }
+    if ($counts['total'] === 0) {
+        return 'No appointment times are scheduled for this day.';
+    }
+    if ($counts['matching'] === 0) {
+        return 'No appointment times match these time filters.';
+    }
+    if ($counts['future'] === 0) {
+        return $counts['matching'] === $counts['total']
+            ? 'All appointment times on this day have passed.'
+            : 'All appointment times matching these time filters have passed.';
+    }
+
+    return 'The remaining times on this day are booked or unavailable.';
+}
+
 /**
  * Generate schedule slots without consulting application state.
  *

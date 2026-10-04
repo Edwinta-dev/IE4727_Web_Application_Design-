@@ -856,9 +856,11 @@ input[type="button"]:active {
     .grow-row > .grow-item {
         flex: 1 1 0%;
         min-width: 0;
-        min-height: 38rem;
         padding-inline: var(--space-2);
     }
+
+    /* Doctor biographies need equal-height tiles; specialties grow in flow. */
+    .doctor-tiles > .doctor-tile { min-height: 38rem; }
 
     .grow-row > .grow-item:hover,
     .grow-row > .grow-item:focus-visible {
@@ -1198,6 +1200,8 @@ main .flash {
 .doctor-directory-intro .specialty-filter { margin: var(--space-2) 0 0; }
 
 .photo-banner .hero-image { object-position: center 42%; }
+/* Keep both heads in view within the directory's shallower desktop banner. */
+.doctor-directory-banner .hero-image { object-position: center 20%; }
 
 .photo-scrim {
     position: absolute;
@@ -1218,6 +1222,29 @@ main .flash {
 
 .photo-caption .eyebrow { margin-bottom: var(--space-1); color: #fff; }
 .photo-caption h1 { margin: 0; color: #fff; }
+
+/* Let the home caption size its shared scrim, including when text wraps.
+   Only the space above the text fades; the text sits over uniform black. */
+.hero-copy .photo-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(var(--space-3), 1fr) auto;
+    min-height: 15rem;
+}
+.hero-copy .hero-image { position: absolute; inset: 0; }
+.hero-copy .photo-scrim,
+.hero-copy .photo-caption {
+    grid-area: 2 / 1;
+    position: relative;
+    inset: auto;
+}
+.hero-copy .photo-scrim {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.72) calc(100% - var(--space-5)), transparent);
+}
+.hero-copy .photo-caption {
+    padding: var(--space-5) var(--space-4) var(--space-3);
+}
+.hero-copy .photo-caption .eyebrow { margin-top: 0; }
 
 .hero-subtitle {
     display: flex;
@@ -1266,7 +1293,7 @@ main .flash {
 .specialty-item p { margin: 0; color: var(--muted); }
 
 @media (max-width: 56rem) {
-    .hero-band { grid-template-columns: 1fr; }
+    .hero-band { grid-template-columns: minmax(0, 1fr); }
     .member-login { width: min(100%, 24rem); }
 }
 
@@ -1276,6 +1303,14 @@ main .flash {
     .photo-caption { right: var(--space-2); bottom: var(--space-2); left: var(--space-2); }
     .photo-caption h1 { font-size: clamp(1.55rem, 7vw, 2rem); }
     .photo-caption .eyebrow { font-size: 0.95rem; }
+    .hero-copy .photo-caption { padding: var(--space-5) var(--space-2) var(--space-2); }
+    .hero-copy .photo-banner { aspect-ratio: auto; min-height: 0; }
+    .hero-copy .photo-banner::before {
+        content: "";
+        grid-area: 1 / 1 / 3;
+        aspect-ratio: 16 / 9;
+        pointer-events: none;
+    }
     .hero-subtitle { display: block; }
     .hero-actions { margin-top: var(--space-2); }
     .hero-actions .button { flex: 1 1 9rem; text-align: center; }

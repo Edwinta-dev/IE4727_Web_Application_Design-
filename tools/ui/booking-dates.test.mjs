@@ -1,16 +1,16 @@
 import { chromium } from 'playwright';
-import { execFileSync } from 'node:child_process';
-import { withServer, login, appBase } from './lib.mjs';
+import { testPhp } from './isolation.mjs';
+import { withTestServer, login, appBase } from './lib.mjs';
 
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
-const php = (code) => execFileSync('php', ['-r', `require 'clinic-base/lib/db.php'; ${code}`], { encoding: 'utf8', env: process.env }).trim();
+const php = (code) => testPhp(['-r', `require 'clinic-base/lib/db.php'; ${code}`], { encoding: 'utf8', env: process.env }).trim();
 const check = (condition, message) => { if (!condition) throw Error(message); };
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const day = offset => { const date = new Date(`${today}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + offset); return date.toISOString().slice(0, 10); };
 const counts = () => php('echo q_val("SELECT COUNT(*) FROM `appointment`") . ":" . q_val("SELECT COUNT(*) FROM `notifications`");');
 
-execFileSync('php', ['tools/db_reset.php', '--test'], { env: process.env, stdio: 'pipe' });
-await withServer(true, async () => {
+console.log(testPhp(['tools/db_reset.php', '--test'], { env: process.env, stdio: 'pipe', encoding: 'utf8' }).trim());
+await withTestServer(true, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();

@@ -1,7 +1,21 @@
 import { chromium } from '../tools/ui/node_modules/playwright/index.mjs';
-import { withServer } from '../tools/ui/lib.mjs';
+import { mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { withTestServer, root } from '../tools/ui/lib.mjs';
+
+import { testPhp } from '../tools/ui/isolation.mjs';
+process.env.CLINIC_DB_NAME = 'ie4727db_test';
+const fixture = (action) => JSON.parse(testPhp(['tools/ui/register-fixture.php', action, suffix], { encoding: 'utf8' }));
 
 const suffix = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+const capture = async (page, stage, role) => {
+  const dir = resolve(root, `UIPROBLEMS/after/issue120-${stage}`);
+  await mkdir(dir, { recursive: true });
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
+    await page.screenshot({ path: resolve(dir, `${role}-${width}.png`), fullPage: true, animations: 'disabled' });
+  }
+};
 const credentials = (role, variant = '') => ({
   FullName: 'Synthetic Registration',
   User: `ui_${role}_${variant}_${suffix}`,
@@ -10,7 +24,8 @@ const credentials = (role, variant = '') => ({
   confirm_password: 'Synthetic123',
 });
 
-await withServer(true, async (base) => {
+await withTestServer(true, async (base) => {
+  console.log('Registration fixture before:', fixture('counts'));
   const browser = await chromium.launch({ headless: true });
   try {
     for (const javascriptEnabled of [true, false]) {
@@ -19,6 +34,7 @@ await withServer(true, async (base) => {
       const patternErrors = [];
       page.on('console', (message) => { if (/pattern attribute.*invalid|invalid.*pattern attribute/i.test(message.text())) patternErrors.push(message.text()); });
       await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
+      await capture(page, 'before', javascriptEnabled ? 'patient-js' : 'patient-nojs');
       console.log(`loaded untouched form with JS ${javascriptEnabled}`);
       const patientRole = page.locator('input[name="role"][value="patient"]');
       if (!(await patientRole.isChecked())) throw Error(`patient role not checked with JS ${javascriptEnabled}`);
@@ -55,6 +71,7 @@ await withServer(true, async (base) => {
       await page.locator('button[type="submit"]').click();
       try { await page.waitForURL('**/patient/home.php', { timeout: 12000 }); }
       catch (error) { console.log(`JS ${javascriptEnabled} stayed at ${page.url()}: ${(await page.locator('body').innerText()).slice(0, 1000)}`); throw error; }
+      await capture(page, 'after', javascriptEnabled ? 'patient-js' : 'patient-nojs');
       console.log(`registered untouched patient with JS ${javascriptEnabled}`);
       await context.close();
     }
@@ -63,15 +80,23 @@ await withServer(true, async (base) => {
     const page = await context.newPage();
     await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
     await page.locator('[data-role-switch="doctor"]').click();
+    await capture(page, 'before', 'doctor');
     if (!(await page.locator('[name="role"][value="doctor"]').isChecked())) throw Error('doctor switch did not select doctor role');
     if (await page.locator('#patient-fields input, #patient-fields select, #patient-fields textarea').evaluateAll((fields) => fields.some((field) => !field.disabled))) throw Error('inactive patient fields remained enabled');
     for (const [name, value] of Object.entries(credentials('doctor'))) await page.locator(`[name="${name}"]`).fill(value);
     for (const [name, value] of Object.entries({ Specialty: 'General Practice', Qualifications: 'MBBS', Languages: 'English', WriteUp: 'Synthetic doctor profile.' })) await page.locator(`[name="${name}"]`).fill(value);
     await page.locator('button[type="submit"]').click();
     await page.waitForURL('**/doctor/home.php', { timeout: 12000 });
+    await capture(page, 'after', 'doctor');
     await context.close();
+    const counts = fixture('counts');
+    if (counts.database !== 'ie4727db_test' || counts.patient !== 2 || counts.doctor !== 1) throw Error('Registration rows not isolated: ' + JSON.stringify(counts));
+    console.log('Registration fixture after:', counts);
   } finally {
-    await browser.close();
+    try { await browser.close(); } finally { fixture('cleanup'); }
+    const counts = fixture('counts');
+    if (counts.patient !== 0 || counts.doctor !== 0) throw Error('Own registration fixtures remain');
+    console.log('Registration fixture cleaned:', counts);
   }
 }, 'clinic-base');
 
