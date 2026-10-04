@@ -1,5 +1,25 @@
 # UI screenshots and geometry audit
 
+For booking URLs (#144), run `node tools/ui/booking-urls.test.mjs` as the
+acceptance command, then `php tests/run.php test_issue144` and
+`php tests/run.php`. The browser test uses only `ie4727db_test`, disables mail,
+restores the seed in `finally`, and covers 3/7/12 doctors and slots at 1280x800
+and 390x844 without JavaScript. Raw specialty fixtures have 3/7/12 values;
+the existing canonical specialty filter exposes at most five supported services.
+Do not expand that vocabulary for this booking issue.
+
+`--before` records the current DOM and screenshots without requiring the new
+URL/availability state. Before evidence in
+`UIPROBLEMS/after/issue144-before-matrix/measurements.json` shows a Book link
+for both a doctor without slots and one whose only slot is on day eight, with
+all directory links using `doctor_id`. Valid legacy deep-link dates already
+worked before this change; session-derived actor handling was also already
+present. Generated URLs now use `doctor`, include the next bookable date, and
+omit Book for unavailable doctors. The legacy input alias remains compatible.
+The acceptance test forges POST actor values in both patient and doctor sessions
+and checks the logged notification actor. After evidence is in
+`UIPROBLEMS/after/issue144-after-matrix/`. Run serially with other DB tests.
+
 These scripts are development tools. They run the PHP app from this checkout at
 `http://127.0.0.1:8123/clinic-base/`; they are not referenced by shipped pages.
 Port 8000 is rejected because it can serve a stale XAMPP copy.

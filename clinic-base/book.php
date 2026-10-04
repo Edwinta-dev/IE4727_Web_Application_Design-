@@ -199,7 +199,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($reschedule !== null): ?>
                 <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
                 <input type="hidden" name="reschedule" value="1">
-                <input type="hidden" name="actor" value="<?= e($rescheduleActor) ?>">
 <?php endif; ?>
 <?php if ($reschedule !== null): ?>
                 <p>Replace your appointment with <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?> with this time: <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>. Your current booking stays in place until this change succeeds.</p>

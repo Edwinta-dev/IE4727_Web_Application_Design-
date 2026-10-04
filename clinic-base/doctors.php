@@ -18,6 +18,7 @@ $selectedSpecialty = isset($_GET['specialty']) && is_string($_GET['specialty'])
     ? trim($_GET['specialty'])
     : '';
 $doctors = all_doctors($selectedSpecialty !== '' ? $selectedSpecialty : null);
+$bookingWindowEnd = (new DateTimeImmutable('today'))->modify('+' . BROWSE_DAYS . ' days');
 
 $pageTitle = 'Find a Doctor';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -87,6 +88,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
     $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
     $nextAvailable = $doctor['NextAvailable'] ?? null;
+    if ($nextAvailable !== null && new DateTimeImmutable((string) $nextAvailable) >= $bookingWindowEnd) {
+        $nextAvailable = null;
+    }
 ?>
             <tr>
                 <td>
@@ -104,7 +108,13 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     Not available
 <?php endif; ?>
                 </td>
-                <td><a class="doctor-directory-book" href="<?= e(url('/book.php?doctor_id=' . $doctorId)) ?>">Book</a></td>
+                <td>
+<?php if ($nextAvailable !== null): ?>
+                    <a class="doctor-directory-book" href="<?= e(url('/book.php?doctor=' . $doctorId . '&date=' . substr((string) $nextAvailable, 0, 10))) ?>">Book</a>
+<?php else: ?>
+                    No times in the next seven days
+<?php endif; ?>
+                </td>
             </tr>
 <?php endforeach; ?>
 <?php endif; ?>
