@@ -19,7 +19,7 @@ foreach ([
     'class="booking-doctor"',
     'class="booking-slots"',
     'class="slot <?= e($stateClass) ?>"',
-    '<details class="slot-booking"><summary>Select time</summary>',
+    'class="slot-choice"',
     "? 'Unavailable' : 'Past'",
     "'free'",
     "'taken'",
@@ -42,7 +42,7 @@ assert_true(strpos($page, 'SELECT ') === false, 'booking page must not contain S
 foreach (['$rescheduleRequested', 'name="reschedule" value="<?= e((string) $rescheduleId)',
     '[\'reschedule\' => $rescheduleId]', 'Current appointment:',
     'Your current booking stays in place until the replacement is confirmed.',
-    'Back to appointments', 'Replace your appointment with'] as $needle) {
+    'Back to appointments', 'Confirm replacement'] as $needle) {
     assert_contains($page, $needle, 'rescheduling context and filter routing');
 }
 $tokens = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/tokens.css');

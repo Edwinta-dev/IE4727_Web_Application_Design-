@@ -35,7 +35,12 @@ foreach ($pages as $page) {
         fwrite(STDERR, "FAIL: page has no title: {$page}\n");
         exit(1);
     }
-    if (strpos($contents, '/assets/img/') === false) {
+    // Shared header imagery counts toward the rendered page image requirement.
+    $header = file_get_contents($base . '/partials/header.php');
+    $hasHeaderImage = str_contains($contents, "'partials' . DIRECTORY_SEPARATOR . 'header.php'")
+        && $header !== false && str_contains($header, '<img')
+        && str_contains($header, '/assets/img/clinic-logo.svg');
+    if (strpos($contents, '/assets/img/') === false && !$hasHeaderImage) {
         fwrite(STDERR, "FAIL: page has no local image asset: {$page}\n");
         exit(1);
     }

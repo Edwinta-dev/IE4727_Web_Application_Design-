@@ -163,7 +163,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div><h2><?= e((string) $doctor['FullName']) ?></h2><p><?= e((string) $doctor['Specialty']) ?></p><p><?= e(fmt_date($selectedDate)) ?></p></div>
         </aside>
         <div class="booking-slots">
-    <p>Choose a free time. Your appointment is confirmed after you submit the reason for your visit.</p>
 <?php if ($dayEmptyMessage !== null): ?>
     <p class="empty-state"><?= e($dayEmptyMessage) ?>
 <?php if ($availableDayUrl !== null): ?>
@@ -174,7 +173,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </p>
 <?php endif; ?>
 <?php if ($slots !== []): ?>
-    <div class="schedule-grid" aria-label="Appointment schedule">
+    <div class="slot-booking">
+            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
+                <?= csrf_field() ?>
+                <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
+                <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
+                <input type="hidden" name="from" value="<?= e($fromTime) ?>">
+                <input type="hidden" name="to" value="<?= e($toTime) ?>">
+<?php if ($reschedule !== null): ?>
+                <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
+                <input type="hidden" name="reschedule" value="1">
+<?php endif; ?>
+    <div class="schedule-grid" role="group" aria-label="Appointment time">
 <?php foreach ($slots as $slot):
     $slotDateTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
     $isPast = $slotDateTime <= $now;
@@ -186,35 +196,26 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     };
 ?>
         <div class="slot <?= e($stateClass) ?>">
-            <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
-            <details class="slot-booking"><summary>Select time</summary>
-            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
-                <?= csrf_field() ?>
-                <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
-                <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
-                <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
-                <input type="hidden" name="from" value="<?= e($fromTime) ?>">
-                <input type="hidden" name="to" value="<?= e($toTime) ?>">
-<?php if ($reschedule !== null): ?>
-                <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
-                <input type="hidden" name="reschedule" value="1">
-<?php endif; ?>
-<?php if ($reschedule !== null): ?>
-                <p>Replace your appointment with <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?> with this time: <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>. Your current booking stays in place until this change succeeds.</p>
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required>
+            <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
 <?php else: ?>
-                <p>Confirm this appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>.</p>
-<?php endif; ?>
-                <label for="reason-<?= e((string) $slot['slotID']) ?>">Reason for visit</label>
-                <input id="reason-<?= e((string) $slot['slotID']) ?>" name="reason" type="text" maxlength="255" required>
-                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
-            </form>
-            </details>
-<?php else: ?>
+            <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
             <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ($stateClass === 'blocked' ? 'Unavailable' : 'Past')) ?></span>
 <?php endif; ?>
         </div>
 <?php endforeach; ?>
+    </div>
+<?php if ($dayEmptyMessage === null): ?>
+    <section class="booking-confirmation" aria-labelledby="confirmation-heading">
+                <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
+                <p><?= e((string) $doctor['FullName']) ?> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+                <label for="reason">Reason for visit</label>
+                <input id="reason" name="reason" type="text" maxlength="255" required>
+                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
+    </section>
+<?php endif; ?>
+            </form>
     </div>
 <?php endif; ?>
         </div>

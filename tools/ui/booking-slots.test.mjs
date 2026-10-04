@@ -6,8 +6,7 @@ import { withTestServer, visit } from './lib.mjs';
 import { testPhp } from './isolation.mjs';
 
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
-const before = process.argv.includes('--before');
-const output = resolve(`UIPROBLEMS/after/issue139-${before ? 'before' : 'after'}-matrix`);
+const output = resolve(`UIPROBLEMS/after/issue146-after-matrix`);
 await mkdir(output, { recursive: true });
 const php = (...args) => testPhp(args, { encoding: 'utf8' });
 const records = [];
@@ -38,41 +37,36 @@ try {
               await visit(page, path, base);
               assert.equal(await page.locator('.schedule-grid > .slot').count(), count, 'Database-backed slot count');
               assert.equal(await page.locator('#doctor option[value]:not([value=""])').count(), count, 'Database-backed doctor count');
-              const details = page.locator('.slot-booking');
-              assert.ok(await details.count() >= 2, 'Need two available times');
-              const firstIndex = await details.first().evaluate(el => [...el.closest('.schedule-grid').children].indexOf(el.parentElement));
+              const choices = page.locator('.slot-choice');
+              assert.ok(await choices.count() >= 2, 'Need two available times');
+              assert.equal(await page.locator('.booking-confirmation').count(), 1, 'One shared confirmation');
+              assert.equal(await page.locator('.slot-booking form').count(), 1, 'One native POST form');
+              assert.ok(!(await page.locator('.schedule-grid').innerText()).includes('Select time'));
               const closed = await heights(page);
-              await details.first().locator('summary').focus();
-              await page.keyboard.press('Enter');
-              await page.waitForFunction(() => document.querySelector('.slot-booking').open);
+              await page.screenshot({ path: resolve(output, `${count}-${width}-${js ? 'js' : 'nojs'}-closed.png`), fullPage: true });
+              await choices.first().focus();
+              await page.keyboard.press('Space');
+              assert.ok(await choices.first().isChecked(), 'Keyboard selects a time');
+              if (js) assert.equal(await page.locator('#selected-time').innerText(), await choices.first().getAttribute('data-time'));
               const opened = await heights(page);
+              assert.deepEqual(opened, closed, 'Selection never expands a slot');
               await page.screenshot({ path: resolve(output, `${count}-${width}-${js ? 'js' : 'nojs'}-one-open.png`), fullPage: true });
-              await details.nth(1).locator('summary').click();
-              if (!before && js) await page.waitForFunction(() => document.querySelectorAll('.slot-booking[open]').length === 1 && !document.querySelector('.slot-booking').open);
-              const second = await heights(page);
-              const secondIndex = await details.nth(1).evaluate(el => [...el.closest('.schedule-grid').children].indexOf(el.parentElement));
-              const openCount = await page.locator('.slot-booking[open]').count();
-              await page.screenshot({ path: resolve(output, `${count}-${width}-${js ? 'js' : 'nojs'}-second-open.png`), fullPage: true });
-              records.push({ count, width, js, closed, opened, second, openCount });
-              console.log(`${count}/${width}/${js ? 'JS' : 'no-JS'}: closed ${closed.map(Math.round)}; first open ${opened.map(Math.round)}; open count after second ${openCount}`);
-              if (!before) {
-                assert.ok(opened[firstIndex] > closed[firstIndex], 'Selected slot expands');
-                for (let i = 0; i < count; i++) if (i !== firstIndex) assert.ok(Math.abs(opened[i] - closed[i]) < 1, 'Other slot heights stay unchanged');
-                if (js) {
-                  assert.equal(openCount, 1, 'Only one confirmation is open');
-                  assert.ok(Math.abs(second[firstIndex] - closed[firstIndex]) < 1, 'Previous slot returns to closed height');
-                  for (let i = 0; i < count; i++) if (i !== secondIndex) assert.ok(Math.abs(second[i] - closed[i]) < 1, 'Switching preserves other slot heights');
-                }
-                await details.nth(1).locator('input[name="reason"]').fill('Slot regression visit');
-                assert.equal(await details.nth(1).locator('input[name="reason"]').inputValue(), 'Slot regression visit', 'Native form remains usable');
-                assert.equal(await details.nth(1).locator('form').getAttribute('method'), 'post');
-                assert.ok(await details.nth(1).locator('button').isVisible(), 'Confirmation button remains visible');
-                if (js) {
-                  await details.nth(1).locator('summary').click();
-                  await page.waitForFunction(() => document.querySelectorAll('.slot-booking[open]').length === 0);
-                  assert.deepEqual(await heights(page), closed, 'Closing restores all heights');
-                }
-              }
+              await choices.nth(1).check();
+              assert.equal(await page.locator('.slot-choice:checked').count(), 1, 'Exactly one time selected with or without JS');
+              assert.ok(!(await choices.first().isChecked()), 'Previous selection cleared');
+              assert.deepEqual(await heights(page), closed, 'Switching preserves slot heights');
+              if (js) assert.equal(await page.locator('#selected-time').innerText(), await choices.nth(1).getAttribute('data-time'));
+              const form = page.locator('.slot-booking form');
+              await form.locator('input[name="reason"]').fill('Slot regression visit');
+              assert.equal(await form.getAttribute('method'), 'post');
+              assert.ok(await form.locator('button').isVisible());
+              const submitted = await form.evaluate(el => [...new FormData(el).entries()]);
+              assert.equal(submitted.filter(([name]) => name === 'slot_id').length, 1);
+              assert.equal(submitted.find(([name]) => name === 'slot_id')[1], await choices.nth(1).inputValue());
+              assert.ok(submitted.some(([name, value]) => name === '_csrf' && value.length > 0));
+              assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width, 'No document overflow');
+              records.push({ count, width, js, closed, opened, selected: await choices.nth(1).inputValue() });
+              console.log(`${count}/${width}/${js ? 'JS' : 'no-JS'}: one confirmation; slot heights ${closed.map(Math.round)}; selection and POST data OK`);
               await page.screenshot({ path: resolve(output, `${count}-${width}-${js ? 'js' : 'nojs'}-final.png`), fullPage: true });
             } finally { await page.close(); }
           }
@@ -84,4 +78,4 @@ try {
   await writeFile(resolve(output, 'measurements.json'), JSON.stringify(records, null, 2));
   php('tools/db_reset.php', '--test');
 }
-console.log(before ? 'OK: before measurements captured' : 'OK: only selected slot height changes; one open with JS; native no-JS forms; 3/7/12 slots at 1280/390px');
+console.log('OK: one shared confirmation; time-only native controls; unchanged slot heights; 3/7/12 slots and doctors at 1280/390px with and without JS');

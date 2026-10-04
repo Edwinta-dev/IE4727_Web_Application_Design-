@@ -26,7 +26,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="appointments">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">My appointments</h1>
+            <h1>My appointments</h1>
             <p>Check appointment times, change a future booking, or read notes from a completed visit.</p>
         </div>
     </section>
@@ -92,7 +92,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
                         <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
 <?php else: ?>
-                        Not available
+                        <?= e("\u{2014}") ?>
 <?php endif; ?>
                     </td>
                 </tr>

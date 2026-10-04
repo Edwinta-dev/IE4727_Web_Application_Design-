@@ -60,7 +60,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main class="admin-console">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Administrator console</h1>
+            <h1>Administrator console</h1>
             <p>Review clinic accounts, appointments and booking patterns.</p>
         </div>
     </section>
@@ -86,9 +86,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <?php else: ?>
                 <p><?= e(number_format($leadTime['mean_days'], 1)) ?> days</p>
             <?php endif; ?>
-            <p>Average time from booking to appointment.</p>
+            <details class="metric-note"><summary>Calculation details</summary>
+            <p>Average elapsed days (24 hours) from booking to appointment.</p>
             <p><?= e((string) $leadTime['valid']) ?> of <?= e((string) ($leadTime['valid'] + $leadTime['invalid'])) ?> appointments included; <?= e((string) $leadTime['invalid']) ?> excluded.</p>
             <?php if ($leadTime['invalid'] > 0): ?><p>Excluded: booking time missing or after appointment.</p><?php endif; ?>
+            </details>
         </div>
     </section>
 

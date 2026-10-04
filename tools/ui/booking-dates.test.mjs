@@ -68,7 +68,7 @@ await withTestServer(true, async () => {
 
     await page.goto(`${appBase}book.php?doctor=1&date=${available.SlotDateTime.slice(0, 10)}`);
     const form = page.locator(`.slot-booking form:has(input[name="slot_id"][value="${available.slotID}"])`);
-    await form.locator('..').locator('summary').click();
+    await form.locator(`input[name="slot_id"][value="${available.slotID}"]`).check();
     await form.locator('input[name="reason"]').fill('Date regression visit');
     await Promise.all([page.waitForNavigation(), form.locator('button').click()]);
     check(Number(php(`echo q_val("SELECT COUNT(*) FROM \`appointment\` WHERE \`slotID\` = ${available.slotID}");`)) === 1, 'valid future-slot booking failed');

@@ -1522,3 +1522,14 @@ main .flash {
 @media (max-width: 40rem) {
     .doctor-specialty-content { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* A time selection shares one confirmation form instead of expanding each cell. */
+.booking-slots .slot-booking > form { margin: 0; }
+.booking-slots .schedule-grid .slot.free { position: relative; padding: 0; }
+.booking-slots .slot-choice { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.booking-slots .slot.free .slot-time { display: flex; align-items: center; min-height: 2.75rem; padding: var(--space-2); margin: 0; color: var(--c-primary-dark); font-weight: 700; }
+.booking-slots .slot-choice:checked + .slot-time { background: var(--c-primary); color: var(--c-button-foreground); }
+.booking-slots .slot-choice:focus-visible + .slot-time { outline: 0.2rem solid var(--c-accent); outline-offset: 0.2rem; }
+.booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
+.booking-confirmation h3 { margin-top: 0; }
+.schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }

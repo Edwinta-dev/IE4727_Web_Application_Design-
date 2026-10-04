@@ -69,9 +69,9 @@ await withTestServer(true, async () => {
     check((await page.locator('.booking-slots').innerText()).includes('No appointment times match these time filters.'), 'filtered empty day mistaken for ungenerated day');
     await page.goto(`${route}&date=${day(3)}`);
     const details = page.locator('.slot-booking').first();
-    await details.locator('summary').focus();
-    await page.keyboard.press('Enter');
-    check(await details.getAttribute('open') !== null, 'keyboard cannot open time confirmation');
+    await details.locator('.slot-choice').first().focus();
+    await page.keyboard.press('Space');
+    check(await details.locator('.slot-choice').first().isChecked(), 'keyboard cannot select time');
     await details.locator('input[name="reason"]').fill('Reschedule conflict regression');
     fixture('stale');
     await Promise.all([page.waitForNavigation(), details.locator('button').click()]);
@@ -84,7 +84,7 @@ await withTestServer(true, async () => {
     await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Show schedule' }).click()]);
     check(await page.locator('#date').inputValue() === day(4) && await page.locator('.reschedule-context').count() === 1, 'JS-off date form lost reschedule');
     const replacement = page.locator('.slot-booking').first();
-    await replacement.locator('summary').click();
+    await replacement.locator('.slot-choice').first().check();
     await replacement.locator('input[name="reason"]').fill('Confirmed replacement');
     await Promise.all([page.waitForNavigation(), replacement.locator('button').click()]);
     const success = fixture('state');

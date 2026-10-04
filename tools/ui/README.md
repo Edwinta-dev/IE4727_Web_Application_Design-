@@ -173,14 +173,26 @@ Measurements and hover screenshots go to `UIPROBLEMS/after/issue135-*-matrix`.
 The guarded fixture/server use only `ie4727db_test`; the seed is restored in
 `finally`. Run serially with other database/browser tests.
 
-For booking slot expansion (#139), run `node tools/ui/booking-slots.test.mjs`.
-It prints `OK` after measuring unchanged sibling heights and a single open
-confirmation with JavaScript, keyboard opening, and usable native forms without
-JavaScript at 1280 and 390px with 3, 7 and 12 database-backed slots. Existing
-time filters select the list lengths from the seed. `--before` captures original
-measurements; screenshots and measurements go to `UIPROBLEMS/after/issue139-*-matrix`.
-The guarded server uses `ie4727db_test`, and the seed is restored in `finally`.
+For booking selection and copy hygiene (#146), run
+`node tools/ui/booking-slots.test.mjs` and `node tools/ui/copy-hygiene.test.mjs`.
+The first verifies time-only controls, one shared confirmation, keyboard selection,
+unchanged slot heights and native POST data with and without JavaScript at 1280
+and 390px for 3, 7 and 12 database-backed slots and doctors. The second checks
+nonzero schedule counts, outbox subjects shortened only in display, accessible
+message table naming, collapsed metric explanations, absent notes and heading
+logos, plus admin doctor lists and schedule slots with 3/7/12 rows. Both print `OK`; captures and
+measurements go to `UIPROBLEMS/after/issue146-*`. The guarded servers resolve
+`ie4727db_test`, disable mail and restore the seed in `finally`.
 Run serially with other database/browser tests.
+
+The #146 before captures are in `UIPROBLEMS/after/issue146-before/`;
+the full-page after captures are in `issue146-after/`. Both contain all seven
+touched pages at 1280x800 and 390x844. The booking matrix also captures the
+unselected grid, first selection and replacement selection: choosing a second
+time clears the first selection and keeps the same shared confirmation panel.
+Seeded outbox subjects already omit the clinic suffix; the copy regression
+adds a historical suffixed subject in the test database and verifies that
+only its display changes.
 
 For patient dashboard acceptance (#143), run `php tests/run.php test_issue143`
 and then `node tests/ui_patient_dashboard.mjs`. The guarded browser test uses

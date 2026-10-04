@@ -23,7 +23,11 @@ foreach ($pages as $pagePath) {
     if ($page === false || !$usesExpectedIntro) {
         throw new RuntimeException($pagePath . ' must use the shared page-intro pattern');
     }
-    if (!str_contains($page, '/assets/img/')) {
+    $header = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/header.php');
+    $hasHeaderImage = str_contains($page, "'partials' . DIRECTORY_SEPARATOR . 'header.php'")
+        && $header !== false && str_contains($header, '<img')
+        && str_contains($header, '/assets/img/clinic-logo.svg');
+    if (!str_contains($page, '/assets/img/') && !$hasHeaderImage) {
         throw new RuntimeException($pagePath . ' must reference a local image');
     }
 }

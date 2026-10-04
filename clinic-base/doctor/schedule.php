@@ -131,7 +131,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="schedule-editor">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Schedule editor</h1>
+            <h1>Schedule editor</h1>
             <p>Generate up to 30 days at a time through <?= e(fmt_date($managementEnd->format('Y-m-d'))) ?>. Existing later slots remain available to manage.</p>
         </div>
     </section>
@@ -184,9 +184,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 ?>
                 <article class="schedule-day<?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
                     <h3><a href="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>"><?= e(fmt_date($dayDate)) ?></a></h3>
-                    <p class="slot-count available">Available: <?= e((string) $dayCounts['Available']) ?></p>
-                    <p class="slot-count booked">Booked: <?= e((string) $dayCounts['Booked']) ?></p>
-                    <p class="slot-count blocked">Blocked: <?= e((string) $dayCounts['Blocked']) ?></p>
+                    <?php foreach (['Available' => 'free', 'Booked' => 'booked', 'Blocked' => 'blocked'] as $status => $label): ?>
+                        <?php if ($dayCounts[$status] > 0): ?>
+                    <span class="slot-count <?= e(strtolower($status)) ?>"><?= e((string) $dayCounts[$status]) ?> <?= e($label) ?></span>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </article>
             <?php endfor; ?>
         </div>

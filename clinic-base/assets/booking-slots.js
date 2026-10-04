@@ -1,13 +1,10 @@
 'use strict';
 
-document.querySelectorAll('.schedule-grid').forEach(function (grid) {
-    var confirmations = grid.querySelectorAll('.slot-booking');
-    confirmations.forEach(function (confirmation) {
-        confirmation.addEventListener('toggle', function () {
-            if (!confirmation.open) return;
-            confirmations.forEach(function (other) {
-                if (other !== confirmation) other.open = false;
-            });
+document.querySelectorAll('.slot-booking').forEach(function (booking) {
+    var selectedTime = booking.querySelector('#selected-time');
+    booking.querySelectorAll('.slot-choice').forEach(function (choice) {
+        choice.addEventListener('change', function () {
+            if (selectedTime && choice.checked) selectedTime.textContent = choice.dataset.time;
         });
     });
 });

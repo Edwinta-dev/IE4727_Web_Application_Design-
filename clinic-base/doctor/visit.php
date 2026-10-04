@@ -75,7 +75,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="visit">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Patient visit</h1>
+            <h1>Patient visit</h1>
             <p>Review the patient's medical history before recording this visit.</p>
         </div>
     </section>

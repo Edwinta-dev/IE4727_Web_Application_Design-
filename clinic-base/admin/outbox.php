@@ -22,7 +22,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main class="admin-outbox">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Notification outbox</h1>
+            <h1>Notification outbox</h1>
             <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
         </div>
     </section>
@@ -48,8 +48,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php if ($notifications === []): ?>
             <p class="empty-state">No messages match this filter.</p>
         <?php else: ?>
-        <p class="outbox-scroll-hint">Scroll sideways to read the subject, delivery status and full message.</p>
-        <table><caption>Logged appointment notification delivery status</caption>
+        <table aria-labelledby="outbox-list-heading">
                 <thead>
                     <tr>
                         <th scope="col">Sent at</th>
@@ -64,7 +63,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <tr>
                             <td class="nowrap"><?= e($notification['SentAt']) ?></td>
                             <td><?= e($notification['recipient']) ?></td>
-                            <td><?= e($notification['Subject']) ?></td>
+                            <td><?= e(preg_replace('/ - Clinic Appointment Portal$/', '', (string) $notification['Subject'])) ?></td>
                             <td class="nowrap"><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
                             <td>
                                 <details class="notification-details">
