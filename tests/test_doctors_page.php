@@ -9,7 +9,7 @@ if ($page === false) {
 
 foreach (['<table', '<caption>', '<thead>', '<tbody>', 'all_specialties()', 'name="specialty"',
     'method="get"', 'doctor.php?id=', 'book.php?doctor_id=', 'No doctors match that specialty',
-    'class="doctor-photo"', 'csrf_field()', '<colgroup>', 'doctor-column-qualifications',
+    'class="doctor-photo"', '<colgroup>', 'doctor-column-qualifications',
     'class="active-doctor-filter"', 'class="clear-doctor-filter"', 'class="doctor-directory-book"',
     'aria-label="Doctor directory" tabindex="0"', 'doctor-next-available'] as $needle) {
     assert_contains($page, $needle);

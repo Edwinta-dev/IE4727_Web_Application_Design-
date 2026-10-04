@@ -26,11 +26,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
         </div>
     </section>
+    <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 
     <section class="outbox-filters" aria-labelledby="outbox-filters-heading">
         <h2 id="outbox-filters-heading">Filter messages</h2>
         <form method="get" action="<?= e(url('/admin/outbox.php')) ?>">
-            <?= csrf_field() ?>
             <label for="deliveryStatus">Delivery status</label>
             <select id="deliveryStatus" name="deliveryStatus">
                 <option value="">All statuses</option>
@@ -48,6 +48,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php if ($notifications === []): ?>
             <p class="empty-state">No messages match this filter.</p>
         <?php else: ?>
+        <p class="outbox-scroll-hint">Scroll sideways to read the subject, delivery status and full message.</p>
         <table><caption>Logged appointment notification delivery status</caption>
                 <thead>
                     <tr>

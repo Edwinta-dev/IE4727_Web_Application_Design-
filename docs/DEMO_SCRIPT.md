@@ -86,7 +86,10 @@ delivery may be `sent` or `failed` and must not make the user operation fail.
 Sign in with the configured admin credentials, open `admin/console.php`, then
 `admin/outbox.php`. Expected output: account/operational counts, notification
 rows with `recipient` and `deliveryStatus` (`logged`, `sent`, or `failed`), and
-newest rows first. If demonstrating doctor cleanup, use only the isolated reset
+newest rows first. Immediately after reset there are two synthetic `logged`
+rows, one for a patient and one for a doctor; both say they were not delivered.
+The page shows “Messages generated today: 2” until real actions add rows.
+If demonstrating doctor cleanup, use only the isolated reset
 database and record before/after counts; never delete a seeded doctor from a
 shared or production database.
 

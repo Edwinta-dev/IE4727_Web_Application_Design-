@@ -76,7 +76,6 @@
 
 
 /* Staff work surfaces: compact filters, wide tables and readable state labels. */
-#appointments { width: 100%; }
 .day-board-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); border-bottom: 1px solid var(--c-line); }
 .day-board-heading .page-intro-copy { flex: 1 1 auto; }
 .day-board-heading h1 { margin-bottom: 0; }
@@ -107,12 +106,14 @@
 .slot-list .slot { border: 0; border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
 .slot-list .slot.free, .slot-list .slot.taken, .slot-list .slot.blocked, .slot-list .slot.past { border-left: 0; }
 .slot-list .slot-status { min-width: 8rem; }
+.slot-list .slot-readonly { display: block; margin-top: var(--space-1); line-height: 1.4; }
 .visit-layout { display: grid; grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.8fr); gap: var(--space-5); align-items: start; }
 .visit-sidebar { min-width: 0; }
 .visit-sidebar > section { border-bottom: 1px solid var(--c-line); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
 .visit-sidebar h2, .visit-form-section h2 { margin-top: 0; }
 .visit-form-section { min-width: 0; }
 .visit-form textarea { min-height: 10rem; }
+.visit-form-section p, .visit-history-record p, .visit-notes p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .visit-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .visit-form-actions label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
 .visit-form-actions input[type="checkbox"] { flex: 0 0 1.5rem; }
@@ -125,6 +126,7 @@
 .admin-console table { min-width: 42rem; }
 .admin-console td form { display: block; }
 .outbox-list { overflow-x: auto; }
+.outbox-scroll-hint { color: var(--c-muted); margin: 0 0 var(--space-2); }
 .admin-outbox table { min-width: 48rem; }
 .staff-table-scroll { overflow-x: auto; }
 .day-board { min-width: 58rem; table-layout: auto; }
@@ -139,12 +141,21 @@
 .admin-console th, .admin-console td, .admin-outbox th, .admin-outbox td { padding-block: 0.4rem; }
 .day-schedule th, .day-schedule td, .admin-console th, .admin-console td { line-height: 1.95; padding-block: 0; }
 .admin-console table button, .day-schedule table button { box-sizing: border-box; padding-block: 0.25rem; }
+.destructive-action { border-color: var(--c-danger); background: var(--c-danger); color: #fff; min-height: 2.75rem; }
+.destructive-action:hover, .destructive-action:focus-visible { border-color: var(--c-danger-hover); background: var(--c-danger-hover); color: #fff; }
+.stats-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); }
+.stats-strip > h2 { grid-column: 1 / -1; margin-bottom: 0; }
+.stats-strip .stat-card { min-width: 0; border-top: 1px solid var(--c-line); }
+.stats-strip .stat-card p { overflow-wrap: anywhere; }
 .day-board td:last-child button { box-sizing: border-box; height: 2.75rem; margin: 0; padding-block: 0; }
 .admin-console table { table-layout: auto; }
 .day-schedule table th, .day-schedule table td,
 .admin-console table th, .admin-console table td { white-space: nowrap; }
 .day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
 .admin-outbox .notification-details summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; }
+.admin-outbox table { width: max-content; min-width: 100%; }
+.admin-outbox th, .admin-outbox td { line-height: 1.95; padding-block: 0; }
+.admin-outbox th, .admin-outbox td:nth-child(-n+4) { white-space: nowrap; }
 
 @media (max-width: 56rem) {
     .schedule-month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -153,6 +164,7 @@
     .visit-sidebar > section { margin: 0; }
 }
 @media (max-width: 40rem) {
+    .stats-strip { grid-template-columns: minmax(0, 1fr); }
     .day-board td { line-height: 2.2; }
     .day-board-heading { align-items: stretch; flex-direction: column; gap: var(--space-2); }
     .day-board-filter { flex: auto; grid-template-columns: minmax(0, 1fr) auto; }
@@ -207,8 +219,9 @@
 .appointments td { vertical-align: middle; }
 .appointments td:last-child { white-space: nowrap; }
 .appointments td:last-child form { display: inline; margin: 0; }
-.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-primary); border-radius: var(--radius-control); background: var(--c-primary); color: white; text-decoration: none; }
-.appointment-action:visited, .appointment-action:hover { color: white; background: var(--c-primary-dark); }
+.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-button-background); border-radius: var(--radius-control); background: var(--c-button-background); color: var(--c-button-foreground); text-decoration: none; }
+.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:focus, .appointment-action:active { color: var(--c-button-foreground); }
+.appointment-action:hover, .appointment-action:focus, .appointment-action:active { background: var(--c-button-background-hover); }
 .appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
 .visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
 .empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
@@ -222,8 +235,8 @@
     .booking-filters p { flex-basis: calc(50% - var(--space-2)); }
     .booking-filters button { flex: 1 1 100%; }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .appointments { overflow-x: auto; }
-    .appointments table { min-width: 46rem; width: max-content; table-layout: auto; }
+    .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
+    .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
 }
 @media (max-width: 56rem) {
     .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }

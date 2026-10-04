@@ -37,8 +37,6 @@ $rules = [
     'Email' => 'required|email|max:100',
     'password' => 'required|min:8',
     'confirm_password' => 'required|matches:password',
-    'Gender' => 'required|in:Male,Female,Other',
-    'Phone' => ['required', 'regex:/^\+?[0-9 ()-]{7,20}$/'],
 ];
 if ($data['role'] === 'doctor') {
     $rules += [
@@ -47,9 +45,17 @@ if ($data['role'] === 'doctor') {
         'WriteUp' => 'required|max:65535',
         'Languages' => 'required|max:120',
     ];
+} else {
+    $rules += [
+        'Gender' => 'required|in:Male,Female,Other',
+        'Phone' => ['required', 'regex:/^\+?[0-9 ()-]{7,20}$/'],
+    ];
 }
 
 $errors = validate($data, $rules);
+if ($data['role'] === 'patient' && $data['Phone'] !== '' && isset($errors['Phone'])) {
+    $errors['Phone'] = 'Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +.';
+}
 if ($errors === [] && user_or_email_taken($data['User'])) {
     $errors['User'] = 'Choose a username that is not already registered';
 }

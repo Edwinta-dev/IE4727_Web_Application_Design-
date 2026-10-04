@@ -70,11 +70,16 @@ $takenSlotId = (int) db()->lastInsertId();
 $takenBooking = book_appointment($patientId, $takenSlotId, 'Taken slot');
 assert_true($takenBooking['ok'], 'taken slot setup should book');
 $beforeSlotId = (int) q_val('SELECT `slotID` FROM `appointment` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]);
+$beforeNotifications = (int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]);
+$beforeDateTime = (string) q_val('SELECT `appointmentDateTime` FROM `appointment` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]);
 $taken = reschedule_appointment($appointmentId, $takenSlotId, 'doctor');
 assert_eq($taken['ok'], false, 'taken slot should fail');
 assert_eq($taken['error'], 'That slot has just been taken. Please choose another.', 'taken slot error');
 assert_eq(q_val('SELECT `slotID` FROM `appointment` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]), $beforeSlotId, 'failed reschedule keeps appointment');
 assert_eq(q_val('SELECT `Status` FROM `slots` WHERE `slotID` = :slot_id', ['slot_id' => $beforeSlotId]), 'Booked', 'failed reschedule keeps old slot');
+assert_eq(q_val('SELECT `appointmentDateTime` FROM `appointment` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]), $beforeDateTime, 'failed reschedule keeps old date and time');
+assert_eq(q_val('SELECT `Status` FROM `appointment` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]), 'Rescheduled', 'failed reschedule keeps existing status');
+assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]), $beforeNotifications, 'failed reschedule creates no notification');
 
 q(
     'INSERT INTO `slots` (`DoctorID`, `SlotDateTime`, `Status`) VALUES (:doctor_id, :slot_date_time, \'Available\')',
@@ -84,5 +89,6 @@ $rollbackSlotId = (int) db()->lastInsertId();
 $failed = reschedule_appointment(999999, $rollbackSlotId, 'patient');
 assert_eq($failed['ok'], false, 'invalid appointment should fail');
 assert_eq(q_val('SELECT `Status` FROM `slots` WHERE `slotID` = :slot_id', ['slot_id' => $rollbackSlotId]), 'Available', 'mid-transaction failure rolls back claim');
+assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications` WHERE `appointmentID` = :appointment_id', ['appointment_id' => $appointmentId]), $beforeNotifications, 'invalid reschedule creates no notification');
 
 echo "PASS: reschedule checks\n";

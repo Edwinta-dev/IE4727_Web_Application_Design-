@@ -81,7 +81,7 @@ UPDATE slots SET Status = 'Blocked' WHERE DoctorID = 3 AND DATE(SlotDateTime) = 
 CREATE TEMPORARY TABLE demo_future AS
 SELECT s.slotID, s.DoctorID, s.SlotDateTime
 FROM slots s
-WHERE s.SlotDateTime >= CURDATE()
+WHERE s.SlotDateTime >= CURDATE() + INTERVAL 1 DAY
   AND s.Status = 'Available'
   AND NOT (s.DoctorID = 1 AND DATE(s.SlotDateTime) = CURDATE() + INTERVAL 1 DAY AND TIME(s.SlotDateTime) = '10:30:00')
   AND NOT (s.DoctorID = 3 AND DATE(s.SlotDateTime) = @blocked_day AND TIME(s.SlotDateTime) >= '14:00:00')
@@ -93,6 +93,35 @@ SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, 'Future', 0, 'Boo
 FROM demo_future;
 
 UPDATE slots s INNER JOIN appointment a ON a.slotID = s.slotID SET s.Status = 'Booked';
+
+-- Two synthetic outbox examples for the first future appointment. They were
+-- logged as fixtures only; no delivery was attempted during seeding.
+INSERT INTO `notifications` (`sender`,`recipient`,`Subject`,`Body`,`appointmentID`,`deliveryStatus`,`SentAt`)
+SELECT 'clinic@example.local', p.Email, 'Demo appointment notice',
+       CONCAT('Sample log entry for ', p.FullName, '''s appointment with ', d.FullName,
+              ' on ', DATE(a.appointmentDateTime), ' at ', TIME(a.appointmentDateTime),
+              '. This fixture was not delivered.'),
+       a.appointmentID, 'logged', TIMESTAMP(CURDATE(), '08:00:00')
+FROM `appointment` a
+JOIN `patient` p ON p.PatientID = a.PatientID
+JOIN `doctor` d ON d.DoctorID = a.DoctorID
+WHERE a.Status = 'Future'
+ORDER BY a.appointmentID
+LIMIT 1;
+
+INSERT INTO `notifications` (`sender`,`recipient`,`Subject`,`Body`,`appointmentID`,`deliveryStatus`,`SentAt`)
+SELECT 'clinic@example.local', d.Email, 'Demo appointment notice',
+       CONCAT('Sample log entry for ', p.FullName, '''s appointment with ', d.FullName,
+              ' on ', DATE(a.appointmentDateTime), ' at ', TIME(a.appointmentDateTime),
+              '. This fixture was not delivered.'),
+       a.appointmentID, 'logged', TIMESTAMP(CURDATE(), '08:01:00')
+FROM `appointment` a
+JOIN `patient` p ON p.PatientID = a.PatientID
+JOIN `doctor` d ON d.DoctorID = a.DoctorID
+WHERE a.Status = 'Future'
+ORDER BY a.appointmentID
+LIMIT 1;
+
 DROP TEMPORARY TABLE demo_full_day;
 DROP TEMPORARY TABLE demo_past;
 DROP TEMPORARY TABLE demo_future;

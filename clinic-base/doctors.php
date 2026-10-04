@@ -36,7 +36,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
 <?php if ($specialtyOptions !== []): ?>
     <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
-        <?= csrf_field() ?>
         <label for="specialty">Specialty</label>
         <select id="specialty" name="specialty">
             <option value="">All specialties</option>

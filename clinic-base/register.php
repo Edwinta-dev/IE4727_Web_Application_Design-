@@ -7,9 +7,9 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 
 $pageTitle = 'Register - Clinic Appointment Portal';
-$role = (string) old('role', 'patient');
-if (!in_array($role, ['patient', 'doctor'], true)) {
-    $role = 'patient';
+$registrationRole = (string) old('role', 'patient');
+if (!in_array($registrationRole, ['patient', 'doctor'], true)) {
+    $registrationRole = 'patient';
 }
 $fields = [
     'FullName', 'User', 'Email', 'Gender', 'Phone', 'Allergies',
@@ -19,6 +19,7 @@ $oldValues = [];
 foreach ($fields as $field) {
     $oldValues[$field] = old($field);
 }
+$registrationErrors = errors_all();
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
@@ -33,18 +34,26 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
     <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 
+    <?php if ($registrationErrors !== []): ?>
+        <div class="error-summary" role="alert" aria-labelledby="registration-error-title" tabindex="-1">
+            <h2 id="registration-error-title">Check these registration details</h2>
+            <ul><?php foreach ($registrationErrors as $fieldError): ?><li><?= e($fieldError) ?></li><?php endforeach; ?></ul>
+        </div>
+    <?php endif; ?>
+
     <div class="registration-layout">
-    <form id="registration-form" method="post" action="<?= e(url('/actions/register.php')) ?>" onsubmit="return validateRegistrationForm(event)">
+    <form id="registration-form" method="post" action="<?= e(url('/actions/register.php')) ?>">
         <?= csrf_field() ?>
         <fieldset class="registration-type" id="registration-type">
             <legend>Account type</legend>
             <div class="registration-role-options">
-                <label><input type="radio" name="role" value="patient"<?= e($role === 'patient' ? ' checked' : '') ?>> <span>Patient</span></label>
-                <label><input type="radio" name="role" value="doctor"<?= e($role === 'doctor' ? ' checked' : '') ?>> <span>Doctor</span></label>
+                <label><input type="radio" name="role" value="patient"<?= e($registrationRole === 'patient' ? ' checked' : '') ?>> <span>Patient</span></label>
+                <label><input type="radio" name="role" value="doctor"<?= e($registrationRole === 'doctor' ? ' checked' : '') ?>> <span>Doctor</span></label>
             </div>
+            <?php if (isset($registrationErrors['role'])): ?><span class="field-error" data-error-for="role" role="alert"><?= e($registrationErrors['role']) ?></span><?php endif; ?>
             <div class="registration-role-switcher" hidden>
                 <button type="button" class="registration-role-arrow" data-role-switch="patient" aria-label="Switch to patient account">←</button>
-                <h2 class="registration-role-heading" aria-live="polite"><?= e(ucfirst($role)) ?> account</h2>
+                <h2 class="registration-role-heading" aria-live="polite"><?= e(ucfirst($registrationRole)) ?> account</h2>
                 <button type="button" class="registration-role-arrow" data-role-switch="doctor" aria-label="Switch to doctor account">→</button>
             </div>
         </fieldset>
@@ -59,52 +68,52 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <p>
                 <label for="username">Username</label>
                 <input id="username" name="User" type="text" value="<?= e((string) $oldValues['User']) ?>" placeholder="Choose a username" required>
-                <span class="field-error" data-error-for="User" role="alert"><?= e(errors_for('User')) ?></span>
+                <span class="field-error" data-error-for="User" role="alert"><?= e($registrationErrors['User'] ?? '') ?></span>
             </p>
             <p>
                 <label for="email">Email</label>
                 <input id="email" name="Email" type="email" value="<?= e((string) $oldValues['Email']) ?>" placeholder="you@example.com" required>
-                <span class="field-error" data-error-for="Email" role="alert"><?= e(errors_for('Email')) ?></span>
+                <span class="field-error" data-error-for="Email" role="alert"><?= e($registrationErrors['Email'] ?? '') ?></span>
             </p>
             <p>
                 <label for="password">Password</label>
                 <input id="password" name="password" type="password" minlength="8" placeholder="At least 8 characters" required>
-                <span class="field-error" data-error-for="password" role="alert"><?= e(errors_for('password')) ?></span>
+                <span class="field-error" data-error-for="password" role="alert"><?= e($registrationErrors['password'] ?? '') ?></span>
             </p>
             <p>
                 <label for="confirm-password">Confirm password</label>
                 <input id="confirm-password" name="confirm_password" type="password" minlength="8" placeholder="Repeat your password" required>
-                <span class="field-error" data-error-for="confirm_password" role="alert"><?= e(errors_for('confirm_password')) ?></span>
+                <span class="field-error" data-error-for="confirm_password" role="alert"><?= e($registrationErrors['confirm_password'] ?? '') ?></span>
             </p>
         </fieldset>
 
         <div class="registration-role-viewport">
-        <div class="registration-role-track" data-active-role="<?= e($role) ?>">
-        <fieldset id="patient-fields" data-role-fields="patient"<?= e($role === 'patient' ? '' : ' hidden') ?>>
+        <div class="registration-role-track" data-active-role="<?= e($registrationRole) ?>">
+        <fieldset id="patient-fields" data-role-fields="patient">
             <legend>Patient details</legend>
             <p>
                 <label for="gender">Gender</label>
-                <select id="gender" name="Gender" required>
+                <select id="gender" name="Gender">
                     <option value="">Choose your gender</option>
                     <?php foreach (['Male', 'Female', 'Other'] as $gender): ?>
                         <option value="<?= e($gender) ?>"<?= e($oldValues['Gender'] === $gender ? ' selected' : '') ?>><?= e($gender) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <span class="field-error" data-error-for="Gender" role="alert"><?= e(errors_for('Gender')) ?></span>
+                <span class="field-error" data-error-for="Gender" role="alert"><?= e($registrationErrors['Gender'] ?? '') ?></span>
             </p>
             <p>
                 <label for="phone">Phone</label>
-                <input id="phone" name="Phone" type="tel" value="<?= e((string) $oldValues['Phone']) ?>" pattern="^\+?[0-9 ()-]{7,20}$" placeholder="e.g. +65 6123 4567" required>
-                <span class="field-error" data-error-for="Phone" role="alert"><?= e(errors_for('Phone')) ?></span>
+                <input id="phone" name="Phone" type="tel" value="<?= e((string) $oldValues['Phone']) ?>" pattern="^\+?[0-9 \(\)\-]{7,20}$" placeholder="e.g. +65 6123 4567" title="Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +." required>
+                <span class="field-error" data-error-for="Phone" role="alert"><?= e($registrationErrors['Phone'] ?? '') ?></span>
             </p>
             <p>
                 <label for="allergies">Allergies</label>
                 <textarea id="allergies" name="Allergies" placeholder="List allergies, separated by commas"><?= e((string) $oldValues['Allergies']) ?></textarea>
-                <span class="field-error" data-error-for="Allergies" role="alert"><?= e(errors_for('Allergies')) ?></span>
+                <span class="field-error" data-error-for="Allergies" role="alert"><?= e($registrationErrors['Allergies'] ?? '') ?></span>
             </p>
         </fieldset>
 
-        <fieldset id="doctor-fields" data-role-fields="doctor"<?= e($role === 'doctor' ? '' : ' hidden') ?>>
+        <fieldset id="doctor-fields" data-role-fields="doctor">
             <legend>Doctor details</legend>
             <?php foreach ([
                 'Specialty' => ['Specialty', 'Your medical specialty'],
@@ -113,14 +122,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             ] as $field => [$label, $placeholder]): ?>
                 <p>
                     <label for="<?= e(strtolower($field)) ?>"><?= e($label) ?></label>
-                    <input id="<?= e(strtolower($field)) ?>" name="<?= e($field) ?>" type="text" value="<?= e((string) $oldValues[$field]) ?>" placeholder="<?= e($placeholder) ?>" required disabled>
-                    <span class="field-error" data-error-for="<?= e($field) ?>" role="alert"><?= e(errors_for($field)) ?></span>
+                    <input id="<?= e(strtolower($field)) ?>" name="<?= e($field) ?>" type="text" value="<?= e((string) $oldValues[$field]) ?>" placeholder="<?= e($placeholder) ?>">
+                    <span class="field-error" data-error-for="<?= e($field) ?>" role="alert"><?= e($registrationErrors[$field] ?? '') ?></span>
                 </p>
             <?php endforeach; ?>
             <p>
                 <label for="write-up">Professional background</label>
-                <textarea id="write-up" name="WriteUp" placeholder="Tell patients about your background" required disabled><?= e((string) $oldValues['WriteUp']) ?></textarea>
-                <span class="field-error" data-error-for="WriteUp" role="alert"><?= e(errors_for('WriteUp')) ?></span>
+                <textarea id="write-up" name="WriteUp" placeholder="Tell patients about your background"><?= e((string) $oldValues['WriteUp']) ?></textarea>
+                <span class="field-error" data-error-for="WriteUp" role="alert"><?= e($registrationErrors['WriteUp'] ?? '') ?></span>
             </p>
         </fieldset>
         </div>

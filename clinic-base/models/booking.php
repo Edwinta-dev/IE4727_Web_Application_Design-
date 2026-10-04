@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'visit_remarks.php';
 
 /**
  * Claim a slot and create its appointment atomically.
@@ -12,6 +13,11 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
  */
 function book_appointment(int $patientId, int $slotId, string $reason): array
 {
+    try {
+        $storedReason = encode_visit_remarks($reason);
+    } catch (InvalidArgumentException $exception) {
+        return ['ok' => false, 'appointment_id' => null, 'error' => $exception->getMessage()];
+    }
     $connection = db();
     $connection->beginTransaction();
 
@@ -76,7 +82,7 @@ function book_appointment(int $patientId, int $slotId, string $reason): array
                 'patient_id' => $patientId,
                 'doctor_id' => (int) $slot['DoctorID'],
                 'appointment_date_time' => $slot['SlotDateTime'],
-                'reason' => $reason,
+                'reason' => $storedReason,
                 'slot_id' => $slotId,
             ]
         );
@@ -289,32 +295,73 @@ function cancel_appointment(int $appointmentId, string $actorRole): bool
 /**
  * Set attendance status from the doctor's day board.
  */
-function set_appointment_status(int $appointmentId, string $status): void
+function appointment_outcome_eligible(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId
+        || !in_array((string) ($appointment['Status'] ?? ''), ['Future', 'Rescheduled'], true)) {
+        return false;
+    }
+
+    $timezone = new DateTimeZone(APP_TIMEZONE);
+    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], $timezone);
+    return $start <= ($now ?? new DateTimeImmutable('now', $timezone));
+}
+
+/** Set an attendance outcome only once the owned appointment has started. */
+function set_appointment_status(int $appointmentId, string $status, int $doctorId): bool
 {
     if (!in_array($status, ['Completed', 'No show'], true)) {
         throw new InvalidArgumentException('Invalid appointment status.');
     }
 
-    q(
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $appointment = q_one(
+            'SELECT `appointmentDateTime`, `DoctorID`, `Status` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
+            ['appointment_id' => $appointmentId]
+        );
+        if ($appointment === null || !appointment_outcome_eligible($appointment, $doctorId)) {
+            $connection->rollBack();
+            return false;
+        }
+        q(
         'UPDATE `appointment`
          SET `Status` = :status
          WHERE `appointmentID` = :appointment_id',
         ['status' => $status, 'appointment_id' => $appointmentId]
-    );
+        );
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) $connection->rollBack();
+        throw $exception;
+    }
 }
 
 /**
- * Mark a slot unavailable. A booked slot is cancelled first so its patient
- * receives the same cancellation notification as an explicit cancellation.
+ * Mark a future owned slot unavailable. A booked slot's appointment is
+ * cancelled in the same transaction and both parties receive a notice.
  */
-function block_slot(int $slotId): bool
+function schedule_slot_editable(array $slot, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if ((int) ($slot['DoctorID'] ?? 0) !== $doctorId) {
+        return false;
+    }
+
+    $timezone = new DateTimeZone(APP_TIMEZONE);
+    $start = new DateTimeImmutable((string) $slot['SlotDateTime'], $timezone);
+    return $start > ($now ?? new DateTimeImmutable('now', $timezone));
+}
+
+function block_slot(int $slotId, int $doctorId): bool
 {
     $connection = db();
     $connection->beginTransaction();
 
     try {
         $slot = q_one(
-            'SELECT `Status`
+            'SELECT `DoctorID`, `SlotDateTime`, `Status`
              FROM `slots`
              WHERE `slotID` = :slot_id
              LIMIT 1
@@ -322,8 +369,23 @@ function block_slot(int $slotId): bool
             ['slot_id' => $slotId]
         );
 
-        if ($slot === null) {
-            throw new RuntimeException('The slot was not found.');
+        if ($slot === null || !schedule_slot_editable($slot, $doctorId)
+            || !in_array((string) $slot['Status'], ['Available', 'Booked'], true)) {
+            $connection->rollBack();
+            return false;
+        }
+
+        // The database cutoff also covers a form that crosses the boundary
+        // while this request is waiting for the row lock.
+        $changed = q(
+            "UPDATE `slots` SET `Status` = 'Blocked'
+             WHERE `slotID` = :slot_id AND `DoctorID` = :doctor_id
+               AND `SlotDateTime` > NOW() AND `Status` IN ('Available', 'Booked')",
+            ['slot_id' => $slotId, 'doctor_id' => $doctorId]
+        );
+        if ($changed->rowCount() !== 1) {
+            $connection->rollBack();
+            return false;
         }
 
         if ((string) $slot['Status'] === 'Booked') {
@@ -355,10 +417,6 @@ function block_slot(int $slotId): bool
             }
         }
 
-        q(
-            "UPDATE `slots` SET `Status` = 'Blocked' WHERE `slotID` = :slot_id",
-            ['slot_id' => $slotId]
-        );
         $connection->commit();
 
         return true;
@@ -374,16 +432,51 @@ function block_slot(int $slotId): bool
 /**
  * Make a blocked slot available again. Booked slots are never unblocked.
  */
-function unblock_slot(int $slotId): bool
+function unblock_slot(int $slotId, int $doctorId): bool
 {
-    $statement = q(
-        "UPDATE `slots`
-         SET `Status` = 'Available'
-         WHERE `slotID` = :slot_id AND `Status` = 'Blocked'",
-        ['slot_id' => $slotId]
-    );
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $slot = q_one(
+            'SELECT `DoctorID`, `SlotDateTime`, `Status` FROM `slots`
+             WHERE `slotID` = :slot_id FOR UPDATE',
+            ['slot_id' => $slotId]
+        );
+        if ($slot === null || !schedule_slot_editable($slot, $doctorId) || $slot['Status'] !== 'Blocked') {
+            $connection->rollBack();
+            return false;
+        }
+        $statement = q(
+            "UPDATE `slots` SET `Status` = 'Available'
+             WHERE `slotID` = :slot_id AND `DoctorID` = :doctor_id
+               AND `SlotDateTime` > NOW() AND `Status` = 'Blocked'",
+            ['slot_id' => $slotId, 'doctor_id' => $doctorId]
+        );
+        if ($statement->rowCount() !== 1) {
+            $connection->rollBack();
+            return false;
+        }
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+        return false;
+    }
+}
 
-    return $statement->rowCount() === 1;
+/** Allow the owner to edit a completed visit after its start, too. */
+function visit_notes_editable(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): bool
+{
+    if (appointment_outcome_eligible($appointment, $doctorId, $now)) {
+        return true;
+    }
+    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId || ($appointment['Status'] ?? '') !== 'Completed') {
+        return false;
+    }
+    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], new DateTimeZone(APP_TIMEZONE));
+    return $start <= ($now ?? new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)));
 }
 
 /**
@@ -391,9 +484,22 @@ function unblock_slot(int $slotId): bool
  *
  * @param array<string, mixed> $fields
  */
-function save_visit_notes(int $appointmentId, array $fields): void
+function save_visit_notes(int $appointmentId, int $doctorId, array $fields): bool
 {
-    q(
+    $connection = db();
+    $connection->beginTransaction();
+    try {
+        $appointment = q_one(
+            'SELECT `appointmentDateTime`, `DoctorID`, `Status`, `Remarks` FROM `appointment` WHERE `appointmentID` = :appointment_id FOR UPDATE',
+            ['appointment_id' => $appointmentId]
+        );
+        if ($appointment === null || !visit_notes_editable($appointment, $doctorId)) {
+            $connection->rollBack();
+            return false;
+        }
+        $parts = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']);
+        $remarks = encode_visit_remarks($parts['reason'], (string) ($fields['Remarks'] ?? ''), $parts['legacy']);
+        q(
         "UPDATE `appointment`
          SET `Diagnosis` = :diagnosis,
              `Prescription` = :prescription,
@@ -407,10 +513,16 @@ function save_visit_notes(int $appointmentId, array $fields): void
             'prescription' => $fields['Prescription'] ?? null,
             'treatment' => $fields['Treatment'] ?? null,
             'follow_up' => !empty($fields['FollowUp']) ? 1 : 0,
-            'remarks' => $fields['Remarks'] ?? null,
+            'remarks' => $remarks,
             'appointment_id' => $appointmentId,
         ]
-    );
+        );
+        $connection->commit();
+        return true;
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) $connection->rollBack();
+        throw $exception;
+    }
 }
 
 /** @param array<string, mixed> $appointment */

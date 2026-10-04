@@ -39,9 +39,12 @@ foreach ($pages as $page) {
         fwrite(STDERR, "FAIL: page has no local image asset: {$page}\n");
         exit(1);
     }
-    if (substr_count(strtolower($contents), '<form') !== substr_count($contents, 'csrf_field(')) {
-        fwrite(STDERR, "FAIL: every form must contain csrf_field(): {$page}\n");
-        exit(1);
+    preg_match_all('~<form\b[^>]*\bmethod="post"[^>]*>(.*?)</form>~is', $contents, $postForms);
+    foreach ($postForms[1] as $form) {
+        if (!str_contains($form, 'csrf_field()')) {
+            fwrite(STDERR, "FAIL: POST form lacks csrf_field(): {$page}\n");
+            exit(1);
+        }
     }
     if (strpos($contents, '<?= e(') === false && strpos($contents, 'e(') === false) {
         fwrite(STDERR, "FAIL: page has no e() output escaping: {$page}\n");

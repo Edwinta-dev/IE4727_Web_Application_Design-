@@ -40,8 +40,8 @@ if (is_doctor() && isset($_POST['status'])) {
         || !in_array($status, ['Completed', 'No show'], true)) {
         flash('Only a future appointment can be marked for attendance.', 'error');
     } else {
-        set_appointment_status($appointmentId, $status);
-        flash('Appointment marked as ' . $status . '.', 'success');
+        $updated = set_appointment_status($appointmentId, $status, (int) $user['id']);
+        flash($updated ? 'Appointment marked as ' . $status . '.' : 'Attendance can only be recorded from the appointment start time by its doctor.', $updated ? 'success' : 'error');
     }
     redirect($home . '?date=' . rawurlencode(substr((string) $appointment['appointmentDateTime'], 0, 10)));
 }
@@ -66,7 +66,8 @@ $slotId = is_string($slotInput) && ctype_digit($slotInput) ? (int) $slotInput : 
 $slot = $slotId > 0 ? find_slot($slotId) : null;
 if (!isset($_POST['reschedule']) || $slot === null
     || !in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
-    || strtotime((string) $appointment['appointmentDateTime']) <= time()) {
+    || strtotime((string) $appointment['appointmentDateTime']) <= time()
+    || booking_date_error(substr((string) $slot['SlotDateTime'], 0, 10), new DateTimeImmutable('today'), BROWSE_DAYS) !== null) {
     flash('Choose a valid future slot to reschedule this appointment.', 'error');
     redirect('/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
 }

@@ -8,9 +8,13 @@
     --c-line: #ded6ca;
     --c-primary: #0f766e;
     --c-primary-dark: #115e59;
+    --c-button-background: var(--c-primary);
+    --c-button-background-hover: var(--c-primary-dark);
+    --c-button-foreground: #ffffff;
     --c-accent: #c2410c;
     --c-success: #166534;
     --c-danger: #b91c1c;
+    --c-danger-hover: #991b1b;
     --shadow-doctor-tile: 0 0.35rem 1rem rgba(41, 37, 36, 0.10);
     --radius-control: 0.2rem;
     --radius-tile: 0.45rem;
