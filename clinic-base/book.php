@@ -34,7 +34,8 @@ if ($rescheduleRequested) {
     }
 }
 
-$today = new DateTimeImmutable('today');
+$now = new DateTimeImmutable();
+$today = $now->setTime(0, 0);
 $lastBrowseDate = $today->modify('+' . (BROWSE_DAYS - 1) . ' days');
 
 $doctorInput = $_GET['doctor'] ?? $_GET['doctor_id'] ?? '';
@@ -72,18 +73,23 @@ if (!$validTime($fromTime) || !$validTime($toTime) || $fromTime > $toTime) {
 }
 
 $doctors = all_doctors();
+$availability = $doctorId > 0
+    ? booking_day_availability($doctorId, $now, BROWSE_DAYS, $fromTime, $toTime)
+    : [];
+$availableDays = array_keys(array_filter($availability, static fn (array $counts): bool => $counts['available'] > 0));
+if ($reschedule !== null && !$dateRequested) {
+    $selectedDate = reschedule_landing_date(
+        substr((string) $reschedule['appointmentDateTime'], 0, 10), $availability, $selectedDate
+    );
+}
+$dayEmptyMessage = $doctorId > 0 ? booking_day_empty_message($availability[$selectedDate]) : null;
+$availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(array_merge(
+    ['doctor' => $doctorId, 'date' => $availableDays[0], 'from' => $fromTime, 'to' => $toTime],
+    $reschedule !== null ? ['reschedule' => $rescheduleId] : []
+))) : null;
 $slots = $doctorId > 0
     ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
     : [];
-$now = new DateTimeImmutable();
-$hasFreeSlot = false;
-foreach ($slots as $slot) {
-    if ((string) ($slot['Status'] ?? '') === 'Available'
-        && new DateTimeImmutable((string) $slot['SlotDateTime']) > $now) {
-        $hasFreeSlot = true;
-        break;
-    }
-}
 
 $pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -158,13 +164,17 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </aside>
         <div class="booking-slots">
     <p>Choose a free time. Your appointment is confirmed after you submit the reason for your visit.</p>
-    <div class="schedule-grid" aria-label="Appointment schedule">
-<?php if ($slots === []): ?>
-        <p class="empty-state"><?= e($doctor['FullName'] . ' is not available on this date.') ?></p>
+<?php if ($dayEmptyMessage !== null): ?>
+    <p class="empty-state"><?= e($dayEmptyMessage) ?>
+<?php if ($availableDayUrl !== null): ?>
+        <a href="<?= e($availableDayUrl) ?>">View available times on <?= e(fmt_date($availableDays[0])) ?></a>, or choose a date above.
 <?php else: ?>
-<?php if (!$hasFreeSlot): ?>
-        <p class="empty-state">This day is fully booked or has no future free slots. Please choose another day.</p>
+        No available appointment times within the next <?= e((string) BROWSE_DAYS) ?> days with these time filters. Choose another date or change the time filters above.
 <?php endif; ?>
+    </p>
+<?php endif; ?>
+<?php if ($slots !== []): ?>
+    <div class="schedule-grid" aria-label="Appointment schedule">
 <?php foreach ($slots as $slot):
     $slotDateTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
     $isPast = $slotDateTime <= $now;
@@ -206,8 +216,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
         </div>
 <?php endforeach; ?>
-<?php endif; ?>
     </div>
+<?php endif; ?>
         </div>
     </section>
 <?php endif; ?>

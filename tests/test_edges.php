@@ -30,9 +30,10 @@ foreach (['http_response_code(419)', 'render_status_page(419'] as $needle) {
 foreach (["ini_set('display_errors', '0')", "ini_set('log_errors', '1')"] as $needle) {
     assert_contains($config, $needle, 'production error setting is missing');
 }
-foreach (['booking_date_error($dateInput', 'role="alert"', 'Showing', 'is not available on this date.'] as $needle) {
+foreach (['booking_date_error($dateInput', 'role="alert"', 'Showing', 'booking_day_empty_message(', '<?= e($dayEmptyMessage) ?>'] as $needle) {
     assert_contains($book, $needle, 'rejected/empty schedule handling is missing ' . $needle);
 }
+assert_contains($read('clinic-base/lib/slots.php'), 'No appointment times are scheduled for this day.', 'ungenerated days need a specific reason');
 assert_contains($helpers, 'Past dates cannot be booked.', 'past booking dates need a specific reason');
 assert_contains($bookAction, "strtotime((string) \$slot['SlotDateTime']) <= time()", 'booking action must refuse past slots');
 assert_contains($doctor, 'render_not_found(', 'doctor profile must handle invalid ids');

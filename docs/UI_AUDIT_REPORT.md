@@ -453,3 +453,74 @@ login also confirms they read the accounts created only in the verified test
 database. Save/refresh evidence uses the independently guarded HTTP child
 described above. The acceptance fixture's exact accounts were removed using
 the guarded CLI workflow after screenshots/audits.
+
+## Issue #126: reschedule landing and unavailable days (4 October 2026)
+
+Finding: C10 / new finding 7, cited in UI_Defects.pdf p. 4 and pp. 11-12.
+That PDF is absent from this checkout; the supplied written finding and fresh
+captures are the evidence. The actual starting base was `fc89703` on
+`automation/ie4727-clinic`, with a clean working tree, rather than the report's
+historical `eb9a791` plus uncommitted work. Existing visit-page, visit-state
+test and audit-report work was retained. The #114 duplicate Home/My appointments
+destination remains a separate carry-over; this change does not resolve it.
+
+Reproduction: an authenticated patient opened reschedule without a date while
+the selected doctor's only slot today had elapsed. Entry selected today even
+though the original appointment day had a free replacement; the mixed
+"fully booked" message occupied the first schedule-grid cell.
+
+The page now prefers the authorized original day when selectable, otherwise
+the earliest permitted day with a future Available slot. Valid explicit dates
+stay selected. Availability uses the same captured PHP now as the grid, the
+existing seven-day window, the authorized doctor and the time filters. Day
+feedback distinguishes ungenerated days, filtered-out times, elapsed times,
+and booked/blocked future times. It sits above the grid and offers a link to
+an available day, or explains that none exists within the filtered window.
+The existing replacement transaction and ownership checks are unchanged.
+
+Fixtures use relative Asia/Singapore dates. The PHP regression supplies today's
+18:00 as controlled now, including a slot exactly at now, both window edges,
+booked/blocked/empty days and filter boundaries. Browser fixtures use elapsed
+midnight today and synthetic doctor `reschedule_day_fixture`, with bookings at
+today +4 and +10 days; the patient logs in through the real form as `alextan`.
+`testPhp()` and `withTestServer()` verify the child resolves `ie4727db_test` and
+disable delivery before writes. The fixture independently checks SELECT DATABASE().
+Only the test database is reset; no live database writes or cleanup occur.
+
+Verification commands:
+
+```text
+php tests/run.php test_reschedule_day
+node tools/ui/reschedule-day.test.mjs --before
+node tools/ui/reschedule-day.test.mjs
+node tools/ui/booking-dates.test.mjs
+node tools/ui/shoot.mjs --serve --label reschedule-day-before patient/home.php book.php
+node tools/ui/shoot.mjs --serve --label reschedule-day-after patient/home.php book.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop patient/home.php book.php
+php tests/run.php
+```
+
+Read-only shoot/audit commands inherit explicit `CLINIC_DB_NAME=ie4727db_test`.
+The reschedule browser regression additionally runs that scoped audit on the
+authenticated landing, elapsed day and no-availability state, using supported
+`patient/../book.php?reschedule=<fixture-id>` routes and its verified owned
+server. It exercises valid explicit dates, outside-window originals, filtered
+landing, all empty-day reasons, foreign ownership rejection, keyboard Enter
+on time selection, JS-off date submission, stale-selection non-mutation and
+successful atomic replacement. The old empty-state source assertion was
+updated to the new specific feedback; executable behaviour coverage was added.
+
+The serial full PHP suite reports **81 passed, 0 failed** (existing CLI
+session/header warnings remain). PHP lint, browser syntax and diff whitespace
+checks pass. The scoped audits print OK. A preliminary overlapping suite/fixture
+run was discarded; the reported full-suite result comes from the serial rerun.
+
+Inspected images at both 1280x800 and 390x844 are in gitignored
+`UIPROBLEMS/after/reschedule-day-before/`, `reschedule-day-after/`,
+`reschedule-day-before-flow/` and `reschedule-day-after-flow/`. The flow images
+are `landing-1280.png`, `landing-390.png`, `elapsed-1280.png`, `elapsed-390.png`,
+and after-only `no-availability-1280.png` / `no-availability-390.png`.
+Adjacent JSON measurements record 0px viewport overflow and zero day-feedback
+grid cells; elapsed feedback ends 12px above the first slot at both widths.
+The bare book.php captures cover the ordinary filter page, while the flow
+captures and audits prove the authenticated reschedule states.
