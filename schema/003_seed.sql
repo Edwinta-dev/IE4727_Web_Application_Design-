@@ -60,6 +60,8 @@ FROM demo_full_day;
 
 -- Four additional completed visits, two no-shows, one cancellation, and four
 -- future bookings provide the remaining realistic appointment states.
+-- Historical/pending visits have exactly seven days' lead; upcoming visits
+-- have exactly eight. All 27 bookings are valid: (23 * 7 + 4 * 8) / 27 days.
 CREATE TEMPORARY TABLE demo_past AS
 SELECT s.slotID, s.DoctorID, s.SlotDateTime
 FROM slots s
@@ -93,7 +95,7 @@ ORDER BY s.SlotDateTime, s.DoctorID
 LIMIT 4;
 
 INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`CreatedAt`,`Status`,`FollowUp`,`Remarks`)
-SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, @seed_now - INTERVAL 7 DAY, 'Future', 0, 'Booked online for an upcoming consultation.'
+SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, SlotDateTime - INTERVAL 8 DAY, 'Future', 0, 'Booked online for an upcoming consultation.'
 FROM demo_future;
 
 -- Two pending attendance examples owned by drsmith on the last clinic day.

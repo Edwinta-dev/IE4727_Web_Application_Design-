@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/clinic-base/models/appointments.php';
+require_once dirname(__DIR__) . '/clinic-base/models/stats.php';
 assert_eq(DB_NAME, 'ie4727db_test', 'seed regression uses isolated database');
 assert_eq(q_val('SELECT DATABASE()'), 'ie4727db_test', 'resolved connection is isolated');
 
@@ -16,6 +17,11 @@ for ($reset = 0; $reset < 2; $reset++) {
     if ($previous !== null) assert_eq($counts, $previous, 'two resets produce consistent counts');
     $previous = $counts;
     assert_eq((int) q_val('SELECT COUNT(*) FROM appointment'), 27, 'all existing examples plus two pending visits');
+    $lead = mean_booking_lead_time();
+    assert_eq([$lead['valid'], $lead['invalid']], [27, 0], 'seed lead-time coverage is 27/27');
+    assert_true(abs($lead['mean_days'] - 193 / 27) < 0.000001, '193 elapsed days / 27 appointments');
+    assert_eq((int) q_val('SELECT COUNT(*) FROM appointment WHERE TIMESTAMPDIFF(SECOND, CreatedAt, appointmentDateTime) = 604800'), 23, '23 historical/pending visits booked seven days ahead');
+    assert_eq((int) q_val('SELECT COUNT(*) FROM appointment WHERE TIMESTAMPDIFF(SECOND, CreatedAt, appointmentDateTime) = 691200'), 4, 'four upcoming visits booked eight days ahead');
     assert_eq((int) q_val('SELECT COUNT(*) FROM appointment WHERE CreatedAt IS NULL OR CreatedAt > appointmentDateTime OR CreatedAt > NOW()'), 0, 'genuine booking chronology');
     assert_eq((int) q_val('SELECT COUNT(*) FROM appointment a JOIN slots s ON s.slotID = a.slotID WHERE s.CreatedAt > a.CreatedAt'), 0, 'slot exists before booking');
     $pending = q_all("SELECT a.*, s.Status AS SlotStatus, s.DoctorID AS SlotDoctor, s.SlotDateTime, p.User AS PatientUser

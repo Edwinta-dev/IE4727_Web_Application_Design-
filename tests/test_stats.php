@@ -44,6 +44,7 @@ assert_true(abs($measured['mean_days'] - 4 / 3) < 0.000001, '0, 1 and 3 elapsed 
 assert_eq([$measured['valid'], $measured['invalid']], [3, 2], 'invalid timestamps are counted, not averaged');
 assert_eq(mean_booking_lead_time($range + ['status' => 'Completed']), ['mean_days' => 1.0, 'valid' => 1, 'invalid' => 0], 'status filter selects completed booking');
 assert_eq(mean_booking_lead_time($range + ['status' => 'Cancelled']), ['mean_days' => null, 'valid' => 0, 'invalid' => 1], 'all-invalid selection is unavailable');
+assert_eq(mean_booking_lead_time($range + ['status' => 'Rescheduled']), ['mean_days' => null, 'valid' => 0, 'invalid' => 1], 'missing booking time alone is unavailable');
 assert_eq(mean_booking_lead_time($range + ['doctor' => '2']), ['mean_days' => null, 'valid' => 0, 'invalid' => 0], 'doctor filter is applied');
 
 // Crossing midnight measures elapsed hours, not calendar date boundaries.

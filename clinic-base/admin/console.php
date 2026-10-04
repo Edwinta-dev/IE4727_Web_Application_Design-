@@ -82,12 +82,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </div>
         <div class="stat-card"><h3>Mean booking lead time</h3>
             <?php if ($leadTime['mean_days'] === null): ?>
-                <p class="empty-state">Unavailable: no valid booking times in this selection.</p>
+                <p class="empty-state">Unavailable: no usable booking times.</p>
             <?php else: ?>
                 <p><?= e(number_format($leadTime['mean_days'], 1)) ?> days</p>
             <?php endif; ?>
-            <p>Appointment start minus booking time, in elapsed days (24 hours); rounded to one decimal. All statuses are eligible; filters apply.</p>
-            <p><?= e((string) $leadTime['valid']) ?> valid; <?= e((string) $leadTime['invalid']) ?> excluded (booking time missing or after appointment).</p>
+            <p>Average time from booking to appointment.</p>
+            <p><?= e((string) $leadTime['valid']) ?> of <?= e((string) ($leadTime['valid'] + $leadTime['invalid'])) ?> appointments included; <?= e((string) $leadTime['invalid']) ?> excluded.</p>
+            <?php if ($leadTime['invalid'] > 0): ?><p>Excluded: booking time missing or after appointment.</p><?php endif; ?>
         </div>
     </section>
 

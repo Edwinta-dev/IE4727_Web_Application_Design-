@@ -58,6 +58,29 @@ attendance; historical Future records are never automatically completed.
 
 The seed captures one Asia/Singapore now (SQL session offset +08:00). Slots
 are created before booking, and historical appointments are booked seven days
-before their start. Future bookings are created seven days before seed now.
+before their start. The four upcoming bookings are created exactly eight days
+before their start, also before seed now. All 27 appointments have valid
+booking times: 23 at seven days and four at eight days, totalling 193 elapsed
+days. Mean lead time is 193/27 = 7.148148 days (displayed as 7.1 days), with
+27/27 included and zero excluded, independent of reset time or weekday.
 Use only the existing isolated `php tools/db_reset.php` workflow for tests;
 this change does not authorize a live reset. No mail is sent during seeding.
+
+### Booking lead-time definition
+
+The admin metric uses the current doctor, status and appointment-date filters.
+Every status represents a booking, including cancellations and pending outcomes.
+It averages `TIMESTAMPDIFF(SECOND, CreatedAt, appointmentDateTime) / 86400`
+over records with a non-null `CreatedAt` at or before the scheduled start.
+The DATETIME values are Asia/Singapore clinic time; a day is 24 elapsed hours,
+and the display rounds to one decimal. Same-time bookings contribute zero.
+Missing or reversed booking times are counted as excluded, never made positive
+or clamped to zero. Included plus excluded is the selected appointment total.
+An empty or all-invalid selection displays Unavailable, rather than zero days.
+
+Only synthetic reset fixtures receive the documented lead times. Do not infer
+or backfill booking timestamps in the owner's live records. Invalid regression
+samples live in the isolated test database: three valid leads (0, 1, 3 days)
+and two excluded records (one reversed, one missing), mean 4/3 days, 3/5
+included. `tests/test_stats.php` checks those cases and empty/all-invalid
+selections; the authenticated UI regression checks their displayed coverage.

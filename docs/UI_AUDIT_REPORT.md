@@ -306,3 +306,70 @@ Missing round-two PDF is an evidence limitation, not an unverified UI repair.
 Carry-over #114 remains partly fixed as recorded above; this task does not
 claim older findings are all resolved. Existing CLI session/header warnings
 are outside this issue's table changes.
+
+## Issue #124 — lead-time coverage (4 October 2026)
+
+Finding: C16, new finding 5, cited UI_Defects.pdf pp. 3–4 and 6.
+The named round-two PDF is still absent from the checkout (only the earlier
+`UIPROBLEMS/Open/clinicissues.pdf` is available); no export was invented.
+Reproduction used actual clean base `cd1451f`, including #119/#121 visit work,
+#122 pending fixtures and #123 tables, with no initial working-tree diff.
+The reported 7/28 coverage is historical: #122 already corrected historical
+chronology, giving 27/27 valid samples before this change. Before screenshots
+still show the long technical explanation. This change keeps those fixes and
+gives the four upcoming bookings explicit eight-day lead times, instead of
+lead times varying with reset time. The other 23 remain seven-day bookings.
+Expected seed mean is 193 elapsed days / 27 = 7.148148 days, displayed as 7.1.
+There are no intentionally invalid seed rows; invalid samples are separate
+regressions. No model sign/exclusion logic, schema, styles or doctor pages
+changed. Definition/provenance now lives in `docs/RUNBOOK.md`.
+
+Role/database/time: admin / Password123, explicitly resolved `ie4727db_test`,
+Asia/Singapore seed clock (+08:00). Mutation browser tests verify the child
+server database and disable mail. Literal screenshot/audit commands inherit
+the explicit test DB after PHP configuration verification; config refuses
+any local override. No command targets the live database and no live booking
+timestamps were changed. The regression compares timestamp snapshots before
+and after authenticated no-JS console reads.
+
+Validation commands:
+
+```text
+php tests/run.php test_seed_outcomes
+php tests/run.php test_stats
+node tools/ui/leadtime.test.mjs
+node tools/ui/outcome-seed.test.mjs
+node tools/ui/shoot.mjs --serve --label leadtime-fixtures-before admin/console.php
+node tools/ui/shoot.mjs --serve --label leadtime-fixtures-after admin/console.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop admin/console.php
+php tests/run.php
+```
+
+Focused PHP checks pass, including exact coverage/mean across two fresh resets,
+slot-before-booking chronology and unchanged pending outcomes. Browser tests
+print OK: seed 27/27 at 7.1 days; mixed 3/5 at 1.3 days (0, 1, 3-day leads);
+all-invalid 0/1 and empty 0/0 both Unavailable. The two intentionally invalid
+samples have reversed and missing booking times; they stay excluded. Existing
+outcome regression passes two resets, valid outcomes, rejected future/foreign
+POSTs and unchanged relations/outbox. Scoped audit prints OK for both widths.
+An initial browser attempt overlapped a test reset and failed; the serial
+rerun passed. No assertion was weakened. PHP lint and diff whitespace checks
+pass; full-suite result is recorded below.
+
+Opened/inspected ignored evidence at 1280x800 and 390x844:
+
+- `UIPROBLEMS/after/leadtime-fixtures-before/admin-console-{1280,390}.png`
+- `UIPROBLEMS/after/leadtime-fixtures-after/admin-console-{1280,390}.png`
+- `UIPROBLEMS/after/leadtime-regression-after/{seed,mixed,invalid,empty}-{1280,390}.png`
+
+Metric text is 16px; document horizontal overflow is 0px in all eight states.
+Phone metric heights are 171.86px (seed), 241.05px (mixed), 261.05px (invalid),
+191.86px (empty); desktop grid height is 346.23px. Coverage and exclusion reason
+wrap within the section, with no truncation. Exact results are saved in ignored
+`leadtime-regression-after/measurements.json`. Detailed definitions are absent
+from the normal console. Carry-over #114 remains partly fixed as documented
+above; no broader repair is claimed.
+
+Final full suite: `php tests/run.php` reports 79 passed, 0 failed. Existing CLI
+session/header warnings remain. All four touched/new PHP files lint; the new
+browser script passes syntax checking and `git diff --check` passes.
