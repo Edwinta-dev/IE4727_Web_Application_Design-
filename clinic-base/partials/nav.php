@@ -8,31 +8,59 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 $currentPath = parse_url(app_request_uri(), PHP_URL_PATH);
 $currentPath = is_string($currentPath) && $currentPath !== '' ? $currentPath : '/index.php';
 $user = current_user();
-$role = is_array($user) ? (string) ($user['role'] ?? '') : '';
+$navigationRole = is_array($user) ? (string) ($user['role'] ?? '') : '';
 
-$links = match ($role) {
+// A route selects one destination. Anchor previews on the same page do not
+// become a second current tab, and the logout action is never a page.
+$currentTab = match ($navigationRole) {
+    'patient' => match ($currentPath) {
+        '/patient/home.php' => '/patient/home.php',
+        '/doctors.php' => '/doctors.php',
+        default => null,
+    },
+    'doctor' => match ($currentPath) {
+        '/doctor/home.php' => '/doctor/home.php',
+        '/doctor/schedule.php' => '/doctor/schedule.php',
+        default => null,
+    },
+    'admin' => match ($currentPath) {
+        '/admin/console.php' => '/admin/console.php',
+        '/admin/outbox.php' => '/admin/outbox.php',
+        default => null,
+    },
+    default => match ($currentPath) {
+        '/' => '/index.php',
+        '/index.php' => '/index.php',
+        '/doctors.php' => '/doctors.php',
+        '/book.php' => '/book.php',
+        '/register.php' => '/register.php',
+        default => null,
+    },
+};
+
+$links = match ($navigationRole) {
     'patient' => [
-        ['label' => 'Home', 'href' => '/patient/home.php', 'page' => '/patient/home.php'],
-        ['label' => 'Find a doctor', 'href' => '/doctors.php', 'page' => '/doctors.php'],
-        ['label' => 'My appointments', 'href' => '/patient/home.php#appointments', 'page' => '/patient/home.php'],
-        ['label' => 'Log out', 'href' => '/index.php?logout=1', 'page' => '/index.php'],
+        ['label' => 'Home', 'href' => '/patient/home.php'],
+        ['label' => 'Find a doctor', 'href' => '/doctors.php'],
+        ['label' => 'My appointments', 'href' => '/patient/home.php#appointments'],
+        ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'doctor' => [
-        ['label' => 'Home', 'href' => '/doctor/home.php', 'page' => '/doctor/home.php'],
-        ['label' => 'Schedule', 'href' => '/doctor/schedule.php', 'page' => '/doctor/schedule.php'],
-        ['label' => 'Appointments', 'href' => '/doctor/home.php#appointments', 'page' => '/doctor/home.php'],
-        ['label' => 'Log out', 'href' => '/index.php?logout=1', 'page' => '/index.php'],
+        ['label' => 'Home', 'href' => '/doctor/home.php'],
+        ['label' => 'Schedule', 'href' => '/doctor/schedule.php'],
+        ['label' => 'Appointments', 'href' => '/doctor/home.php#appointments'],
+        ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'admin' => [
-        ['label' => 'Console', 'href' => '/admin/console.php', 'page' => '/admin/console.php'],
-        ['label' => 'Outbox', 'href' => '/admin/outbox.php', 'page' => '/admin/outbox.php'],
-        ['label' => 'Log out', 'href' => '/index.php?logout=1', 'page' => '/index.php'],
+        ['label' => 'Console', 'href' => '/admin/console.php'],
+        ['label' => 'Outbox', 'href' => '/admin/outbox.php'],
+        ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     default => [
-        ['label' => 'Home', 'href' => '/index.php', 'page' => '/index.php'],
-        ['label' => 'Find a doctor', 'href' => '/doctors.php', 'page' => '/doctors.php'],
-        ['label' => 'Book an appointment', 'href' => '/book.php', 'page' => '/book.php'],
-        ['label' => 'Register', 'href' => '/register.php', 'page' => '/register.php'],
+        ['label' => 'Home', 'href' => '/index.php'],
+        ['label' => 'Find a doctor', 'href' => '/doctors.php'],
+        ['label' => 'Book an appointment', 'href' => '/book.php'],
+        ['label' => 'Register', 'href' => '/register.php'],
     ],
 };
 ?>
@@ -40,7 +68,7 @@ $links = match ($role) {
     <ul>
 <?php foreach ($links as $link): ?>
         <li<?php if ($link['label'] === 'Log out'): ?> class="nav-logout"<?php endif; ?>>
-            <a href="<?= e(url($link['href'])) ?>"<?php if ($currentPath === $link['page']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
+            <a href="<?= e(url($link['href'])) ?>"<?php if ($currentTab === $link['href']): ?> aria-current="page"<?php endif; ?>><?= e($link['label']) ?></a>
         </li>
 <?php endforeach; ?>
     </ul>

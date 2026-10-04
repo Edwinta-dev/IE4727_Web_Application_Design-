@@ -43,6 +43,12 @@ if (strtotime((string) $slot['SlotDateTime']) <= time()) {
     redirect($returnUrl());
 }
 
+$slotDate = substr((string) $slot['SlotDateTime'], 0, 10);
+if (booking_date_error($slotDate, new DateTimeImmutable('today'), BROWSE_DAYS) !== null) {
+    flash('That slot is outside the current booking window. Choose a date shown in the schedule.', 'error');
+    redirect($returnUrl());
+}
+
 $user = current_user();
 $booking = book_appointment((int) $user['id'], $slotId, $reason);
 if ($booking['ok']) {

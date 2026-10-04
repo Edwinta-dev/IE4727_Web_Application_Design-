@@ -10,6 +10,29 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/** Explain why a requested patient booking date is outside the selectable window. */
+function booking_date_error(mixed $date, DateTimeImmutable $today, int $days): ?string
+{
+    if (!is_string($date)) {
+        return 'Enter a valid date.';
+    }
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date)) {
+        return 'Enter a valid date in YYYY-MM-DD format.';
+    }
+    $parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+    if ($parsed === false || $parsed->format('Y-m-d') !== $date) {
+        return 'Enter a valid date in YYYY-MM-DD format.';
+    }
+    if ($parsed < $today) {
+        return 'Past dates cannot be booked.';
+    }
+    if ($parsed > $today->modify('+' . ($days - 1) . ' days')) {
+        return 'Choose a date within the next ' . $days . ' days.';
+    }
+
+    return null;
+}
+
 /** Return a word-boundary excerpt for compact doctor previews. */
 function text_excerpt(string $text, int $limit = 140): string
 {
@@ -254,7 +277,8 @@ function flash_render(): void
     }
 
     $type = (string) ($message['type'] ?? 'info');
-    echo '<div class="flash flash-' . e($type) . '" role="alert">'
+    $role = $type === 'error' ? 'alert' : 'status';
+    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">'
         . e($message['message'])
         . '</div>';
 }
@@ -272,6 +296,16 @@ function errors_for(string $field): string
     }
 
     return is_scalar($error) ? (string) $error : '';
+}
+
+/** Consume and return all validation errors for a form summary. @return array<string, string> */
+function errors_all(): array
+{
+    start_session_once();
+    $errors = $_SESSION['errors'] ?? [];
+    unset($_SESSION['errors']);
+
+    return is_array($errors) ? array_filter($errors, 'is_string') : [];
 }
 
 /**

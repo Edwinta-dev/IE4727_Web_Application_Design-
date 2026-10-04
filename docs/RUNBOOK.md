@@ -36,3 +36,12 @@ The demo seed in `schema/003_seed.sql` uses `Password123` for every doctor and
 patient account. Each `HashPass` value is a genuine bcrypt output produced by
 PHP's `password_hash('Password123', PASSWORD_DEFAULT)`; the plaintext password
 is never stored in the database.
+
+An isolated `php tools/db_reset.php` reports 5 doctors, 8 patients, 25
+appointments and 2 notifications (the slot count varies with Sundays in the
+rolling 60-day window). The two notifications are synthetic `logged` rows for
+the first future appointment: one for its patient and one for its doctor.
+Their bodies identify them as fixtures. Seeding does not attempt mail delivery,
+so neither row claims `sent` or `failed`. A fresh admin outbox shows both rows,
+newest first, and “Messages generated today: 2”. Booking, cancellation and
+rescheduling append live audit rows after reset.

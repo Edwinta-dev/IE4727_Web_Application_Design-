@@ -55,12 +55,48 @@ function peak_booking_hours(): array
     );
 }
 
-function mean_booking_lead_time(): float
+/**
+ * Mean elapsed days from the appointment's booking record to its scheduled start.
+ * All appointment statuses represent bookings. DATETIME values are clinic-local;
+ * exclude missing and reversed times rather than treating them as zero days.
+ *
+ * @param array<string, mixed> $filters
+ * @return array{mean_days: ?float, valid: int, invalid: int}
+ */
+function mean_booking_lead_time(array $filters = []): array
 {
-    return (float) (q_val(
-        'SELECT COALESCE(AVG(DATEDIFF(DATE(`appointmentDateTime`), DATE(`CreatedAt`))), 0)
-         FROM `appointment`'
-    ) ?? 0);
+    $where = [];
+    $params = [];
+    if (($filters['doctor'] ?? '') !== '') {
+        $where[] = '`DoctorID` = :lead_doctor';
+        $params['lead_doctor'] = (int) $filters['doctor'];
+    }
+    if (($filters['status'] ?? '') !== '') {
+        $where[] = '`Status` = :lead_status';
+        $params['lead_status'] = (string) $filters['status'];
+    }
+    if (($filters['date_from'] ?? '') !== '') {
+        $where[] = 'DATE(`appointmentDateTime`) >= :lead_from';
+        $params['lead_from'] = (string) $filters['date_from'];
+    }
+    if (($filters['date_to'] ?? '') !== '') {
+        $where[] = 'DATE(`appointmentDateTime`) <= :lead_to';
+        $params['lead_to'] = (string) $filters['date_to'];
+    }
+    $sql = 'SELECT AVG(CASE WHEN `CreatedAt` IS NOT NULL AND `appointmentDateTime` >= `CreatedAt`
+                       THEN TIMESTAMPDIFF(SECOND, `CreatedAt`, `appointmentDateTime`) / 86400 END) AS `MeanDays`,
+                   COALESCE(SUM(CASE WHEN `CreatedAt` IS NOT NULL AND `appointmentDateTime` >= `CreatedAt` THEN 1 ELSE 0 END), 0) AS `ValidSamples`,
+                   COALESCE(SUM(CASE WHEN `CreatedAt` IS NULL OR `appointmentDateTime` < `CreatedAt` THEN 1 ELSE 0 END), 0) AS `InvalidSamples`
+            FROM `appointment`';
+    if ($where !== []) {
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+    }
+    $row = q_one($sql, $params);
+    return [
+        'mean_days' => $row['MeanDays'] === null ? null : (float) $row['MeanDays'],
+        'valid' => (int) $row['ValidSamples'],
+        'invalid' => (int) $row['InvalidSamples'],
+    ];
 }
 
 // Descriptive aliases keep the model convenient for callers and CLI checks.
@@ -68,4 +104,4 @@ function stats_appointments_per_doctor_this_week(): array { return appointments_
 function stats_no_show_rate(): array { return overall_no_show_rate(); }
 function stats_no_show_rate_per_doctor(): array { return no_show_rate_per_doctor(); }
 function stats_peak_booking_hours(): array { return peak_booking_hours(); }
-function stats_mean_booking_lead_time(): float { return mean_booking_lead_time(); }
+function stats_mean_booking_lead_time(array $filters = []): array { return mean_booking_lead_time($filters); }

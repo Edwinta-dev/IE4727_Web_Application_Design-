@@ -13,17 +13,21 @@ require_doctor();
 $user = current_user();
 $doctorId = (int) $user['id'];
 $today = new DateTimeImmutable('today');
-$windowEnd = $today->modify('+29 days');
+$managementEnd = $today->modify('+' . (SCHEDULE_MANAGEMENT_DAYS - 1) . ' days');
 
 $dateInput = $_GET['date'] ?? '';
 $selectedDate = is_string($dateInput) ? $dateInput : '';
 $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $selectedDate);
-if (
+$dateError = '';
+if ($selectedDate !== '' && (
     $parsedDate === false
     || $parsedDate->format('Y-m-d') !== $selectedDate
     || $parsedDate < $today
-    || $parsedDate > $windowEnd
-) {
+    || ($parsedDate > $managementEnd && !has_owned_slots_on_day($doctorId, $selectedDate))
+)) {
+    $dateError = 'That date cannot be opened. Choose a future date within the ' . SCHEDULE_MANAGEMENT_DAYS . '-day management window, or a later date with your existing slots.';
+}
+if ($selectedDate === '' || $dateError !== '') {
     $selectedDate = $today->format('Y-m-d');
 }
 
@@ -48,13 +52,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 || $start->format('Y-m-d') !== $from
                 || $days === false
                 || $days < 1
-                || $days > 30
+                || $days > SCHEDULE_DAYS
                 || !preg_match('/^\d{2}:\d{2}$/', $startTime)
                 || !preg_match('/^\d{2}:\d{2}$/', $endTime)
                 || $minutes === false
                 || !in_array($minutes, [15, 30, 60], true)
             ) {
                 throw new InvalidArgumentException('Please provide a valid date, range and working hours.');
+            }
+            if ($start < $today || $start->modify('+' . ($days - 1) . ' days') > $managementEnd) {
+                throw new InvalidArgumentException('Generate slots only from today through ' . $managementEnd->format('Y-m-d') . ' (' . SCHEDULE_MANAGEMENT_DAYS . '-day management window).');
             }
 
             $created = regenerate_schedule($doctorId, $from, $days, [
@@ -70,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     : $created . ' new schedule slot' . ($created === 1 ? '' : 's') . ' created.',
                 'success'
             );
-            redirect('/doctor/schedule.php?date=' . rawurlencode($selectedDate));
+            redirect('/doctor/schedule.php?date=' . rawurlencode($from));
         }
 
         if ($action === 'toggle') {
@@ -84,13 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($slot === null || (int) $slot['DoctorID'] !== $doctorId) {
                 throw new RuntimeException('The slot was not found in your schedule.');
             }
+            if (!schedule_slot_editable($slot, $doctorId)) {
+                throw new RuntimeException('This slot has already started and can no longer be changed.');
+            }
             if ($status === 'Blocked') {
-                if (!block_slot((int) $slotId)) {
+                if ((string) $slot['Status'] === 'Booked' && ($_POST['confirm_booking'] ?? '') !== '1') {
+                    throw new InvalidArgumentException('Confirm that blocking this slot cancels the booking and notifies both parties.');
+                }
+                if (!block_slot((int) $slotId, $doctorId)) {
                     throw new RuntimeException('The slot could not be blocked.');
                 }
                 flash('The slot was blocked. Any booked appointment was cancelled and both parties were notified.', 'success');
             } else {
-                if (!unblock_slot((int) $slotId)) {
+                if (!unblock_slot((int) $slotId, $doctorId)) {
                     throw new RuntimeException('Only a blocked slot can be made available.');
                 }
                 flash('The slot is available again.', 'success');
@@ -105,7 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$countsByDate = slot_counts_for_range($doctorId, $today->format('Y-m-d'), $windowEnd->format('Y-m-d'));
+$gridStart = $parsedDate !== false && $selectedDate !== $today->format('Y-m-d') && $parsedDate > $today->modify('+29 days')
+    ? $parsedDate : $today;
+$gridEnd = $gridStart->modify('+29 days');
+$countsByDate = slot_counts_for_range($doctorId, $gridStart->format('Y-m-d'), $gridEnd->format('Y-m-d'));
 $slots = slots_for_day($doctorId, $selectedDate);
 
 $pageTitle = 'Doctor Schedule Editor';
@@ -115,12 +131,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="schedule-editor">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">30-day schedule editor</h1>
-            <p>Create working slots and manage availability for the next 30 days.</p>
+            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Schedule editor</h1>
+            <p>Generate up to 30 days at a time through <?= e(fmt_date($managementEnd->format('Y-m-d'))) ?>. Existing later slots remain available to manage.</p>
         </div>
     </section>
 
     <?php flash_render(); ?>
+    <?php if ($dateError !== ''): ?><p class="flash flash-error" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?>.</p><?php endif; ?>
 
     <section class="schedule-generator" aria-labelledby="generate-heading">
         <h2 id="generate-heading">Generate schedule</h2>
@@ -128,9 +145,9 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="generate">
             <label for="start-date">Start date</label>
-            <input id="start-date" name="start_date" type="date" value="<?= e($today->format('Y-m-d')) ?>" required>
+            <input id="start-date" name="start_date" type="date" min="<?= e($today->format('Y-m-d')) ?>" max="<?= e($managementEnd->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
             <label for="days">Number of days</label>
-            <input id="days" name="days" type="number" min="1" max="30" value="30" required>
+            <input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required>
             <label for="start-time">Working hours from</label>
             <input id="start-time" name="start_time" type="time" value="09:00" required>
             <label for="end-time">Working hours to</label>
@@ -152,11 +169,16 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
 
     <section class="month-grid" aria-labelledby="month-heading">
-        <h2 id="month-heading">Next 30 days</h2>
+        <h2 id="month-heading">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?></h2>
+        <form method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
+            <label for="schedule-date">Open a date</label>
+            <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
+            <button type="submit">Show date</button>
+        </form>
         <div class="schedule-month-grid">
             <?php for ($offset = 0; $offset < 30; $offset++): ?>
                 <?php
-                $day = $today->modify('+' . $offset . ' days');
+                $day = $gridStart->modify('+' . $offset . ' days');
                 $dayDate = $day->format('Y-m-d');
                 $dayCounts = $countsByDate[$dayDate] ?? ['Available' => 0, 'Booked' => 0, 'Blocked' => 0];
                 ?>
@@ -180,17 +202,20 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <?php
                     $status = (string) $slot['Status'];
                     $stateClass = $status === 'Available' ? 'free' : ($status === 'Booked' ? 'taken' : 'blocked');
-                    $timeClass = !is_bookable((string) $slot['SlotDate'], (string) $slot['SlotTime']) ? 'past' : '';
+                    $timeClass = !schedule_slot_editable($slot, $doctorId) ? 'past' : '';
                     ?>
                     <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
                         <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : ($status === 'Blocked' ? 'Unavailable' : $status)) ?></span>
-                        <?php if ($status === 'Booked'): ?>
+                        <?php if ($timeClass !== ''): ?>
+                            <span class="slot-readonly">This slot has started; availability can no longer be changed.</span>
+                        <?php elseif ($status === 'Booked'): ?>
                             <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="toggle">
                                 <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
                                 <input type="hidden" name="status" value="Blocked">
+                                <label><input type="checkbox" name="confirm_booking" value="1" required> Cancel the appointment and notify the patient and doctor</label>
                                 <button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button>
                             </form>
                         <?php elseif ($status === 'Blocked'): ?>

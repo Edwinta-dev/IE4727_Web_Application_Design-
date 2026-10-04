@@ -46,7 +46,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Day board</h1>
         </div>
         <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
-            <?= csrf_field() ?>
             <label for="day">Schedule date</label>
             <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
             <button type="submit">Show day</button>
@@ -77,11 +76,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                 <?= e((string) $appointment['PatientName']) ?>
                             </a>
                         </td>
-                        <td><?= e((string) ($appointment['Remarks'] ?? '')) ?></td>
+                        <?php $boardRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']); ?>
+                        <td><?= e($boardRemarks['reason'] !== '' ? $boardRemarks['reason'] : ($boardRemarks['legacy'] !== null ? 'Earlier text (author unknown)' : 'Not separately recorded')) ?></td>
                         <td><?= e((string) $appointment['Status']) ?></td>
                         <td>
                             <?php if (in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)): ?>
                                 <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
+                                <?php if (appointment_outcome_eligible($appointment, $doctorId)): ?>
                                 <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
@@ -94,7 +95,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                     <input type="hidden" name="status" value="No show">
                                     <button type="submit">Mark no-show</button>
                                 </form>
+                                <?php else: ?>
+                                    <span>Attendance actions open at the appointment start time.</span>
+                                <?php endif; ?>
                                 <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
+                            <?php elseif ((string) $appointment['Status'] === 'Completed'): ?>
+                                <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
                             <?php else: ?>
                                 <span>No attendance action</span>
                             <?php endif; ?>

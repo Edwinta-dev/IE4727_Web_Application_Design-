@@ -22,6 +22,8 @@ defined('APP_NAME') || define('APP_NAME', 'Clinic Appointment Portal');
 defined('CLINIC_EMAIL') || define('CLINIC_EMAIL', 'clinic@example.local');
 defined('SLOT_MINUTES') || define('SLOT_MINUTES', 30);
 defined('SCHEDULE_DAYS') || define('SCHEDULE_DAYS', 30);
+// Doctors can generate and manage dates within one year; each generation spans at most SCHEDULE_DAYS.
+defined('SCHEDULE_MANAGEMENT_DAYS') || define('SCHEDULE_MANAGEMENT_DAYS', 365);
 defined('BROWSE_DAYS') || define('BROWSE_DAYS', 7);
 defined('APP_TIMEZONE') || define('APP_TIMEZONE', 'Asia/Singapore');
 

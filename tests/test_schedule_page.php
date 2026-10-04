@@ -12,9 +12,9 @@ if ($page === false || $model === false || $booking === false) {
 foreach ([
     'require_doctor();', 'regenerate_schedule(', 'slot_counts_for_range(', 'slots_for_day(',
     'name="start_date"', 'name="days"', 'name="start_time"', 'name="end_time"',
-    'name="slot_length"', 'name="skip_days[]"', 'Next 30 days', 'class="schedule-month-grid"',
+    'name="slot_length"', 'name="skip_days[]"', 'class="schedule-month-grid"', 'name="date"',
     'class="slot <?=', "'free'", "'taken'", "'blocked'", "'past'", 'csrf_field()',
-    'confirm(', 'No new slots were created',
+    'confirm(', 'name="confirm_booking"', "(\$_POST['confirm_booking'] ?? '') !== '1'", 'No new slots were created',
 ] as $needle) {
     assert_contains($page, $needle);
 }
