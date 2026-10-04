@@ -6,6 +6,9 @@ define('DB_NAME', getenv('CLINIC_DB_NAME') ?: 'ie4727db'); // tests set CLINIC_D
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
+// Optional base demo mode: log notifications without calling PHP mail().
+// define('MAIL_DELIVERY', 'off');
+
 // The admin account is configuration-defined; there is no admin table.
 define('ADMIN_USER', 'admin');
 define('ADMIN_HASH', '');

@@ -14,6 +14,10 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 function send_mail(string $toEmail, string $subject, string $body, ?int $appointmentId = null): int
 {
     $notificationId = log_notification($toEmail, $subject, $body, $appointmentId);
+    if (MAIL_DELIVERY === 'off') {
+        return $notificationId;
+    }
+
     $delivered = false;
 
     try {

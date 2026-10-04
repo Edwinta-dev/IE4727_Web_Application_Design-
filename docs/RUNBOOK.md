@@ -14,6 +14,37 @@ Both folders use the same `ie4727db` database. Configure each ignored
 `config.local.php` with the local XAMPP credentials if they differ from the
 defaults, then start Apache and MariaDB.
 
+## Base local mail delivery
+
+When PHP's `SMTP=localhost` has no local listener, each `mail()` attempt can
+delay a booking, reschedule or cancellation by about two seconds. To keep the
+base demo responsive, add this to the ignored `clinic-base/config.local.php`:
+
+```php
+define('MAIL_DELIVERY', 'off');
+```
+
+Alternatively set the `MAIL_DELIVERY=off` environment variable in the PHP
+process. Local configuration takes precedence. The default is `on`; remove
+the override or set it to `on` to resume delivery through local XAMPP
+`mailtodisk`. This option applies to `clinic-base/` only.
+
+With delivery off, `send_mail()` still writes each notification first,
+including its appointment link, then returns without calling `mail()`.
+Rows remain `logged` and are visible in the admin outbox. With delivery on,
+the row is written first and delivery updates it to `sent` or `failed`;
+failure remains non-fatal. Do not configure an external mail service.
+
+Acceptance checks (isolated `ie4727db_test` only):
+
+```powershell
+php tests/run.php test_mail_delivery
+$env:CLINIC_DB_NAME='ie4727db_test'
+$env:MAIL_DELIVERY='off'
+node tests/ui_mail_delivery.mjs
+php tests/run.php
+```
+
 ## Demo sequence
 
 1. Open `http://localhost/clinic-base/` and demonstrate the completed base
