@@ -1493,12 +1493,19 @@ main .flash {
 .appointment-table-scroll.is-empty thead { display: none; }
 .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
 .appointment-table-scroll.is-empty .empty-state { max-width: none; }
+.appointment-table-scroll.is-empty table, .appointment-table-scroll.is-empty td { border: 0; background: transparent; }
+.appointment-table-scroll.is-empty td { padding: 0; white-space: normal; }
+.appointment-empty-state { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); font-style: normal; }
+.appointment-empty-state p { margin: 0; }
 .table-scroll-hint { display: none; }
 .appointments table { border-top: 1px solid var(--c-line); }
 .appointments th { background: var(--c-surface-band); }
 .appointments th, .appointments td { padding-block: 0; line-height: 2.25rem; }
 .appointment-table-scroll:not(.is-empty) :is(th, td) { overflow-wrap: normal; white-space: nowrap; }
 .appointments td { vertical-align: middle; }
+.appointment-table-scroll:not(.is-empty) td { height: 3.25rem; }
+.appointment-table-scroll:not(.is-empty) td a { display: inline-flex; align-items: center; padding-block: 0; vertical-align: middle; }
+.appointments td button { vertical-align: middle; }
 .appointments td:last-child { white-space: nowrap; }
 .appointments td:last-child form { display: inline; margin: 0; }
 .appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-button-background); border-radius: var(--radius-control); background: var(--c-button-background); color: var(--c-button-foreground); text-decoration: none; }

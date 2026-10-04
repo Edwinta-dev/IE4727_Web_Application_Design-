@@ -14,6 +14,7 @@ $user = current_user();
 $patientId = (int) $user['id'];
 $upcoming = appointments_for_patient($patientId, 'upcoming');
 $past = appointments_for_patient($patientId, 'past');
+$cancelled = appointments_for_patient($patientId, 'cancelled');
 $notifications = notifications_for_patient($patientId);
 $viewIdInput = $_GET['view'] ?? '';
 $viewId = is_string($viewIdInput) && ctype_digit($viewIdInput) ? (int) $viewIdInput : 0;
@@ -43,7 +44,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
             <tbody>
 <?php if ($upcoming === []): ?>
-                <tr><td colspan="6"><p class="empty-state">You have no upcoming appointments.</p></td></tr>
+                <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/book.php')) ?>">Book an appointment</a></div></td></tr>
 <?php else: ?>
 <?php foreach ($upcoming as $appointment): ?>
                 <tr>
@@ -102,6 +103,29 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </table>
         </div>
     </section>
+
+<?php if ($cancelled !== []): ?>
+    <section class="appointments cancelled-appointments">
+        <h2 id="cancelled-heading">Cancelled appointments</h2>
+        <p class="table-scroll-hint">Swipe or scroll the table to see times and status.</p>
+        <div class="appointment-table-scroll" role="region" aria-labelledby="cancelled-heading" tabindex="0">
+        <table>
+            <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+<?php foreach ($cancelled as $appointment): ?>
+                <tr>
+                    <td><?= e((string) $appointment['DoctorName']) ?></td>
+                    <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
+                    <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td><?= e((string) $appointment['Status']) ?></td>
+                </tr>
+<?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+    </section>
+<?php endif; ?>
 
     <section class="patient-notifications" aria-labelledby="notifications-heading">
         <h2 id="notifications-heading">Latest notifications</h2>

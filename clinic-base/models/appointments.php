@@ -9,7 +9,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 /** @return list<array<string, mixed>> */
 function appointments_for_patient(int $patientId, string $when = 'all'): array
 {
-    if (!in_array($when, ['upcoming', 'past', 'all'], true)) {
+    if (!in_array($when, ['upcoming', 'past', 'cancelled', 'all'], true)) {
         throw new InvalidArgumentException('Invalid appointment time range.');
     }
 
@@ -20,8 +20,11 @@ function appointments_for_patient(int $patientId, string $when = 'all'): array
         $where[] = "a.`appointmentDateTime` >= NOW()";
         $where[] = "a.`Status` IN ('Future', 'Rescheduled')";
     } elseif ($when === 'past') {
+        $where[] = "a.`Status` <> 'Cancelled'";
         $where[] = "(a.`appointmentDateTime` < NOW()
                      OR a.`Status` NOT IN ('Future', 'Rescheduled'))";
+    } elseif ($when === 'cancelled') {
+        $where[] = "a.`Status` = 'Cancelled'";
     }
 
     return q_all(
