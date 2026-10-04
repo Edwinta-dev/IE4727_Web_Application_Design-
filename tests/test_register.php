@@ -15,13 +15,16 @@ if ($page === false || $action === false || $script === false) {
 foreach (['name="FullName"', 'name="User"', 'name="Email"', 'name="Gender"', 'name="Phone"', 'name="Allergies"',
     'name="<?= e($field) ?>"', 'csrf_field()', 'id="registration-form" method="post"',
     'class="registration-layout"', 'class="registration-support"', 'What you’ll need', 'What happens next',
-    'Clinic_Assisting_Elderly_woman.jpg', 'name="role" value="patient"', 'name="role" value="doctor"',
+    'name="role" value="patient"', 'name="role" value="doctor"',
     'class="registration-role-switcher"', 'data-role-switch="patient"', 'data-role-switch="doctor"',
     'aria-label="Switch to doctor account"', 'class="registration-role-track" data-active-role="<?= e($registrationRole) ?>"',
     'errors_all()', 'class="error-summary"', 'data-error-for="role"', 'value="patient"<?= e($registrationRole === \'patient\' ? \' checked\' : \'\') ?>'] as $needle) {
     assert_contains($page, $needle, 'registration page');
 }
 $styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
+if (str_contains($page, 'registration-support-image')) {
+    throw new RuntimeException('registration must not reuse a decorative hallway photo');
+}
 if ($styles === false) {
     throw new RuntimeException('registration stylesheet could not be read');
 }

@@ -905,12 +905,19 @@ input[type="button"]:active {
     place-items: center;
     width: 3rem;
     min-height: 3rem;
+    padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius-control);
     background: var(--surface);
     color: var(--brand-dark);
     font-size: 1.5rem;
     cursor: pointer;
+}
+
+.registration-role-arrow:hover,
+.registration-role-arrow:active {
+    background: var(--c-button-background-hover);
+    color: var(--c-button-foreground);
 }
 
 .registration-role-arrow:focus-visible {

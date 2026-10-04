@@ -148,7 +148,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <button type="submit">Create account</button>
     </form>
     <aside class="registration-support" aria-label="Registration information">
-        <img src="<?= e(url('/assets/img/Clinic_Assisting_Elderly_woman.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="Clinic staff assisting an older patient" class="registration-support-image">
         <section>
             <h2>What you’ll need</h2>
             <p>Patients need a phone number and a list of known allergies. Doctors should have their specialty, qualifications and spoken languages ready.</p>

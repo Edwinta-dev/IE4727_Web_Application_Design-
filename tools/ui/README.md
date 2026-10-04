@@ -203,3 +203,17 @@ and all five day-board counters with 3, 7 and 12 messages/appointments. It captu
 zero page overflow. The test resets the test DB first and removes its fixtures
 in `finally`. Run serially with all
 other database tests, including `php tests/run.php` (which resets the test DB).
+
+For registration arrow acceptance (#149), run
+`node tools/ui/registration-arrows.test.mjs` and `php tests/run.php` serially.
+The browser check uses only `ie4727db_test`, measures glyph fit and contrast for
+both arrows at rest, hover, keyboard focus and press, and checks keyboard role
+switching at 1280x800 and 390x844 with normal and reduced motion. It also renders
+the home page with 3/7/12 doctor/specialty source rows and decodes the neutral
+fallback image. The existing directory normalizes Dentistry to Dental and
+filters unknown services; this issue preserves that behavior. Before/after
+screenshots and measurements are under `UIPROBLEMS/after/issue149-*-states`.
+The before measurements reproduce 1:1 hover/press contrast and a 20.7px glyph
+inside 10.8px of content width. After the fix, hover/press contrast is 7.58:1
+and content width is 46px. The registration hallway photo has been removed;
+the shared header logo keeps the page's required image.
