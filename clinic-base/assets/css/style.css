@@ -132,7 +132,8 @@
 .staff-table-scroll { overflow-x: auto; }
 .day-board { min-width: 58rem; table-layout: auto; }
 .console-filters { display: flex; flex-wrap: wrap; }
-.console-filters h2 { flex: 0 0 auto; }
+.console-filters h2 { flex: 0 0 100%; white-space: normal; }
+.console-filters > p { flex: 0 0 100%; margin: 0; }
 .console-filters form { flex: 1 1 40rem; }
 .outbox-filters form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .outbox-filters form label { flex: 0 0 auto; margin: 0; }
@@ -160,6 +161,11 @@
 .admin-console table { table-layout: auto; }
 .day-schedule table th, .day-schedule table td,
 .admin-console table th, .admin-console table td { white-space: nowrap; }
+@media (min-width: 56rem) {
+    .admin-console .console-table-scroll table { table-layout: fixed; }
+    .admin-console .console-table-scroll :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
+    .admin-console .console-table-scroll table:not(.appointment-table) :is(th, td):last-child { width: 11rem; }
+}
 .day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
 .admin-outbox .notification-details summary { min-height: 2.75rem; cursor: pointer; color: var(--c-primary-dark); }
 .admin-outbox .notification-details summary:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: 0.1rem; }

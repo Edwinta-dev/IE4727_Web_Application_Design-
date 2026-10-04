@@ -45,6 +45,7 @@ $patients = admin_patients($filters);
 $appointments = admin_search($filters);
 $allDoctors = all_doctors();
 $weekly = appointments_per_doctor_this_week();
+$weekRange = appointment_week_range();
 $noShowOverall = overall_no_show_rate();
 $noShowDoctors = no_show_rate_per_doctor();
 $peakHours = peak_booking_hours();
@@ -69,7 +70,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="stats-strip" aria-labelledby="stats-heading">
         <h2 id="stats-heading">Statistics</h2>
-        <div class="stat-card"><h3>Appointments per doctor this week</h3>
+        <div class="stat-card"><h3>Appointments per doctor this week (<?= e(fmt_date($weekRange['start'])) ?> – <?= e(fmt_date($weekRange['end'])) ?>)</h3>
             <?php if ($weekly === []): ?><p class="empty-state">No appointment statistics are available.</p><?php else: ?><?php foreach ($weekly as $row): $width = $weeklyMax > 0 ? ((int) $row['Bookings'] / $weeklyMax) * 100 : 0; ?>
                 <p><?= e($row['DoctorName']) ?>: <?= e((string) $row['Bookings']) ?> bookings</p><div class="stat-bar" style="width: <?= e((string) $width) ?>%" role="img" aria-label="<?= e($row['DoctorName']) ?> bookings"></div>
             <?php endforeach; ?><?php endif; ?>
@@ -94,7 +95,8 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </div>
     </section>
 
-    <section class="console-filters" aria-labelledby="filters-heading"><h2 id="filters-heading">Filters</h2>
+    <section class="console-filters" aria-labelledby="filters-heading"><h2 id="filters-heading">Patient, doctor and appointment filters</h2>
+        <p>Show appointments and accounts with matching appointments in the tables below. These filters also apply to mean booking lead time.</p>
         <form method="get" action="<?= e(url('/admin/console.php')) ?>"><label>Doctor <select name="doctor"><option value="">All doctors</option><?php foreach ($allDoctors as $doctor): ?><option value="<?= e((string) $doctor['DoctorID']) ?>"<?= e($filters['doctor'] === (string) $doctor['DoctorID'] ? ' selected' : '') ?>><?= e($doctor['FullName']) ?></option><?php endforeach; ?></select></label>
             <label>Status <select name="status"><option value="">All statuses</option><?php foreach (['Future', 'Cancelled', 'No show', 'Completed', 'Rescheduled'] as $status): ?><option value="<?= e($status) ?>"<?= e($filters['status'] === $status ? ' selected' : '') ?>><?= e($status) ?></option><?php endforeach; ?></select></label>
             <label>From <input type="date" name="date_from" value="<?= e($filters['date_from']) ?>"></label><label>To <input type="date" name="date_to" value="<?= e($filters['date_to']) ?>"></label><button type="submit">Apply filters</button><a href="<?= e(url('/admin/console.php')) ?>">Clear</a>
