@@ -856,9 +856,11 @@ input[type="button"]:active {
     .grow-row > .grow-item {
         flex: 1 1 0%;
         min-width: 0;
-        min-height: 38rem;
         padding-inline: var(--space-2);
     }
+
+    /* Doctor biographies need equal-height tiles; specialties grow in flow. */
+    .doctor-tiles > .doctor-tile { min-height: 38rem; }
 
     .grow-row > .grow-item:hover,
     .grow-row > .grow-item:focus-visible {

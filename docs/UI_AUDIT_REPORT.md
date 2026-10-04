@@ -607,3 +607,86 @@ Adjacent `rectangles.json` files preserve actual measurements with and without
 clipping. Desktop directory subjects' heads now remain visible; captions and
 filter/home controls remain visible. The directory's existing mobile table
 scrolls within its own region, without document overflow.
+
+## Issue #129: home specialty-to-footer spacing (4 October 2026)
+
+Finding: C01, new finding 10, supplied references UI_Defects.pdf pp. 4 and 7.
+The named PDF is absent from this checkout; the supplied written finding is
+the source, verified by fresh browser measurements. Starting source is
+`64354f5` (includes dependency #128), with a clean working tree. The historical
+`eb9a791` is not the current baseline. Existing visit edits, visit-state test
+and prior report entries are preserved. The #114 duplicate-destination
+carry-over remains separate and is not claimed resolved here.
+
+Reproduction: desktop `.grow-row > .grow-item` gave the specialty links the
+same `min-height: 38rem` (608px) as doctor tiles. The apparent gap was inside
+those links, not an oversized footer margin. Move that minimum to
+`.doctor-tiles > .doctor-tile` only. Specialty links now size to their content;
+the unchanged hover/focus image height and padding grow the strip in normal
+flow and push the footer down. No negative margins, clipped content, hidden
+sections, font changes or page-height rules were added. Shared page width,
+doctor tiles and short-page footer behaviour are retained.
+
+Document coordinates in CSS pixels, settled anonymous home state; normal and
+reduced-motion measurements are identical:
+
+| Viewport | State | Strip bottom | Text bottom | Footer top | Strip/footer gap | Text/footer gap |
+|---|---|---:|---:|---:|---:|---:|
+| 1280x800 | Before | 2117.719 | 1728.969 | 2177.719 | 60 | 448.750 |
+| 1280x800 | After | 1737.766 | 1728.969 | 1797.766 | 60 | 68.797 |
+| 390x844 | Before | 4144.016 | 4135.219 | 4204.016 | 60 | 68.797 |
+| 390x844 | After | 4144.016 | 4135.219 | 4204.016 | 60 | 68.797 |
+
+The unnecessary reservation removed is 379.953px. Remaining 60px is the
+services section's `--space-5` bottom padding (36px) plus main's existing
+24px bottom padding; the additional 8.797px is the link's bottom padding.
+At desktop, hovering or keyboard-focusing the first/middle/last item moves
+strip bottom to 2000.578 and footer top to 2060.578, preserving the 60px gap.
+The regression checks item/content/footer bounds and horizontal overflow
+for all six interactions at both widths and in both motion modes. Focus
+cases use keyboard traversal and assert `:focus-visible`. Existing grid
+placement, hover padding/image growth and reduced-motion rules are preserved.
+
+The directory and empty filtered short route
+`doctors.php?specialty=NoSuchSpecialty` retain main/footer alignment. Footer
+tops are respectively 1092.813/638.406 at desktop and 1193.188/788.734 at
+mobile, identical before and after. The short footer remains immediately
+after main, as before; no sticky-footer redesign is introduced.
+
+Fixtures: public anonymous routes, five-doctor test seed, no authenticated
+flow, synthetic mutation or fixed date needed. Measurements use
+`withTestServer()` and verify the child resolves `ie4727db_test`, with mail
+disabled. Screenshot/audit commands explicitly inherit
+`CLINIC_DB_NAME=ie4727db_test`; PHP config rejects a local override. No live
+database reset or cleanup was performed. PHP suite resets are test-only.
+
+Commands/results:
+
+```text
+node --test tools/ui/isolation.test.mjs
+node tools/ui/home-gap.test.mjs --before
+node tools/ui/shoot.mjs --serve --label home-gap-before index.php doctors.php
+node tools/ui/home-gap.test.mjs
+node tools/ui/shoot.mjs --serve --label home-gap-after index.php doctors.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop index.php doctors.php
+node tools/ui/hero-size.test.mjs
+php tests/run.php
+node --check tools/ui/home-gap.test.mjs
+git diff --check
+```
+
+The home geometry regression, existing 12-case hero geometry regression and
+required main-scoped audit print OK; isolation tests pass 7/7. The final serial
+PHP suite reports **81 passed, 0 failed**, with the existing CLI session/header
+warnings. Browser syntax and diff whitespace checks pass. No PHP source was
+changed. Before/after screenshots
+were opened at both widths in gitignored
+`UIPROBLEMS/after/home-gap-{before,after}/` (index/doctors). Additional settled
+home, directory, short-page and focused-item images and document rectangles
+are in `home-gap-{before,after}-geometry/measurements.json` and adjacent PNGs.
+Opened focused middle/last normal/reduced-motion images show the footer
+below the grown item. Opened short-page before/after desktop and after phone
+images retain the existing alignment. An initial capture run was interrupted
+and a preliminary overly broad horizontal-growth assertion was corrected:
+the existing specialty strip uses grid placement. Successful completed runs
+are the evidence reported above.
