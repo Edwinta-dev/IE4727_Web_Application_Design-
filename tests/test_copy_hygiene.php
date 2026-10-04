@@ -16,7 +16,8 @@ foreach (['doctor/schedule.php', 'doctor/home.php', 'doctor/visit.php', 'patient
     assert_contains($page, "'partials' . DIRECTORY_SEPARATOR . 'header.php'", $path . ': shared header remains');
 }
 $schedule = (string) file_get_contents($base . 'doctor/schedule.php');
-assert_contains($schedule, '$dayCounts[$status] > 0', 'Zero counts omitted');
+assert_contains($schedule, "\$totalSlots === 0 ? 'No slots' : \$totalSlots . ' slots'", 'Calendar totals label empty days without numeric zero counts');
+assert_contains($schedule, 'class="schedule-day-counts"', 'Selected-day breakdown remains available');
 $outbox = (string) file_get_contents($base . 'admin/outbox.php');
 assert_contains($outbox, 'aria-labelledby="outbox-list-heading"', 'Table uses existing message heading');
 assert_true(!str_contains($outbox, 'Scroll sideways'), 'No compensating layout instruction');

@@ -284,3 +284,38 @@
 .booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
 .booking-confirmation h3 { margin-top: 0; }
 .schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
+
+/* Doctor schedule: weekday calendar first, generation follows the working day. */
+#schedule-editor .schedule-month-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#schedule-editor .schedule-weekday { padding: var(--space-2); border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: var(--c-surface-band); text-align: center; font-weight: 700; }
+#schedule-editor .schedule-calendar-gap { border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: var(--c-surface-band); }
+#schedule-editor .schedule-day { padding: var(--space-1); text-align: center; }
+#schedule-editor .schedule-day a { display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 2.75rem; color: var(--c-primary-dark); line-height: 1.3; }
+#schedule-editor .calendar-month { display: inline; }
+#schedule-editor .calendar-slot-total { display: block; font-weight: 400; text-decoration: none; }
+#schedule-editor .schedule-day.no-slots { background: var(--c-surface-band); color: var(--c-muted); }
+#schedule-editor .schedule-day.no-slots a { color: var(--c-muted); }
+#schedule-editor .schedule-day.selected { background: var(--c-primary); color: var(--c-button-foreground); }
+#schedule-editor .schedule-day.selected a { color: var(--c-button-foreground); font-weight: 700; }
+#schedule-editor .schedule-date-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+#schedule-editor .schedule-date-filter label { margin: 0; }
+#schedule-editor .schedule-date-filter input[type="date"] { width: auto; min-width: 0; }
+#schedule-editor .day-view { margin-top: var(--space-3); }
+#schedule-editor .schedule-day-counts { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+#schedule-editor .slot-list .slot { padding: var(--space-2); }
+#schedule-editor .slot-time, #schedule-editor .slot-status { display: block; }
+#schedule-editor .slot form { margin-top: var(--space-2); }
+#schedule-editor .slot button { width: 100%; }
+#schedule-editor .schedule-generator { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--c-line); }
+#schedule-editor .schedule-generator form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); align-items: end; }
+#schedule-editor .generator-field { min-width: 0; }
+#schedule-editor .generator-start, #schedule-editor .days-to-skip { grid-column: 1 / -1; margin: 0; }
+#schedule-editor .days-to-skip { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); padding: var(--space-2); border: 1px solid var(--c-line); }
+#schedule-editor .days-to-skip label { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; min-height: 2.75rem; }
+#schedule-editor .schedule-generator button { justify-self: start; }
+@media (max-width: 40rem) {
+    #schedule-editor .schedule-weekday { padding: var(--space-1) 0; }
+    #schedule-editor .schedule-day { padding-inline: 0; }
+    #schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #schedule-editor .schedule-generator button { grid-column: 1 / -1; }
+}

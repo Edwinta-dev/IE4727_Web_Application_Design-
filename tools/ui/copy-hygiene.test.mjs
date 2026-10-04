@@ -32,9 +32,9 @@ try {
             assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width, `${path}: document fits`);
             const record = { path, width };
             if (path === 'doctor/schedule.php') {
-              const counts = await page.locator('.schedule-day .slot-count').allTextContents();
-              assert.ok(counts.length > 0 && counts.length < 90);
-              assert.ok(counts.every(text => /^\s*[1-9]\d* (free|booked|blocked)\s*$/.test(text)), 'Only nonzero day counts');
+              const counts = await page.locator('.schedule-day .calendar-slot-total').allTextContents();
+              assert.equal(counts.length, 30);
+              assert.ok(counts.every(text => /^\s*([1-9]\d* slots|No slots)\s*$/.test(text)), 'Calendar totals never show zero counts');
               record.counts = counts;
             }
             if (path === 'admin/outbox.php') {
@@ -88,8 +88,10 @@ try {
           for (const width of [1280, 390]) {
             await schedule.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
             assert.equal(await schedule.locator('.day-view .slot').count(), count, 'Database-backed schedule slots');
-            const counts = await schedule.locator('.schedule-day.selected .slot-count').allTextContents();
-            assert.deepEqual(counts.map(text => text.trim()), [`${count - 1} free`, '1 blocked']);
+            const counts = await schedule.locator('.schedule-day-counts span').allTextContents();
+            assert.deepEqual(counts.map(text => text.trim()), [`Available: ${count - 1}`, 'Booked: 0', 'Blocked: 1']);
+            assert.equal((await schedule.locator('.schedule-day.selected .calendar-slot-total').textContent()).trim(), `${count} slots`);
+            assert.ok((await schedule.locator('.schedule-day.selected a').getAttribute('aria-label')).endsWith(`${count - 1} Available, 0 Booked, 1 Blocked`));
             assert.equal(await schedule.locator('html').evaluate(el => el.scrollWidth), width);
             records.push({ path: 'doctor/schedule.php', width, slots: count, counts });
           }
