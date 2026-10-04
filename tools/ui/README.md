@@ -6,6 +6,15 @@ Port 8000 is rejected because it can serve a stale XAMPP copy.
 
 ## Capture pages
 
+For home card heights (#137), run `node tools/ui/home-card-height.test.mjs`.
+It prints `OK` after comparing actual card heights with unconstrained copies of
+the same content at the same width, allowing equal-height carousel siblings and
+only the existing vertical hover padding. It covers 1280/1707/390px, the seed
+and 3/7/12 database-backed doctors and specialties, hover, keyboard focus and
+reduced motion. Measurements and screenshots go to
+`UIPROBLEMS/after/issue137-height/`. The guarded fixture/server use only
+`ie4727db_test` and restore the seed in `finally`; run serially with other tests.
+
 For specialty paging (#136), run `node tools/ui/specialty-strip.test.mjs`.
 It verifies database-backed 3/6/10/7/12 specialties at 1280/1024/768/390,
 hover allowance, keyboard paging, resize, reduced motion and no-JS access.
