@@ -14,6 +14,52 @@ Both folders use the same `ie4727db` database. Configure each ignored
 `config.local.php` with the local XAMPP credentials if they differ from the
 defaults, then start Apache and MariaDB.
 
+## Base local admin setup (#142)
+
+Admin credentials are disabled until configured; the seeded doctor/patient
+password does not enable an admin account. From a fresh clone, run this in
+PowerShell at the repository root and choose your own local password:
+
+```powershell
+$adminPassword = Read-Host 'Local admin password (8-72 bytes)' -AsSecureString
+[System.Net.NetworkCredential]::new('', $adminPassword).Password | php tools/setup_admin.php admin
+Remove-Variable adminPassword
+```
+
+In Bash, use `read -r -s admin_password`, then
+`printf '%s\n' "$admin_password" | php tools/setup_admin.php admin` and
+`unset admin_password`. The script creates the ignored
+`clinic-base/config.local.php` containing only `ADMIN_USER` and a PHP password
+hash. It does not set `DB_NAME`, reset a database, or change mail delivery.
+Never commit this file. Run setup before copying `clinic-base/` into htdocs,
+or copy the generated ignored file into the deployed base folder afterward.
+Sign in at `/clinic-base/index.php` as `admin` with your chosen password, then
+open Outbox. Opening the protected URL while signed out displays a sign-in
+message and preserves the outbox return URL.
+
+The script refuses to overwrite an existing local config. In that case, keep
+its database/mail settings, generate a hash with
+`php -r '$p = rtrim(fgets(STDIN), "\r\n"); echo password_hash($p, PASSWORD_DEFAULT), PHP_EOL;'`
+(password on stdin), and set `ADMIN_USER`/`ADMIN_HASH` in that ignored file.
+Do not add a fixed `DB_NAME`: test tools must resolve `ie4727db_test`.
+
+Issue acceptance (synthetic rows only, no live reset or mail delivery):
+
+```powershell
+php tests/run.php test_admin_setup
+php tests/run.php test_outbox
+php tools/db_reset.php
+node tests/ui_admin_outbox.mjs
+php tests/run.php
+```
+
+The UI check temporarily creates a local admin config through the setup
+script when absent, removes only that file afterward, and verifies login,
+guard feedback, newest-first rows, body disclosure, status filters, today's
+count, and empty state at 3, 7 and 12 synthetic messages. If a local config
+already exists, set `UI_ADMIN` and `UI_PASSWORD` to its admin credentials.
+All fixture writes use `ie4727db_test`; local mail is disabled.
+
 ## Base local mail delivery
 
 When PHP's `SMTP=localhost` has no local listener, each `mail()` attempt can

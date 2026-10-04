@@ -47,6 +47,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </div>
         </div>
         <section class="member-login" aria-labelledby="member-login-heading">
+        <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 <?php if ($user !== null): ?>
         <h2 id="member-login-heading">Your clinic account</h2>
         <p>Review appointments and continue managing your care.</p>
@@ -135,5 +136,4 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 </main>
 <script src="<?= e(url('/assets/featured-doctors.js')) ?>" defer></script>
 <?php
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
