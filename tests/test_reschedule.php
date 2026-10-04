@@ -58,8 +58,9 @@ $bodies = q_all(
 );
 assert_count($bodies, 2, 'reschedule notifications');
 foreach ($bodies as $notification) {
-    assert_contains((string) $notification['Body'], $oldDateTime, 'notification old time');
-    assert_contains((string) $notification['Body'], $newDateTime, 'notification new time');
+    assert_contains((string) $notification['Body'], date('d M Y', strtotime($oldDateTime)) . ' at ' . date('g:i A', strtotime($oldDateTime)), 'notification old time');
+    assert_contains((string) $notification['Body'], date('d M Y', strtotime($newDateTime)) . ' at ' . date('g:i A', strtotime($newDateTime)), 'notification new time');
+    assert_true(!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', (string) $notification['Body']), 'notification has no raw SQL datetime');
 }
 
 q(

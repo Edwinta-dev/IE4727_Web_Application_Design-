@@ -32,12 +32,15 @@ function mail_booking_confirmed(
     string $recipientName,
     string $doctorName,
     string $appointmentDate,
-    ?string $appointmentTime = null
+    ?string $appointmentTime = null,
+    ?string $patientName = null
 ): array {
     [$date, $time] = mail_date_time($appointmentDate, $appointmentTime);
     $subject = 'Appointment confirmed - ' . APP_NAME;
     $body = "Dear {$recipientName},\n\n"
-        . "Your appointment with {$doctorName} is confirmed for {$date} at {$time}.\n"
+        . ($patientName === null
+            ? "Your appointment with {$doctorName} is confirmed for {$date} at {$time}.\n"
+            : "Your appointment with patient {$patientName} is confirmed for {$date} at {$time}.\n")
         . "Thank you for choosing " . APP_NAME . ".\n\n"
         . "Clinic: " . APP_NAME;
 
@@ -48,13 +51,19 @@ function mail_booking_confirmed(
 function mail_rescheduled(
     string $recipientName,
     string $doctorName,
-    string $appointmentDate,
-    ?string $appointmentTime = null
+    string $oldDateTime,
+    string $newDateTime,
+    string $actorRole,
+    ?string $patientName = null
 ): array {
-    [$date, $time] = mail_date_time($appointmentDate, $appointmentTime);
+    [$oldDate, $oldTime] = mail_date_time($oldDateTime, null);
+    [$newDate, $newTime] = mail_date_time($newDateTime, null);
+    $actor = $actorRole === 'doctor' ? 'doctor' : 'patient';
+    $participant = $patientName === null ? $doctorName : 'patient ' . $patientName;
     $subject = 'Appointment rescheduled - ' . APP_NAME;
     $body = "Dear {$recipientName},\n\n"
-        . "Your appointment with {$doctorName} has been rescheduled to {$date} at {$time}.\n"
+        . "Your appointment with {$participant} has been rescheduled by the {$actor}\n"
+        . "from {$oldDate} at {$oldTime} to {$newDate} at {$newTime}.\n"
         . "Clinic: " . APP_NAME;
 
     return [$subject, $body];
@@ -65,12 +74,14 @@ function mail_cancelled(
     string $recipientName,
     string $doctorName,
     string $appointmentDate,
-    ?string $appointmentTime = null
+    ?string $appointmentTime = null,
+    ?string $patientName = null
 ): array {
     [$date, $time] = mail_date_time($appointmentDate, $appointmentTime);
+    $participant = $patientName === null ? $doctorName : 'patient ' . $patientName;
     $subject = 'Appointment cancelled - ' . APP_NAME;
     $body = "Dear {$recipientName},\n\n"
-        . "Your appointment with {$doctorName} on {$date} at {$time} has been cancelled.\n"
+        . "Your appointment with {$participant} on {$date} at {$time} has been cancelled.\n"
         . "Clinic: " . APP_NAME;
 
     return [$subject, $body];
@@ -81,13 +92,18 @@ function mail_availability_cancelled(
     string $recipientName,
     string $doctorName,
     string $appointmentDate,
-    ?string $appointmentTime = null
+    ?string $appointmentTime = null,
+    ?string $patientName = null
 ): array {
     [$date, $time] = mail_date_time($appointmentDate, $appointmentTime);
+    $participant = $patientName === null ? $doctorName : 'patient ' . $patientName;
     $subject = 'Appointment availability changed - ' . APP_NAME;
     $body = "Dear {$recipientName},\n\n"
-        . "The appointment with {$doctorName} on {$date} at {$time} is no longer available.\n"
-        . "Please contact " . APP_NAME . " to arrange another time.\n\n"
+        . "The appointment with {$participant} on {$date} at {$time} is no longer available.\n"
+        . "The doctor blocked this time and the appointment has been cancelled.\n"
+        . ($patientName === null
+            ? "Please sign in and book another available time with {$doctorName}, or contact " . APP_NAME . ".\n\n"
+            : "The patient has been asked to book another available time.\n\n")
         . "Clinic: " . APP_NAME;
 
     return [$subject, $body];
@@ -96,11 +112,7 @@ function mail_availability_cancelled(
 /** @return array{0: string, 1: string} */
 function mail_date_time(string $date, ?string $time): array
 {
-    if ($time !== null && $time !== '') {
-        return [$date, $time];
-    }
-
-    $timestamp = strtotime($date);
+    $timestamp = strtotime($date . ($time !== null && $time !== '' ? ' ' . $time : ''));
     if ($timestamp === false) {
         return [$date, ''];
     }
