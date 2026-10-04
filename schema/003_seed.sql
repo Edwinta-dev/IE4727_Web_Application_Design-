@@ -1,6 +1,10 @@
 -- Issue #5 demo seed. Passwords below are bcrypt outputs for Password123.
 USE `ie4727db`;
 
+-- One clinic-local clock for the entire seed, independent of server timezone.
+SET time_zone = '+08:00'; -- Asia/Singapore
+SET @seed_now = NOW();
+
 SET FOREIGN_KEY_CHECKS = 0;
 DELETE FROM `notifications`;
 DELETE FROM `appointment`;
@@ -28,10 +32,10 @@ INSERT INTO `patient` (`FullName`,`User`,`HashPass`,`Email`,`Gender`,`Phone`,`Al
 
 -- Keep a rolling window so the demo never becomes stale. There are 60 days
 -- here (including the next 30), with Sundays and the 13:00 lunch slot omitted.
-INSERT INTO `slots` (`DoctorID`,`SlotDateTime`,`Status`)
+INSERT INTO `slots` (`DoctorID`,`SlotDateTime`,`CreatedAt`,`Status`)
 WITH RECURSIVE days AS (
-  SELECT CURDATE() - INTERVAL 30 DAY AS d
-  UNION ALL SELECT d + INTERVAL 1 DAY FROM days WHERE d < CURDATE() + INTERVAL 29 DAY
+  SELECT DATE(@seed_now) - INTERVAL 30 DAY AS d
+  UNION ALL SELECT d + INTERVAL 1 DAY FROM days WHERE d < DATE(@seed_now) + INTERVAL 29 DAY
 ), times AS (
   SELECT '09:00:00' AS t UNION ALL SELECT '09:30:00' UNION ALL SELECT '10:00:00'
   UNION ALL SELECT '10:30:00' UNION ALL SELECT '11:00:00' UNION ALL SELECT '11:30:00'
@@ -39,17 +43,17 @@ WITH RECURSIVE days AS (
   UNION ALL SELECT '14:30:00' UNION ALL SELECT '15:00:00' UNION ALL SELECT '15:30:00'
   UNION ALL SELECT '16:00:00' UNION ALL SELECT '16:30:00'
 )
-SELECT d.DoctorID, TIMESTAMP(days.d, times.t), 'Available'
+SELECT d.DoctorID, TIMESTAMP(days.d, times.t), LEAST(@seed_now, TIMESTAMP(days.d, times.t) - INTERVAL 14 DAY), 'Available'
 FROM doctor d CROSS JOIN days CROSS JOIN times
 WHERE DAYOFWEEK(days.d) <> 1;
 
 -- Doctor 2's most recent completed clinic day is fully booked.
-SET @full_day = (SELECT MAX(DATE(SlotDateTime)) FROM slots WHERE DoctorID = 2 AND SlotDateTime < CURDATE());
+SET @full_day = (SELECT MAX(DATE(SlotDateTime)) FROM slots WHERE DoctorID = 2 AND SlotDateTime < DATE(@seed_now));
 CREATE TEMPORARY TABLE demo_full_day AS
 SELECT slotID, DoctorID, SlotDateTime FROM slots WHERE DoctorID = 2 AND DATE(SlotDateTime) = @full_day;
 
-INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`Status`,`Diagnosis`,`Prescription`,`Treatment`,`FollowUp`,`Remarks`)
-SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, 'Completed',
+INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`CreatedAt`,`Status`,`Diagnosis`,`Prescription`,`Treatment`,`FollowUp`,`Remarks`)
+SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, SlotDateTime - INTERVAL 7 DAY, 'Completed',
        'Routine review and health screening completed.', 'Continue current medicines as directed.',
        'Lifestyle counselling and follow-up measurements recorded.', 1, 'Patient attended the scheduled review.'
 FROM demo_full_day;
@@ -59,12 +63,12 @@ FROM demo_full_day;
 CREATE TEMPORARY TABLE demo_past AS
 SELECT s.slotID, s.DoctorID, s.SlotDateTime
 FROM slots s
-WHERE s.SlotDateTime < CURDATE() AND DATE(s.SlotDateTime) <> @full_day
+WHERE s.SlotDateTime < DATE(@seed_now) AND DATE(s.SlotDateTime) <> @full_day
 ORDER BY s.SlotDateTime DESC, s.DoctorID
 LIMIT 7;
 
-INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`Status`,`Diagnosis`,`Prescription`,`Treatment`,`FollowUp`,`Remarks`)
-SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime,
+INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`CreatedAt`,`Status`,`Diagnosis`,`Prescription`,`Treatment`,`FollowUp`,`Remarks`)
+SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, SlotDateTime - INTERVAL 7 DAY,
        CASE WHEN ROW_NUMBER() OVER (ORDER BY SlotDateTime DESC, slotID) <= 4 THEN 'Completed'
             WHEN ROW_NUMBER() OVER (ORDER BY SlotDateTime DESC, slotID) <= 6 THEN 'No show'
             ELSE 'Cancelled' END,
@@ -75,22 +79,35 @@ SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime,
        CASE WHEN ROW_NUMBER() OVER (ORDER BY SlotDateTime DESC, slotID) = 7 THEN 'Cancelled by patient.' ELSE NULL END
 FROM demo_past;
 
-SET @blocked_day = (SELECT MIN(DATE(SlotDateTime)) FROM slots WHERE DoctorID = 3 AND SlotDateTime >= CURDATE() + INTERVAL 2 DAY);
+SET @blocked_day = (SELECT MIN(DATE(SlotDateTime)) FROM slots WHERE DoctorID = 3 AND SlotDateTime >= DATE(@seed_now) + INTERVAL 2 DAY);
 UPDATE slots SET Status = 'Blocked' WHERE DoctorID = 3 AND DATE(SlotDateTime) = @blocked_day AND TIME(SlotDateTime) >= '14:00:00';
 
 CREATE TEMPORARY TABLE demo_future AS
 SELECT s.slotID, s.DoctorID, s.SlotDateTime
 FROM slots s
-WHERE s.SlotDateTime >= CURDATE() + INTERVAL 1 DAY
+WHERE s.SlotDateTime >= DATE(@seed_now) + INTERVAL 1 DAY
   AND s.Status = 'Available'
-  AND NOT (s.DoctorID = 1 AND DATE(s.SlotDateTime) = CURDATE() + INTERVAL 1 DAY AND TIME(s.SlotDateTime) = '10:30:00')
+  AND NOT (s.DoctorID = 1 AND DATE(s.SlotDateTime) = DATE(@seed_now) + INTERVAL 1 DAY AND TIME(s.SlotDateTime) = '10:30:00')
   AND NOT (s.DoctorID = 3 AND DATE(s.SlotDateTime) = @blocked_day AND TIME(s.SlotDateTime) >= '14:00:00')
 ORDER BY s.SlotDateTime, s.DoctorID
 LIMIT 4;
 
-INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`Status`,`FollowUp`,`Remarks`)
-SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, 'Future', 0, 'Booked online for an upcoming consultation.'
+INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`CreatedAt`,`Status`,`FollowUp`,`Remarks`)
+SELECT DoctorID, MOD(slotID - 1, 8) + 1, slotID, SlotDateTime, @seed_now - INTERVAL 7 DAY, 'Future', 0, 'Booked online for an upcoming consultation.'
 FROM demo_future;
+
+-- Two pending attendance examples owned by drsmith on the last clinic day.
+-- Reuse real slots and patients; Sundays and midnight resets remain safe.
+INSERT INTO `appointment` (`DoctorID`,`PatientID`,`slotID`,`appointmentDateTime`,`CreatedAt`,`Status`,`FollowUp`,`Remarks`)
+SELECT s.DoctorID, CASE TIME(s.SlotDateTime) WHEN '09:00:00' THEN 1 ELSE 2 END,
+       s.slotID, s.SlotDateTime, s.SlotDateTime - INTERVAL 7 DAY, 'Future', 0,
+       CONCAT(CHAR(30), 'clinic-remarks:1:',
+         CASE TIME(s.SlotDateTime)
+           WHEN '09:00:00' THEN '{"reason":"Review persistent cough.","doctor_remarks":"","legacy":null}'
+           ELSE '{"reason":"Review recurring headaches.","doctor_remarks":"","legacy":null}' END)
+FROM slots s JOIN doctor d ON d.DoctorID = s.DoctorID
+WHERE d.User = 'drsmith' AND DATE(s.SlotDateTime) = @full_day
+  AND TIME(s.SlotDateTime) IN ('09:00:00', '09:30:00');
 
 UPDATE slots s INNER JOIN appointment a ON a.slotID = s.slotID SET s.Status = 'Booked';
 
@@ -101,7 +118,7 @@ SELECT 'clinic@example.local', p.Email, 'Demo appointment notice',
        CONCAT('Sample log entry for ', p.FullName, '''s appointment with ', d.FullName,
               ' on ', DATE(a.appointmentDateTime), ' at ', TIME(a.appointmentDateTime),
               '. This fixture was not delivered.'),
-       a.appointmentID, 'logged', TIMESTAMP(CURDATE(), '08:00:00')
+       a.appointmentID, 'logged', @seed_now - INTERVAL 1 SECOND
 FROM `appointment` a
 JOIN `patient` p ON p.PatientID = a.PatientID
 JOIN `doctor` d ON d.DoctorID = a.DoctorID
@@ -114,7 +131,7 @@ SELECT 'clinic@example.local', d.Email, 'Demo appointment notice',
        CONCAT('Sample log entry for ', p.FullName, '''s appointment with ', d.FullName,
               ' on ', DATE(a.appointmentDateTime), ' at ', TIME(a.appointmentDateTime),
               '. This fixture was not delivered.'),
-       a.appointmentID, 'logged', TIMESTAMP(CURDATE(), '08:01:00')
+       a.appointmentID, 'logged', @seed_now
 FROM `appointment` a
 JOIN `patient` p ON p.PatientID = a.PatientID
 JOIN `doctor` d ON d.DoctorID = a.DoctorID

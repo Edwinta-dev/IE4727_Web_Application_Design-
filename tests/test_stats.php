@@ -22,7 +22,7 @@ assert_true($hours !== [], 'peak booking hours aggregation is populated');
 assert_true(array_key_exists('BookingHour', $hours[0]), 'peak hours include grouped hour');
 
 $seedLead = mean_booking_lead_time();
-assert_true($seedLead['valid'] > 0 && $seedLead['invalid'] > 0, 'seed has both future bookings and historical records with invalid booking times: ' . var_export($seedLead, true));
+assert_true($seedLead['valid'] > 0 && $seedLead['invalid'] === 0, 'seed booking times are chronological: ' . var_export($seedLead, true));
 assert_true($seedLead['mean_days'] !== null && $seedLead['mean_days'] >= 0, 'seed mean uses valid booking times only');
 
 // Isolate controlled clinic-local DATETIME samples from the rolling seed by date.

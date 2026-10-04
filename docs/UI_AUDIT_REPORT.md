@@ -156,3 +156,70 @@ server. No stylesheet/check relaxation was made. Screenshots remain ignored.
 Carry-over #114 remains partly fixed: Home and Appointments still target the
 same doctor/patient page with an anchor variation; current-tab logic marks Home.
 This issue does not change that navigation or claim all older findings fixed.
+
+## Issue #122 — outcome demo seed (4 October 2026)
+
+Finding: C15, new finding 3, cited UI_Defects.pdf p. 3 and pp. 14–15.
+The exact named export is absent from this checkout; the available
+`UIPROBLEMS/Open/clinicissues.pdf` and its rendered pages are an earlier audit.
+Those pages were inspected, and the local round-two supplemental evidence
+`UIPROBLEMS/story-audit-2/log-supp.json` explicitly records manually inserted
+past-due fixtures 33/34. No replacement PDF was invented or renamed.
+
+Actual base: clean `a0eeec2` (includes #120 isolation and #121 visit state),
+with no initial working-tree diff. Before reset had 25 appointments and no
+past-due pending attendance rows. The change touches the seed, seed/stats
+regressions, read-only UI fixture inspection, browser regression and docs.
+Doctor pages, outcome guards, #119/#121 visit edits and existing tests remain
+intact. The seed now has 27 appointments: 18 Completed, 2 No show, 1 Cancelled,
+4 future bookings and 2 past-due Future appointments. Counts are identical
+across two fresh resets; today's slot count is 3570, varying with Sundays.
+
+Role/database/time: `drsmith` / `Password123`, resolved `ie4727db_test`,
+one seed-local Asia/Singapore now (+08:00). Pending rows use the last clinic
+day before today, 09:00 Alex Tan and 09:30 Bethany Ong (3 October in this run).
+The date is derived from the fresh seed rather than hardcoded in tests.
+Slot creation precedes booking and booking precedes appointment start;
+all seed booking timestamps are chronological. Versioned patient reasons
+remain readable after attendance is recorded. No live reset or live cleanup
+was performed. Mutation browser children verify the resolved DB and owned
+8123 server, with PHP mail disabled; seeding only inserts logged notices.
+
+Commands/results:
+
+```text
+php tests/run.php test_seed_outcomes       PASS (two fresh resets, model outcomes)
+php tests/run.php test_seed                PASS
+php tests/run.php test_stats               PASS
+node tools/ui/isolation.test.mjs           PASS (7 checks)
+node tools/ui/outcome-seed.test.mjs         OK (two resets, authenticated, JS off)
+node tools/ui/shoot.mjs --serve --label outcome-seed-after doctor/home.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop doctor/home.php
+node tools/ui/shoot.mjs --serve --label outcome-seed-actionable-after doctor/home.php?date=<seed date>
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop doctor/home.php?date=<seed date>
+php tests/run.php                          79 passed, 0 failed
+```
+
+Both scoped audits print OK. Touched PHP lints, JS syntax and `git diff --check`
+pass. Browser tests record Completed and No show through real no-JS forms,
+verify exact enum and unchanged clinical/patient/slot data, and compare full
+appointment/slot/notification snapshots for rejected future and foreign POSTs
+for both outcomes. Attendance does not send mail or alter the outbox.
+An initial full-suite attempt overlapped a reset and failed during setup;
+the subsequent serial full run passed. Existing CLI session/header warnings
+remain; 77/78 checks in earlier reports are historical counts.
+
+Opened and inspected local ignored images at 1280x800 and 390x844:
+
+- `UIPROBLEMS/after/outcome-seed-before/doctor-home-{1280,390}.png`
+- `UIPROBLEMS/after/outcome-seed-after/doctor-home-{1280,390}.png`
+- `UIPROBLEMS/after/outcome-seed-actionable-after/doctor-home-{1280,390}.png`
+- `UIPROBLEMS/after/outcome-seed-outcomes/doctor-home-{1280,390}.png`
+
+The literal acceptance route defaults to today (Sunday, empty); the explicit
+seed-date route proves both actual pending rows and controls. Document-level
+horizontal overflow is 0px at both widths; the existing phone table scrolls
+horizontally to its actions. The populated main audit also passes layout,
+44px targets, palette, contrast, focus and slop without check/style changes.
+Carry-over #114 remains partly fixed as recorded above; no broader UI repair
+or automatic completion of historical Future appointments is claimed.
