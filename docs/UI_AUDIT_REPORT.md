@@ -223,3 +223,86 @@ horizontally to its actions. The populated main audit also passes layout,
 44px targets, palette, contrast, focus and slop without check/style changes.
 Carry-over #114 remains partly fixed as recorded above; no broader UI repair
 or automatic completion of historical Future appointments is claimed.
+
+
+## Issue #123 ? admin phone tables (4 October 2026)
+
+Finding: C16, new finding 4, cited UI_Defects.pdf pp. 3 and 15.
+The named round-two PDF is absent. Available older rendered pages 3/15 were
+opened; `UIPROBLEMS/story-audit-2/log-supp.json` records the original console
+measurement (390px viewport, 457px table, 465px document). No older PDF was
+renamed to impersonate the missing export.
+
+Actual base: clean `1d3ad69`, with #120 isolation and #122 seeded outcomes.
+Fresh authenticated reproduction reconciles the stale report: current account
+sections already scroll by pointer, and appointments have a scroll wrapper.
+At 390px their tables measured 739.23/734.67/672px, inside 358px sections
+at x=16, with a 390px document. However, none had a named/focusable region
+or visible scrolling guidance. This change wraps only the three console tables
+in labelled keyboard-accessible regions, moves scrolling off the account
+sections, retains 16px text and the existing destructive actions, and reuses
+the patient empty-state pattern. Empty tables have a full-span message without
+irrelevant column headings, and no scroll/tab stop. Populated columns remain
+visible through scrolling. No handlers, filters, schema or navigation changed.
+Existing doctor/visit.php, visit-state tests and prior report entries are intact.
+
+Role/database/time: real admin login (`admin` / `Password123`), resolved
+`ie4727db_test` verified by the existing #120 config and child-server guards.
+Browser mutation tests own port 8123 and disable PHP mail. Synthetic account
+fixtures reuse the guarded admin-flash fixture; slots/appointments are relative
+to Asia/Singapore NOW (+120/+121 days), rather than expired fixed dates.
+No production database writes, cleanup or reset occurred.
+
+Commands/results (run serially for final validation):
+
+```text
+node --test tools/ui/isolation.test.mjs    7 passed
+php -l clinic-base/admin/console.php       PASS
+node --check tools/ui/admin-tables.test.mjs PASS
+node tools/ui/admin-tables.test.mjs         OK
+node tools/ui/admin-flash.test.mjs          OK (includes no-JS deletion)
+node tools/ui/shoot.mjs --serve --label admin-phone-before admin/console.php
+node tools/ui/shoot.mjs --serve --label admin-phone-after admin/console.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop admin/console.php
+php tests/run.php                          79 passed, 0 failed
+```
+
+Both screenshot commands completed; the final scoped audit printed OK.
+PHP/JS syntax and `git diff --check` passed.
+
+The new browser regression exercises ArrowRight scrolling, real emulated touch
+swipes (CDP touch start/move/end), Tab to Delete, focus rings and 44px actions.
+It checks filtered Future rows and empty doctor-filter results at both widths,
+invalid CSRF (419, unchanged rows), dismissed confirmations (unchanged accounts
+and dependents), accepted doctor/patient deletion, cascades, retained notification
+rows, PRG and one-time flashes. Native scrolling requires no new application JS.
+Initial attempts with CDP synthesized scroll gestures did not move the viewport;
+the final test uses dispatched touch events in a mobile Chromium context.
+
+Final synthetic-data bounds, Patients / Doctors / Appointments:
+
+| Viewport | Region x / width | Table widths | Document width |
+|---|---|---|---|
+| 390 | 16 / 358 | 974.27 / 1012.77 / 672 | 390 |
+| 1280 | 128 / 1024 | 1024 / 1024 / 1024 | 1280 |
+
+After keyboard and touch scrolling, rightmost cell bounds were respectively
+x=188.84..374.27, 188.34..373.77, and 250.19..374 (subpixel tolerance <1px).
+Delete controls are fully inside those cells, with existing red styling and
+visible focus. Empty region scrollWidth equals clientWidth: 358 at phone and
+1024 at desktop; colspan equals the table's 5/5/4 columns.
+Random fixture suffixes can slightly change populated intrinsic widths.
+Exact measurements are saved in ignored `admin-phone-after/measurements.json`.
+
+Opened/inspected evidence under gitignored `UIPROBLEMS/after/`:
+
+- `admin-phone-before/admin-console-{1280,390}.png`
+- `admin-phone-after/admin-console-{1280,390}.png`
+- `admin-phone-after/{patients,doctors,appointments}-rightmost-390.png`
+- `admin-phone-after/admin-empty-{1280,390}.png`
+- `admin-phone-after/admin-filtered-{1280,390}.png`
+
+Missing round-two PDF is an evidence limitation, not an unverified UI repair.
+Carry-over #114 remains partly fixed as recorded above; this task does not
+claim older findings are all resolved. Existing CLI session/header warnings
+are outside this issue's table changes.
