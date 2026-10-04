@@ -63,7 +63,7 @@ if ($patient === null) {
     redirect('/doctor/home.php');
 }
 
-$history = patient_history((int) $appointment['PatientID'], $doctorId);
+$history = patient_history((int) $appointment['PatientID'], $doctorId, $appointmentId);
 $allergies = is_array($patient['Allergies'] ?? null) ? $patient['Allergies'] : [];
 $visitState = visit_notes_state($appointment, $doctorId);
 $visitEligible = $visitState === 'editable';

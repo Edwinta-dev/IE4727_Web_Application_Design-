@@ -73,7 +73,7 @@ function find_appointment(int $id): ?array
 }
 
 /** @return list<array<string, mixed>> */
-function patient_history(int $patientId, ?int $doctorId = null): array
+function patient_history(int $patientId, ?int $doctorId = null, ?int $currentAppointmentId = null): array
 {
     $where = [
         'a.`PatientID` = :patient_id',
@@ -83,6 +83,18 @@ function patient_history(int $patientId, ?int $doctorId = null): array
     if ($doctorId !== null) {
         $where[] = 'a.`DoctorID` = :doctor_id';
         $params['doctor_id'] = $doctorId;
+    }
+    if ($currentAppointmentId !== null) {
+        $where[] = 'a.`appointmentID` <> :current_appointment_id';
+        // Anchor history to this encounter, including its ownership, rather than now.
+        $where[] = 'a.`appointmentDateTime` < (
+            SELECT current_visit.`appointmentDateTime` FROM `appointment` current_visit
+            WHERE current_visit.`appointmentID` = :viewed_appointment_id
+              AND current_visit.`PatientID` = a.`PatientID`
+              AND current_visit.`DoctorID` = a.`DoctorID`
+        )';
+        $params['current_appointment_id'] = $currentAppointmentId;
+        $params['viewed_appointment_id'] = $currentAppointmentId;
     }
 
     return q_all(

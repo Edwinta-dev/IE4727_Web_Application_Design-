@@ -373,3 +373,83 @@ above; no broader repair is claimed.
 Final full suite: `php tests/run.php` reports 79 passed, 0 failed. Existing CLI
 session/header warnings remain. All four touched/new PHP files lint; the new
 browser script passes syntax checking and `git diff --check` passes.
+
+## Issue #125 — History relative to the viewed encounter (4 October 2026)
+
+Reported source: UI_Defects.pdf pp. 4 and 14, C14, new finding 6. That PDF is
+not present in this checkout, so it could not be copied to `UIPROBLEMS/Open/`.
+The available `pdf-page-4.png` and `pdf-page-14.png` were opened and show an
+older report with different findings. Fresh reproduction below is the evidence
+for this repair; no claim is made that the missing PDF was inspected.
+
+Actual base: `7493ea2`, active `automation/ie4727-clinic`, initially clean.
+Existing visit-state protections, reason/doctor-remarks separation, markup and
+`tools/ui/visit-state.test.mjs` are preserved. The page now passes the current
+appointment ID to the existing history model. Its parameterized query excludes
+that ID and requires a strictly earlier appointment datetime, with the anchor
+matching the patient and doctor. Completed-only status and newest-first order
+are retained; missing or foreign anchors return no history.
+
+The shared regression fixture creates randomly suffixed doctor/patient accounts
+and dynamic appointment IDs in a verified `ie4727db_test` connection. One
+Asia/Singapore reference instant supplies relative encounter dates. It includes
+two earlier completed visits, a current editable visit, simultaneous and later
+completed visits (both before wall-clock now), foreign patient/doctor visits,
+and excluded statuses. Cleanup targets only the exact synthetic accounts.
+Browser mutations use `withTestServer()` and `testPhp()`, verify the child
+database header and run with mail disabled. No live data is reset or written.
+
+`node tools/ui/visit-history.test.mjs --baseline` temporarily used the HEAD
+history model, restored in `finally`, with the new page's optional argument
+ignored by that original PHP function. It printed OK: four records before
+saving and five after save/refresh, including the current saved notes once,
+plus later and simultaneous encounters. With the fix,
+`node tools/ui/visit-history.test.mjs` printed OK: exactly two earlier records
+before save, after save and refresh; all current fields remain in the form;
+patient notes retain diagnosis, treatment, prescription, follow-up, reason and
+doctor remarks. The first encounter has zero history and the existing honest
+empty state. Foreign doctor GET/POST return 404; foreign patient notes are
+absent; a patient request to the doctor route is redirected by its guard.
+
+Opened/inspected ignored captures at both 1280x800 and 390x844:
+
+- `UIPROBLEMS/after/visit-history-before/saved-refresh-{1280,390}.png`
+- `UIPROBLEMS/after/visit-history-flow-after/saved-refresh-{1280,390}.png`
+- `UIPROBLEMS/after/visit-history-flow-after/empty-{1280,390}.png`
+- `UIPROBLEMS/after/visit-history-after/doctor-visit-{1280,390}.png`
+- `UIPROBLEMS/after/visit-history-current-after/doctor-visit-{1280,390}.png`
+
+The saved current notes no longer repeat in the history section. Desktop keeps
+its two columns; mobile keeps all visit fields visible. The flow measurements
+in `visit-history-flow-after/measurements.json` report 0px horizontal overflow
+at both widths for before-save, saved-refresh and empty states; history counts
+are respectively 2, 2 and 0. Carry-over #114 remains separately recorded as
+partly fixed; this issue makes no navigation repair claim.
+
+Validation completed serially against the test database:
+
+```text
+php tests/run.php test_visit_history
+node tools/ui/visit-history.test.mjs --baseline
+node tools/ui/visit-history.test.mjs
+php tests/run.php
+node tools/ui/visit-state.test.mjs
+node tools/ui/shoot.mjs --serve --label visit-history-after doctor/visit.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop doctor/visit.php
+node tools/ui/shoot.mjs --serve --label visit-history-current-after doctor/visit.php?appt=<dynamic-current-id>
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop doctor/visit.php?appt=<dynamic-current-id> doctor/visit.php?appt=<dynamic-earliest-id>
+```
+
+The full suite reports 80 passed, 0 failed, with the pre-existing CLI
+session/header warnings. The existing visit-state browser test prints OK for
+the future/past status matrix, foreign GET/POST, rejected-save non-mutation
+and all-field historical saves. Both scoped audits print OK. All six
+touched/new PHP files lint; browser syntax and `git diff --check` pass.
+The bare-route acceptance tools authenticate a newly seeded synthetic doctor
+and select its upcoming encounter; the additional explicit dynamic routes
+audit the edited historical encounter and first-visit empty state. These
+read-only tools inherit `CLINIC_DB_NAME=ie4727db_test`; successful synthetic
+login also confirms they read the accounts created only in the verified test
+database. Save/refresh evidence uses the independently guarded HTTP child
+described above. The acceptance fixture's exact accounts were removed using
+the guarded CLI workflow after screenshots/audits.
