@@ -1,5 +1,14 @@
 # UI screenshots and geometry audit
 
+For the iteration-5 screenshot gate (#155), run
+`node tools/ui/iter5-gate.test.mjs`, then `php tests/run.php`, serially.
+The runner requires the original local evidence in `UIPROBLEMS/Open/iter5/`,
+re-shoots all 21 PNGs and the JPG against the guarded test server, and writes
+paired comparisons, hover measurements and a 3/7/12 database matrix to
+`UIPROBLEMS/after/iter5/`. The JPG requires installed Google Chrome; other
+captures use Playwright Chromium. Both run headless. See
+`docs/UI_ITERATION5_GATE.md` for verdicts, evidence paths and capture differences.
+
 For booking URLs (#144), run `node tools/ui/booking-urls.test.mjs` as the
 acceptance command, then `php tests/run.php test_issue144` and
 `php tests/run.php`. The browser test uses only `ie4727db_test`, disables mail,

@@ -77,7 +77,12 @@ try {
                             if (js && width === 390 && count === 3) {
                                 await login(page, 'patient', base);
                                 await page.getByRole('button', { name: 'Menu' }).click();
-                                assert.ok(await page.getByRole('link', { name: 'Book an appointment', exact: true }).isVisible());
+                                // #151 also offers a booking action in the empty state.
+                                // This check is specifically the opened phone menu.
+                                const bookingLink = page.getByRole('navigation', { name: 'Main navigation' })
+                                    .getByRole('link', { name: 'Book an appointment', exact: true });
+                                assert.equal(await bookingLink.count(), 1);
+                                assert.ok(await bookingLink.isVisible());
                             }
                         } finally { await page.close(); }
                     }

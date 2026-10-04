@@ -38,7 +38,9 @@ try {
               record.counts = counts;
             }
             if (path === 'admin/outbox.php') {
-              const subjects = await page.locator('tbody td:nth-child(3)').allTextContents();
+              // #150 puts the complete body inside the subject cell. Assert
+              // the displayed subject, while retaining the full-message check.
+              const subjects = await page.locator('tbody .notification-details summary').allTextContents();
               assert.ok(subjects.length > 0 && subjects.every(subject => subject === 'Booking confirmed'));
               assert.equal(await page.locator('table').getAttribute('aria-labelledby'), 'outbox-list-heading');
               assert.equal(await page.locator('caption, .outbox-scroll-hint').count(), 0);
