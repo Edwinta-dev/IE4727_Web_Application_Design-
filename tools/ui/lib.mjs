@@ -13,6 +13,46 @@ export const appBaseFor = (app='clinic-base') => {
   if (!['clinic-base','clinic-plus'].includes(app)) throw Error(`Unknown app ${app}`);
   return `http://127.0.0.1:8123/${app}/`;
 };
+const assetPages = new WeakSet();
+async function waitForPageAssets(page) {
+  await page.evaluate(async () => {
+    for (const image of document.images) image.loading = 'eager';
+    await Promise.all(Array.from(document.images, image => image.decode()));
+  });
+  await page.waitForLoadState('load');
+}
+export async function prepareStaticAssets(page, base=appBase) {
+  if (assetPages.has(page)) return;
+  // Observed local static transfers can reset or stop mid-response.
+  // Fetch the same real bytes from the same server; only reset/interrupted
+  // asset GET transfers receive bounded retries. HTTP errors, bad images and mutations are
+  // never replaced with fixtures or a success response.
+  let pending = Promise.resolve();
+  await page.route(new URL('assets/', base).href + '**', async route => {
+    if (route.request().method() !== 'GET') return route.continue();
+    const transfer = pending.then(async () => {
+      for (let attempt = 0; ; attempt++) {
+        try { return await route.fetch({ maxRetries: 0 }); }
+        catch (error) {
+          // A reset after HTTP headers is reported as an aborted body by
+          // Playwright, rather than ECONNRESET. Still require a complete real
+          // response within three attempts; never retry an HTTP error status.
+          if (attempt >= 2 || !/ECONNRESET|socket hang up|aborted/.test(error.message)) throw error;
+        }
+      }
+    });
+    pending = transfer.catch(() => {});
+    try {
+      const response = await transfer;
+      if (!page.isClosed()) await route.fulfill({ response });
+    } catch (error) {
+      // A page may close while a lazy asset is still queued. Its disposed
+      // request context is teardown, not a failed asset on an active page.
+      if (!page.isClosed()) throw error;
+    }
+  });
+  assetPages.add(page);
+}
 function childEnvironment() {
   // Windows environment names are case-insensitive, while Node's env object
   // can contain duplicate spellings (for example WS_PROXY and ws_proxy).
@@ -45,6 +85,11 @@ export async function withTestServer(enabled, callback, app='clinic-base') {
   return withServer(enabled, callback, app, { env, mutation: true });
 }
 export async function withServer(enabled, callback, app='clinic-base', isolation={}) {
+  // The all-page capture/audit commands need the same resolved-DB evidence as
+  // mutation regressions when explicitly run against the isolated test copy.
+  if (enabled && !isolation.mutation && process.env.CLINIC_DB_NAME === 'ie4727db_test') {
+    isolation = { env: verifyTestConfig(), mutation: true };
+  }
   const base=appBaseFor(app);
   let child, sessionDir;
   const token = randomUUID();
@@ -66,7 +111,8 @@ if (!is_file(${JSON.stringify(join(root,app,'config.local.php'))})) {
 }
 `);
       const iniPath = (path) => path.replaceAll('\\', '/');
-      child=spawn('php',[...(isolation.mutation ? ['-d','disable_functions=mail'] : []),'-d',`session.save_path=${iniPath(sessionDir)}`,'-d',`auto_prepend_file=${iniPath(adminBootstrap)}`,'-S','127.0.0.1:8123','-t',root],{cwd:root,stdio:'ignore',windowsHide:true,env:isolation.env || childEnvironment()});
+      child=spawn('php',[...(isolation.mutation ? ['-d','disable_functions=mail'] : []),'-d',`session.save_path=${iniPath(sessionDir)}`,'-d',`auto_prepend_file=${iniPath(adminBootstrap)}`,'-S','127.0.0.1:8123','-t',root],{cwd:root,stdio:['ignore','ignore','pipe'],windowsHide:true,env:isolation.env || childEnvironment()});
+      child.stderr.on('data', data => { if (process.env.UI_SERVER_DIAGNOSTICS === '1') process.stderr.write(data); });
       let ready=false;
       for(let n=0;n<80;n++){try{const r=await fetch(base+'index.php');const body=await r.text();if(child.exitCode===null && r.headers.get('X-UI-Run')===token && (!isolation.mutation || r.headers.get('X-UI-Database')==='ie4727db_test') && r.status===200&&!/Fatal error|Failed opening required/.test(body)){ready=true;break;}}catch{} if(child.exitCode!==null)break;await delay(250);}
       if(!ready)throw Error(`PHP server did not serve /${app}/index.php with HTTP 200.`);
@@ -81,12 +127,15 @@ if (!is_file(${JSON.stringify(join(root,app,'config.local.php'))})) {
   }
 }
 export async function login(page, role, base=appBase) {
+  await prepareStaticAssets(page, base);
   const user=process.env[`UI_${role.toUpperCase()}`] || ({patient:'alextan',doctor:'drsmith',admin:'admin'})[role];
   const pass=process.env.UI_PASSWORD || 'Password123';
-  await page.goto(base+'index.php',{waitUntil:'networkidle'});
+  await page.goto(base+'index.php',{waitUntil:'domcontentloaded'});
+  await waitForPageAssets(page);
   await page.locator('input[name="username_or_email"]').fill(user);
   await page.locator('input[name="password"]').fill(pass);
-  await Promise.all([page.waitForNavigation({waitUntil:'networkidle'}),page.locator('form button[type="submit"]').click()]);
+  await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('form button[type="submit"]').click()]);
+  await waitForPageAssets(page);
   const body=await page.locator('body').innerText();
   const expected={patient:'/patient/home.php',doctor:'/doctor/home.php',admin:'/admin/console.php'}[role];
   if(body.match(/Session expired|could not sign you in|form could not be verified/i)||page.url().includes('/actions/login.php')||!page.url().includes(expected))throw Error(`Login failed for ${role} role (${user}); protected pages skipped: ${body.match(/Session expired|could not sign you in|form could not be verified/i)?.[0]||'expected role home did not open'}.`);
@@ -107,4 +156,4 @@ export async function prepare(page,path,base=appBase) {
   return base+path.replace(/^\//,'');
 }
 export const allPages=pages;
-export async function visit(page,path,base=appBase){const url=await prepare(page,path,base);await page.goto(url,{waitUntil:'networkidle'});return url;}
+export async function visit(page,path,base=appBase){await prepareStaticAssets(page,base);const url=await prepare(page,path,base);await page.goto(url,{waitUntil:'domcontentloaded'});await waitForPageAssets(page);return url;}
