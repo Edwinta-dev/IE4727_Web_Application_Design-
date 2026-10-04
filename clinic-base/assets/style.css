@@ -160,6 +160,21 @@ main,
     min-width: 0;
 }
 
+.site-header .nav-toggle[hidden],
+.site-nav[hidden] {
+    display: none;
+}
+
+.site-header .nav-toggle {
+    flex: 0 0 auto;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid currentColor;
+    color: #fff;
+    background: transparent;
+}
+
 .clinic-logo {
     display: flex;
     flex: 0 0 auto;
@@ -271,13 +286,17 @@ main,
 
 @media (max-width: 42rem) {
     .site-header-inner {
-        justify-content: center;
+        justify-content: space-between;
         padding-block: 0.35rem;
     }
 
     .clinic-logo {
-        width: 100%;
-        justify-content: center;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .site-header .clinic-logo img {
+        flex-shrink: 0;
     }
 
     .site-nav {
@@ -286,7 +305,14 @@ main,
     }
 
     .site-nav ul {
-        justify-content: center;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        padding-bottom: var(--space-2);
+    }
+
+    .site-nav a {
+        display: block;
     }
 
     .site-nav .nav-logout {

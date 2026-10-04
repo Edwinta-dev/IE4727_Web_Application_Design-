@@ -65,7 +65,8 @@ $links = match ($navigationRole) {
     ],
 };
 ?>
-<nav class="site-nav" aria-label="Main navigation">
+<button class="nav-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" hidden>Menu</button>
+<nav id="site-navigation" class="site-nav" aria-label="Main navigation">
     <ul>
 <?php foreach ($links as $link): ?>
         <li<?php if ($link['label'] === 'Log out'): ?> class="nav-logout"<?php endif; ?>>
@@ -76,3 +77,4 @@ $links = match ($navigationRole) {
 </nav>
 </div>
 </header>
+<script src="<?= e(url('/assets/nav.js')) ?>"></script>
