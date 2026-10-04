@@ -6,13 +6,12 @@ declare(strict_types=1);
 //
 //   php tools/db_reset.php               isolated test database (default)
 //   php tools/db_reset.php --test        same, explicit
-//   php tools/db_reset.php --production  the application database (ie4727db):
-//                                        DESTROYS its data; only when intended
+// Live resets are deliberately unsupported by this unattended entry point.
 //
 // Credentials come from clinic-base/config.php (and config.local.php).
 $mode = $argv[1] ?? '--test';
-if (!in_array($mode, ['--test', '--production'], true)) {
-    fwrite(STDERR, "Usage: php tools/db_reset.php [--test|--production]\n");
+if (!in_array($mode, ['--test'], true) || count($argv) > 2) {
+    fwrite(STDERR, "Refusing reset: only ie4727db_test is supported. Usage: php tools/db_reset.php [--test]\n");
     exit(2);
 }
 
@@ -20,18 +19,18 @@ if ($mode === '--test') {
     // The suite runner sets CLINIC_DB_NAME to the test database; this default
     // matches it so a bare reset never touches the application database.
     $name = getenv('CLINIC_DB_NAME') ?: 'ie4727db_test';
+    if ($name !== 'ie4727db_test') {
+        fwrite(STDERR, "Refusing reset: only ie4727db_test is supported.\n");
+        exit(1);
+    }
     putenv('CLINIC_DB_NAME=' . $name);
 }
 
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'config.php';
 
 $name = DB_NAME;
-if ($mode === '--test' && !str_ends_with($name, '_test')) {
-    fwrite(STDERR, "Refusing to reset database '{$name}' in test mode: its name must end in '_test'.\n");
-    exit(1);
-}
-if ($mode === '--production' && str_ends_with($name, '_test')) {
-    fwrite(STDERR, "Refusing --production: '{$name}' is a test database (unset CLINIC_DB_NAME).\n");
+if ($name !== 'ie4727db_test') {
+    fwrite(STDERR, "Refusing reset: only ie4727db_test is supported.\n");
     exit(1);
 }
 

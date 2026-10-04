@@ -28,6 +28,6 @@ if (DIRECTORY_SEPARATOR === '/') {
     $command = 'CLINIC_DB_NAME=ie4727db ' . escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/tools/db_reset.php') . ' --test 2>&1';
 }
 exec($command, $refused, $status);
-assert_true($status !== 0 && str_contains(implode("\n", $refused), "must end in '_test'"), 'db_reset --test refuses ie4727db');
+assert_true($status !== 0 && str_contains(implode("\n", $refused), 'only ie4727db_test'), 'db_reset --test refuses ie4727db');
 
 echo "PASS: test database isolation\n";
