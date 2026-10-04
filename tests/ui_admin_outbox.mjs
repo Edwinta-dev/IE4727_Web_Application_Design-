@@ -78,9 +78,9 @@ try {
         const expected = JSON.parse(php("require 'clinic-base/models/notifications.php'; echo json_encode(outbox_notifications());"));
         const ordered = [...expected].sort((a, b) => b.SentAt.localeCompare(a.SentAt) || Number(b.notificationID) - Number(a.notificationID));
         assert.deepEqual(expected.map(row => row.notificationID), ordered.map(row => row.notificationID), 'timestamp/id descending');
-        assert.deepEqual(await page.locator('tbody tr td:nth-child(1)').allTextContents(), expected.map(row => row.SentAt), 'newest first');
-        assert.deepEqual(await page.locator('tbody tr td:nth-child(3)').allTextContents(), ordered.map(row => row.Subject), 'subject ordering');
-        const detail = page.locator('tr').filter({ has: page.getByRole('cell', { name: 'Issue 142 message 1', exact: true }) }).locator('details');
+        assert.deepEqual(await page.locator('tbody time').evaluateAll(times => times.map(time => time.getAttribute('datetime'))), expected.map(row => row.SentAt), 'newest first with full machine-readable timestamps');
+        assert.deepEqual(await page.locator('tbody summary').allTextContents(), ordered.map(row => row.Subject), 'subject ordering');
+        const detail = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Issue 142 message 1$/ }) });
         await detail.locator('summary').click();
         assert.equal(await detail.getAttribute('open'), '');
         assert.equal(await detail.locator('.notification-body').innerText(), 'First line\n<script>unsafe</script>');

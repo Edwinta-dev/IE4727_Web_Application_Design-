@@ -88,7 +88,6 @@
 .day-schedule td, .patient-history td, .admin-console td, .admin-outbox td { border-bottom: 1px solid var(--c-line); }
 .day-board td:first-child, .day-board td:nth-child(4), .day-board td:last-child,
 .appointment-table td:first-child, .appointment-table td:last-child,
-.outbox-list td:first-child, .outbox-list td:nth-child(4), .outbox-list td:last-child,
 .admin-console form button { white-space: nowrap; }
 .day-board td:last-child { min-width: 14rem; }
 .day-board td:last-child form { display: inline; }
@@ -125,17 +124,17 @@
 .admin-console .table-scroll { overflow-x: auto; }
 .admin-console table { min-width: 42rem; }
 .admin-console td form { display: block; }
-.outbox-list { overflow-x: auto; }
-.outbox-scroll-hint { color: var(--c-muted); margin: 0 0 var(--space-2); }
-.admin-outbox table { min-width: 48rem; }
+.outbox-table-scroll { max-width: 100%; overflow-x: auto; }
+.outbox-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
+.outbox-delivery-legend { color: var(--c-muted); margin: 0 0 var(--space-2); }
 .staff-table-scroll { overflow-x: auto; }
 .day-board { min-width: 58rem; table-layout: auto; }
 .console-filters { display: flex; flex-wrap: wrap; }
 .console-filters h2 { flex: 0 0 auto; }
 .console-filters form { flex: 1 1 40rem; }
-.outbox-filters form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
-.outbox-filters form label { flex: 0 0 auto; }
-.outbox-filters select { min-width: 12rem; }
+.outbox-filters form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.outbox-filters form label { flex: 0 0 auto; margin: 0; }
+.outbox-filters select { width: 12rem; max-width: 100%; }
 /* Keep headings outside the named table scroll regions. */
 .admin-console .console-section { min-width: 0; }
 .admin-console .table-scroll-hint { display: block; margin: 0 0 var(--space-2); color: var(--c-muted); }
@@ -160,7 +159,9 @@
 .day-schedule table th, .day-schedule table td,
 .admin-console table th, .admin-console table td { white-space: nowrap; }
 .day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
-.admin-outbox .notification-details summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; }
+.admin-outbox .notification-details summary { min-height: 2.75rem; cursor: pointer; color: var(--c-primary-dark); }
+.admin-outbox .notification-details summary:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: 0.1rem; }
+.admin-outbox .notification-body { margin-block: var(--space-2); overflow-wrap: anywhere; }
 
 .patient-notification { border-top: 1px solid var(--c-line); padding: var(--space-3) 0; }
 .patient-notification summary { cursor: pointer; min-height: 2.75rem; overflow-wrap: anywhere; }
@@ -170,9 +171,14 @@
 @media (max-width: 42rem) {
     .patient-notification time { display: block; margin-left: 0; }
 }
-.admin-outbox table { width: max-content; min-width: 100%; }
-.admin-outbox th, .admin-outbox td { line-height: 1.95; padding-block: 0; }
-.admin-outbox th, .admin-outbox td:nth-child(-n+4) { white-space: nowrap; }
+.admin-outbox table { width: 100%; min-width: 44rem; table-layout: fixed; }
+.admin-outbox th, .admin-outbox td { line-height: 1.5; padding: var(--space-2); white-space: normal; overflow-wrap: anywhere; }
+.outbox-date-column { width: 16%; }
+.outbox-recipient-column { width: 27%; }
+.outbox-subject-column { width: 43%; }
+.outbox-status-column { width: 14%; }
+.admin-outbox time span { display: block; }
+.admin-outbox .status-label { color: var(--c-muted); font-weight: 400; }
 
 @media (max-width: 56rem) {
     .schedule-month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }

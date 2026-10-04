@@ -45,36 +45,45 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="outbox-list" aria-labelledby="outbox-list-heading">
         <h2 id="outbox-list-heading">Message log</h2>
+        <?php if (MAIL_DELIVERY === 'off'): ?>
+            <p class="outbox-delivery-legend">Logged - local mail delivery not configured</p>
+        <?php endif; ?>
         <?php if ($notifications === []): ?>
             <p class="empty-state">No messages match this filter.</p>
         <?php else: ?>
-        <table aria-labelledby="outbox-list-heading">
+        <div class="outbox-table-scroll" role="region" aria-label="Message log table" tabindex="0">
+            <table aria-labelledby="outbox-list-heading">
+                <colgroup>
+                    <col class="outbox-date-column">
+                    <col class="outbox-recipient-column">
+                    <col class="outbox-subject-column">
+                    <col class="outbox-status-column">
+                </colgroup>
                 <thead>
                     <tr>
                         <th scope="col">Sent at</th>
                         <th scope="col">Recipient</th>
                         <th scope="col">Subject</th>
                         <th scope="col">Delivery status</th>
-                        <th scope="col">Message</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($notifications as $notification): ?>
                         <tr>
-                            <td class="nowrap"><?= e($notification['SentAt']) ?></td>
+                            <td><time datetime="<?= e($notification['SentAt']) ?>"><span><?= e(date('d M Y', strtotime($notification['SentAt']))) ?></span><span><?= e(date('H:i', strtotime($notification['SentAt']))) ?></span></time></td>
                             <td><?= e($notification['recipient']) ?></td>
-                            <td><?= e(preg_replace('/ - Clinic Appointment Portal$/', '', (string) $notification['Subject'])) ?></td>
-                            <td class="nowrap"><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
                             <td>
                                 <details class="notification-details">
-                                    <summary>View full message</summary>
+                                    <summary><?= e(preg_replace('/ - Clinic Appointment Portal$/', '', (string) $notification['Subject'])) ?></summary>
                                     <div class="notification-body"><?= nl2br(e($notification['Body']), false) ?></div>
                                 </details>
                             </td>
+                            <td><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
         <?php endif; ?>
     </section>
 </main>
