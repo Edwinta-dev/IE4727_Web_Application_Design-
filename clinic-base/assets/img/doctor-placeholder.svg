@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 550">
+  <title>Portrait unavailable</title>
+  <rect width="440" height="550" fill="#f1ece3"/>
+  <circle cx="220" cy="205" r="72" fill="#ded6ca"/>
+  <path d="M70 455v-35a150 150 0 0 1 300 0v35z" fill="#ded6ca"/>
+</svg>

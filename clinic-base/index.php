@@ -86,10 +86,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php else: ?>
 <?php foreach ($doctors as $doctor):
     $image = trim((string) ($doctor['ImageURL'] ?? ''));
-    $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
+    $imageAlt = ($image === '' ? 'Portrait unavailable for ' : 'Portrait of ') . (string) $doctor['FullName'];
+    $image = $image === '' ? '/assets/img/doctor-placeholder.svg' : '/' . ltrim($image, '/');
 ?>
             <a class="doctor-tile" href="<?= e(url('/doctor.php?id=' . (int) $doctor['DoctorID'])) ?>">
-                <img src="<?= e(url($image)) ?>" alt="Portrait of <?= e((string) $doctor['FullName']) ?>" width="440" height="550" loading="eager">
+                <img src="<?= e(url($image)) ?>" alt="<?= e($imageAlt) ?>" width="440" height="550" loading="eager">
                 <h3><?= e((string) $doctor['FullName']) ?></h3>
 <?php if (trim((string) ($doctor['Specialty'] ?? '')) !== ''): ?>
                 <p class="doctor-specialty"><?= e((string) $doctor['Specialty']) ?></p>

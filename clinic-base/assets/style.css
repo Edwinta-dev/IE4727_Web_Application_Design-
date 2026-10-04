@@ -838,7 +838,8 @@ input[type="button"]:active {
     display: block;
     width: 100%;
     max-width: 176px;
-    height: 220px;
+    height: auto;
+    flex-shrink: 0;
     margin-inline: auto;
     aspect-ratio: 4 / 5;
     border-radius: var(--radius-control);
