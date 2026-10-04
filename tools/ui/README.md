@@ -48,3 +48,43 @@ matches nothing is a failure, not a pass. The final gate always runs without
 Open captured PNGs at both viewport widths and compare with the owner references
 in `UIPROBLEMS/` before declaring a visual task complete. Screenshots are
 gitignored evidence and must not be committed.
+
+## Isolated browser regressions (#120)
+
+Run from the repository root, one command at a time (all use port 8123):
+
+```text
+node --test tools/ui/isolation.test.mjs
+php tests/run.php
+node tests/ui_register.mjs
+node tools/ui/booking-dates.test.mjs
+node tools/ui/schedule-horizon.test.mjs
+node tools/ui/admin-flash.test.mjs
+node tools/ui/get-csrf.test.mjs
+```
+
+Each executable browser test explicitly selects `ie4727db_test` before launching
+PHP. Mutation tests use `withTestServer()` and `testPhp()`: these reject missing,
+production and unexpected database names, load the effective local PHP config
+without connecting, then guard the child again before any database include.
+Do not replace them with an unguarded PHP spawn or `withServer()`.
+`UI_BASE_URL` and reuse of an existing server are forbidden for these tests.
+A per-run response token and resolved database header identify the owned server;
+an occupied port fails rather than accepting a stale/live server. Mail is disabled
+in both CLI fixtures and the HTTP child; notifications still log before attempted
+delivery. Ordinary site configuration is unchanged.
+
+Booking, schedule and admin tests rebuild **only** `ie4727db_test` and print
+its seeded fixture counts. Registration does not reset: it verifies the database
+identity and counts its exact randomly suffixed usernames before/after the three
+registrations, then deletes only those usernames in `finally`, including failures.
+It prints no passwords and leaves no synthetic registration profiles behind.
+Its authenticated desktop/mobile captures are in gitignored
+`UIPROBLEMS/after/issue120-before/` and `issue120-after/`.
+Never run these regressions concurrently or with the PHP suite because the three
+resetting tests share the isolated database. Refusal regressions use launcher
+stubs, config-only PHP processes and a stub HTTP server; they never open a DB.
+
+Historical contamination and the audited baseline are recorded in
+[UI_TEST_ISOLATION.md](../../docs/UI_TEST_ISOLATION.md). Live cleanup is a separate
+owner-reviewed task; these commands do not delete or reset `ie4727db`.

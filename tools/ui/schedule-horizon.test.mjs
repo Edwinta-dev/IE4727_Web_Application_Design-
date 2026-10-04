@@ -1,20 +1,20 @@
 import { chromium } from 'playwright';
-import { execFileSync } from 'node:child_process';
+import { testPhp } from './isolation.mjs';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { withServer, login, appBase } from './lib.mjs';
+import { withTestServer, login, appBase } from './lib.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
-const php = (code, ...args) => execFileSync('php', ['-r', `require 'clinic-base/lib/db.php'; ${code}`, ...args], { cwd: root, env: process.env, encoding: 'utf8' }).trim();
+const php = (code, ...args) => testPhp(['-r', `require 'clinic-base/lib/db.php'; ${code}`, ...args], { cwd: root, env: process.env, encoding: 'utf8' }).trim();
 const check = (condition, message) => { if (!condition) throw Error(message); };
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const day = offset => { const date = new Date(`${today}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + offset); return date.toISOString().slice(0, 10); };
 const count = date => Number(php('echo q_val("SELECT COUNT(*) FROM `slots` WHERE `DoctorID` = (SELECT `DoctorID` FROM `doctor` WHERE `User` = :user) AND DATE(`SlotDateTime`) = :date", ["user" => "drsmith", "date" => $argv[1]]);', date));
 const notifications = () => Number(php('echo q_val("SELECT COUNT(*) FROM `notifications`");'));
 
-execFileSync('php', ['tools/db_reset.php', '--test'], { cwd: root, env: process.env, stdio: 'pipe' });
-await withServer(true, async () => {
+console.log(testPhp(['tools/db_reset.php', '--test'], { cwd: root, env: process.env, stdio: 'pipe', encoding: 'utf8' }).trim());
+await withTestServer(true, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();

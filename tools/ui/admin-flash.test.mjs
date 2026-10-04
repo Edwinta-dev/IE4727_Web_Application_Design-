@@ -1,20 +1,20 @@
 import { chromium } from 'playwright';
-import { execFileSync } from 'node:child_process';
+import { testPhp } from './isolation.mjs';
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { withServer, login, appBase, root } from './lib.mjs';
+import { withTestServer, login, appBase, root } from './lib.mjs';
 
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
-const php = (...args) => execFileSync('php', ['tools/ui/admin-flash-fixture.php', ...args], { cwd: root, env: process.env, encoding: 'utf8' }).trim();
+const php = (...args) => testPhp(['tools/ui/admin-flash-fixture.php', ...args], { cwd: root, env: process.env, encoding: 'utf8' }).trim();
 const check = (value, message) => { if (!value) throw Error(message); };
 
-execFileSync('php', ['tools/db_reset.php', '--test'], { cwd: root, env: process.env, stdio: 'pipe' });
+console.log(testPhp(['tools/db_reset.php', '--test'], { cwd: root, env: process.env, stdio: 'pipe', encoding: 'utf8' }).trim());
 const fixture = JSON.parse(php('seed'));
 const ids = ['doctor', 'patient', 'slot', 'doctorAppointment', 'patientAppointment'].map(key => String(fixture[key]));
 const counts = () => JSON.parse(php('counts', ...ids));
 check(Object.values(counts()).slice(0, 5).every(value => value === 1), 'synthetic accounts and dependent rows must exist');
 
-await withServer(true, async () => {
+await withTestServer(true, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
     const confirmationPage = await browser.newPage();

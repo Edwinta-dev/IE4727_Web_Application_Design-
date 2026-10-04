@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import { verifyTestConfig, testGuard } from './isolation.mjs';
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -36,9 +38,16 @@ export function parseArgs(args) {
   if(out.serve && process.env.UI_BASE_URL && /:8000(?:\/|$)/.test(process.env.UI_BASE_URL))throw Error('Port 8000 is the stale XAMPP copy; --serve uses 127.0.0.1:8123.');
   out.paths=out.paths.flatMap(p=>p==='all'?pages:[p]); return out;
 }
-export async function withServer(enabled, callback, app='clinic-base') {
+export async function withTestServer(enabled, callback, app='clinic-base') {
+  if (!enabled || app !== 'clinic-base' || process.env.UI_BASE_URL)
+    throw Error('Mutation tests require their own clinic-base server; UI_BASE_URL is forbidden.');
+  const env = verifyTestConfig();
+  return withServer(enabled, callback, app, { env, mutation: true });
+}
+export async function withServer(enabled, callback, app='clinic-base', isolation={}) {
   const base=appBaseFor(app);
   let child, sessionDir;
+  const token = randomUUID();
   try {
     if(enabled){
       // PHP on developer machines often inherits an XAMPP-only session path.
@@ -48,19 +57,23 @@ export async function withServer(enabled, callback, app='clinic-base') {
       sessionDir=await mkdtemp(join(root,'.ui-sessions-'));
       const adminBootstrap=join(sessionDir,'admin-config.php');
       await writeFile(adminBootstrap,`<?php
+${isolation.mutation ? `require ${JSON.stringify(testGuard.replaceAll('\\', '/'))};` : ''}
+header('X-UI-Run: ${token}');
+${isolation.mutation ? "header('X-UI-Database: ' . DB_NAME);" : ''}
 if (!is_file(${JSON.stringify(join(root,app,'config.local.php'))})) {
     defined('ADMIN_USER') || define('ADMIN_USER', getenv('UI_ADMIN') ?: 'admin');
     defined('ADMIN_HASH') || define('ADMIN_HASH', password_hash(getenv('UI_PASSWORD') ?: 'Password123', PASSWORD_DEFAULT));
 }
 `);
       const iniPath = (path) => path.replaceAll('\\', '/');
-      child=spawn('php',['-d',`session.save_path=${iniPath(sessionDir)}`,'-d',`auto_prepend_file=${iniPath(adminBootstrap)}`,'-S','127.0.0.1:8123','-t',root],{cwd:root,stdio:'ignore',windowsHide:true,env:childEnvironment()});
+      child=spawn('php',[...(isolation.mutation ? ['-d','disable_functions=mail'] : []),'-d',`session.save_path=${iniPath(sessionDir)}`,'-d',`auto_prepend_file=${iniPath(adminBootstrap)}`,'-S','127.0.0.1:8123','-t',root],{cwd:root,stdio:'ignore',windowsHide:true,env:isolation.env || childEnvironment()});
       let ready=false;
-      for(let n=0;n<80;n++){try{const r=await fetch(base+'index.php');const body=await r.text();if(r.status===200&&!/Fatal error|Failed opening required/.test(body)){ready=true;break;}}catch{} if(child.exitCode!==null)break;await delay(250);}
+      for(let n=0;n<80;n++){try{const r=await fetch(base+'index.php');const body=await r.text();if(child.exitCode===null && r.headers.get('X-UI-Run')===token && (!isolation.mutation || r.headers.get('X-UI-Database')==='ie4727db_test') && r.status===200&&!/Fatal error|Failed opening required/.test(body)){ready=true;break;}}catch{} if(child.exitCode!==null)break;await delay(250);}
       if(!ready)throw Error(`PHP server did not serve /${app}/index.php with HTTP 200.`);
     }
     const selectedBase=process.env.UI_BASE_URL || base;
     if(/:8000(?:\/|$)/.test(selectedBase))throw Error('Port 8000 is the stale XAMPP copy; use --serve on 127.0.0.1:8123.');
+    if(isolation.mutation) console.log('Verified child PHP database: ie4727db_test; mail disabled');
     return await callback(selectedBase);
   } finally {
     if(child){child.kill();await Promise.race([new Promise(r=>child.once('exit',r)),delay(1500)]);}
