@@ -107,7 +107,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="services" aria-labelledby="services-heading">
         <h2 id="services-heading">Care for the whole you</h2>
         <p>Choose a specialty to see the doctors and appointment times available.</p>
-        <div class="specialty-strip grow-row">
+        <div class="specialty-strip">
 <?php foreach ($specialties as $specialtyRow):
     $specialty = trim((string) ($specialtyRow['Specialty'] ?? ''));
     if ($specialty === '') { continue; }
@@ -119,7 +119,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         'Physiotherapy' => 'Movement and rehabilitation support after injury.',
     ][$specialty] ?? 'Talk with a doctor about your care needs.';
 ?>
-            <a class="specialty-item grow-item" href="<?= e(url('/doctors.php?specialty=' . rawurlencode($specialty))) ?>">
+            <a class="specialty-item" href="<?= e(url('/doctors.php?specialty=' . rawurlencode($specialty))) ?>">
                 <img src="<?= e(url(specialty_image($specialty))) ?>" alt="" width="640" height="360" loading="lazy">
                 <h3><?= e($specialty) ?></h3>
                 <p><?= e($specialtyCopy) ?></p>

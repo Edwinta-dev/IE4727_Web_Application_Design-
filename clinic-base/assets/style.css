@@ -1341,11 +1341,20 @@ main .flash {
 }
 
 .services { padding-block: var(--space-5); }
-.specialty-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-3); }
-.specialty-item { color: var(--ink); text-decoration: none; }
-.specialty-item img { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-tile); object-fit: cover; margin-bottom: var(--space-2); }
+.specialty-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; gap: var(--space-3); }
+/* Fixed inset and gaps reserve room for magnification without reflowing text. */
+.specialty-item { min-width: 0; padding: var(--space-2); color: var(--ink); text-decoration: none; transform-origin: center; transition: transform 180ms ease; }
+.specialty-item:hover,
+.specialty-item:focus-visible { transform: translateY(-0.15rem) scale(1.025); }
+.specialty-item img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius-tile); object-fit: cover; margin-bottom: var(--space-2); }
 .specialty-item h3 { margin-bottom: var(--space-1); color: var(--brand-dark); }
 .specialty-item p { margin: 0; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+    .specialty-item { transition: none; }
+    .specialty-item:hover,
+    .specialty-item:focus-visible { transform: none; }
+}
 
 @media (max-width: 56rem) {
     .hero-band { grid-template-columns: minmax(0, 1fr); }

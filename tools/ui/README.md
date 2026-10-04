@@ -127,3 +127,13 @@ and measurements are saved under `UIPROBLEMS/after/issue134-after-matrix`.
 The fixture and server require resolved `ie4727db_test`; the test rebuilds it
 before each doctor count and restores the seed in `finally`. Run serially with
 other database tests.
+
+For specialty magnification (#135), run `node tools/ui/specialty-hover.test.mjs`.
+It prints `OK` after testing hover and keyboard focus at 1280, 1707 and 390px,
+with the seeded specialties and 3/7/12 distinct database-backed specialties.
+It checks uniform magnification, 16:9 images, unchanged text line counts,
+stationary siblings/footer, no overlap or horizontal overflow, and no geometry
+change under reduced motion. `--before` records the original geometry.
+Measurements and hover screenshots go to `UIPROBLEMS/after/issue135-*-matrix`.
+The guarded fixture/server use only `ie4727db_test`; the seed is restored in
+`finally`. Run serially with other database/browser tests.

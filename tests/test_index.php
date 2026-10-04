@@ -17,8 +17,8 @@ foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="us
 }
 
 foreach (['class="photo-banner"', 'class="photo-scrim"', 'class="photo-caption"', 'class="hero-subtitle"', 'hero-actions', 'class="member-login"', 'register.php',
-    'class="specialty-strip grow-row"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
-    'class="specialty-strip grow-row"', 'class="specialty-item grow-item"', 'class="featured-doctors band"'] as $needle) {
+    'class="specialty-strip"', 'specialty_image($specialty)', 'rawurlencode($specialty)',
+    'class="specialty-item"', 'class="featured-doctors band"'] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing redesigned section {$needle}");
     }
@@ -36,9 +36,9 @@ $style = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 if ($style === false) {
     throw new RuntimeException('shared stylesheet could not be read');
 }
-foreach (['.grow-row > .grow-item:hover', 'flex-grow: 1.17;', 'height: 242px;', 'prefers-reduced-motion: reduce', '.specialty-item img', 'border-radius: var(--radius-tile)'] as $needle) {
+foreach (['.specialty-item:hover', 'transform: translateY(-0.15rem) scale(1.025);', '.specialty-item:focus-visible { transform: none; }', 'prefers-reduced-motion: reduce', '.specialty-item img', 'aspect-ratio: 16 / 9', 'border-radius: var(--radius-tile)'] as $needle) {
     if (strpos($style, $needle) === false) {
-        throw new RuntimeException("featured doctor growth behaviour is missing {$needle}");
+        throw new RuntimeException("specialty magnification behaviour is missing {$needle}");
     }
 }
 
