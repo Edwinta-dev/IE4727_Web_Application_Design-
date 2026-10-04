@@ -48,7 +48,6 @@ try {
             check(await page.locator('.day-tab.selected').count() === 1, 'selected day missing');
             check(await page.locator('.slot').count() === count, 'slot list count');
             await page.screenshot({ path: `${out}/book-${count}-${width}.png`, fullPage: true });
-            await page.locator('#date').fill(fixture.date);
             await page.getByRole('button', { name: 'Show schedule' }).click();
             check(new URL(page.url()).searchParams.get('doctor') === String(fixture.doctor), 'filter lost canonical doctor');
             check(await page.locator('#date').inputValue() === fixture.date, 'filter lost date');

@@ -80,9 +80,8 @@ await withTestServer(true, async () => {
     check(JSON.stringify(afterConflict.appointments) === JSON.stringify(seed.appointments), 'conflict changed original booking');
     check(afterConflict.notifications === seed.notifications, 'conflict emitted notifications');
     await page.goto(`${route}&date=${day(1)}`);
-    await page.locator('#date').fill(day(4));
-    await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Show schedule' }).click()]);
-    check(await page.locator('#date').inputValue() === day(4) && await page.locator('.reschedule-context').count() === 1, 'JS-off date form lost reschedule');
+    await Promise.all([page.waitForNavigation(), page.locator('.day-tab').nth(4).click()]);
+    check(await page.locator('#date').inputValue() === day(4) && await page.locator('.reschedule-context').count() === 1, 'JS-off day tab lost reschedule');
     const replacement = page.locator('.slot-booking').first();
     await replacement.locator('.slot-choice').first().check();
     await replacement.locator('input[name="reason"]').fill('Confirmed replacement');

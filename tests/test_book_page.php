@@ -53,3 +53,12 @@ assert_contains($css, '.appointment-action:focus');
 assert_contains($css, 'color: var(--c-button-foreground);');
 
 echo "PASS: booking page markup checks\n";
+
+assert_true(strpos($page, 'type="date"') === false, 'day tabs replace the duplicate date picker');
+assert_contains($page, '<summary>Filter by time</summary>');
+assert_contains($page, 'class="booking-time-filter"');
+assert_contains($page, 'Show earlier days');
+assert_contains($page, 'Show later days');
+assert_contains($page, 'Scroll sideways to see all seven days.');
+$nav = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php');
+assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/book.php']");

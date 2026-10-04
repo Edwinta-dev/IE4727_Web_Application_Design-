@@ -36,7 +36,6 @@ if ($rescheduleRequested) {
 
 $now = new DateTimeImmutable();
 $today = $now->setTime(0, 0);
-$lastBrowseDate = $today->modify('+' . (BROWSE_DAYS - 1) . ' days');
 
 $doctorInput = $_GET['doctor'] ?? $_GET['doctor_id'] ?? '';
 $doctorId = is_string($doctorInput) && ctype_digit($doctorInput) ? (int) $doctorInput : 0;
@@ -109,6 +108,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
+        <input id="date" type="hidden" name="date" value="<?= e($selectedDate) ?>">
 <?php if ($reschedule !== null): ?>
         <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
 <?php endif; ?>
@@ -121,18 +121,19 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
             </select>
         </p>
-        <p>
-            <label for="date">Date</label>
-            <input id="date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" max="<?= e($lastBrowseDate->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
-        </p>
-        <p>
-            <label for="from">From</label>
-            <input id="from" name="from" type="time" value="<?= e($fromTime) ?>" required>
-        </p>
-        <p>
-            <label for="to">To</label>
-            <input id="to" name="to" type="time" value="<?= e($toTime) ?>" required>
-        </p>
+        <details class="booking-time-filter"<?= e($fromTime !== '00:00' || $toTime !== '23:59' ? ' open' : '') ?>>
+            <summary>Filter by time</summary>
+            <div class="booking-time-fields">
+                <p>
+                    <label for="from">From</label>
+                    <input id="from" name="from" type="time" value="<?= e($fromTime) ?>" required>
+                </p>
+                <p>
+                    <label for="to">To</label>
+                    <input id="to" name="to" type="time" value="<?= e($toTime) ?>" required>
+                </p>
+            </div>
+        </details>
         <button type="submit">Show schedule</button>
     </form>
 
@@ -140,7 +141,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <p class="error-summary" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?> instead. Choose another date to view its schedule.</p>
 <?php endif; ?>
 
-    <nav class="day-tabs" aria-label="Choose a day">
+    <div class="booking-days">
+        <button class="day-scroll" type="button" data-direction="-1" aria-label="Show earlier days" aria-controls="booking-day-tabs" hidden>&larr;</button>
+    <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day" aria-describedby="day-scroll-hint">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(array_merge(
@@ -148,9 +151,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     ));
 ?>
-        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"><?= e($day->format('D d M')) ?></a>
+        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
     </nav>
+        <button class="day-scroll" type="button" data-direction="1" aria-label="Show later days" aria-controls="booking-day-tabs" hidden>&rarr;</button>
+    </div>
+    <p id="day-scroll-hint" class="day-scroll-hint">Scroll sideways to see all seven days.</p>
 
 <?php flash_render(); ?>
 

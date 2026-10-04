@@ -197,9 +197,18 @@
 
 /* Booking and appointment views */
 .booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
-.booking-filters p { flex: 1 1 10rem; min-width: 9rem; margin: 0; }
+.booking-filters p { flex: 1 1 10rem; min-width: 0; margin: 0; }
 .booking-filters button { min-height: 2.75rem; }
-.day-tabs { display: flex; max-width: 100%; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin-bottom: var(--space-4); }
+.booking-time-filter { flex: 1 1 18rem; min-width: 0; }
+.booking-time-filter summary { cursor: pointer; padding-block: 0.65rem; color: var(--c-primary-dark); }
+.booking-time-fields { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.booking-time-filter:not([open]) .booking-time-fields { display: none; }
+.booking-time-fields p { flex: 1 1 7rem; }
+.booking-days { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.day-tabs { display: flex; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin: 0; }
+.day-scroll { flex: 0 0 2.75rem; min-height: 2.75rem; padding: 0.4rem; }
+.day-scroll[hidden] { display: none; }
+.day-scroll-hint { display: none; }
 .day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); text-decoration: none; }
 .day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
 .booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
@@ -248,9 +257,10 @@
 .schedule-grid .slot-booking[open] > form { display: block; }
 @media (max-width: 56rem) { .booking-results { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 40rem) {
-    .booking-filters { align-items: stretch; }
-    .booking-filters p { flex-basis: calc(50% - var(--space-2)); }
-    .booking-filters button { flex: 1 1 100%; }
+    .booking-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .booking-filters > p, .booking-time-filter[open] { grid-column: 1 / -1; }
+    .booking-filters button { padding-inline: var(--space-2); }
+    .day-scroll-hint { display: block; margin: 0 0 var(--space-4); color: var(--c-muted); }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
     .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
