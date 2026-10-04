@@ -466,17 +466,28 @@ function unblock_slot(int $slotId, int $doctorId): bool
     }
 }
 
+/**
+ * Ownership and disallowed status take precedence over the start-time reason.
+ * Rescheduling moves this same record to its replacement slot and timestamp;
+ * it does not leave a superseded original visit behind.
+ */
+function visit_notes_state(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): string
+{
+    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId) {
+        return 'foreign_doctor';
+    }
+    if (!in_array((string) ($appointment['Status'] ?? ''), ['Future', 'Rescheduled', 'Completed'], true)) {
+        return 'disallowed_status';
+    }
+    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], new DateTimeZone(APP_TIMEZONE));
+    return $start <= ($now ?? new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))
+        ? 'editable' : 'not_started';
+}
+
 /** Allow the owner to edit a completed visit after its start, too. */
 function visit_notes_editable(array $appointment, int $doctorId, ?DateTimeImmutable $now = null): bool
 {
-    if (appointment_outcome_eligible($appointment, $doctorId, $now)) {
-        return true;
-    }
-    if ((int) ($appointment['DoctorID'] ?? 0) !== $doctorId || ($appointment['Status'] ?? '') !== 'Completed') {
-        return false;
-    }
-    $start = new DateTimeImmutable((string) $appointment['appointmentDateTime'], new DateTimeZone(APP_TIMEZONE));
-    return $start <= ($now ?? new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)));
+    return visit_notes_state($appointment, $doctorId, $now) === 'editable';
 }
 
 /**

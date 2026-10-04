@@ -39,7 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'FollowUp' => isset($_POST['FollowUp']) && $_POST['FollowUp'] === '1' ? 1 : 0,
             'Remarks' => is_string($_POST['Remarks'] ?? null) ? $_POST['Remarks'] : '',
         ]);
-        flash($saved ? 'Visit notes saved.' : 'Visit notes can only be saved from the appointment start time by its doctor.', $saved ? 'success' : 'error');
+        if ($saved) {
+            flash('Visit notes saved.', 'success');
+        } else {
+            $currentAppointment = find_appointment($appointmentId);
+            $rejectedState = $currentAppointment === null ? 'missing' : visit_notes_state($currentAppointment, $doctorId);
+            $message = match ($rejectedState) {
+                'not_started' => 'This appointment has not started. Visit notes can only be saved from its start time.',
+                'disallowed_status' => 'This appointment is ' . (string) $currentAppointment['Status'] . '. Visit notes cannot be changed.',
+                default => 'Visit notes could not be changed for this appointment.',
+            };
+            flash($message, 'error');
+        }
     } catch (InvalidArgumentException $exception) {
         flash($exception->getMessage(), 'error');
     }
@@ -54,7 +65,8 @@ if ($patient === null) {
 
 $history = patient_history((int) $appointment['PatientID'], $doctorId);
 $allergies = is_array($patient['Allergies'] ?? null) ? $patient['Allergies'] : [];
-$visitEligible = visit_notes_editable($appointment, $doctorId);
+$visitState = visit_notes_state($appointment, $doctorId);
+$visitEligible = $visitState === 'editable';
 $visitRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']);
 $pageTitle = 'Doctor Visit';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -115,28 +127,40 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <h2>Record this visit</h2>
         <?php if ($visitRemarks['legacy'] !== null): ?><p><strong>Earlier text (author unknown):</strong> <?= e($visitRemarks['legacy']) ?></p><?php endif; ?>
         <p><strong>Patient reason:</strong> <?= e($visitRemarks['reason'] !== '' ? $visitRemarks['reason'] : 'Not separately recorded') ?></p>
-        <?php if (!$visitEligible): ?><p class="empty-state">Visit notes and attendance can be recorded from <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?> on the appointment date.</p><?php endif; ?>
+        <?php if (!$visitEligible): ?>
+            <?php if ($visitState === 'not_started'): ?>
+                <p class="empty-state">This appointment has not started. Visit notes can be recorded from <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?> on <?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?>.</p>
+            <?php else: ?>
+                <p class="empty-state">This appointment is <?= e((string) $appointment['Status']) ?>. Visit notes cannot be changed.</p>
+                <?php foreach (['Diagnosis', 'Treatment', 'Prescription'] as $field): ?>
+                    <?php if ((string) ($appointment[$field] ?? '') !== ''): ?><p><strong><?= e($field) ?>:</strong> <?= e((string) $appointment[$field]) ?></p><?php endif; ?>
+                <?php endforeach; ?>
+                <?php if ($visitRemarks['doctor_remarks'] !== ''): ?><p><strong>Doctor remarks:</strong> <?= e($visitRemarks['doctor_remarks']) ?></p><?php endif; ?>
+                <?php if ((int) ($appointment['FollowUp'] ?? 0) === 1): ?><p><strong>Follow-up:</strong> <?= e('Required') ?></p><?php endif; ?>
+            <?php endif; ?>
+        <?php else: ?>
         <form class="visit-form" method="post" action="<?= e(url('/doctor/visit.php?appt=' . $appointmentId)) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="appointment_id" value="<?= e((string) $appointmentId) ?>">
 
             <label for="diagnosis">Diagnosis</label>
-            <textarea id="diagnosis" name="Diagnosis" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Diagnosis'] ?? '')) ?></textarea>
+            <textarea id="diagnosis" name="Diagnosis" rows="3"><?= e((string) ($appointment['Diagnosis'] ?? '')) ?></textarea>
 
             <label for="treatment">Treatment</label>
-            <textarea id="treatment" name="Treatment" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Treatment'] ?? '')) ?></textarea>
+            <textarea id="treatment" name="Treatment" rows="3"><?= e((string) ($appointment['Treatment'] ?? '')) ?></textarea>
 
             <label for="prescription">Prescription</label>
-            <textarea id="prescription" name="Prescription" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e((string) ($appointment['Prescription'] ?? '')) ?></textarea>
+            <textarea id="prescription" name="Prescription" rows="3"><?= e((string) ($appointment['Prescription'] ?? '')) ?></textarea>
 
             <label for="remarks">Doctor remarks</label>
-            <textarea id="remarks" name="Remarks" rows="3" <?= e($visitEligible ? '' : 'disabled') ?>><?= e($visitRemarks['doctor_remarks']) ?></textarea>
+            <textarea id="remarks" name="Remarks" rows="3"><?= e($visitRemarks['doctor_remarks']) ?></textarea>
 
             <div class="visit-form-actions"><label for="follow-up">
-                <input id="follow-up" type="checkbox" name="FollowUp" value="1"<?= e((int) ($appointment['FollowUp'] ?? 0) === 1 ? ' checked' : '') ?> <?= e($visitEligible ? '' : 'disabled') ?>>
+                <input id="follow-up" type="checkbox" name="FollowUp" value="1"<?= e((int) ($appointment['FollowUp'] ?? 0) === 1 ? ' checked' : '') ?>>
                 Follow-up required
-            </label><button type="submit" <?= e($visitEligible ? '' : 'disabled') ?>>Save visit notes</button></div>
+            </label><button type="submit">Save visit notes</button></div>
         </form>
+        <?php endif; ?>
     </section>
     </div>
 </main>
