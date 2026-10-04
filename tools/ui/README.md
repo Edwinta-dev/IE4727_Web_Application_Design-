@@ -161,3 +161,13 @@ time filters select the list lengths from the seed. `--before` captures original
 measurements; screenshots and measurements go to `UIPROBLEMS/after/issue139-*-matrix`.
 The guarded server uses `ie4727db_test`, and the seed is restored in `finally`.
 Run serially with other database/browser tests.
+
+For patient dashboard acceptance (#143), run `php tests/run.php test_issue143`
+and then `node tests/ui_patient_dashboard.mjs`. The guarded browser test uses
+`ie4727db_test` and verifies distinct patient navigation, recipient isolation,
+escaped subject/body and keyboard reveal without JavaScript, pending past visits,
+and all five day-board counters with 3, 7 and 12 messages/appointments. It captures
+1280x800 and 390x844 views under `UIPROBLEMS/after/issue143-functional` and checks
+zero page overflow. The test resets the test DB first and removes its fixtures
+in `finally`. Run serially with all
+other database tests, including `php tests/run.php` (which resets the test DB).

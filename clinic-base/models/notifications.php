@@ -4,6 +4,22 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 
+/** Latest messages addressed to this patient's stored email, including unlinked notices.
+ * @return list<array<string, mixed>>
+ */
+function notifications_for_patient(int $patientId): array
+{
+    return q_all(
+        'SELECT n.`notificationID`, n.`Subject`, n.`Body`, n.`SentAt`
+         FROM `notifications` n
+         INNER JOIN `patient` p ON p.`Email` = n.`recipient`
+         WHERE p.`PatientID` = :patient_id
+         ORDER BY n.`SentAt` DESC, n.`notificationID` DESC
+         LIMIT 20',
+        ['patient_id' => $patientId]
+    );
+}
+
 /** @return list<array<string, mixed>> */
 function recent_notifications(int $limit = 20): array
 {

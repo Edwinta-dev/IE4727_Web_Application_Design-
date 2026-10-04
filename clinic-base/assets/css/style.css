@@ -161,6 +161,15 @@
 .admin-console table th, .admin-console table td { white-space: nowrap; }
 .day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
 .admin-outbox .notification-details summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; }
+
+.patient-notification { border-top: 1px solid var(--c-line); padding: var(--space-3) 0; }
+.patient-notification summary { cursor: pointer; min-height: 2.75rem; overflow-wrap: anywhere; }
+.patient-notification summary span { font-weight: 700; }
+.patient-notification time { display: inline-block; margin-left: var(--space-3); color: var(--c-muted); }
+.patient-notification .notification-body { margin-top: var(--space-3); overflow-wrap: anywhere; }
+@media (max-width: 42rem) {
+    .patient-notification time { display: block; margin-left: 0; }
+}
 .admin-outbox table { width: max-content; min-width: 100%; }
 .admin-outbox th, .admin-outbox td { line-height: 1.95; padding-block: 0; }
 .admin-outbox th, .admin-outbox td:nth-child(-n+4) { white-space: nowrap; }

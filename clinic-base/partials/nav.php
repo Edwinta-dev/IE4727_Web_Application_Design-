@@ -16,6 +16,7 @@ $currentTab = match ($navigationRole) {
     'patient' => match ($currentPath) {
         '/patient/home.php' => '/patient/home.php',
         '/doctors.php' => '/doctors.php',
+        '/book.php' => '/book.php',
         default => null,
     },
     'doctor' => match ($currentPath) {
@@ -40,9 +41,9 @@ $currentTab = match ($navigationRole) {
 
 $links = match ($navigationRole) {
     'patient' => [
-        ['label' => 'Home', 'href' => '/patient/home.php'],
+        ['label' => 'My appointments', 'href' => '/patient/home.php'],
         ['label' => 'Find a doctor', 'href' => '/doctors.php'],
-        ['label' => 'My appointments', 'href' => '/patient/home.php#appointments'],
+        ['label' => 'Book an appointment', 'href' => '/book.php'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'doctor' => [

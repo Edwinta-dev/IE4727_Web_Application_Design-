@@ -20,12 +20,10 @@ if ($parsedDate === false || $parsedDate->format('Y-m-d') !== $date) {
 }
 
 $appointments = appointments_for_doctor_day($doctorId, $date);
-$counts = ['Future' => 0, 'Completed' => 0, 'No show' => 0];
+$counts = ['Future' => 0, 'Rescheduled' => 0, 'Cancelled' => 0, 'Completed' => 0, 'No show' => 0];
 foreach ($appointments as $appointment) {
     $status = (string) $appointment['Status'];
-    if ($status === 'Rescheduled') {
-        $counts['Future']++;
-    } elseif (array_key_exists($status, $counts)) {
+    if (array_key_exists($status, $counts)) {
         $counts[$status]++;
     }
 }
@@ -56,6 +54,8 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="day-summary summary-strip" aria-label="Day summary">
         <p class="summary-future">Future: <?= e((string) $counts['Future']) ?></p>
+        <p>Rescheduled: <?= e((string) $counts['Rescheduled']) ?></p>
+        <p>Cancelled: <?= e((string) $counts['Cancelled']) ?></p>
         <p class="summary-completed">Completed: <?= e((string) $counts['Completed']) ?></p>
         <p class="summary-no-show">No-show: <?= e((string) $counts['No show']) ?></p>
     </section>

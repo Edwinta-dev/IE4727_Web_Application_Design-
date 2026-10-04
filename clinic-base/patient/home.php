@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 require_login();
 
@@ -13,6 +14,7 @@ $user = current_user();
 $patientId = (int) $user['id'];
 $upcoming = appointments_for_patient($patientId, 'upcoming');
 $past = appointments_for_patient($patientId, 'past');
+$notifications = notifications_for_patient($patientId);
 $viewIdInput = $_GET['view'] ?? '';
 $viewId = is_string($viewIdInput) && ctype_digit($viewIdInput) ? (int) $viewIdInput : 0;
 $visit = $viewId > 0 ? completed_appointment_for_patient($patientId, $viewId) : null;
@@ -85,7 +87,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
                     <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
                     <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e((string) $appointment['Status']) ?></td>
+                    <td><?= e(in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true) ? 'Awaiting outcome' : (string) $appointment['Status']) ?></td>
                     <td>
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
                         <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
@@ -99,6 +101,24 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             </tbody>
         </table>
         </div>
+    </section>
+
+    <section class="patient-notifications" aria-labelledby="notifications-heading">
+        <h2 id="notifications-heading">Latest notifications</h2>
+<?php if ($notifications === []): ?>
+        <p class="empty-state">You have no notifications.</p>
+<?php else: ?>
+        <p>Booking updates and messages from the clinic. Your latest 20 messages are shown.</p>
+<?php foreach ($notifications as $notification): ?>
+        <details class="patient-notification">
+            <summary>
+                <span><?= e((string) $notification['Subject']) ?></span>
+                <time datetime="<?= e(str_replace(' ', 'T', (string) $notification['SentAt'])) ?>"><?= e(fmt_date((string) $notification['SentAt']) . ' at ' . fmt_time((string) $notification['SentAt'])) ?></time>
+            </summary>
+            <div class="notification-body"><?= nl2br(e((string) $notification['Body']), false) ?></div>
+        </details>
+<?php endforeach; ?>
+<?php endif; ?>
     </section>
 
 <?php if ($visit !== null): ?>
