@@ -1198,6 +1198,8 @@ main .flash {
 .doctor-directory-intro .specialty-filter { margin: var(--space-2) 0 0; }
 
 .photo-banner .hero-image { object-position: center 42%; }
+/* Keep both heads in view within the directory's shallower desktop banner. */
+.doctor-directory-banner .hero-image { object-position: center 20%; }
 
 .photo-scrim {
     position: absolute;

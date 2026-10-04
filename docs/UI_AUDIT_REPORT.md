@@ -524,3 +524,86 @@ Adjacent JSON measurements record 0px viewport overflow and zero day-feedback
 grid cells; elapsed feedback ends 12px above the first slot at both widths.
 The bare book.php captures cover the ordinary filter page, while the flow
 captures and audits prove the authenticated reschedule states.
+
+## Issue #127: responsive hero geometry (4 October 2026)
+
+Finding: C01/C02, new finding 9, cited in UI_Defects.pdf p. 4. That named
+PDF is absent; the available `Open/clinicissues.pdf` and its rendered page 4
+describe different findings. The supplied written finding and fresh browser
+evidence are used here. Starting source was `5087f8d`, clean working tree;
+the historical `eb9a791` is not this task's baseline. Existing visit edits,
+visit-state regression and report sections are preserved. The #114 duplicate
+destination remains a separate carry-over.
+
+The reported 1280px phone image is **already fixed in the current source**:
+the shared image uses width/height 100%, global images have max-width 100%,
+home grid tracks use minmax(0, ...), and `.hero-copy` has min-width 0.
+Both banners fit at every tested width even after disabling body and banner
+overflow clipping. No additional width rules or overflow hiding were needed.
+The desktop directory image did cut off both subjects' heads; its focal
+position now uses 20% vertically instead of 42%. Home framing, shared
+component, page-width token, 1280px banner width limit, height caps, intrinsic
+HTML metadata and cover cropping are retained.
+
+`tools/ui/hero-size.test.mjs` tests home, unfiltered directory and the real
+General Practice filtered route at 390, 768, 1280 and 1920px. It measures
+actual image/banner rectangles, checks all four image bounds against the
+banner, caption/scrim anchors, cover cropping, natural-width/no-upscaling and
+height caps, then repeats measurements with clipping disabled. The extra
+1920px case exercises the existing 1280px banner limit. JSON records every
+rectangle, natural dimensions, focal position and document client/scroll width.
+These are browser assertions, not CSS source-string tests.
+
+Before and after rectangles are identical (CSS pixels, rounded here only):
+
+| Route | Viewport | Image and banner (x, y, width, height) | Document scroll/client |
+|---|---:|---|---|
+| Home | 390 | 32, 208.375, 326, 183.375 | 390 / 390 |
+| Home | 768 | 32, 147.188, 704, 240 | 768 / 768 |
+| Home | 1280 | 164, 100, 618.656, 371.188 | 1280 / 1280 |
+| Home | 1920 | 228, 100, 960, 440 | 1920 / 1920 |
+| Directory, both states | 390 | 16, 184.375, 358, 240 | 390 / 390 |
+| Directory, both states | 768 | 16, 123.188, 736, 240 | 768 / 768 |
+| Directory, both states | 1280 | 128, 76, 1024, 281.594 | 1280 / 1280 |
+| Directory, both states | 1920 | 192, 76, 1280, 320 | 1920 / 1920 |
+
+Fixtures: anonymous public routes, existing five-doctor test seed, no writes
+or date-specific fixture needed. The regression uses `withTestServer()` to
+verify the child PHP resolves `ie4727db_test`, with mail disabled. The read-only
+acceptance screenshot/audit commands inherit explicit
+`CLINIC_DB_NAME=ie4727db_test`; the same PHP config rejects overrides. Test
+suite resets are confined to that test database. No live cleanup occurs.
+
+Commands run:
+
+```text
+node --test tools/ui/isolation.test.mjs
+node tools/ui/hero-size.test.mjs --before
+node tools/ui/shoot.mjs --serve --label hero-size-before index.php doctors.php
+node tools/ui/hero-size.test.mjs
+node tools/ui/shoot.mjs --serve --label hero-size-after index.php doctors.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop index.php doctors.php
+node tools/ui/audit.mjs --serve --within main layout,tap-targets,palette,contrast,focus,slop doctors.php?specialty=General%20Practice
+php tests/run.php
+node --check tools/ui/hero-size.test.mjs
+git diff --check
+```
+
+The required unfiltered audit prints OK. The additional full-main filtered
+audit reports an existing 35.859px-wide Clear link at both viewport sizes;
+that unrelated tap-target defect is recorded, not hidden or changed here.
+The full PHP suite reports **81 passed, 0 failed**, with existing CLI session
+and header warnings. Isolation regressions report **7 passed, 0 failed**.
+Browser syntax and diff whitespace checks pass. No PHP files were changed.
+A preliminary after-geometry run stopped with an
+image decode error; only the successful rerun is acceptance evidence.
+The rerun prints OK for all 12 route/viewport combinations, including the
+clipping-disabled checks, with zero document overflow in every case.
+
+Inspected before/after images are in gitignored
+`UIPROBLEMS/after/hero-size-{before,after}/` (index/doctors, 390/1280) and
+`hero-size-{before,after}-geometry/` (home/directory/filtered, all four widths).
+Adjacent `rectangles.json` files preserve actual measurements with and without
+clipping. Desktop directory subjects' heads now remain visible; captions and
+filter/home controls remain visible. The directory's existing mobile table
+scrolls within its own region, without document overflow.
