@@ -107,7 +107,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="services" aria-labelledby="services-heading">
         <h2 id="services-heading">Care for the whole you</h2>
         <p>Choose a specialty to see the doctors and appointment times available.</p>
-        <div class="specialty-strip">
+        <div class="doctor-carousel" data-doctor-carousel data-carousel-label="Specialties">
+            <button type="button" class="doctor-carousel-arrow" data-doctor-previous aria-label="Previous specialties" aria-controls="specialty-tiles" hidden>&#8592;</button>
+        <div class="specialty-strip" id="specialty-tiles">
 <?php foreach ($specialties as $specialtyRow):
     $specialty = trim((string) ($specialtyRow['Specialty'] ?? ''));
     if ($specialty === '') { continue; }
@@ -125,6 +127,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <p><?= e($specialtyCopy) ?></p>
             </a>
 <?php endforeach; ?>
+        </div>
+            <button type="button" class="doctor-carousel-arrow" data-doctor-next aria-label="Next specialties" aria-controls="specialty-tiles" hidden>&#8594;</button>
+            <p data-doctor-status aria-live="polite" aria-atomic="true"></p>
         </div>
     </section>
 </main>

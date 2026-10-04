@@ -44,14 +44,18 @@ try {
             const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, reducedMotion: motion });
             try {
               await visit(page, 'index.php', base);
-              const normal = await measure(page);
-              assert.equal(normal.items.length, count);
+              assert.equal((await measure(page)).items.length, count);
               for (const index of [...new Set([0, Math.floor(count / 2), count - 1])]) {
                 for (const state of ['hover', 'focus']) {
                   await page.mouse.move(0, 0);
                   await page.evaluate(() => document.activeElement.blur());
                   await page.waitForTimeout(220);
                   const item = page.locator('.specialty-item').nth(index);
+                  // Paging scrolls to an off-screen link before its state changes.
+                  // Compare hover/focus against that settled scroll position.
+                  await item.scrollIntoViewIfNeeded();
+                  await page.waitForTimeout(600);
+                  const normal = await measure(page);
                   if (state === 'hover') await item.hover();
                   else {
                     await item.focus();

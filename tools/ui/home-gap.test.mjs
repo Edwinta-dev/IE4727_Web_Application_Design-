@@ -50,6 +50,11 @@ await withTestServer(true, async base => {
           for (const state of ['hover', 'focus']) {
             await page.mouse.move(0, 0);
             await page.evaluate(() => document.activeElement.blur());
+            // A specialty may be on another carousel page. Measure after
+            // revealing it, so scrolling is not mistaken for hover reflow.
+            await item.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(600);
+            const normal = await measure();
             if (state === 'hover') await item.hover();
             else {
               await item.focus();

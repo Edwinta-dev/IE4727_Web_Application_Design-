@@ -1,7 +1,7 @@
-/* Enhance the server-rendered scroll-snap row; every profile remains a link. */
+/* Shared paging for server-rendered doctor and specialty scroll-snap rows. */
 document.querySelectorAll('[data-doctor-carousel]').forEach(function (carousel) {
-    var track = carousel.querySelector('.doctor-tiles');
-    var tiles = Array.from(track.querySelectorAll('.doctor-tile'));
+    var track = carousel.querySelector('.doctor-tiles, .specialty-strip');
+    var tiles = Array.from(track.querySelectorAll('.doctor-tile, .specialty-item'));
     if (!tiles.length) return;
     var previous = carousel.querySelector('[data-doctor-previous]');
     var next = carousel.querySelector('[data-doctor-next]');
@@ -19,7 +19,7 @@ document.querySelectorAll('[data-doctor-carousel]').forEach(function (carousel) 
         next.disabled = track.scrollLeft >= maximum - 1;
         var step = tiles.length > 1 ? tiles[1].offsetLeft - tiles[0].offsetLeft : tiles[0].offsetWidth;
         var first = Math.round(track.scrollLeft / step);
-        status.textContent = 'Doctors ' + (first + 1) + '–' + Math.min(tiles.length, first + pageSize()) + ' of ' + tiles.length;
+        status.textContent = (carousel.dataset.carouselLabel || 'Doctors') + ' ' + (first + 1) + '–' + Math.min(tiles.length, first + pageSize()) + ' of ' + tiles.length;
     }
     function move(direction) {
         var step = tiles.length > 1 ? tiles[1].offsetLeft - tiles[0].offsetLeft : tiles[0].offsetWidth;

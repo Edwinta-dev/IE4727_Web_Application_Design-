@@ -1267,7 +1267,7 @@ main .flash {
 .featured-doctors > .doctor-tiles { width: 100%; margin-inline: 0; }
 .featured-doctors > h2 { margin-bottom: var(--space-3); }
 
-/* Fixed page widths and scale gutters keep doctor text stable during hover.
+/* Shared page widths and scale gutters keep row text stable during hover.
    Without JavaScript this is the same keyboard-accessible scroll-snap row. */
 .doctor-carousel { position: relative; min-width: 0; }
 .doctor-carousel.has-doctor-carousel {
@@ -1275,7 +1275,8 @@ main .flash {
     grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
     align-items: center;
 }
-.doctor-carousel .doctor-tiles {
+.doctor-carousel .doctor-tiles,
+.doctor-carousel .specialty-strip {
     --doctors-per-page: 1;
     display: flex;
     align-items: stretch;
@@ -1283,22 +1284,29 @@ main .flash {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: var(--space-2);
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     padding: var(--space-3) var(--space-2);
     margin: 0;
     min-width: 0;
 }
-.has-doctor-carousel .doctor-tiles { grid-column: 2; grid-row: 1; }
+.has-doctor-carousel .doctor-tiles,
+.has-doctor-carousel .specialty-strip { grid-column: 2; grid-row: 1; }
+.has-doctor-carousel .doctor-tiles,
+.has-doctor-carousel .specialty-strip { scroll-behavior: smooth; }
 .has-doctor-carousel [data-doctor-previous] { grid-column: 1; grid-row: 1; }
 .has-doctor-carousel [data-doctor-next] { grid-column: 3; grid-row: 1; }
-.doctor-carousel .doctor-tiles > .doctor-tile {
+.doctor-carousel .doctor-tiles > .doctor-tile,
+.doctor-carousel .specialty-strip > .specialty-item {
     flex: 0 0 calc((100% - (var(--doctors-per-page) - 1) * var(--space-3)) / var(--doctors-per-page));
     min-width: 0;
     scroll-snap-align: start;
-    padding: var(--space-3);
     display: flex;
     flex-direction: column;
 }
+.doctor-carousel .doctor-tiles > .doctor-tile { padding: var(--space-3); }
+/* End alignment keeps the last focused link inside the scale gutter. */
+.doctor-carousel .doctor-tile:last-child,
+.doctor-carousel .specialty-item:last-child { scroll-snap-align: end; }
 .doctor-carousel .doctor-tiles > .doctor-tile:hover,
 .doctor-carousel .doctor-tiles > .doctor-tile:focus-visible {
     transform: scale(1.025);
@@ -1328,20 +1336,22 @@ main .flash {
     white-space: nowrap;
 }
 @media (min-width: 40rem) {
-    .doctor-carousel .doctor-tiles { --doctors-per-page: 2; }
+    .doctor-carousel .doctor-tiles,
+    .doctor-carousel .specialty-strip { --doctors-per-page: 2; }
 }
 @media (min-width: 75rem) {
     .featured-doctors { padding-inline: var(--space-4); }
-    .doctor-carousel .doctor-tiles { --doctors-per-page: 4; }
+    .doctor-carousel .doctor-tiles,
+    .doctor-carousel .specialty-strip { --doctors-per-page: 4; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .doctor-carousel .doctor-tiles { scroll-behavior: auto; }
+    .doctor-carousel .doctor-tiles,
+    .doctor-carousel .specialty-strip { scroll-behavior: auto; }
     .doctor-carousel .doctor-tiles > .doctor-tile:hover,
     .doctor-carousel .doctor-tiles > .doctor-tile:focus-visible { transform: none; }
 }
 
 .services { padding-block: var(--space-5); }
-.specialty-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; gap: var(--space-3); }
 /* Fixed inset and gaps reserve room for magnification without reflowing text. */
 .specialty-item { min-width: 0; padding: var(--space-2); color: var(--ink); text-decoration: none; transform-origin: center; transition: transform 180ms ease; }
 .specialty-item:hover,
@@ -1378,7 +1388,6 @@ main .flash {
     .hero-subtitle { display: block; }
     .hero-actions { margin-top: var(--space-2); }
     .hero-actions .button { flex: 1 1 9rem; text-align: center; }
-    .specialty-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-2); }
 }
 
 /* Doctor profile: a compact identity column beside clinical detail. */

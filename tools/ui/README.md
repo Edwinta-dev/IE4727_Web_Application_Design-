@@ -6,6 +6,12 @@ Port 8000 is rejected because it can serve a stale XAMPP copy.
 
 ## Capture pages
 
+For specialty paging (#136), run `node tools/ui/specialty-strip.test.mjs`.
+It verifies database-backed 3/6/10/7/12 specialties at 1280/1024/768/390,
+hover allowance, keyboard paging, resize, reduced motion and no-JS access.
+Use `--before` to record the original widths and row counts without asserting
+the new paging behavior. Fixtures and the server use only `ie4727db_test`.
+
 From the repository root, run `node tools/ui/shoot.mjs --serve --label <label>
 <pages|all>`. Page arguments are app paths such as `index.php`,
 `doctor.php?id=1`, or `patient/home.php`. `all` captures the eleven pages listed
