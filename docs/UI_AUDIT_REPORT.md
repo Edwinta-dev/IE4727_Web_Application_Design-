@@ -690,3 +690,62 @@ images retain the existing alignment. An initial capture run was interrupted
 and a preliminary overly broad horizontal-growth assertion was corrected:
 the existing specialty strip uses grid placement. Successful completed runs
 are the evidence reported above.
+
+## Issue #130 — remarks inspection (C08/C14, new finding 11)
+
+The issue cites `UI_Defects.pdf` pp. 4–5 and 14. That named PDF is absent from
+`UIPROBLEMS/Open/`; only the differently named `clinicissues.pdf` is present.
+No report was renamed or fabricated. The issue's written finding was reproduced
+against clean branch `automation/ie4727-clinic` at `2f24465`, which includes
+#125. There were no working-tree edits to reconcile at task start. Existing
+`doctor/visit.php`, visit-state regression and earlier audit entries are retained.
+
+Raw `appointment.Remarks` has the `0x1Eclinic-remarks:1:` representation; the
+existing doctor board, visit editor/history and patient's completed-visit view
+already decode it. No application remarks export exists. The missing capability
+was a documented readable local review path. `docs/REMARKS.md` inventories the
+readers and documents canonical encoding, legacy/malformed fallback, editing,
+and the unavoidable raw-column limitation. The new CLI selects just one
+appointment's Remarks/Status through the existing decoder in a read-only
+transaction, with explicit configured/resolved database checks and no mail.
+It adds no content page, schema change, data migration or clinical export.
+
+The new PHP regression covers 13 synthetic encoded/plain/null/empty,
+Unicode/newline, malformed/noncanonical and unknown-version fixtures. It checks
+exact decoded and labelled CLI output, escaped terminal controls, all-table
+fingerprints before/after inspection, lossless round trips, and actual doctor
+edits preserving reason and legacy text. Invalid options, conflicting database
+selection and missing IDs fail without writes or clinical output. The production
+selection refusal uses the inherited test environment and stops before connection.
+
+Browser evidence uses synthetic authenticated doctor/patient accounts and
+relative Asia/Singapore dates from the existing fixtures. The history run records
+`2026-10-04T13:49:41+08:00` in its measurements. Owned HTTP children verify resolved
+`ie4727db_test` and disable mail; cleanup affects only test fixtures. No live
+inspection, reset or cleanup was performed. At 1280x800 and 390x844, history
+captures before save and after save/refresh were opened:
+`UIPROBLEMS/after/visit-history-flow-after/{before-save,saved-refresh}-{1280,390}.png`.
+Both show separate reason/doctor remarks, two earlier history records, and zero
+horizontal overflow. These are unchanged-page regression captures; this issue
+does not alter markup or CSS. Patient completed notes and foreign patient/doctor
+access were also exercised by the existing no-JS regression.
+
+Validation commands: PHP lint on all three new PHP files;
+`php tests/run.php test_remarks_inspection`;
+`node --test tools/ui/isolation.test.mjs`;
+`node tools/ui/visit-history.test.mjs`;
+`node tools/ui/visit-state.test.mjs`; `php tests/run.php`; `git diff --check`.
+The isolation checks pass 7/7; focused inspection passes 1/1 and history prints
+OK. One preliminary visit-state run timed out after the PHP suite was mistakenly
+started before it completed; those overlapping runs are not final serial
+validation evidence. The checks were subsequently rerun serially.
+The final serial visit-state run prints OK for the full future/past status
+matrix, ownership refusals and historical saves. The final acceptance
+`php tests/run.php` reports **82 passed, 0 failed**; existing CLI session/header
+warnings remain. PHP lint and diff whitespace checks pass.
+
+Carry-over #114 remains separate: the current navigation source still gives
+doctor/patient Home and Appointments the same content destination with an
+appointments fragment, and current-tab selection remains Home. It was not changed
+or declared resolved by #130. Raw storage remains encoded by design; legacy
+provenance cannot be invented and earlier overwritten data cannot be recovered.

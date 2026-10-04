@@ -38,6 +38,10 @@ app is partly built, so the issues now **adopt what you have** and only add to i
 
 ## Use
 
+For authorized local review of the fixed `appointment.Remarks` column, see
+[Remarks storage and read-only inspection](docs/REMARKS.md). The command uses
+the app's decoder to show patient reason and doctor remarks separately.
+
 ```bash
 gh repo create <you>/clinic-portal --private --clone
 cd clinic-portal
