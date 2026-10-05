@@ -12,6 +12,8 @@ foreach ([
     'require_login();',
     'appointments_for_patient($patientId, \'upcoming\')',
     'appointments_for_patient($patientId, \'past\')',
+    'appointments_for_patient($patientId, \'cancelled\')',
+    'Cancelled appointments',
     'Specialty',
     'Reschedule',
     'appointment-action',
@@ -48,6 +50,8 @@ assert_contains($style, '.appointment-table-scroll { max-width: 100%; overflow-x
 assert_contains($style, '.appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }', 'empty table fits its container');
 assert_contains($style, '.appointment-table-scroll:not(.is-empty) :is(th, td) { overflow-wrap: normal; white-space: nowrap; }', 'populated columns stay readable while scrolling');
 assert_contains($style, '.appointment-action:link, .appointment-action:visited', 'reschedule text remains legible on its button');
+assert_contains($page, 'class="empty-state appointment-empty-state"', 'upcoming empty state has one container');
+assert_contains($page, 'e(url(\'/book.php\'))', 'empty state links to the existing booking page');
 
 $book = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
 assert_true($book !== false && strpos($book, '/actions/appointment.php') !== false, 'reschedule uses appointment action');

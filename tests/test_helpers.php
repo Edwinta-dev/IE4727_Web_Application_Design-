@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
 
+foreach (['Unknown specialty', '', 'Specialty care 7'] as $specialty) {
+    assert_eq(specialty_image($specialty), '/assets/img/specialty-neutral.svg', 'unknown specialty uses a neutral image');
+}
+assert_eq(specialty_image('Dental'), '/assets/img/Dentist_in_action.jpg', 'known specialty retains its care photo');
+if (!is_file(dirname(__DIR__) . '/clinic-base' . specialty_image('Unknown specialty'))) {
+    throw new RuntimeException('neutral specialty image must ship with the base app');
+}
+
 if (e('<b>&amp;</b>') !== '&lt;b&gt;&amp;amp;&lt;/b&gt;') {
     throw new RuntimeException('e() did not escape HTML');
 }

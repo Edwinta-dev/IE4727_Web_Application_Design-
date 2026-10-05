@@ -1,10 +1,54 @@
 # UI screenshots and geometry audit
 
+For the iteration-5 screenshot gate (#155), run
+`node tools/ui/iter5-gate.test.mjs`, then `php tests/run.php`, serially.
+The runner requires the original local evidence in `UIPROBLEMS/Open/iter5/`,
+re-shoots all 21 PNGs and the JPG against the guarded test server, and writes
+paired comparisons, hover measurements and a 3/7/12 database matrix to
+`UIPROBLEMS/after/iter5/`. The JPG requires installed Google Chrome; other
+captures use Playwright Chromium. Both run headless. See
+`docs/UI_ITERATION5_GATE.md` for verdicts, evidence paths and capture differences.
+
+For booking URLs (#144), run `node tools/ui/booking-urls.test.mjs` as the
+acceptance command, then `php tests/run.php test_issue144` and
+`php tests/run.php`. The browser test uses only `ie4727db_test`, disables mail,
+restores the seed in `finally`, and covers 3/7/12 doctors and slots at 1280x800
+and 390x844 without JavaScript. Raw specialty fixtures have 3/7/12 values;
+the existing canonical specialty filter exposes at most five supported services.
+Do not expand that vocabulary for this booking issue.
+
+`--before` records the current DOM and screenshots without requiring the new
+URL/availability state. Before evidence in
+`UIPROBLEMS/after/issue144-before-matrix/measurements.json` shows a Book link
+for both a doctor without slots and one whose only slot is on day eight, with
+all directory links using `doctor_id`. Valid legacy deep-link dates already
+worked before this change; session-derived actor handling was also already
+present. Generated URLs now use `doctor`, include the next bookable date, and
+omit Book for unavailable doctors. The legacy input alias remains compatible.
+The acceptance test forges POST actor values in both patient and doctor sessions
+and checks the logged notification actor. After evidence is in
+`UIPROBLEMS/after/issue144-after-matrix/`. Run serially with other DB tests.
+
 These scripts are development tools. They run the PHP app from this checkout at
 `http://127.0.0.1:8123/clinic-base/`; they are not referenced by shipped pages.
 Port 8000 is rejected because it can serve a stale XAMPP copy.
 
 ## Capture pages
+
+For home card heights (#137), run `node tools/ui/home-card-height.test.mjs`.
+It prints `OK` after comparing actual card heights with unconstrained copies of
+the same content at the same width, allowing equal-height carousel siblings and
+only the existing vertical hover padding. It covers 1280/1707/390px, the seed
+and 3/7/12 database-backed doctors and specialties, hover, keyboard focus and
+reduced motion. Measurements and screenshots go to
+`UIPROBLEMS/after/issue137-height/`. The guarded fixture/server use only
+`ie4727db_test` and restore the seed in `finally`; run serially with other tests.
+
+For specialty paging (#136), run `node tools/ui/specialty-strip.test.mjs`.
+It verifies database-backed 3/6/10/7/12 specialties at 1280/1024/768/390,
+hover allowance, keyboard paging, resize, reduced motion and no-JS access.
+Use `--before` to record the original widths and row counts without asserting
+the new paging behavior. Fixtures and the server use only `ie4727db_test`.
 
 From the repository root, run `node tools/ui/shoot.mjs --serve --label <label>
 <pages|all>`. Page arguments are app paths such as `index.php`,
@@ -117,3 +161,68 @@ controls in disabled fieldsets, cannot receive focus; selftests verify these
 pass while an enabled input without a focus indicator fails at both widths.
 Asset teardown errors are ignored only after the page closes. Active-page
 failures still propagate; navigation waits for decoded images and the load event.
+
+For featured-doctor paging (#134), run `node tools/ui/featured-doctors.test.mjs`.
+It prints `OK` after testing 3, 7 and 12 database-backed doctors at 1280,
+1024, 768 and 390px, including hover/focus stability, keyboard arrows and end
+states, resizing, reduced motion and the no-JS scroll-snap fallback. Screenshots
+and measurements are saved under `UIPROBLEMS/after/issue134-after-matrix`.
+`--before` captures the original geometry without asserting carousel behavior.
+The fixture and server require resolved `ie4727db_test`; the test rebuilds it
+before each doctor count and restores the seed in `finally`. Run serially with
+other database tests.
+
+For specialty magnification (#135), run `node tools/ui/specialty-hover.test.mjs`.
+It prints `OK` after testing hover and keyboard focus at 1280, 1707 and 390px,
+with the seeded specialties and 3/7/12 distinct database-backed specialties.
+It checks uniform magnification, 16:9 images, unchanged text line counts,
+stationary siblings/footer, no overlap or horizontal overflow, and no geometry
+change under reduced motion. `--before` records the original geometry.
+Measurements and hover screenshots go to `UIPROBLEMS/after/issue135-*-matrix`.
+The guarded fixture/server use only `ie4727db_test`; the seed is restored in
+`finally`. Run serially with other database/browser tests.
+
+For booking selection and copy hygiene (#146), run
+`node tools/ui/booking-slots.test.mjs` and `node tools/ui/copy-hygiene.test.mjs`.
+The first verifies time-only controls, one shared confirmation, keyboard selection,
+unchanged slot heights and native POST data with and without JavaScript at 1280
+and 390px for 3, 7 and 12 database-backed slots and doctors. The second checks
+nonzero schedule counts, outbox subjects shortened only in display, accessible
+message table naming, collapsed metric explanations, absent notes and heading
+logos, plus admin doctor lists and schedule slots with 3/7/12 rows. Both print `OK`; captures and
+measurements go to `UIPROBLEMS/after/issue146-*`. The guarded servers resolve
+`ie4727db_test`, disable mail and restore the seed in `finally`.
+Run serially with other database/browser tests.
+
+The #146 before captures are in `UIPROBLEMS/after/issue146-before/`;
+the full-page after captures are in `issue146-after/`. Both contain all seven
+touched pages at 1280x800 and 390x844. The booking matrix also captures the
+unselected grid, first selection and replacement selection: choosing a second
+time clears the first selection and keeps the same shared confirmation panel.
+Seeded outbox subjects already omit the clinic suffix; the copy regression
+adds a historical suffixed subject in the test database and verifies that
+only its display changes.
+
+For patient dashboard acceptance (#143), run `php tests/run.php test_issue143`
+and then `node tests/ui_patient_dashboard.mjs`. The guarded browser test uses
+`ie4727db_test` and verifies distinct patient navigation, recipient isolation,
+escaped subject/body and keyboard reveal without JavaScript, pending past visits,
+and all five day-board counters with 3, 7 and 12 messages/appointments. It captures
+1280x800 and 390x844 views under `UIPROBLEMS/after/issue143-functional` and checks
+zero page overflow. The test resets the test DB first and removes its fixtures
+in `finally`. Run serially with all
+other database tests, including `php tests/run.php` (which resets the test DB).
+
+For registration arrow acceptance (#149), run
+`node tools/ui/registration-arrows.test.mjs` and `php tests/run.php` serially.
+The browser check uses only `ie4727db_test`, measures glyph fit and contrast for
+both arrows at rest, hover, keyboard focus and press, and checks keyboard role
+switching at 1280x800 and 390x844 with normal and reduced motion. It also renders
+the home page with 3/7/12 doctor/specialty source rows and decodes the neutral
+fallback image. The existing directory normalizes Dentistry to Dental and
+filters unknown services; this issue preserves that behavior. Before/after
+screenshots and measurements are under `UIPROBLEMS/after/issue149-*-states`.
+The before measurements reproduce 1:1 hover/press contrast and a 20.7px glyph
+inside 10.8px of content width. After the fix, hover/press contrast is 7.58:1
+and content width is 46px. The registration hallway photo has been removed;
+the shared header logo keeps the page's required image.

@@ -50,6 +50,11 @@ await withTestServer(true, async base => {
           for (const state of ['hover', 'focus']) {
             await page.mouse.move(0, 0);
             await page.evaluate(() => document.activeElement.blur());
+            // A specialty may be on another carousel page. Measure after
+            // revealing it, so scrolling is not mistaken for hover reflow.
+            await item.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(600);
+            const normal = await measure();
             if (state === 'hover') await item.hover();
             else {
               await item.focus();
@@ -61,8 +66,14 @@ await withTestServer(true, async base => {
             const result = await measure();
             measurements.push({ width, motion, state, index, ...result });
             if (width === 1280 && motion === 'no-preference') {
-              if (!before) assert.ok(result.items[index].height > normal.items[index].height, 'Approved grow/push height lost');
-              if (!before) assert.ok(result.strip.height > normal.strip.height && result.footer.y > normal.footer.y, 'Growing specialty must push the footer down');
+              if (!before) assert.ok(result.items[index].width > normal.items[index].width && result.items[index].y < normal.items[index].y, 'Specialty magnifies and lifts');
+            }
+            if (!before) {
+              assert.deepEqual(result.strip, normal.strip, 'Magnification must preserve strip geometry');
+              assert.deepEqual(result.footer, normal.footer, 'Magnification must preserve footer geometry');
+              for (let sibling = 0; sibling < normal.items.length; sibling++) {
+                if (sibling !== index || motion === 'reduce') assert.deepEqual(result.items[sibling], normal.items[sibling], 'Sibling/reduced motion geometry stays fixed');
+              }
             }
             assert.ok(result.footer.y >= result.strip.bottom, 'Specialties overlap footer');
             assert.ok(result.contentBottom <= result.strip.bottom + 1, 'Content escapes strip');

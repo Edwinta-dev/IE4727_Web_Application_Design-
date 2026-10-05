@@ -98,7 +98,9 @@ function book_appointment(int $patientId, int $slotId, string $reason): array
         [$doctorSubject, $doctorBody] = mail_booking_confirmed(
             (string) $doctor['FullName'],
             (string) $doctor['FullName'],
-            (string) $slot['SlotDateTime']
+            (string) $slot['SlotDateTime'],
+            null,
+            (string) $patient['FullName']
         );
         send_mail((string) $doctor['Email'], $doctorSubject, $doctorBody, $appointmentId);
 
@@ -208,14 +210,23 @@ function reschedule_appointment(int $appointmentId, int $newSlotId, string $acto
             ]
         );
 
-        $actor = $actorRole === 'doctor' ? 'doctor' : 'patient';
-        $message = "Your appointment was rescheduled by the {$actor} from "
-            . $oldDateTime . ' to ' . $newDateTime . ".\n"
-            . 'Clinic: ' . APP_NAME;
-        $subject = 'Appointment rescheduled - ' . APP_NAME;
-
-        send_mail((string) $appointment['PatientEmail'], $subject, $message, $appointmentId);
-        send_mail((string) $appointment['DoctorEmail'], $subject, $message, $appointmentId);
+        [$subject, $body] = mail_rescheduled(
+            (string) $appointment['PatientName'],
+            (string) $appointment['DoctorName'],
+            $oldDateTime,
+            $newDateTime,
+            $actorRole
+        );
+        send_mail((string) $appointment['PatientEmail'], $subject, $body, $appointmentId);
+        [$subject, $body] = mail_rescheduled(
+            (string) $appointment['DoctorName'],
+            (string) $appointment['DoctorName'],
+            $oldDateTime,
+            $newDateTime,
+            $actorRole,
+            (string) $appointment['PatientName']
+        );
+        send_mail((string) $appointment['DoctorEmail'], $subject, $body, $appointmentId);
 
         $connection->commit();
 
@@ -412,7 +423,8 @@ function block_slot(int $slotId, int $doctorId): bool
                 notify_cancelled_appointment(
                     $appointment,
                     'doctor',
-                    (int) $appointment['appointmentID']
+                    (int) $appointment['appointmentID'],
+                    true
                 );
             }
         }
@@ -537,10 +549,11 @@ function save_visit_notes(int $appointmentId, int $doctorId, array $fields): boo
 }
 
 /** @param array<string, mixed> $appointment */
-function notify_cancelled_appointment(array $appointment, string $actorRole, int $appointmentId): void
+function notify_cancelled_appointment(array $appointment, string $actorRole, int $appointmentId, bool $availabilityChanged = false): void
 {
     $actor = $actorRole === 'doctor' ? 'doctor' : 'patient';
-    [$subject, $body] = mail_cancelled(
+    $template = $availabilityChanged ? 'mail_availability_cancelled' : 'mail_cancelled';
+    [$subject, $body] = $template(
         (string) $appointment['PatientName'],
         (string) $appointment['DoctorName'],
         (string) $appointment['appointmentDateTime']
@@ -548,10 +561,12 @@ function notify_cancelled_appointment(array $appointment, string $actorRole, int
     $body .= "\nThis cancellation was made by the {$actor}.";
     send_mail((string) $appointment['PatientEmail'], $subject, $body, $appointmentId);
 
-    [$subject, $body] = mail_cancelled(
+    [$subject, $body] = $template(
         (string) $appointment['DoctorName'],
         (string) $appointment['DoctorName'],
-        (string) $appointment['appointmentDateTime']
+        (string) $appointment['appointmentDateTime'],
+        null,
+        (string) $appointment['PatientName']
     );
     $body .= "\nThis cancellation was made by the {$actor}.";
     send_mail((string) $appointment['DoctorEmail'], $subject, $body, $appointmentId);

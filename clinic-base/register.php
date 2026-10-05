@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once __DIR__ . '/lib/specialties.php';
 
 $pageTitle = 'Register - Clinic Appointment Portal';
 $registrationRole = (string) old('role', 'patient');
@@ -115,8 +116,17 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
         <fieldset id="doctor-fields" data-role-fields="doctor">
             <legend>Doctor details</legend>
+            <p>
+                <label for="specialty">Specialty</label>
+                <select id="specialty" name="Specialty">
+                    <option value="">Choose a specialty</option>
+<?php foreach (canonical_specialties() as $specialty): ?>
+                    <option value="<?= e($specialty) ?>"<?= e($oldValues['Specialty'] === $specialty ? ' selected' : '') ?>><?= e($specialty) ?></option>
+<?php endforeach; ?>
+                </select>
+                <span class="field-error" data-error-for="Specialty" role="alert"><?= e($registrationErrors['Specialty'] ?? '') ?></span>
+            </p>
             <?php foreach ([
-                'Specialty' => ['Specialty', 'Your medical specialty'],
                 'Qualifications' => ['Qualifications', 'Your qualifications'],
                 'Languages' => ['Languages', 'Languages you speak'],
             ] as $field => [$label, $placeholder]): ?>
@@ -138,7 +148,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <button type="submit">Create account</button>
     </form>
     <aside class="registration-support" aria-label="Registration information">
-        <img src="<?= e(url('/assets/img/Clinic_Assisting_Elderly_woman.jpg')) ?>" width="600" height="400" loading="eager" decoding="async" alt="Clinic staff assisting an older patient" class="registration-support-image">
         <section>
             <h2>What you’ll need</h2>
             <p>Patients need a phone number and a list of known allergies. Doctors should have their specialty, qualifications and spoken languages ready.</p>

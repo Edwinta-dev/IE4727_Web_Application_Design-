@@ -9,7 +9,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 /** @return list<array<string, mixed>> */
 function appointments_for_patient(int $patientId, string $when = 'all'): array
 {
-    if (!in_array($when, ['upcoming', 'past', 'all'], true)) {
+    if (!in_array($when, ['upcoming', 'past', 'cancelled', 'all'], true)) {
         throw new InvalidArgumentException('Invalid appointment time range.');
     }
 
@@ -20,8 +20,11 @@ function appointments_for_patient(int $patientId, string $when = 'all'): array
         $where[] = "a.`appointmentDateTime` >= NOW()";
         $where[] = "a.`Status` IN ('Future', 'Rescheduled')";
     } elseif ($when === 'past') {
+        $where[] = "a.`Status` <> 'Cancelled'";
         $where[] = "(a.`appointmentDateTime` < NOW()
                      OR a.`Status` NOT IN ('Future', 'Rescheduled'))";
+    } elseif ($when === 'cancelled') {
+        $where[] = "a.`Status` = 'Cancelled'";
     }
 
     return q_all(
@@ -52,6 +55,22 @@ function appointments_for_doctor_day(int $doctorId, string $date): array
          ORDER BY a.`appointmentDateTime`',
         ['doctor_id' => $doctorId, 'appointment_date' => $date]
     );
+}
+
+/** Find the next booked day on or after the supplied date for this doctor. */
+function next_appointment_day_for_doctor(int $doctorId, string $fromDate): ?string
+{
+    $row = q_one(
+        "SELECT DATE(`appointmentDateTime`) AS `AppointmentDay`
+         FROM `appointment`
+         WHERE `DoctorID` = :doctor_id
+           AND `appointmentDateTime` >= :from_date
+           AND `Status` IN ('Future', 'Rescheduled')
+         ORDER BY `appointmentDateTime`
+         LIMIT 1",
+        ['doctor_id' => $doctorId, 'from_date' => $fromDate . ' 00:00:00']
+    );
+    return $row === null ? null : (string) $row['AppointmentDay'];
 }
 
 /** @return array<string, mixed>|null */

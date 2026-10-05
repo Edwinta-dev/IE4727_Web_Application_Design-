@@ -36,7 +36,6 @@ if ($rescheduleRequested) {
 
 $now = new DateTimeImmutable();
 $today = $now->setTime(0, 0);
-$lastBrowseDate = $today->modify('+' . (BROWSE_DAYS - 1) . ' days');
 
 $doctorInput = $_GET['doctor'] ?? $_GET['doctor_id'] ?? '';
 $doctorId = is_string($doctorInput) && ctype_digit($doctorInput) ? (int) $doctorInput : 0;
@@ -109,6 +108,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
+        <input id="date" type="hidden" name="date" value="<?= e($selectedDate) ?>">
 <?php if ($reschedule !== null): ?>
         <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
 <?php endif; ?>
@@ -121,18 +121,19 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
             </select>
         </p>
-        <p>
-            <label for="date">Date</label>
-            <input id="date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" max="<?= e($lastBrowseDate->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
-        </p>
-        <p>
-            <label for="from">From</label>
-            <input id="from" name="from" type="time" value="<?= e($fromTime) ?>" required>
-        </p>
-        <p>
-            <label for="to">To</label>
-            <input id="to" name="to" type="time" value="<?= e($toTime) ?>" required>
-        </p>
+        <details class="booking-time-filter"<?= e($fromTime !== '00:00' || $toTime !== '23:59' ? ' open' : '') ?>>
+            <summary>Filter by time</summary>
+            <div class="booking-time-fields">
+                <p>
+                    <label for="from">From</label>
+                    <input id="from" name="from" type="time" value="<?= e($fromTime) ?>" required>
+                </p>
+                <p>
+                    <label for="to">To</label>
+                    <input id="to" name="to" type="time" value="<?= e($toTime) ?>" required>
+                </p>
+            </div>
+        </details>
         <button type="submit">Show schedule</button>
     </form>
 
@@ -140,7 +141,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <p class="error-summary" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?> instead. Choose another date to view its schedule.</p>
 <?php endif; ?>
 
-    <nav class="day-tabs" aria-label="Choose a day">
+    <div class="booking-days">
+        <button class="day-scroll" type="button" data-direction="-1" aria-label="Show earlier days" aria-controls="booking-day-tabs" hidden>&larr;</button>
+    <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day" aria-describedby="day-scroll-hint">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(array_merge(
@@ -148,9 +151,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     ));
 ?>
-        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"><?= e($day->format('D d M')) ?></a>
+        <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
     </nav>
+        <button class="day-scroll" type="button" data-direction="1" aria-label="Show later days" aria-controls="booking-day-tabs" hidden>&rarr;</button>
+    </div>
+    <p id="day-scroll-hint" class="day-scroll-hint">Scroll sideways to see all seven days.</p>
 
 <?php flash_render(); ?>
 
@@ -163,7 +169,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div><h2><?= e((string) $doctor['FullName']) ?></h2><p><?= e((string) $doctor['Specialty']) ?></p><p><?= e(fmt_date($selectedDate)) ?></p></div>
         </aside>
         <div class="booking-slots">
-    <p>Choose a free time. Your appointment is confirmed after you submit the reason for your visit.</p>
 <?php if ($dayEmptyMessage !== null): ?>
     <p class="empty-state"><?= e($dayEmptyMessage) ?>
 <?php if ($availableDayUrl !== null): ?>
@@ -174,7 +179,18 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </p>
 <?php endif; ?>
 <?php if ($slots !== []): ?>
-    <div class="schedule-grid" aria-label="Appointment schedule">
+    <div class="slot-booking">
+            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
+                <?= csrf_field() ?>
+                <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
+                <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
+                <input type="hidden" name="from" value="<?= e($fromTime) ?>">
+                <input type="hidden" name="to" value="<?= e($toTime) ?>">
+<?php if ($reschedule !== null): ?>
+                <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
+                <input type="hidden" name="reschedule" value="1">
+<?php endif; ?>
+    <div class="schedule-grid" role="group" aria-label="Appointment time">
 <?php foreach ($slots as $slot):
     $slotDateTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
     $isPast = $slotDateTime <= $now;
@@ -186,41 +202,32 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     };
 ?>
         <div class="slot <?= e($stateClass) ?>">
-            <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
 <?php if ($stateClass === 'free'): ?>
-            <details class="slot-booking"><summary>Select time</summary>
-            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
-                <?= csrf_field() ?>
-                <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
-                <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
-                <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
-                <input type="hidden" name="from" value="<?= e($fromTime) ?>">
-                <input type="hidden" name="to" value="<?= e($toTime) ?>">
-<?php if ($reschedule !== null): ?>
-                <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
-                <input type="hidden" name="reschedule" value="1">
-                <input type="hidden" name="actor" value="<?= e($rescheduleActor) ?>">
-<?php endif; ?>
-<?php if ($reschedule !== null): ?>
-                <p>Replace your appointment with <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?> with this time: <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>. Your current booking stays in place until this change succeeds.</p>
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required>
+            <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
 <?php else: ?>
-                <p>Confirm this appointment with <?= e((string) $doctor['FullName']) ?> on <?= e(fmt_date($selectedDate)) ?> at <?= e(fmt_time((string) $slot['SlotDateTime'])) ?>.</p>
-<?php endif; ?>
-                <label for="reason-<?= e((string) $slot['slotID']) ?>">Reason for visit</label>
-                <input id="reason-<?= e((string) $slot['slotID']) ?>" name="reason" type="text" maxlength="255" required>
-                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
-            </form>
-            </details>
-<?php else: ?>
+            <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
             <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ($stateClass === 'blocked' ? 'Unavailable' : 'Past')) ?></span>
 <?php endif; ?>
         </div>
 <?php endforeach; ?>
+    </div>
+<?php if ($dayEmptyMessage === null): ?>
+    <section class="booking-confirmation" aria-labelledby="confirmation-heading">
+                <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
+                <p><?= e((string) $doctor['FullName']) ?> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+                <label for="reason">Reason for visit</label>
+                <input id="reason" name="reason" type="text" maxlength="255" required>
+                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
+    </section>
+<?php endif; ?>
+            </form>
     </div>
 <?php endif; ?>
         </div>
     </section>
 <?php endif; ?>
 </main>
+<script src="<?= e(url('/assets/booking-slots.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

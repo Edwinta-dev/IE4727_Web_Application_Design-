@@ -16,6 +16,7 @@ $currentTab = match ($navigationRole) {
     'patient' => match ($currentPath) {
         '/patient/home.php' => '/patient/home.php',
         '/doctors.php' => '/doctors.php',
+        '/book.php' => '/book.php',
         default => null,
     },
     'doctor' => match ($currentPath) {
@@ -40,15 +41,14 @@ $currentTab = match ($navigationRole) {
 
 $links = match ($navigationRole) {
     'patient' => [
-        ['label' => 'Home', 'href' => '/patient/home.php'],
+        ['label' => 'My appointments', 'href' => '/patient/home.php'],
         ['label' => 'Find a doctor', 'href' => '/doctors.php'],
-        ['label' => 'My appointments', 'href' => '/patient/home.php#appointments'],
+        ['label' => 'Book an appointment', 'href' => '/book.php'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'doctor' => [
-        ['label' => 'Home', 'href' => '/doctor/home.php'],
+        ['label' => 'Day board', 'href' => '/doctor/home.php'],
         ['label' => 'Schedule', 'href' => '/doctor/schedule.php'],
-        ['label' => 'Appointments', 'href' => '/doctor/home.php#appointments'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'admin' => [
@@ -64,7 +64,8 @@ $links = match ($navigationRole) {
     ],
 };
 ?>
-<nav class="site-nav" aria-label="Main navigation">
+<button class="nav-toggle" type="button" aria-controls="site-navigation" aria-expanded="false" hidden>Menu</button>
+<nav id="site-navigation" class="site-nav" aria-label="Main navigation">
     <ul>
 <?php foreach ($links as $link): ?>
         <li<?php if ($link['label'] === 'Log out'): ?> class="nav-logout"<?php endif; ?>>
@@ -75,3 +76,4 @@ $links = match ($navigationRole) {
 </nav>
 </div>
 </header>
+<script src="<?= e(url('/assets/nav.js')) ?>"></script>

@@ -132,7 +132,7 @@ function require_login(): void
 {
     if (current_user() === null) {
         http_response_code(401);
-        auth_redirect_to_login();
+        auth_redirect_to_login('Please sign in to continue.');
     }
 }
 
@@ -141,7 +141,7 @@ function require_doctor(): void
     $user = current_user();
     if ($user === null || !is_doctor()) {
         http_response_code($user === null ? 401 : 403);
-        auth_redirect_to_login();
+        auth_redirect_to_login('Please sign in as a doctor to continue.');
     }
 }
 
@@ -150,7 +150,7 @@ function require_admin(): void
     $user = current_user();
     if ($user === null || !is_admin()) {
         http_response_code($user === null ? 401 : 403);
-        auth_redirect_to_login();
+        auth_redirect_to_login('Please sign in as an admin to continue.');
     }
 }
 
@@ -159,7 +159,7 @@ function require_role(string $role): void
     $user = current_user();
     if ($user === null || (string) ($user['role'] ?? '') !== $role) {
         http_response_code($user === null ? 401 : 403);
-        auth_redirect_to_login();
+        auth_redirect_to_login('Please sign in with the required role to continue.');
     }
 }
 
@@ -202,8 +202,9 @@ function auth_remember_token_matches(): bool
         && hash_equals($hash, hash('sha256', $token));
 }
 
-function auth_redirect_to_login(): never
+function auth_redirect_to_login(string $message = 'Please sign in to continue.'): never
 {
+    flash($message, 'error');
     $next = app_request_uri();
     redirect('/index.php?next=' . rawurlencode($next));
 }

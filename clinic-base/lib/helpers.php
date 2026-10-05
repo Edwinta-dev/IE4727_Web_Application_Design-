@@ -126,7 +126,7 @@ function app_request_uri(): string
 }
 
 /**
- * Practice photo for a doctor's specialty, shown on their profile page.
+ * Specialty care photo, or a neutral illustration when no matching photo exists.
  */
 function specialty_image(string $specialty): string
 {
@@ -138,7 +138,7 @@ function specialty_image(string $specialty): string
         'Physiotherapy' => 'Physiotherapist_in_Action.jpg',
     ];
 
-    return '/assets/img/' . ($images[$specialty] ?? 'Clinic_Assisting_Elderly_woman.jpg');
+    return '/assets/img/' . ($images[$specialty] ?? 'specialty-neutral.svg');
 }
 
 /** @return array{summary: string, who_should_book: list<string>} */

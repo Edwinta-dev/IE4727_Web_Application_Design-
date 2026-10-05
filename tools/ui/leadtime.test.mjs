@@ -35,6 +35,8 @@ await withTestServer(true, async base => {
       for (const [state, query, result, coverage] of states) {
         await page.goto(`${base}admin/console.php?${query}`);
         const metric = page.locator('.stat-card').filter({ has: page.getByRole('heading', { name: 'Mean booking lead time' }) });
+        assert.equal(await metric.locator('.metric-note').getAttribute('open'), null, 'Formula starts collapsed');
+        await metric.locator('.metric-note summary').click();
         const text = await metric.innerText();
         assert.ok(text.includes(result), `${state}: ${text}`);
         assert.ok(text.includes(coverage), `${state}: ${text}`);

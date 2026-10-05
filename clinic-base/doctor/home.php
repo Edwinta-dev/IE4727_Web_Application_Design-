@@ -15,17 +15,24 @@ $today = new DateTimeImmutable('today');
 $dateInput = $_GET['date'] ?? '';
 $date = is_string($dateInput) ? $dateInput : '';
 $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+$explicitDate = $parsedDate !== false && $parsedDate->format('Y-m-d') === $date;
 if ($parsedDate === false || $parsedDate->format('Y-m-d') !== $date) {
     $date = $today->format('Y-m-d');
 }
 
 $appointments = appointments_for_doctor_day($doctorId, $date);
-$counts = ['Future' => 0, 'Completed' => 0, 'No show' => 0];
+if (!$explicitDate && $appointments === []) {
+    $date = next_appointment_day_for_doctor($doctorId, $today->format('Y-m-d')) ?? $date;
+    $appointments = appointments_for_doctor_day($doctorId, $date);
+}
+$boardDay = new DateTimeImmutable($date);
+$previousDay = $boardDay->modify('-1 day')->format('Y-m-d');
+$followingDay = $boardDay->modify('+1 day')->format('Y-m-d');
+$nextAppointmentDay = next_appointment_day_for_doctor($doctorId, max($followingDay, $today->format('Y-m-d')));
+$counts = ['Future' => 0, 'Rescheduled' => 0, 'Cancelled' => 0, 'Completed' => 0, 'No show' => 0];
 foreach ($appointments as $appointment) {
     $status = (string) $appointment['Status'];
-    if ($status === 'Rescheduled') {
-        $counts['Future']++;
-    } elseif (array_key_exists($status, $counts)) {
+    if (array_key_exists($status, $counts)) {
         $counts[$status]++;
     }
 }
@@ -43,7 +50,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="appointments">
     <section class="page-intro day-board-heading">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Day board</h1>
+            <h1>Day board</h1>
         </div>
         <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
             <label for="day">Schedule date</label>
@@ -52,10 +59,22 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </form>
     </section>
 
+    <nav class="day-board-navigation" aria-label="Day navigation">
+        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>"><span aria-hidden="true">&larr; </span>Previous day</a>
+        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>">Next day<span aria-hidden="true"> &rarr;</span></a>
+        <?php if ($nextAppointmentDay !== null): ?>
+            <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
+        <?php else: ?>
+            <span>No upcoming appointments after this day.</span>
+        <?php endif; ?>
+    </nav>
+
     <?php flash_render(); ?>
 
     <section class="day-summary summary-strip" aria-label="Day summary">
         <p class="summary-future">Future: <?= e((string) $counts['Future']) ?></p>
+        <p>Rescheduled: <?= e((string) $counts['Rescheduled']) ?></p>
+        <p>Cancelled: <?= e((string) $counts['Cancelled']) ?></p>
         <p class="summary-completed">Completed: <?= e((string) $counts['Completed']) ?></p>
         <p class="summary-no-show">No-show: <?= e((string) $counts['No show']) ?></p>
     </section>

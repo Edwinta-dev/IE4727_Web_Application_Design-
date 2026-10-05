@@ -21,13 +21,13 @@ await withTestServer(true, async () => {
       await open(requested);
       check((await page.locator('[role="alert"]').innerText()).includes(reason), `${requested}: rejection reason missing`);
       check((await page.locator('[role="alert"]').innerText()).includes('Showing'), `${requested}: fallback not announced`);
-      check(await page.locator('#date').inputValue() === today, `${requested}: displayed day differs from fallback`);
+      check(await page.locator('.booking-filters [name="date"]').inputValue() === today, `${requested}: displayed day differs from fallback`);
       check((await page.locator('.booking-doctor').innerText()).includes(todayLabel), `${requested}: doctor grid must show effective day`);
     }
     for (const offset of [0, 6]) {
       await open(day(offset));
       check(await page.locator('[role="alert"]').count() === 0, `day ${offset}: valid boundary rejected`);
-      check(await page.locator('#date').inputValue() === day(offset), `day ${offset}: valid boundary changed`);
+      check(await page.locator('.booking-filters [name="date"]').inputValue() === day(offset), `day ${offset}: valid boundary changed`);
     }
     await page.goto(`${appBase}doctor.php?id=1`);
     for (const href of await page.locator('.available-slots a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))) {
@@ -61,14 +61,13 @@ await withTestServer(true, async () => {
     const noJs = await browser.newPage({ javaScriptEnabled: false });
     await noJs.goto(`${appBase}book.php?doctor=1&date=${encodeURIComponent(day(40))}`);
     check(await noJs.locator('[role="alert"]').count() === 1, 'no-JS invalid date has no message');
-    await noJs.locator('#date').fill(day(6));
-    await Promise.all([noJs.waitForNavigation(), noJs.getByRole('button', { name: 'Show schedule' }).click()]);
-    check(await noJs.locator('#date').inputValue() === day(6) && await noJs.locator('[role="alert"]').count() === 0, 'no-JS valid filter failed');
+    await Promise.all([noJs.waitForNavigation(), noJs.locator('.day-tab').last().click()]);
+    check(await noJs.locator('.booking-filters [name="date"]').inputValue() === day(6) && await noJs.locator('[role="alert"]').count() === 0, 'no-JS valid day tab failed');
     await noJs.close();
 
     await page.goto(`${appBase}book.php?doctor=1&date=${available.SlotDateTime.slice(0, 10)}`);
     const form = page.locator(`.slot-booking form:has(input[name="slot_id"][value="${available.slotID}"])`);
-    await form.locator('..').locator('summary').click();
+    await form.locator(`input[name="slot_id"][value="${available.slotID}"]`).check();
     await form.locator('input[name="reason"]').fill('Date regression visit');
     await Promise.all([page.waitForNavigation(), form.locator('button').click()]);
     check(Number(php(`echo q_val("SELECT COUNT(*) FROM \`appointment\` WHERE \`slotID\` = ${available.slotID}");`)) === 1, 'valid future-slot booking failed');

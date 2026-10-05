@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 require_login();
 
@@ -13,6 +14,8 @@ $user = current_user();
 $patientId = (int) $user['id'];
 $upcoming = appointments_for_patient($patientId, 'upcoming');
 $past = appointments_for_patient($patientId, 'past');
+$cancelled = appointments_for_patient($patientId, 'cancelled');
+$notifications = notifications_for_patient($patientId);
 $viewIdInput = $_GET['view'] ?? '';
 $viewId = is_string($viewIdInput) && ctype_digit($viewIdInput) ? (int) $viewIdInput : 0;
 $visit = $viewId > 0 ? completed_appointment_for_patient($patientId, $viewId) : null;
@@ -24,7 +27,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="appointments">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">My appointments</h1>
+            <h1>My appointments</h1>
             <p>Check appointment times, change a future booking, or read notes from a completed visit.</p>
         </div>
     </section>
@@ -41,7 +44,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
             <tbody>
 <?php if ($upcoming === []): ?>
-                <tr><td colspan="6"><p class="empty-state">You have no upcoming appointments.</p></td></tr>
+                <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/book.php')) ?>">Book an appointment</a></div></td></tr>
 <?php else: ?>
 <?php foreach ($upcoming as $appointment): ?>
                 <tr>
@@ -85,12 +88,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
                     <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
                     <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e((string) $appointment['Status']) ?></td>
+                    <td><?= e(in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true) ? 'Awaiting outcome' : (string) $appointment['Status']) ?></td>
                     <td>
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
                         <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
 <?php else: ?>
-                        Not available
+                        <?= e("\u{2014}") ?>
 <?php endif; ?>
                     </td>
                 </tr>
@@ -99,6 +102,47 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             </tbody>
         </table>
         </div>
+    </section>
+
+<?php if ($cancelled !== []): ?>
+    <section class="appointments cancelled-appointments">
+        <h2 id="cancelled-heading">Cancelled appointments</h2>
+        <p class="table-scroll-hint">Swipe or scroll the table to see times and status.</p>
+        <div class="appointment-table-scroll" role="region" aria-labelledby="cancelled-heading" tabindex="0">
+        <table>
+            <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+<?php foreach ($cancelled as $appointment): ?>
+                <tr>
+                    <td><?= e((string) $appointment['DoctorName']) ?></td>
+                    <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
+                    <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td><?= e((string) $appointment['Status']) ?></td>
+                </tr>
+<?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+    </section>
+<?php endif; ?>
+
+    <section class="patient-notifications" aria-labelledby="notifications-heading">
+        <h2 id="notifications-heading">Latest notifications</h2>
+<?php if ($notifications === []): ?>
+        <p class="empty-state">You have no notifications.</p>
+<?php else: ?>
+        <p>Booking updates and messages from the clinic. Your latest 20 messages are shown.</p>
+<?php foreach ($notifications as $notification): ?>
+        <details class="patient-notification">
+            <summary>
+                <span><?= e((string) $notification['Subject']) ?></span>
+                <time datetime="<?= e(str_replace(' ', 'T', (string) $notification['SentAt'])) ?>"><?= e(fmt_date((string) $notification['SentAt']) . ' at ' . fmt_time((string) $notification['SentAt'])) ?></time>
+            </summary>
+            <div class="notification-body"><?= nl2br(e((string) $notification['Body']), false) ?></div>
+        </details>
+<?php endforeach; ?>
+<?php endif; ?>
     </section>
 
 <?php if ($visit !== null): ?>

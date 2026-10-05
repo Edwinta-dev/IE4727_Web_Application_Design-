@@ -20,6 +20,8 @@ defined('DB_USER') || define('DB_USER', 'root');
 defined('DB_PASS') || define('DB_PASS', '');
 defined('APP_NAME') || define('APP_NAME', 'Clinic Appointment Portal');
 defined('CLINIC_EMAIL') || define('CLINIC_EMAIL', 'clinic@example.local');
+// Local demos can log notifications without waiting for an unavailable SMTP service.
+defined('MAIL_DELIVERY') || define('MAIL_DELIVERY', getenv('MAIL_DELIVERY') ?: 'on');
 defined('SLOT_MINUTES') || define('SLOT_MINUTES', 30);
 defined('SCHEDULE_DAYS') || define('SCHEDULE_DAYS', 30);
 // Doctors can generate and manage dates within one year; each generation spans at most SCHEDULE_DAYS.

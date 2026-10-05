@@ -22,7 +22,7 @@ $navigationCases = [
     ['patient', '/patient/home.php', '/patient/home.php'],
     ['patient', '/patient/home.php?date=2026-10-01', '/patient/home.php'],
     ['patient', '/doctors.php', '/doctors.php'],
-    ['patient', '/book.php?doctor=1', null],
+    ['patient', '/book.php?doctor=1', '/book.php'],
     ['patient', '/index.php', null],
     ['doctor', '/doctor/home.php', '/doctor/home.php'],
     ['doctor', '/doctor/schedule.php?date=2026-10-01', '/doctor/schedule.php'],
@@ -43,11 +43,21 @@ foreach ($navigationCases as [$role, $route, $expected]) {
     if (substr_count($html, 'aria-current="page"') !== count($matches[1])) {
         throw new RuntimeException("Unexpected current state for {$role} {$route}");
     }
-    if ($role === 'patient' && !str_contains($html, 'href="/patient/home.php#appointments"')) {
-        throw new RuntimeException('Patient appointment preview link changed');
+    if ($role === 'patient') {
+        preg_match_all('/<a href="([^"]+)"/', $html, $patientLinks);
+        if (count(array_unique($patientLinks[1])) !== count($patientLinks[1])
+            || !str_contains($html, 'href="/patient/home.php"')
+            || !str_contains($html, 'href="/book.php"')
+            || str_contains($html, 'href="/patient/home.php#appointments"')) {
+            throw new RuntimeException('Patient navigation must have distinct appointments, doctor search and booking destinations');
+        }
     }
-    if ($role === 'doctor' && !str_contains($html, 'href="/doctor/home.php#appointments"')) {
-        throw new RuntimeException('Doctor appointment preview link changed');
+    if ($role === 'doctor') {
+        preg_match_all('/<a href="([^"]+)"/', $html, $doctorLinks);
+        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php?logout=1']
+            || !str_contains($html, '>Day board</a>')) {
+            throw new RuntimeException('Doctor navigation must have one day board destination, schedule and logout');
+        }
     }
 }
 

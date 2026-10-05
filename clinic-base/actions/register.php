@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'validate.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
+require_once dirname(__DIR__) . '/lib/specialties.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect('/register.php');
@@ -40,7 +41,7 @@ $rules = [
 ];
 if ($data['role'] === 'doctor') {
     $rules += [
-        'Specialty' => 'required|max:80',
+        'Specialty' => 'required|in:' . implode(',', canonical_specialties()),
         'Qualifications' => 'required|max:255',
         'WriteUp' => 'required|max:65535',
         'Languages' => 'required|max:120',
@@ -53,6 +54,9 @@ if ($data['role'] === 'doctor') {
 }
 
 $errors = validate($data, $rules);
+if ($data['role'] === 'doctor' && isset($errors['Specialty'])) {
+    $errors['Specialty'] = 'Choose a specialty from the list of clinic services.';
+}
 if ($data['role'] === 'patient' && $data['Phone'] !== '' && isset($errors['Phone'])) {
     $errors['Phone'] = 'Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +.';
 }
@@ -71,6 +75,7 @@ $connection = db();
 try {
     $connection->beginTransaction();
     if ($data['role'] === 'doctor') {
+        $data['FullName'] = doctor_display_name($data['FullName']);
         create_doctor_account($data);
     } else {
         $data['Allergies'] = $data['Allergies'] === ''

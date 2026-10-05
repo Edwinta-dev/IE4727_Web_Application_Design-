@@ -131,7 +131,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <main id="schedule-editor">
     <section class="page-intro">
         <div class="page-intro-copy">
-            <h1><img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" width="40" height="40" loading="eager" decoding="async" alt="" class="page-intro-mark">Schedule editor</h1>
+            <h1>Schedule editor</h1>
             <p>Generate up to 30 days at a time through <?= e(fmt_date($managementEnd->format('Y-m-d'))) ?>. Existing later slots remain available to manage.</p>
         </div>
     </section>
@@ -139,54 +139,31 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <?php flash_render(); ?>
     <?php if ($dateError !== ''): ?><p class="flash flash-error" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?>.</p><?php endif; ?>
 
-    <section class="schedule-generator" aria-labelledby="generate-heading">
-        <h2 id="generate-heading">Generate schedule</h2>
-        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
-            <?= csrf_field() ?>
-            <input type="hidden" name="action" value="generate">
-            <label for="start-date">Start date</label>
-            <input id="start-date" name="start_date" type="date" min="<?= e($today->format('Y-m-d')) ?>" max="<?= e($managementEnd->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
-            <label for="days">Number of days</label>
-            <input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required>
-            <label for="start-time">Working hours from</label>
-            <input id="start-time" name="start_time" type="time" value="09:00" required>
-            <label for="end-time">Working hours to</label>
-            <input id="end-time" name="end_time" type="time" value="17:00" required>
-            <label for="slot-length">Slot length</label>
-            <select id="slot-length" name="slot_length">
-                <option value="15">15 minutes</option>
-                <option value="30" selected>30 minutes</option>
-                <option value="60">60 minutes</option>
-            </select>
-            <fieldset class="days-to-skip">
-                <legend>Days to skip</legend>
-                <?php foreach ([0 => 'Sunday', 1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday'] as $dayNumber => $dayName): ?>
-                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
-                <?php endforeach; ?>
-            </fieldset>
-            <button type="submit">Generate slots</button>
-        </form>
-    </section>
-
     <section class="month-grid" aria-labelledby="month-heading">
         <h2 id="month-heading">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?></h2>
-        <form method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
+        <form class="schedule-date-filter" method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
             <label for="schedule-date">Open a date</label>
             <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
             <button type="submit">Show date</button>
         </form>
         <div class="schedule-month-grid">
+            <?php foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $weekday): ?>
+                <div class="schedule-weekday"><?= e($weekday) ?></div>
+            <?php endforeach; ?>
+            <?php for ($padding = 1; $padding < (int) $gridStart->format('N'); $padding++): ?>
+                <div class="schedule-calendar-gap" aria-hidden="true"></div>
+            <?php endfor; ?>
             <?php for ($offset = 0; $offset < 30; $offset++): ?>
                 <?php
                 $day = $gridStart->modify('+' . $offset . ' days');
                 $dayDate = $day->format('Y-m-d');
                 $dayCounts = $countsByDate[$dayDate] ?? ['Available' => 0, 'Booked' => 0, 'Blocked' => 0];
+                $totalSlots = array_sum($dayCounts);
+                $dayDescription = fmt_date($dayDate) . ': ' . $dayCounts['Available'] . ' Available, ' . $dayCounts['Booked'] . ' Booked, ' . $dayCounts['Blocked'] . ' Blocked';
                 ?>
-                <article class="schedule-day<?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
-                    <h3><a href="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>"><?= e(fmt_date($dayDate)) ?></a></h3>
-                    <p class="slot-count available">Available: <?= e((string) $dayCounts['Available']) ?></p>
-                    <p class="slot-count booked">Booked: <?= e((string) $dayCounts['Booked']) ?></p>
-                    <p class="slot-count blocked">Blocked: <?= e((string) $dayCounts['Blocked']) ?></p>
+                <article class="schedule-day<?= e($totalSlots === 0 ? ' no-slots' : '') ?><?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
+                    <a href="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>" aria-label="<?= e($dayDescription) ?>"<?php if ($dayDate === $selectedDate): ?> aria-current="date"<?php endif; ?>><time datetime="<?= e($dayDate) ?>"><?= e($day->format('j')) ?><?php if ($offset === 0 || $day->format('j') === '1'): ?> <span class="calendar-month"><?= e($day->format('M')) ?></span><?php endif; ?></time>
+                    <span class="calendar-slot-total"><?= e($totalSlots === 0 ? 'No slots' : $totalSlots . ' slots') ?></span></a>
                 </article>
             <?php endfor; ?>
         </div>
@@ -194,6 +171,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="day-view" aria-labelledby="day-heading">
         <h2 id="day-heading">Slots for <?= e(fmt_date($selectedDate)) ?></h2>
+        <p class="schedule-day-counts">
+            <?php foreach (['Available', 'Booked', 'Blocked'] as $status): ?>
+                <span><?= e($status) ?>: <?= e((string) ($countsByDate[$selectedDate][$status] ?? 0)) ?></span>
+            <?php endforeach; ?>
+        </p>
         <?php if ($slots === []): ?>
             <p class="empty-state">No slots have been generated for this day.</p>
         <?php else: ?>
@@ -206,7 +188,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     ?>
                     <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
                         <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
-                        <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : ($status === 'Blocked' ? 'Unavailable' : $status)) ?></span>
+                        <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : $status) ?></span>
                         <?php if ($timeClass !== ''): ?>
                             <span class="slot-readonly">This slot has started; availability can no longer be changed.</span>
                         <?php elseif ($status === 'Booked'): ?>
@@ -240,5 +222,42 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             </ul>
         <?php endif; ?>
     </section>
+    <section class="schedule-generator" aria-labelledby="generate-heading">
+        <h2 id="generate-heading">Generate schedule</h2>
+        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="generate">
+            <p class="generator-start">Starting <?= e(fmt_date($selectedDate)) ?>. Choose another start date in the calendar above.</p>
+            <input id="start-date" name="start_date" type="hidden" value="<?= e($selectedDate) ?>">
+            <div class="generator-field">
+                <label for="days">Number of days</label>
+                <input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required>
+            </div>
+            <div class="generator-field">
+                <label for="start-time">Working hours from</label>
+                <input id="start-time" name="start_time" type="time" value="09:00" required>
+            </div>
+            <div class="generator-field">
+                <label for="end-time">Working hours to</label>
+                <input id="end-time" name="end_time" type="time" value="17:00" required>
+            </div>
+            <div class="generator-field">
+                <label for="slot-length">Slot length</label>
+                <select id="slot-length" name="slot_length">
+                    <option value="15">15 minutes</option>
+                    <option value="30" selected>30 minutes</option>
+                    <option value="60">60 minutes</option>
+                </select>
+            </div>
+            <fieldset class="days-to-skip">
+                <legend>Days to skip</legend>
+                <?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $dayNumber => $dayName): ?>
+                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
+                <?php endforeach; ?>
+            </fieldset>
+            <button type="submit">Generate slots</button>
+        </form>
+    </section>
+
 </main>
 <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 
+/** Monday–Sunday range, using the same database date as the weekly count.
+ * @return array{start: string, end: string}
+ */
+function appointment_week_range(): array
+{
+    return q_one(
+        'SELECT DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) AS `start`,
+                DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY) AS `end`'
+    );
+}
+
 /** @return list<array<string, mixed>> */
 function appointments_per_doctor_this_week(): array
 {

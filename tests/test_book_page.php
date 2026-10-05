@@ -19,7 +19,7 @@ foreach ([
     'class="booking-doctor"',
     'class="booking-slots"',
     'class="slot <?= e($stateClass) ?>"',
-    '<details class="slot-booking"><summary>Select time</summary>',
+    'class="slot-choice"',
     "? 'Unavailable' : 'Past'",
     "'free'",
     "'taken'",
@@ -42,7 +42,7 @@ assert_true(strpos($page, 'SELECT ') === false, 'booking page must not contain S
 foreach (['$rescheduleRequested', 'name="reschedule" value="<?= e((string) $rescheduleId)',
     '[\'reschedule\' => $rescheduleId]', 'Current appointment:',
     'Your current booking stays in place until the replacement is confirmed.',
-    'Back to appointments', 'Replace your appointment with'] as $needle) {
+    'Back to appointments', 'Confirm replacement'] as $needle) {
     assert_contains($page, $needle, 'rescheduling context and filter routing');
 }
 $tokens = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/tokens.css');
@@ -53,3 +53,12 @@ assert_contains($css, '.appointment-action:focus');
 assert_contains($css, 'color: var(--c-button-foreground);');
 
 echo "PASS: booking page markup checks\n";
+
+assert_true(strpos($page, 'type="date"') === false, 'day tabs replace the duplicate date picker');
+assert_contains($page, '<summary>Filter by time</summary>');
+assert_contains($page, 'class="booking-time-filter"');
+assert_contains($page, 'Show earlier days');
+assert_contains($page, 'Show later days');
+assert_contains($page, 'Scroll sideways to see all seven days.');
+$nav = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php');
+assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/book.php']");

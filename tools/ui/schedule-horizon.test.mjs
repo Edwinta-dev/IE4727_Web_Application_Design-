@@ -21,7 +21,8 @@ await withTestServer(true, async () => {
     await login(page, 'doctor', appBase);
     const open = async date => page.goto(`${appBase}doctor/schedule.php?date=${encodeURIComponent(date)}`, { waitUntil: 'networkidle' });
     const generate = async (date, days = 1) => {
-      await page.locator('#start-date').fill(date);
+      await open(date);
+      check(await page.locator('#start-date').inputValue() === date, 'generation must use the opened calendar date');
       await page.locator('#days').fill(String(days));
       await page.locator('#start-time').fill('09:00');
       await page.locator('#end-time').fill('11:00');
