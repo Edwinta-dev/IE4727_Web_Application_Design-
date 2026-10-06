@@ -400,7 +400,7 @@ function block_slot(int $slotId, int $doctorId): bool
         }
 
         if ((string) $slot['Status'] === 'Booked') {
-            $appointment = q_one(
+            $appointments = q_all(
                 "SELECT a.`appointmentID`, a.`slotID`, a.`appointmentDateTime`,
                         d.`FullName` AS `DoctorName`, d.`Email` AS `DoctorEmail`,
                         p.`FullName` AS `PatientName`, p.`Email` AS `PatientEmail`
@@ -408,12 +408,20 @@ function block_slot(int $slotId, int $doctorId): bool
                  INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
                  INNER JOIN `patient` p ON p.`PatientID` = a.`PatientID`
                  WHERE a.`slotID` = :slot_id
-                 LIMIT 1
+                   AND a.`DoctorID` = :doctor_id
+                   AND a.`Status` IN ('Future', 'Rescheduled')
+                 ORDER BY a.`appointmentID`
                  FOR UPDATE",
-                ['slot_id' => $slotId]
+                ['slot_id' => $slotId, 'doctor_id' => $doctorId]
             );
 
-            if ($appointment !== null) {
+            if (count($appointments) > 1) {
+                $connection->rollBack();
+                return false;
+            }
+
+            if ($appointments !== []) {
+                $appointment = $appointments[0];
                 q(
                     "UPDATE `appointment`
                      SET `Status` = 'Cancelled'
