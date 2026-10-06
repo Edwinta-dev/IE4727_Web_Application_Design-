@@ -175,7 +175,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </div>
     <p id="day-scroll-hint" class="day-scroll-hint">Scroll sideways to see all seven days.</p>
 
-<?php flash_render(); ?>
+<?php $bookingConfirmed = flash_render(); ?>
 
 <?php if ($doctor === null): ?>
     <p class="empty-state">Choose a doctor to view their schedule.</p>
@@ -195,7 +195,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
     </p>
 <?php endif; ?>
-<?php if ($slots !== [] || $elapsedSlots !== []): ?>
+<?php if (!$bookingConfirmed && ($slots !== [] || $elapsedSlots !== [])): ?>
     <div class="slot-booking">
             <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>

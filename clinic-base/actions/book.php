@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
 
 require_login();
 csrf_check();
@@ -52,7 +53,13 @@ if (booking_date_error($slotDate, new DateTimeImmutable('today'), BROWSE_DAYS) !
 $user = current_user();
 $booking = book_appointment((int) $user['id'], $slotId, $reason);
 if ($booking['ok']) {
-    flash('Your appointment has been booked successfully.', 'success');
+    $doctor = find_doctor((int) $slot['DoctorID']);
+    flash_booking_confirmation(
+        (string) ($doctor['FullName'] ?? 'your doctor'),
+        fmt_date((string) $slot['SlotDateTime']),
+        fmt_time((string) $slot['SlotDateTime']),
+        (int) $booking['appointment_id']
+    );
 } else {
     flash((string) ($booking['error'] ?? 'That slot is no longer available. Please choose another.'), 'error');
 }

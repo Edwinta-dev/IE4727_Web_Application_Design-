@@ -47,7 +47,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/book.php')) ?>">Book an appointment</a></div></td></tr>
 <?php else: ?>
 <?php foreach ($upcoming as $appointment): ?>
-                <tr>
+                <tr id="appointment-<?= e((string) $appointment['appointmentID']) ?>">
                     <td data-label="Doctor"><?= e((string) $appointment['DoctorName']) ?></td>
                     <td data-label="Specialty"><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
                     <td data-label="Date"><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>

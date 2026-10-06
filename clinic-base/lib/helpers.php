@@ -266,21 +266,38 @@ function flash(string $msg, string $type = 'info'): void
 /**
  * Render and consume the saved one-time message.
  */
-function flash_render(): void
+function flash_booking_confirmation(string $doctor, string $date, string $time, int $appointmentId): void
+{
+    start_session_once();
+    $_SESSION['flash'] = ['type' => 'success', 'booking' => [
+        'doctor' => $doctor, 'date' => $date, 'time' => $time, 'appointment_id' => $appointmentId,
+    ]];
+}
+
+function flash_render(): bool
 {
     start_session_once();
     $message = $_SESSION['flash'] ?? null;
     unset($_SESSION['flash']);
 
-    if (!is_array($message) || !isset($message['message'])) {
-        return;
+    if (!is_array($message) || (!isset($message['message']) && !isset($message['booking']))) {
+        return false;
     }
 
     $type = (string) ($message['type'] ?? 'info');
     $role = $type === 'error' ? 'alert' : 'status';
-    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">'
-        . e($message['message'])
-        . '</div>';
+    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">';
+    if (isset($message['booking']) && is_array($message['booking'])) {
+        $booking = $message['booking'];
+        echo 'Your appointment with ' . e((string) ($booking['doctor'] ?? ''))
+            . ' on ' . e((string) ($booking['date'] ?? ''))
+            . ' at ' . e((string) ($booking['time'] ?? ''))
+            . ' has been booked. <a href="' . e(url('/patient/home.php#appointment-' . (int) ($booking['appointment_id'] ?? 0))) . '">View my appointment</a>';
+        echo '</div>';
+        return true;
+    }
+    echo e((string) ($message['message'] ?? '')) . '</div>';
+    return false;
 }
 
 /**
