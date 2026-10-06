@@ -30,8 +30,8 @@ assert_true(strpos($page, 'fetch(') === false, 'schedule page must not use AJAX'
 echo "PASS: schedule page markup checks\n";
 
 // Issue #148: calendar first, one shared date selection, and consistent state copy.
-assert_true(strpos($page, 'class="month-grid"') < strpos($page, 'class="day-view"'), 'calendar precedes day slots');
-assert_true(strpos($page, 'class="day-view"') < strpos($page, 'class="schedule-generator"'), 'generator follows the schedule');
+assert_true(strpos($page, 'class="schedule-generator"') < strpos($page, 'class="day-view"'), 'generator appears before the day list');
+assert_true(strpos($page, 'class="day-view"') < strpos($page, 'class="month-grid"'), 'day slots precede the calendar');
 assert_true(substr_count($page, 'type="date"') === 1, 'schedule uses one date picker');
 assert_contains($page, 'id="start-date" name="start_date" type="hidden"');
 assert_contains($page, "['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']");

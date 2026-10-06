@@ -92,6 +92,20 @@ $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(a
 $slots = $doctorId > 0
     ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
     : [];
+$bookableSlots = [];
+$otherFutureSlots = [];
+$elapsedSlots = [];
+foreach ($slots as $slot) {
+    $slotTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
+    if ($slotTime <= $now) {
+        $elapsedSlots[] = $slot;
+    } elseif ((string) $slot['Status'] === 'Available') {
+        $bookableSlots[] = $slot;
+    } else {
+        $otherFutureSlots[] = $slot;
+    }
+}
+$slots = array_merge($bookableSlots, $otherFutureSlots);
 
 $pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -181,7 +195,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
     </p>
 <?php endif; ?>
-<?php if ($slots !== []): ?>
+<?php if ($slots !== [] || $elapsedSlots !== []): ?>
     <div class="slot-booking">
             <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
@@ -195,13 +209,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
     <div class="schedule-grid" role="group" aria-label="Appointment time">
 <?php foreach ($slots as $slot):
-    $slotDateTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
-    $isPast = $slotDateTime <= $now;
     $status = (string) ($slot['Status'] ?? 'Blocked');
     $stateClass = match ($status) {
         'Booked' => 'taken',
         'Blocked' => 'blocked',
-        default => $isPast ? 'past' : 'free',
+        default => 'free',
     };
 ?>
         <div class="slot <?= e($stateClass) ?>">
@@ -215,6 +227,17 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </div>
 <?php endforeach; ?>
     </div>
+<?php if ($elapsedSlots !== []): ?>
+    <details class="elapsed-slots">
+        <summary><?= e((string) count($elapsedSlots)) ?> earlier times</summary>
+        <p>These appointment times have passed and cannot be booked.</p>
+        <div class="schedule-grid" aria-label="Earlier appointment times">
+<?php foreach ($elapsedSlots as $slot): ?>
+            <div class="slot past"><span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span><span class="slot-state">Past</span></div>
+<?php endforeach; ?>
+        </div>
+    </details>
+<?php endif; ?>
 <?php if ($dayEmptyMessage === null): ?>
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>

@@ -326,14 +326,23 @@
 #schedule-editor .schedule-generator form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); align-items: end; }
 #schedule-editor .generator-field { min-width: 0; }
 #schedule-editor .generator-start, #schedule-editor .days-to-skip { grid-column: 1 / -1; margin: 0; }
-#schedule-editor .days-to-skip { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); padding: var(--space-2); border: 1px solid var(--c-line); }
+#schedule-editor .days-to-skip { padding: var(--space-1) var(--space-2); border: 1px solid var(--c-line); }
+#schedule-editor .days-to-skip summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+#schedule-editor .days-to-skip fieldset { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-top: var(--space-1); padding: var(--space-1); border: 0; }
 #schedule-editor .days-to-skip label { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; min-height: 2.75rem; }
 #schedule-editor .schedule-generator button { justify-self: start; }
+.schedule-generator { scroll-margin-top: 1rem; }
+.elapsed-slots { margin-block: var(--space-3); border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+.elapsed-slots summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+.elapsed-slots > p { margin-block: var(--space-1) var(--space-2); }
 @media (max-width: 40rem) {
     #schedule-editor .schedule-weekday { padding: var(--space-1) 0; }
     #schedule-editor .schedule-day { padding-inline: 0; }
     #schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     #schedule-editor .schedule-generator button { grid-column: 1 / -1; }
+    #schedule-editor .schedule-generator { margin-top: 0; padding-top: 0; border-top: 0; }
+    #schedule-editor .day-view { margin-top: 0; }
+    #schedule-editor .schedule-generator form { gap: var(--space-1) var(--space-2); }
 }
 /* Narrow screens keep the useful fields together in semantic, labelled rows. */
 @media (max-width: 30rem) {

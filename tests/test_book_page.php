@@ -24,7 +24,7 @@ foreach ([
     "'free'",
     "'taken'",
     "'blocked'",
-    "'past'",
+    '<div class="slot past">',
     'name="slot_id"',
     'name="reason"',
     'csrf_field()',
