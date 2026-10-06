@@ -27,7 +27,7 @@ function attempt_login(string $userOrEmail, string $plain): bool
         return false;
     }
 
-    unset($_SESSION['auth_failures'][auth_client_key()]);
+    auth_clear_failures();
 
     return true;
 }
@@ -190,23 +190,81 @@ function auth_client_key(): string
 
 function auth_is_limited(): bool
 {
-    $record = $_SESSION['auth_failures'][auth_client_key()] ?? null;
-    if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
-        return false;
-    }
+    $record = auth_failure_store_change(static function (array &$entries): array {
+        $key = auth_client_key();
+        $record = $entries[$key] ?? null;
+        if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+            unset($entries[$key]);
+            return ['limited' => false];
+        }
 
-    return (int) ($record['count'] ?? 0) >= AUTH_MAX_FAILURES;
+        return ['limited' => (int) ($record['count'] ?? 0) >= AUTH_MAX_FAILURES];
+    });
+
+    return !is_array($record) || (bool) ($record['limited'] ?? false);
 }
 
 function auth_record_failure(): void
 {
-    $key = auth_client_key();
-    $record = $_SESSION['auth_failures'][$key] ?? null;
-    if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
-        $record = ['started' => time(), 'count' => 0];
+    auth_failure_store_change(static function (array &$entries): void {
+        $key = auth_client_key();
+        $record = $entries[$key] ?? null;
+        if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+            $record = ['started' => time(), 'count' => 0];
+        }
+        $record['count'] = min(AUTH_MAX_FAILURES, (int) $record['count'] + 1);
+        $entries[$key] = $record;
+    });
+}
+
+/** Shared, non-web-served storage for per-client login failures. */
+function auth_failure_store_path(): string
+{
+    return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ie4727-clinic-auth-failures.store';
+}
+
+/** Apply one atomic change while holding the store lock. Only hashed client keys are persisted. */
+function auth_failure_store_change(callable $change): mixed
+{
+    $path = auth_failure_store_path();
+    $handle = @fopen($path, 'c+b');
+    if ($handle === false) {
+        // Fail closed: inability to persist throttle state must not permit unlimited guesses.
+        return null;
     }
-    $record['count'] = min(AUTH_MAX_FAILURES, (int) $record['count'] + 1);
-    $_SESSION['auth_failures'][$key] = $record;
+    @chmod($path, 0600);
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            return null;
+        }
+        rewind($handle);
+        $contents = stream_get_contents($handle);
+        $entries = is_string($contents) && $contents !== '' ? @unserialize($contents, ['allowed_classes' => false]) : [];
+        if (!is_array($entries)) {
+            $entries = [];
+        }
+        foreach ($entries as $key => $record) {
+            if (!is_string($key) || !is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+                unset($entries[$key]);
+            }
+        }
+        $result = $change($entries);
+        rewind($handle);
+        if (!ftruncate($handle, 0) || fwrite($handle, serialize($entries)) === false || !fflush($handle)) {
+            return null;
+        }
+        return $result;
+    } finally {
+        flock($handle, LOCK_UN);
+        fclose($handle);
+    }
+}
+
+function auth_clear_failures(): void
+{
+    auth_failure_store_change(static function (array &$entries): void {
+        unset($entries[auth_client_key()]);
+    });
 }
 
 function auth_cache_current_user(?array $user): ?array
