@@ -70,15 +70,15 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <tbody>
                     <?php foreach ($notifications as $notification): ?>
                         <tr>
-                            <td><time datetime="<?= e($notification['SentAt']) ?>"><span><?= e(date('d M Y', strtotime($notification['SentAt']))) ?></span><span><?= e(date('H:i', strtotime($notification['SentAt']))) ?></span></time></td>
-                            <td><?= e($notification['recipient']) ?></td>
-                            <td>
+                            <td data-label="Sent at"><time datetime="<?= e($notification['SentAt']) ?>"><span><?= e(date('d M Y', strtotime($notification['SentAt']))) ?></span><span><?= e(date('H:i', strtotime($notification['SentAt']))) ?></span></time></td>
+                            <td data-label="Recipient"><?= e($notification['recipient']) ?></td>
+                            <td data-label="Subject">
                                 <details class="notification-details">
                                     <summary><?= e(preg_replace('/ - Clinic Appointment Portal$/', '', (string) $notification['Subject'])) ?></summary>
                                     <div class="notification-body"><?= nl2br(e($notification['Body']), false) ?></div>
                                 </details>
                             </td>
-                            <td><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
+                            <td data-label="Delivery status"><span class="status-label status-<?= e((string) $notification['deliveryStatus']) ?>"><?= e($notification['deliveryStatus']) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

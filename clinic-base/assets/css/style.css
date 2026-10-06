@@ -333,3 +333,45 @@
     #schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     #schedule-editor .schedule-generator button { grid-column: 1 / -1; }
 }
+/* Narrow screens keep the useful fields together in semantic, labelled rows. */
+@media (max-width: 30rem) {
+    .doctor-directory { min-width: 0; display: block; }
+    .doctor-directory caption { display: block; text-align: left; }
+    .doctor-directory thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .doctor-directory tbody { display: grid; gap: var(--space-3); }
+    .doctor-directory tbody tr { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr); align-items: center; border-bottom: 1px solid var(--c-line); padding: var(--space-2) 0; }
+    .doctor-directory tbody :is(th, td) { min-width: 0; padding: 0.3rem 0.5rem; white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+    .doctor-directory tbody td:first-child { grid-column: 1; grid-row: 1 / span 2; }
+    .doctor-directory .doctor-photo { width: 3.5rem; min-width: 3.5rem; height: 3.5rem; }
+    .doctor-directory tbody th[scope="row"] { grid-column: 2; white-space: normal; }
+    .doctor-directory tbody th[scope="row"] a { color: var(--c-primary-dark); text-decoration: underline; text-underline-offset: 0.15em; }
+    .doctor-directory tbody td:nth-child(n+4) { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(6.5rem, 0.75fr) minmax(0, 1fr); gap: var(--space-2); }
+    .doctor-directory tbody td:nth-child(n+4)::before { content: attr(data-label); color: var(--c-muted); font-weight: 700; }
+    .doctor-directory tbody td[data-label="Booking"] { display: flex; justify-content: flex-end; }
+    .doctor-directory-book { min-width: 5rem; }
+
+    .staff-table-scroll, .appointment-table-scroll, .outbox-table-scroll { overflow: visible; }
+    .day-board, .appointment-table-scroll:not(.is-empty) table, .admin-outbox table { display: block; min-width: 0; width: 100%; }
+    .day-board thead, .appointment-table-scroll:not(.is-empty) thead, .admin-outbox thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .day-board tbody, .appointment-table-scroll:not(.is-empty) tbody, .admin-outbox tbody { display: grid; gap: var(--space-3); }
+    .day-board tbody tr, .appointment-table-scroll:not(.is-empty) tbody tr, .admin-outbox tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-3); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+    .day-board td, .appointment-table-scroll:not(.is-empty) td, .admin-outbox td { min-width: 0; height: auto; padding: 0.35rem 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+    .day-board td::before, .appointment-table-scroll:not(.is-empty) td::before, .admin-outbox td::before { display: block; margin-bottom: 0.15rem; color: var(--c-muted); font-size: 0.9rem; font-weight: 700; content: attr(data-label); }
+    .day-board td[data-label="Actions"], .appointment-table-scroll:not(.is-empty) td[data-label="Actions"], .appointment-table-scroll:not(.is-empty) td[data-label="Visit notes"] { grid-column: 1 / -1; }
+    .day-board td[data-label="Actions"] a, .day-board td[data-label="Actions"] button, .appointment-table-scroll:not(.is-empty) td[data-label="Actions"] a, .appointment-table-scroll:not(.is-empty) td[data-label="Actions"] button, .appointment-table-scroll:not(.is-empty) td[data-label="Visit notes"] a { margin: 0.15rem; }
+    .day-board td:last-child { min-width: 0; }
+    .admin-outbox tbody tr { grid-template-columns: minmax(0, 1fr) auto; }
+    .admin-outbox td[data-label="Sent at"], .admin-outbox td[data-label="Recipient"] { grid-column: 1 / -1; }
+    .admin-outbox td[data-label="Subject"] { grid-column: 1; }
+    .admin-outbox td[data-label="Delivery status"] { grid-column: 2; align-self: end; text-align: right; }
+    .admin-outbox .notification-details summary { overflow-wrap: anywhere; }
+}
+/* Keep older table-wide nowrap rules from forcing mobile cards wider. */
+@media (max-width: 30rem) {
+    .day-schedule .day-board { min-width: 0; }
+    .day-schedule .day-board th, .day-schedule .day-board td,
+    .appointments .appointment-table-scroll:not(.is-empty) th,
+    .appointments .appointment-table-scroll:not(.is-empty) td,
+    .admin-outbox th, .admin-outbox td { white-space: normal; }
+    .day-schedule .day-board td:last-child { min-width: 0; }
+}

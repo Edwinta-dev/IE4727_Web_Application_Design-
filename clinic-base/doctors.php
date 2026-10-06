@@ -93,14 +93,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     }
 ?>
             <tr>
-                <td>
+                <td data-label="Photo">
                     <img src="<?= e(url($image)) ?>" alt="Photo of <?= e((string) ($doctor['FullName'] ?? 'doctor')) ?>" class="doctor-photo">
                 </td>
-                <th scope="row"><a href="<?= e(url('/doctor.php?id=' . $doctorId)) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
-                <td><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
-                <td><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
-                <td><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
-                <td class="doctor-next-available">
+                <th scope="row" data-label="Doctor"><a href="<?= e(url('/doctor.php?id=' . $doctorId)) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
+                <td data-label="Specialty"><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
+                <td data-label="Qualifications"><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
+                <td data-label="Languages"><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
+                <td class="doctor-next-available" data-label="Next available">
 <?php if ($nextAvailable !== null): ?>
                     <span><?= e(fmt_date((string) $nextAvailable)) ?></span>
                     <span><?= e(fmt_time((string) $nextAvailable)) ?></span>
@@ -108,7 +108,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     Not available
 <?php endif; ?>
                 </td>
-                <td>
+                <td data-label="Booking">
 <?php if ($nextAvailable !== null): ?>
                     <a class="doctor-directory-book" href="<?= e(url('/book.php?doctor=' . $doctorId . '&date=' . substr((string) $nextAvailable, 0, 10))) ?>">Book</a>
 <?php else: ?>
