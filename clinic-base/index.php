@@ -66,10 +66,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <label for="login-password">Password</label>
                 <input id="login-password" name="password" type="password" autocomplete="current-password" required>
             </p>
-            <p>
-                <label><input name="remember_me" type="checkbox" value="1"> Remember me</label>
-                <button type="submit">Sign in</button>
-            </p>
+            <p><button type="submit">Sign in</button></p>
         </form>
         <p class="register-prompt">New here? <a href="<?= e(url('/register.php')) ?>">Create an account</a></p>
 <?php endif; ?>

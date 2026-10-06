@@ -24,8 +24,11 @@ test('authentication and role guards', static function (): void {
     assert_true(is_doctor(), 'doctor role is stored');
     assert_true(current_user() !== null, 'doctor profile is available');
     assert_true(isset(current_user()['DoctorID']), 'doctor id is loaded from the profile');
-    assert_true(isset($_SESSION['remember_hash']), 'remember token hash is stored in the session');
-    assert_true($_SESSION['remember_hash'] !== 'Password123', 'password is not stored as remember data');
+    assert_true(!isset($_SESSION['remember_hash']), 'login does not create remember-token session state');
+    assert_true(!isset($_COOKIE['clinic_remember']), 'login does not create a remember cookie');
+    $authSource = file_get_contents(dirname(__DIR__) . '/clinic-base/lib/auth.php') ?: '';
+    assert_true(!str_contains($authSource, 'auth_set_remember_cookie') && !str_contains($authSource, 'auth_remember_token_matches'), 'unused remember-token functions are removed');
+    assert_true(str_contains($authSource, "setcookie('clinic_remember', ''"), 'logout clears any legacy remember cookie');
 
     logout();
     assert_true(attempt_login('drsmith@clinic.test', 'Password123'), 'doctor email login');

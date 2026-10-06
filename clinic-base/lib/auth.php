@@ -6,7 +6,6 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
 
-defined('AUTH_REMEMBER_COOKIE') || define('AUTH_REMEMBER_COOKIE', 'clinic_remember');
 defined('AUTH_MAX_FAILURES') || define('AUTH_MAX_FAILURES', 5);
 defined('AUTH_FAILURE_WINDOW') || define('AUTH_FAILURE_WINDOW', 900);
 
@@ -40,7 +39,6 @@ function auth_try_credentials(string $userOrEmail, string $plain): bool
         session_regenerate_id(true);
         $_SESSION['role'] = $login['role'];
         $_SESSION['id'] = $login['id'];
-        auth_set_remember_cookie();
         auth_clear_current_user_cache();
 
         return true;
@@ -50,7 +48,6 @@ function auth_try_credentials(string $userOrEmail, string $plain): bool
         session_regenerate_id(true);
         $_SESSION['role'] = 'admin';
         $_SESSION['id'] = 'admin';
-        auth_set_remember_cookie();
         auth_clear_current_user_cache();
 
         return true;
@@ -119,7 +116,8 @@ function logout(): void
     }
 
     session_destroy();
-    setcookie(AUTH_REMEMBER_COOKIE, '', [
+    // Clear any legacy remember cookie issued before the checkbox was removed.
+    setcookie('clinic_remember', '', [
         'expires' => time() - 42000,
         'path' => '/',
         'httponly' => true,
@@ -176,30 +174,6 @@ function is_doctor(): bool
 function is_admin(): bool
 {
     return (current_user()['role'] ?? null) === 'admin';
-}
-
-function auth_set_remember_cookie(): void
-{
-    $token = bin2hex(random_bytes(32));
-    $_SESSION['remember_hash'] = hash('sha256', $token);
-    setcookie(AUTH_REMEMBER_COOKIE, $token, [
-        'expires' => time() + (30 * 24 * 60 * 60),
-        'path' => '/',
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
-}
-
-function auth_remember_token_matches(): bool
-{
-    start_session_once();
-    $token = $_COOKIE[AUTH_REMEMBER_COOKIE] ?? '';
-    $hash = $_SESSION['remember_hash'] ?? '';
-
-    return is_string($token)
-        && is_string($hash)
-        && $token !== ''
-        && hash_equals($hash, hash('sha256', $token));
 }
 
 function auth_redirect_to_login(string $message = 'Please sign in to continue.'): never

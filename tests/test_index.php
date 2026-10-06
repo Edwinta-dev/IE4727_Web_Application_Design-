@@ -10,10 +10,14 @@ if ($index === false || $login === false) {
 }
 
 foreach (['hero-band', 'featured-doctors', 'services', 'csrf_field()', 'name="username_or_email"',
-    'name="password"', 'name="remember_me"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id=', 'text_excerpt(', 'class="doctor-tile"', 'class="doctor-tiles"', 'data-doctor-carousel', 'Previous featured doctors', 'Next featured doctors', 'featured-doctors.js', 'WriteUp'] as $needle) {
+    'name="password"', 'name="next"', "action=\"<?= e(url('/actions/login.php')) ?>\"", 'doctor.php?id=', 'text_excerpt(', 'class="doctor-tile"', 'class="doctor-tiles"', 'data-doctor-carousel', 'Previous featured doctors', 'Next featured doctors', 'featured-doctors.js', 'WriteUp'] as $needle) {
     if (strpos($index, $needle) === false) {
         throw new RuntimeException("homepage is missing {$needle}");
     }
+}
+
+if (str_contains($index, 'name="remember_me"')) {
+    throw new RuntimeException('homepage must not offer a nonfunctional remember-me checkbox');
 }
 
 foreach (['class="photo-banner"', 'class="photo-scrim"', 'class="photo-caption"', 'class="hero-subtitle"', 'hero-actions', 'class="member-login"', 'register.php',
