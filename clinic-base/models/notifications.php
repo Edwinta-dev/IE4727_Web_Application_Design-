@@ -110,3 +110,12 @@ function mark_notification_delivery(int $notificationId, bool $delivered): void
         ]
     );
 }
+
+/** @return array{recipient: string, Subject: string, Body: string}|null */
+function notification_for_delivery(int $notificationId): ?array
+{
+    return q_one(
+        'SELECT `recipient`, `Subject`, `Body` FROM `notifications` WHERE `notificationID` = :id',
+        ['id' => $notificationId]
+    );
+}

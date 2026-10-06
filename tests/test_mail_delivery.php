@@ -7,7 +7,7 @@ declare(strict_types=1);
 $previousMailDelivery = getenv('MAIL_DELIVERY');
 putenv('MAIL_DELIVERY');
 try {
-    foreach ([['off', 'logged'], ['on', 'failed'], ['on', 'sent'], ['default', 'failed']] as [$mode, $status]) {
+    foreach ([['off', 'logged'], ['on', 'failed'], ['on', 'sent'], ['on', 'throw'], ['default', 'failed']] as [$mode, $status]) {
         $output = [];
         exec(escapeshellarg(PHP_BINARY) . ' -d disable_functions=mail '
             . escapeshellarg(__DIR__ . '/fixtures/mail_delivery.php') . ' '
