@@ -15,6 +15,7 @@ $rescheduleId = is_string($rescheduleIdInput) && ctype_digit($rescheduleIdInput)
     ? (int) $rescheduleIdInput
     : 0;
 $reschedule = null;
+$rescheduleReason = '';
 $rescheduleActor = 'patient';
 if ($rescheduleRequested) {
     require_login();
@@ -27,6 +28,8 @@ if ($rescheduleRequested) {
         && in_array((string) $candidate['Status'], ['Future', 'Rescheduled'], true)
         && strtotime((string) $candidate['appointmentDateTime']) > time()) {
         $reschedule = $candidate;
+        $rescheduleRemarks = decode_visit_remarks($candidate['Remarks'], (string) $candidate['Status']);
+        $rescheduleReason = $rescheduleRemarks['reason'];
         $rescheduleActor = is_doctor() ? 'doctor' : 'patient';
     } else {
         flash('That appointment cannot be rescheduled.', 'error');
@@ -216,8 +219,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
                 <p><?= e((string) $doctor['FullName']) ?> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+<?php if ($reschedule !== null): ?>
+                <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
+<?php else: ?>
                 <label for="reason">Reason for visit</label>
                 <input id="reason" name="reason" type="text" maxlength="255" required>
+<?php endif; ?>
                 <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
     </section>
 <?php endif; ?>
