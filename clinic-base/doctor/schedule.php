@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ((string) $slot['Status'] === 'Booked' && ($_POST['confirm_booking'] ?? '') !== '1') {
                     throw new InvalidArgumentException('Confirm that blocking this slot cancels the booking and notifies both parties.');
                 }
-                if (!block_slot((int) $slotId, $doctorId)) {
+                if (!block_slot((int) $slotId, $doctorId, (string) $slot['Status'] === 'Booked')) {
                     throw new RuntimeException('The slot could not be blocked.');
                 }
                 flash('The slot was blocked. Any booked appointment was cancelled and both parties were notified.', 'success');

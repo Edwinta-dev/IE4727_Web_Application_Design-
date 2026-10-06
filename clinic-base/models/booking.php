@@ -6,6 +6,23 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'visit_remarks.php';
 
+// Appointment mutations lock the appointment first, then affected slot rows
+// in ascending slotID order. This shared order keeps cancel, reschedule and
+// doctor blocking from deadlocking while they change the same booking.
+
+function booking_retry_error(Throwable $exception): bool
+{
+    return (string) $exception->getCode() === '40001'
+        || in_array((int) ($exception->errorInfo[1] ?? 0), [1205, 1213], true);
+}
+
+function booking_actor_matches(array $appointment, string $actorRole, ?int $actorId): bool
+{
+    if (!in_array($actorRole, ['patient', 'doctor'], true)) return false;
+    if ($actorId === null) return true; // Direct model callers have no session identity.
+    return $actorId > 0 && (int) $appointment[$actorRole === 'patient' ? 'PatientID' : 'DoctorID'] === $actorId;
+}
+
 /**
  * Claim a slot and create its appointment atomically.
  *
@@ -129,31 +146,14 @@ function book_appointment(int $patientId, int $slotId, string $reason): array
  *
  * @return array{ok: bool, appointment_id: int|null, error: string|null}
  */
-function reschedule_appointment(int $appointmentId, int $newSlotId, string $actorRole): array
+function reschedule_appointment(int $appointmentId, int $newSlotId, string $actorRole, ?int $actorId = null, ?int $expectedSlotId = null): array
 {
     $connection = db();
     $connection->beginTransaction();
 
     try {
-        $claim = q(
-            "UPDATE `slots`
-             SET `Status` = 'Booked'
-             WHERE `slotID` = :slot_id AND `Status` = 'Available'",
-            ['slot_id' => $newSlotId]
-        );
-
-        if ($claim->rowCount() !== 1) {
-            $connection->rollBack();
-
-            return [
-                'ok' => false,
-                'appointment_id' => null,
-                'error' => 'That slot has just been taken. Please choose another.',
-            ];
-        }
-
         $appointment = q_one(
-            'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`,
+            'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`slotID`, a.`Status`,
                     a.`appointmentDateTime`, d.`FullName` AS `DoctorName`,
                     d.`Email` AS `DoctorEmail`, p.`FullName` AS `PatientName`,
                     p.`Email` AS `PatientEmail`
@@ -161,18 +161,28 @@ function reschedule_appointment(int $appointmentId, int $newSlotId, string $acto
              INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
              INNER JOIN `patient` p ON p.`PatientID` = a.`PatientID`
              WHERE a.`appointmentID` = :appointment_id
-             LIMIT 1',
+             LIMIT 1 FOR UPDATE',
             ['appointment_id' => $appointmentId]
         );
-        $newSlot = q_one(
-            'SELECT `DoctorID`, `SlotDateTime`
-             FROM `slots`
-             WHERE `slotID` = :slot_id
-             LIMIT 1',
-            ['slot_id' => $newSlotId]
-        );
-
-        if ($appointment === null || $newSlot === null) {
+        if ($appointment === null || !booking_actor_matches($appointment, $actorRole, $actorId)
+            || !in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
+            || ($expectedSlotId !== null && (int) $appointment['slotID'] !== $expectedSlotId)
+            || strtotime((string) $appointment['appointmentDateTime']) <= time()) {
+            $connection->rollBack();
+            return ['ok' => false, 'appointment_id' => null, 'error' => 'The appointment changed or is no longer eligible. Please retry.'];
+        }
+        $oldSlotId = $appointment['slotID'] === null ? null : (int) $appointment['slotID'];
+        $slotIds = array_values(array_unique(array_filter([$oldSlotId, $newSlotId], static fn ($id): bool => $id !== null)));
+        sort($slotIds, SORT_NUMERIC);
+        $lockedSlots = [];
+        foreach ($slotIds as $slotId) {
+            $lockedSlots[$slotId] = q_one(
+                'SELECT `DoctorID`, `SlotDateTime`, `Status` FROM `slots` WHERE `slotID` = :slot_id FOR UPDATE',
+                ['slot_id' => $slotId]
+            );
+        }
+        $newSlot = $lockedSlots[$newSlotId] ?? null;
+        if ($newSlot === null || ($oldSlotId !== null && !isset($lockedSlots[$oldSlotId]))) {
             throw new RuntimeException('The appointment or selected slot was not found.');
         }
 
@@ -186,7 +196,14 @@ function reschedule_appointment(int $appointmentId, int $newSlotId, string $acto
 
         $oldDateTime = (string) $appointment['appointmentDateTime'];
         $newDateTime = (string) $newSlot['SlotDateTime'];
-        $oldSlotId = $appointment['slotID'] === null ? null : (int) $appointment['slotID'];
+        $claim = q(
+            "UPDATE `slots` SET `Status` = 'Booked' WHERE `slotID` = :slot_id AND `Status` = 'Available'",
+            ['slot_id' => $newSlotId]
+        );
+        if ($claim->rowCount() !== 1) {
+            $connection->rollBack();
+            return ['ok' => false, 'appointment_id' => null, 'error' => 'That slot has just been taken. Please choose another.'];
+        }
 
         if ($oldSlotId !== null) {
             q(
@@ -240,10 +257,11 @@ function reschedule_appointment(int $appointmentId, int $newSlotId, string $acto
             $connection->rollBack();
         }
 
+        $retry = booking_retry_error($exception);
         return [
             'ok' => false,
             'appointment_id' => null,
-            'error' => $exception->getMessage(),
+            'error' => $retry ? 'The appointment or slot has just changed. Please retry.' : $exception->getMessage(),
         ];
     }
 }
@@ -251,14 +269,14 @@ function reschedule_appointment(int $appointmentId, int $newSlotId, string $acto
 /**
  * Cancel an appointment and release the exact slot it booked.
  */
-function cancel_appointment(int $appointmentId, string $actorRole): bool
+function cancel_appointment(int $appointmentId, string $actorRole, ?int $actorId = null, ?int $expectedSlotId = null): bool
 {
     $connection = db();
     $connection->beginTransaction();
 
     try {
         $appointment = q_one(
-            'SELECT a.`appointmentID`, a.`slotID`, a.`appointmentDateTime`,
+            'SELECT a.`appointmentID`, a.`DoctorID`, a.`PatientID`, a.`Status`, a.`slotID`, a.`appointmentDateTime`,
                     d.`FullName` AS `DoctorName`, d.`Email` AS `DoctorEmail`,
                     p.`FullName` AS `PatientName`, p.`Email` AS `PatientEmail`
              FROM `appointment` a
@@ -270,8 +288,15 @@ function cancel_appointment(int $appointmentId, string $actorRole): bool
             ['appointment_id' => $appointmentId]
         );
 
-        if ($appointment === null) {
+        if ($appointment === null || !booking_actor_matches($appointment, $actorRole, $actorId)
+            || !in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)
+            || ($expectedSlotId !== null && (int) $appointment['slotID'] !== $expectedSlotId)
+            || strtotime((string) $appointment['appointmentDateTime']) <= time()) {
             throw new RuntimeException('The appointment was not found.');
+        }
+
+        if ($appointment['slotID'] !== null) {
+            q_one('SELECT `slotID` FROM `slots` WHERE `slotID` = :slot_id FOR UPDATE', ['slot_id' => (int) $appointment['slotID']]);
         }
 
         q(
@@ -365,29 +390,53 @@ function schedule_slot_editable(array $slot, int $doctorId, ?DateTimeImmutable $
     return $start > ($now ?? new DateTimeImmutable('now', $timezone));
 }
 
-function block_slot(int $slotId, int $doctorId): bool
+function block_slot(int $slotId, int $doctorId, bool $expectedBooked = false): bool
 {
     $connection = db();
     $connection->beginTransaction();
-
     try {
-        $slot = q_one(
-            'SELECT `DoctorID`, `SlotDateTime`, `Status`
-             FROM `slots`
-             WHERE `slotID` = :slot_id
-             LIMIT 1
-             FOR UPDATE',
+        $candidateIds = q_all(
+            "SELECT `appointmentID` FROM `appointment` WHERE `slotID` = :slot_id
+             AND `Status` IN ('Future', 'Rescheduled') ORDER BY `appointmentID`",
             ['slot_id' => $slotId]
         );
-
-        if ($slot === null || !schedule_slot_editable($slot, $doctorId)
-            || !in_array((string) $slot['Status'], ['Available', 'Booked'], true)) {
+        if ($expectedBooked && $candidateIds === []) {
             $connection->rollBack();
             return false;
         }
-
-        // The database cutoff also covers a form that crosses the boundary
-        // while this request is waiting for the row lock.
+        $appointments = [];
+        foreach ($candidateIds as $candidate) {
+            $appointment = q_one(
+                'SELECT a.`appointmentID`, a.`DoctorID`, a.`slotID`, a.`Status`, a.`appointmentDateTime`,
+                        d.`FullName` AS `DoctorName`, d.`Email` AS `DoctorEmail`,
+                        p.`FullName` AS `PatientName`, p.`Email` AS `PatientEmail`
+                 FROM `appointment` a INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
+                 INNER JOIN `patient` p ON p.`PatientID` = a.`PatientID`
+                 WHERE a.`appointmentID` = :appointment_id FOR UPDATE',
+                ['appointment_id' => (int) $candidate['appointmentID']]
+            );
+            if ($appointment === null || (int) $appointment['slotID'] !== $slotId
+                || !in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)) {
+                $connection->rollBack();
+                return false;
+            }
+            $appointments[] = $appointment;
+        }
+        $slot = q_one(
+            'SELECT `DoctorID`, `SlotDateTime`, `Status` FROM `slots` WHERE `slotID` = :slot_id FOR UPDATE',
+            ['slot_id' => $slotId]
+        );
+        if ($slot === null || !schedule_slot_editable($slot, $doctorId)
+            || !in_array((string) $slot['Status'], ['Available', 'Booked'], true)
+            || count($appointments) > 1
+            || ($appointments !== [] && (int) $appointments[0]['DoctorID'] !== $doctorId)) {
+            $connection->rollBack();
+            return false;
+        }
+        if ((string) $slot['Status'] === 'Booked' && count($appointments) !== 1) {
+            $connection->rollBack();
+            return false;
+        }
         $changed = q(
             "UPDATE `slots` SET `Status` = 'Blocked'
              WHERE `slotID` = :slot_id AND `DoctorID` = :doctor_id
@@ -398,57 +447,19 @@ function block_slot(int $slotId, int $doctorId): bool
             $connection->rollBack();
             return false;
         }
-
-        if ((string) $slot['Status'] === 'Booked') {
-            $appointments = q_all(
-                "SELECT a.`appointmentID`, a.`slotID`, a.`appointmentDateTime`,
-                        d.`FullName` AS `DoctorName`, d.`Email` AS `DoctorEmail`,
-                        p.`FullName` AS `PatientName`, p.`Email` AS `PatientEmail`
-                 FROM `appointment` a
-                 INNER JOIN `doctor` d ON d.`DoctorID` = a.`DoctorID`
-                 INNER JOIN `patient` p ON p.`PatientID` = a.`PatientID`
-                 WHERE a.`slotID` = :slot_id
-                   AND a.`DoctorID` = :doctor_id
-                   AND a.`Status` IN ('Future', 'Rescheduled')
-                 ORDER BY a.`appointmentID`
-                 FOR UPDATE",
-                ['slot_id' => $slotId, 'doctor_id' => $doctorId]
-            );
-
-            if (count($appointments) > 1) {
-                $connection->rollBack();
-                return false;
-            }
-
-            if ($appointments !== []) {
-                $appointment = $appointments[0];
-                q(
-                    "UPDATE `appointment`
-                     SET `Status` = 'Cancelled'
-                     WHERE `appointmentID` = :appointment_id",
-                    ['appointment_id' => (int) $appointment['appointmentID']]
-                );
-                notify_cancelled_appointment(
-                    $appointment,
-                    'doctor',
-                    (int) $appointment['appointmentID'],
-                    true
-                );
-            }
+        if ($appointments !== []) {
+            $appointment = $appointments[0];
+            q("UPDATE `appointment` SET `Status` = 'Cancelled' WHERE `appointmentID` = :appointment_id",
+                ['appointment_id' => (int) $appointment['appointmentID']]);
+            notify_cancelled_appointment($appointment, 'doctor', (int) $appointment['appointmentID'], true);
         }
-
         $connection->commit();
-
         return true;
     } catch (Throwable $exception) {
-        if ($connection->inTransaction()) {
-            $connection->rollBack();
-        }
-
+        if ($connection->inTransaction()) $connection->rollBack();
         return false;
     }
 }
-
 /**
  * Make a blocked slot available again. Booked slots are never unblocked.
  */

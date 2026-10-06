@@ -10,6 +10,7 @@ require_once __DIR__ . '/lib/assert.php';
 // constant) is what child PHP processes spawned by tests inherit.
 const TEST_DATABASE = 'ie4727db_test';
 putenv('CLINIC_DB_NAME=' . TEST_DATABASE);
+putenv('MAIL_DELIVERY=off');
 // Do not load clinic-base/config.php here: some tests define config constants
 // themselves before their first include. test_db_isolation verifies the database.
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/tools/db_reset.php') . ' --test 2>&1', $resetOutput, $resetStatus);
