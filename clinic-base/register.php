@@ -43,7 +43,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <?php endif; ?>
 
     <div class="registration-layout">
-    <form id="registration-form" method="post" novalidate action="<?= e(url('/actions/register.php')) ?>">
+    <form id="registration-form" method="post" enctype="multipart/form-data" novalidate action="<?= e(url('/actions/register.php')) ?>">
         <?= csrf_field() ?>
         <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
         <fieldset class="registration-type" id="registration-type">
@@ -139,8 +139,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <?php endforeach; ?>
             <p>
                 <label for="write-up">Professional background <span class="required-mark" aria-hidden="true">*</span></label>
-                <textarea id="write-up" name="WriteUp" placeholder="Tell patients about your background" required aria-required="true"><?= e((string) $oldValues['WriteUp']) ?></textarea>
+                <textarea id="write-up" name="WriteUp" minlength="50" aria-describedby="write-up-count" placeholder="Tell patients about your training and clinical experience" required aria-required="true"><?= e((string) $oldValues['WriteUp']) ?></textarea>
+                <small id="write-up-count" aria-live="polite">0 / 50 characters minimum</small>
                 <span class="field-error" data-error-for="WriteUp" role="alert"><?= e($registrationErrors['WriteUp'] ?? '') ?></span>
+            </p>
+            <p>
+                <label for="profile-photo">Profile photo <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="profile-photo" name="ProfilePhoto" type="file" accept="image/jpeg,image/png,image/webp" required aria-required="true" aria-describedby="profile-photo-help">
+                <small id="profile-photo-help">JPEG, PNG or WebP; maximum 2 MB.</small>
+                <span class="field-error" data-error-for="ProfilePhoto" role="alert"><?= e($registrationErrors['ProfilePhoto'] ?? '') ?></span>
             </p>
         </fieldset>
         </div>
@@ -151,7 +158,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <aside class="registration-support" aria-label="Registration information">
         <section>
             <h2>What you’ll need</h2>
-            <p>Patients need a phone number and a list of known allergies. Doctors should have their specialty, qualifications and spoken languages ready.</p>
+            <p>Patients need a phone number and a list of known allergies. Doctors need their specialty, qualifications, languages, a profile photo and at least 50 characters about their background.</p>
         </section>
         <section>
             <h2>What happens next</h2>
@@ -161,4 +168,15 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </div>
 </main>
 <script src="<?= e(url('/assets/app.js')) ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var background = document.getElementById('write-up');
+    var count = document.getElementById('write-up-count');
+    var updateCount = function () {
+        count.textContent = Array.from(background.value.trim()).length + ' / 50 characters minimum';
+    };
+    background.addEventListener('input', updateCount);
+    updateCount();
+});
+</script>
 <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>

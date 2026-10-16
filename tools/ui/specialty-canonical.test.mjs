@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { withTestServer, visit } from './lib.mjs';
 import { testPhp } from './isolation.mjs';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
@@ -57,14 +57,16 @@ try {
           const user = `issue138_${javaScriptEnabled}`;
           const form = { _csrf: csrf, role: 'doctor', FullName: 'dr edwin', User: user,
             Email: `${user}@example.test`, password: 'Password123', confirm_password: 'Password123',
-            Specialty: 'Dentistry', Qualifications: 'BDS', Languages: 'English', WriteUp: 'Dental care.' };
+            Specialty: 'Dentistry', Qualifications: 'BDS', Languages: 'English', WriteUp: 'Dental care with training and experience in community oral health services.' };
           const rejected = await page.request.post(base + 'actions/register.php', { form });
           assert.ok(rejected.url().endsWith('/register.php'));
           assert.ok((await rejected.text()).includes('Choose a specialty from the list of clinic services.'));
           assert.equal(php('-r', 'require "clinic-base/models/accounts.php"; echo user_or_email_taken($argv[1]) ? "exists" : "absent";', user), 'absent');
-          const accepted = await page.request.post(base + 'actions/register.php', { form: { ...form, Specialty: 'Dental' } });
+          const accepted = await page.request.post(base + 'actions/register.php', { multipart: { ...form, Specialty: 'Dental', ProfilePhoto: { name: 'doctor.jpg', mimeType: 'image/jpeg', buffer: await readFile(resolve('clinic-base/assets/img/Doctor_Consulting.jpg')) } } });
           assert.ok(accepted.url().endsWith('/doctor/home.php'), `${accepted.url()}: ${(await accepted.text()).slice(0, 1500)}`);
           assert.equal(php('-r', 'require "clinic-base/models/accounts.php"; echo find_login($argv[1])["name"];', user), 'Dr Edwin');
+          const photo = php('-r', 'require "clinic-base/lib/db.php"; $row=q_one("SELECT ImageURL FROM doctor WHERE User = :user", ["user" => $argv[1]]); echo $row["ImageURL"] ?? "";', user);
+          if (/^assets\/img\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve('clinic-base', photo), { force: true });
         } finally { await page.close(); }
       }
     } finally { await browser.close(); }

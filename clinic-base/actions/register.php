@@ -43,7 +43,7 @@ if ($data['role'] === 'doctor') {
     $rules += [
         'Specialty' => 'required|in:' . implode(',', canonical_specialties()),
         'Qualifications' => 'required|max:255',
-        'WriteUp' => 'required|max:65535',
+        'WriteUp' => 'required|min:50|max:65535',
         'Languages' => 'required|max:120',
     ];
 } else {
@@ -54,6 +54,12 @@ if ($data['role'] === 'doctor') {
 }
 
 $errors = validate($data, $rules);
+if ($data['role'] === 'doctor') {
+    $photoError = doctor_photo_error($_FILES['ProfilePhoto'] ?? null);
+    if ($photoError !== null) {
+        $errors['ProfilePhoto'] = $photoError;
+    }
+}
 if ($data['role'] === 'doctor' && isset($errors['Specialty'])) {
     $errors['Specialty'] = 'Choose a specialty from the list of clinic services.';
 }
@@ -69,6 +75,18 @@ if ($errors === [] && user_or_email_taken($data['Email'])) {
 
 if ($errors !== []) {
     validation_failed($errors, $data, '/register.php');
+}
+
+$savedPhoto = null;
+if ($data['role'] === 'doctor') {
+    $mime = (string) getimagesize($_FILES['ProfilePhoto']['tmp_name'])['mime'];
+    $extension = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
+    $filename = 'doctor-' . bin2hex(random_bytes(16)) . '.' . $extension;
+    $savedPhoto = dirname(__DIR__) . '/assets/img/' . $filename;
+    if (!move_uploaded_file($_FILES['ProfilePhoto']['tmp_name'], $savedPhoto)) {
+        validation_failed(['ProfilePhoto' => 'The profile photo could not be saved. Please try again.'], $data, '/register.php');
+    }
+    $data['ImageURL'] = 'assets/img/' . $filename;
 }
 
 $connection = db();
@@ -87,6 +105,9 @@ try {
 } catch (Throwable $exception) {
     if ($connection->inTransaction()) {
         $connection->rollBack();
+    }
+    if ($savedPhoto !== null) {
+        unlink($savedPhoto);
     }
     $errors = ['User' => 'That username or email is already registered'];
     validation_failed($errors, $data, '/register.php');
