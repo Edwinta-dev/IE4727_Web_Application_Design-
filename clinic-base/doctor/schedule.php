@@ -145,12 +145,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="generate">
+            <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
             <p class="generator-start">Starting <?= e(fmt_date($selectedDate)) ?>; up to 30 days. Choose another date in the calendar below.</p>
             <input id="start-date" name="start_date" type="hidden" value="<?= e($selectedDate) ?>">
-            <div class="generator-field"><label for="days">Number of days</label><input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required></div>
-            <div class="generator-field"><label for="start-time">Working hours from</label><input id="start-time" name="start_time" type="time" value="09:00" required></div>
-            <div class="generator-field"><label for="end-time">Working hours to</label><input id="end-time" name="end_time" type="time" value="17:00" required></div>
-            <div class="generator-field"><label for="slot-length">Slot length</label><select id="slot-length" name="slot_length"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
+            <div class="generator-field"><label for="days">Number of days <span class="required-mark" aria-hidden="true">*</span></label><input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required aria-required="true"></div>
+            <div class="generator-field"><label for="start-time">Working hours from <span class="required-mark" aria-hidden="true">*</span></label><input id="start-time" name="start_time" type="time" value="09:00" required aria-required="true"></div>
+            <div class="generator-field"><label for="end-time">Working hours to <span class="required-mark" aria-hidden="true">*</span></label><input id="end-time" name="end_time" type="time" value="17:00" required aria-required="true"></div>
+            <div class="generator-field"><label for="slot-length">Slot length <span class="required-mark" aria-hidden="true">*</span></label><select id="slot-length" name="slot_length" required aria-required="true"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
             <details class="days-to-skip"><summary>Days to skip</summary><fieldset>
                 <?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $dayNumber => $dayName): ?>
                     <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
@@ -173,7 +174,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : $status) ?></span>
                         <?php if ($timeClass !== ''): ?><span class="slot-readonly">Elapsed slot</span>
                         <?php elseif ($status === 'Booked'): ?>
-                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="Blocked"><label><input type="checkbox" name="confirm_booking" value="1" required> Cancel the appointment and notify the patient and doctor</label><button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button></form>
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="Blocked"><p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p><label><input type="checkbox" name="confirm_booking" value="1" required aria-required="true"> Cancel the appointment and notify the patient and doctor <span class="required-mark" aria-hidden="true">*</span></label><button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button></form>
                         <?php else: ?>
                             <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="<?= e($status === 'Blocked' ? 'Available' : 'Blocked') ?>"><button type="submit"><?= e($status === 'Blocked' ? 'Make available' : 'Block slot') ?></button></form>
                         <?php endif; ?>
@@ -188,8 +189,9 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="month-grid" aria-labelledby="month-heading">
         <h2 id="month-heading">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?></h2>
         <form class="schedule-date-filter" method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
-            <label for="schedule-date">Open a date</label>
-            <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required>
+            <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
+            <label for="schedule-date">Open a date <span class="required-mark" aria-hidden="true">*</span></label>
+            <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required aria-required="true">
             <button type="submit">Show date</button>
         </form>
         <div class="schedule-month-grid">

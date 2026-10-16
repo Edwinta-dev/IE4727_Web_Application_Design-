@@ -2,6 +2,17 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+.required-mark { color: var(--c-danger); font-weight: 700; }
+.required-note { margin: 0; color: var(--c-muted); }
+label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1); }
+#registration-form > .required-note { margin-bottom: 0; }
+.member-login form > .required-note { margin-bottom: var(--space-1); }
+.booking-slots .required-note { margin-bottom: var(--space-1); }
+.booking-choice-label { margin: 0 0 var(--space-1); font-weight: 700; }
+.booking-doctor .booking-doctor-instruction { color: var(--c-ink); font-weight: 700; }
+#schedule-editor .schedule-generator .required-note { grid-column: 1 / -1; }
+#schedule-editor .schedule-date-filter .required-note { flex-basis: 100%; }
+
 /* Only the selected registration panel sets the form's height. */
 #registration-form.has-role-switcher .registration-role-track { position: relative; }
 #registration-form.has-role-switcher .registration-role-track > [data-role-fields][aria-hidden="true"] { position: absolute; left: 0; }
