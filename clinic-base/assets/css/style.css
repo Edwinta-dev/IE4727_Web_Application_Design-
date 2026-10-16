@@ -2,6 +2,15 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+/* Keep pointer focus quiet while keyboard focus follows the padded nav tab. */
+.site-nav a:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.site-nav a:focus-visible {
+    outline: 0.2rem solid var(--c-focus-on-dark);
+    outline-offset: 0.12rem;
+    box-shadow: none;
+    border-radius: var(--radius-control);
+}
+
 .site-footer .footer-details { display: grid; grid-template-columns: 1fr 0.7fr 1.7fr; gap: var(--space-4); padding-bottom: var(--space-4); }
 .site-footer .footer-details h2 { margin: 0 0 var(--space-1); font-family: var(--font-body); font-size: 1rem; color: var(--c-ink); }
 .site-footer .footer-details address { font-style: normal; }
