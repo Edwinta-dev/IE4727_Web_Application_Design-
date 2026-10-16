@@ -25,7 +25,13 @@ if (!function_exists('mail')) {
     {
         global $attempts, $deliveryRows;
         $attempts++;
-        $deliveryRows[] = [recent_notifications(1)[0], $to, $subject, $message, $headers];
+        $deliveryRows[] = [q_one('SELECT `recipient`, `Subject`, `Body`, `deliveryStatus` FROM `notifications` WHERE `recipient` = :to AND `Subject` = :subject ORDER BY `notificationID` DESC LIMIT 1', ['to' => $to, 'subject' => $subject]), $to, $subject, $message, $headers];
+        $second = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS);
+        $visible = $second->prepare('SELECT COUNT(*) FROM `appointment` a JOIN `notifications` n ON n.`appointmentID` = a.`appointmentID` WHERE n.`Subject` = ? AND n.`recipient` = ?');
+        $visible->execute([$subject, $to]);
+        assert_true((int) $visible->fetchColumn() > 0, 'second connection sees committed appointment and notification');
+        assert_true(!db()->inTransaction(), 'mail transport runs after commit');
+        if (($GLOBALS['argv'][2] ?? '') === 'throw') throw new RuntimeException('simulated transport exception');
         return ($GLOBALS['argv'][2] ?? '') === 'sent';
     }
 } else {
@@ -33,7 +39,13 @@ if (!function_exists('mail')) {
 }
 
 $slot = q_one("SELECT `slotID` FROM `slots` WHERE `Status` = 'Available' AND `SlotDateTime` > NOW() ORDER BY `SlotDateTime`, `slotID` LIMIT 1");
+$rollbackSlot = q_one("SELECT `slotID` FROM `slots` WHERE `Status` = 'Available' AND `SlotDateTime` > NOW() AND `slotID` <> :id ORDER BY `SlotDateTime`, `slotID` LIMIT 1", ['id' => (int) $slot['slotID']]);
 $patient = q_one('SELECT `PatientID` FROM `patient` ORDER BY `PatientID` LIMIT 1');
+$beforeNotifications = (int) q_val('SELECT COUNT(*) FROM `notifications`');
+$failed = book_appointment(PHP_INT_MAX, (int) $rollbackSlot['slotID'], 'Forced rollback before commit');
+assert_true(!$failed['ok'], 'forced booking failure rolls back');
+assert_eq($attempts, 0, 'rollback sends no mail');
+assert_eq((int) q_val('SELECT COUNT(*) FROM `notifications`'), $beforeNotifications, 'rollback leaves no notification rows');
 $start = microtime(true);
 $booking = book_appointment((int) $patient['PatientID'], (int) $slot['slotID'], 'Mail delivery regression');
 $elapsed = microtime(true) - $start;
@@ -52,11 +64,22 @@ try {
     }
     foreach ($rows as $row) {
         assert_eq((int) $row['appointmentID'], $id, 'appointment link');
-        assert_eq($row['deliveryStatus'], $mode === 'off' ? 'logged' : ($argv[2] ?? 'failed'), 'delivery status');
+        assert_eq($row['deliveryStatus'], $mode === 'off' ? 'logged' : (in_array(($argv[2] ?? ''), ['sent'], true) ? 'sent' : 'failed'), 'delivery status');
         assert_true($row['recipient'] !== '' && $row['Subject'] !== '' && $row['Body'] !== '', 'notification content preserved');
     }
     if ($mode === 'off') {
         assert_true($elapsed < 1, 'delivery-off booking under one second: ' . $elapsed);
+    }
+    if ($mode === 'on') {
+        // An explicit transport replaces mail() for that call only.
+        $calls = 0;
+        $before = $attempts;
+        deliver_notifications(array_map(static fn (array $row): int => (int) $row['notificationID'], $rows), static function (string $to, string $subject, string $message, string $headers) use (&$calls): bool {
+            $calls++;
+            return true;
+        });
+        assert_eq($calls, 2, 'explicit transport receives each notification');
+        assert_eq($attempts, $before, 'explicit transport bypasses mail()');
     }
     echo 'OK: ' . $mode . ' booking ' . number_format($elapsed, 3) . 's; ' . $attempts . " mail attempts\n";
 } finally {

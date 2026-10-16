@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../clinic-base/lib/slots.php';
 
+test('booking hides elapsed starts regardless of status and keeps future slots', static function (): void {
+    $now = new DateTimeImmutable('2026-10-16 11:00:00', new DateTimeZone('Asia/Singapore'));
+    $slots = [
+        ['SlotDateTime' => '2026-10-16 09:00:00', 'Status' => 'Available'],
+        ['SlotDateTime' => '2026-10-16 10:00:00', 'Status' => 'Booked'],
+        ['SlotDateTime' => '2026-10-16 11:00:00', 'Status' => 'Blocked'],
+        ['SlotDateTime' => '2026-10-16 11:30:00', 'Status' => 'Available'],
+        ['SlotDateTime' => '2026-10-17 09:00:00', 'Status' => 'Booked'],
+    ];
+    assert_eq(booking_visible_slots($slots, $now), array_slice($slots, 3));
+    assert_eq(booking_visible_slots(array_slice($slots, 0, 3), $now), []);
+});
+
 test('normal Tuesday schedule', static function (): void {
     $slots = generate_slots('2026-09-22', 1, []);
     assert_count($slots, 14);

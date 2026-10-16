@@ -6,15 +6,17 @@ document.querySelectorAll('[data-doctor-carousel]').forEach(function (carousel) 
     var previous = carousel.querySelector('[data-doctor-previous]');
     var next = carousel.querySelector('[data-doctor-next]');
     var status = carousel.querySelector('[data-doctor-status]');
+    var isSpecialties = track.classList.contains('specialty-strip');
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     carousel.classList.add('has-doctor-carousel');
-    previous.hidden = next.hidden = false;
 
     function pageSize() {
         return Number(getComputedStyle(track).getPropertyValue('--doctors-per-page'));
     }
     function update() {
         var maximum = track.scrollWidth - track.clientWidth;
+        var canScroll = maximum > 1;
+        previous.hidden = next.hidden = isSpecialties && !canScroll;
         previous.disabled = track.scrollLeft <= 1;
         next.disabled = track.scrollLeft >= maximum - 1;
         var step = tiles.length > 1 ? tiles[1].offsetLeft - tiles[0].offsetLeft : tiles[0].offsetWidth;

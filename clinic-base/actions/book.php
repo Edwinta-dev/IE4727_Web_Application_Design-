@@ -7,13 +7,14 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
 
 require_login();
 csrf_check();
 
 $returnUrl = static function (): string {
     $params = [];
-    foreach (['doctor', 'date', 'from', 'to'] as $key) {
+    foreach (['specialty', 'doctor', 'date', 'from', 'to'] as $key) {
         if (isset($_POST[$key]) && is_string($_POST[$key]) && $_POST[$key] !== '') {
             $params[$key] = $_POST[$key];
         }
@@ -31,6 +32,8 @@ $slotId = isset($_POST['slot_id']) && is_string($_POST['slot_id']) && ctype_digi
     ? (int) $_POST['slot_id']
     : 0;
 $reason = isset($_POST['reason']) && is_string($_POST['reason']) ? trim($_POST['reason']) : '';
+$doctorId = isset($_POST['doctor']) && is_string($_POST['doctor']) && ctype_digit($_POST['doctor'])
+    ? (int) $_POST['doctor'] : 0;
 $slot = $slotId > 0 ? find_slot($slotId) : null;
 
 if ($slot === null || $reason === '') {
@@ -43,6 +46,15 @@ if (strtotime((string) $slot['SlotDateTime']) <= time()) {
     redirect($returnUrl());
 }
 
+if ($doctorId <= 0 || (int) $slot['DoctorID'] !== $doctorId) {
+    flash('Choose a doctor who is available at that time. Please select the time again.', 'error');
+    redirect($returnUrl());
+}
+if ((string) $slot['Status'] !== 'Available') {
+    flash('That doctor is no longer available at the selected time. Please choose another.', 'error');
+    redirect($returnUrl());
+}
+
 $slotDate = substr((string) $slot['SlotDateTime'], 0, 10);
 if (booking_date_error($slotDate, new DateTimeImmutable('today'), BROWSE_DAYS) !== null) {
     flash('That slot is outside the current booking window. Choose a date shown in the schedule.', 'error');
@@ -52,7 +64,13 @@ if (booking_date_error($slotDate, new DateTimeImmutable('today'), BROWSE_DAYS) !
 $user = current_user();
 $booking = book_appointment((int) $user['id'], $slotId, $reason);
 if ($booking['ok']) {
-    flash('Your appointment has been booked successfully.', 'success');
+    $doctor = find_doctor((int) $slot['DoctorID']);
+    flash_booking_confirmation(
+        (string) ($doctor['FullName'] ?? 'your doctor'),
+        fmt_date((string) $slot['SlotDateTime']),
+        fmt_time((string) $slot['SlotDateTime']),
+        (int) $booking['appointment_id']
+    );
 } else {
     flash((string) ($booking['error'] ?? 'That slot is no longer available. Please choose another.'), 'error');
 }

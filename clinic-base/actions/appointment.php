@@ -53,7 +53,7 @@ if (is_patient() && isset($_POST['cancel'])) {
         redirect($home);
     }
 
-    $cancelled = cancel_appointment($appointmentId, 'patient');
+    $cancelled = cancel_appointment($appointmentId, 'patient', (int) $user['id'], (int) $appointment['slotID']);
     flash(
         $cancelled ? 'Your appointment has been cancelled.' : 'The appointment could not be cancelled.',
         $cancelled ? 'success' : 'error'
@@ -72,7 +72,7 @@ if (!isset($_POST['reschedule']) || $slot === null
     redirect('/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
 }
 
-$result = reschedule_appointment($appointmentId, $slotId, is_doctor() ? 'doctor' : 'patient');
+$result = reschedule_appointment($appointmentId, $slotId, is_doctor() ? 'doctor' : 'patient', (int) $user['id'], (int) $appointment['slotID']);
 flash(
     $result['ok'] ? 'Your appointment has been rescheduled.' : (string) ($result['error'] ?? 'The appointment could not be rescheduled.'),
     $result['ok'] ? 'success' : 'error'

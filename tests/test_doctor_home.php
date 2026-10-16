@@ -17,7 +17,7 @@ foreach ([
 ] as $needle) {
     assert_contains($page, $needle);
 }
-foreach (['is_doctor()', 'set_appointment_status(', 'reschedule_appointment($appointmentId, $slotId, is_doctor() ? \'doctor\' : \'patient\')'] as $needle) {
+foreach (['is_doctor()', 'set_appointment_status(', 'reschedule_appointment($appointmentId, $slotId, is_doctor() ? \'doctor\' : \'patient\', (int) $user[\'id\'], (int) $appointment[\'slotID\'])'] as $needle) {
     assert_contains($action, $needle);
 }
 assert_contains($book, "is_doctor() ? 'doctor' : 'patient'");

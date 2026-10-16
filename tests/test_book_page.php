@@ -20,11 +20,10 @@ foreach ([
     'class="booking-slots"',
     'class="slot <?= e($stateClass) ?>"',
     'class="slot-choice"',
-    "? 'Unavailable' : 'Past'",
+    "? 'Booked' : 'Unavailable'",
     "'free'",
     "'taken'",
     "'blocked'",
-    "'past'",
     'name="slot_id"',
     'name="reason"',
     'csrf_field()',
@@ -39,6 +38,9 @@ foreach (['csrf_check()', 'book_appointment(', 'redirect('] as $needle) {
 
 assert_true(strpos($page, 'fetch(') === false, 'booking page must not use AJAX');
 assert_true(strpos($page, 'SELECT ') === false, 'booking page must not contain SQL');
+assert_contains($page, 'booking_visible_slots($slots, $now)', 'booking page filters elapsed starts');
+assert_true(!str_contains($page, 'class="elapsed-slots"'), 'booking page does not disclose elapsed slots');
+assert_contains($page, "See tomorrow's times", 'elapsed day suggests tomorrow');
 foreach (['$rescheduleRequested', 'name="reschedule" value="<?= e((string) $rescheduleId)',
     '[\'reschedule\' => $rescheduleId]', 'Current appointment:',
     'Your current booking stays in place until the replacement is confirmed.',

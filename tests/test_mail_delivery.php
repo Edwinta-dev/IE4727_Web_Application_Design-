@@ -7,7 +7,7 @@ declare(strict_types=1);
 $previousMailDelivery = getenv('MAIL_DELIVERY');
 putenv('MAIL_DELIVERY');
 try {
-    foreach ([['off', 'logged'], ['on', 'failed'], ['on', 'sent'], ['default', 'failed']] as [$mode, $status]) {
+    foreach ([['off', 'logged'], ['on', 'failed'], ['on', 'sent'], ['on', 'throw'], ['default', 'failed']] as [$mode, $status]) {
         $output = [];
         exec(escapeshellarg(PHP_BINARY) . ' -d disable_functions=mail '
             . escapeshellarg(__DIR__ . '/fixtures/mail_delivery.php') . ' '
@@ -17,5 +17,9 @@ try {
     }
 } finally {
     putenv($previousMailDelivery === false ? 'MAIL_DELIVERY' : 'MAIL_DELIVERY=' . $previousMailDelivery);
+}
+$mailSource = file_get_contents(dirname(__DIR__) . '/clinic-base/lib/mail.php') ?: '';
+if (str_contains($mailSource, '$GLOBALS')) {
+    throw new RuntimeException('lib/mail.php must not read a test transport from $GLOBALS');
 }
 echo "OK: delivery-off booking under 1s, no mail attempts, logged pair; delivery-on row-first sent/failed\n";

@@ -47,13 +47,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/book.php')) ?>">Book an appointment</a></div></td></tr>
 <?php else: ?>
 <?php foreach ($upcoming as $appointment): ?>
-                <tr>
-                    <td><?= e((string) $appointment['DoctorName']) ?></td>
-                    <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
-                    <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e((string) $appointment['Status']) ?></td>
-                    <td>
+                <tr id="appointment-<?= e((string) $appointment['appointmentID']) ?>">
+                    <td data-label="Doctor"><?= e((string) $appointment['DoctorName']) ?></td>
+                    <td data-label="Specialty"><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
+                    <td data-label="Date"><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Status"><?= e((string) $appointment['Status']) ?></td>
+                    <td data-label="Actions">
                         <a class="button appointment-action" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
                         <form method="post" action="<?= e(url('/actions/appointment.php')) ?>" onsubmit="return confirm('Cancel this appointment?');">
                             <?= csrf_field() ?>
@@ -84,12 +84,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <?php else: ?>
 <?php foreach ($past as $appointment): ?>
                 <tr>
-                    <td><?= e((string) $appointment['DoctorName']) ?></td>
-                    <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
-                    <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e(in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true) ? 'Awaiting outcome' : (string) $appointment['Status']) ?></td>
-                    <td>
+                    <td data-label="Doctor"><?= e((string) $appointment['DoctorName']) ?></td>
+                    <td data-label="Specialty"><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
+                    <td data-label="Date"><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Status"><?= e(in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true) ? 'Awaiting outcome' : (string) $appointment['Status']) ?></td>
+                    <td data-label="Visit notes">
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
                         <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
 <?php else: ?>
@@ -114,11 +114,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <tbody>
 <?php foreach ($cancelled as $appointment): ?>
                 <tr>
-                    <td><?= e((string) $appointment['DoctorName']) ?></td>
-                    <td><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
-                    <td><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                    <td><?= e((string) $appointment['Status']) ?></td>
+                    <td data-label="Doctor"><?= e((string) $appointment['DoctorName']) ?></td>
+                    <td data-label="Specialty"><?= e((string) ($appointment['Specialty'] ?? '')) ?></td>
+                    <td data-label="Date"><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                    <td data-label="Status"><?= e((string) $appointment['Status']) ?></td>
                 </tr>
 <?php endforeach; ?>
             </tbody>

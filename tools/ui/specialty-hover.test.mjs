@@ -69,7 +69,7 @@ try {
                   await page.waitForTimeout(220);
                   const active = await measure(page);
                   records.push({ count, width, motion, index, state, normal, active });
-                  if (index === Math.floor(count / 2) && state === 'hover') {
+                  if (index === Math.floor(specialtyCount / 2) && state === 'hover') {
                     const a = normal.items[index], b = active.items[index];
                     console.log(`${count}/${width}/${motion}: item ${a.rect.width.toFixed(1)}x${a.rect.height.toFixed(1)} -> ${b.rect.width.toFixed(1)}x${b.rect.height.toFixed(1)}; image ${a.image.width.toFixed(1)}x${a.image.height.toFixed(1)} -> ${b.image.width.toFixed(1)}x${b.image.height.toFixed(1)}; top delta ${(b.image.y-a.image.y).toFixed(1)}`);
                     await page.locator('.services').screenshot({ path: resolve(output, `${count}-${width}-${motion}-hover.png`) });
@@ -78,7 +78,7 @@ try {
                   assert.deepEqual(active.row, normal.row, 'Strip geometry stays fixed');
                   assert.deepEqual(active.footer, normal.footer, 'Footer stays fixed');
                   assert.ok(active.scrollWidth <= width, 'No horizontal overflow');
-                  for (let i = 0; i < count; i++) {
+                  for (let i = 0; i < specialtyCount; i++) {
                     const a = normal.items[i], b = active.items[i];
                     assert.equal(b.heading, a.heading, 'Heading line count stays fixed');
                     assert.equal(b.copy, a.copy, 'Copy line count stays fixed');
@@ -95,7 +95,7 @@ try {
                       close(b.rect.x + b.rect.width / 2, a.rect.x + a.rect.width / 2, 'Centered horizontal growth');
                     }
                   }
-                  for (let a = 0; a < count; a++) for (let b = a + 1; b < count; b++) {
+                  for (let a = 0; a < specialtyCount; a++) for (let b = a + 1; b < specialtyCount; b++) {
                     const x = active.items[a].rect, y = active.items[b].rect;
                     assert.ok(x.x + x.width <= y.x || y.x + y.width <= x.x || x.y + x.height <= y.y || y.y + y.height <= x.y, 'Allowance prevents overlap');
                   }

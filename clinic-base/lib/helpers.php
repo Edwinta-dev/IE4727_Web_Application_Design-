@@ -10,6 +10,50 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Summarise the earliest start and latest finish for each weekday.
+ * Each row is one doctor's working day (clinic_schedule_days()): its first and
+ * last slot start and the smallest gap between slots (1-60 minutes), which is
+ * taken as the slot length; a day without such a gap uses the normal 30 minutes.
+ *
+ * @param list<array{SlotDate: string, FirstTime: string, LastTime: string, Step: int|string|null}> $rows
+ */
+function clinic_opening_hours(array $rows): string
+{
+    $week = [];
+    foreach ($rows as $row) {
+        $weekday = (int) date('N', strtotime((string) $row['SlotDate']));
+        $start = substr((string) $row['FirstTime'], 0, 5);
+        $step = $row['Step'] === null ? 30 : (int) $row['Step'];
+        $end = date('H:i', strtotime((string) $row['LastTime']) + $step * 60);
+        if (!isset($week[$weekday])) {
+            $week[$weekday] = [$start, $end];
+        } else {
+            $week[$weekday][0] = min($week[$weekday][0], $start);
+            $week[$weekday][1] = max($week[$weekday][1], $end);
+        }
+    }
+
+    $names = [1 => 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    $groups = [];
+    for ($day = 1; $day <= 7; $day++) {
+        $hours = isset($week[$day]) ? implode('-', $week[$day]) : 'closed';
+        $last = count($groups) - 1;
+        if ($last >= 0 && $groups[$last]['hours'] === $hours) {
+            $groups[$last]['end'] = $day;
+        } else {
+            $groups[] = ['start' => $day, 'end' => $day, 'hours' => $hours];
+        }
+    }
+    return implode(', ', array_map(static function (array $group) use ($names): string {
+        $label = $names[$group['start']];
+        if ($group['end'] !== $group['start']) {
+            $label .= '-' . $names[$group['end']];
+        }
+        return $label . ' ' . $group['hours'];
+    }, $groups));
+}
+
 /** Explain why a requested patient booking date is outside the selectable window. */
 function booking_date_error(mixed $date, DateTimeImmutable $today, int $days): ?string
 {
@@ -266,21 +310,38 @@ function flash(string $msg, string $type = 'info'): void
 /**
  * Render and consume the saved one-time message.
  */
-function flash_render(): void
+function flash_booking_confirmation(string $doctor, string $date, string $time, int $appointmentId): void
+{
+    start_session_once();
+    $_SESSION['flash'] = ['type' => 'success', 'booking' => [
+        'doctor' => $doctor, 'date' => $date, 'time' => $time, 'appointment_id' => $appointmentId,
+    ]];
+}
+
+function flash_render(): bool
 {
     start_session_once();
     $message = $_SESSION['flash'] ?? null;
     unset($_SESSION['flash']);
 
-    if (!is_array($message) || !isset($message['message'])) {
-        return;
+    if (!is_array($message) || (!isset($message['message']) && !isset($message['booking']))) {
+        return false;
     }
 
     $type = (string) ($message['type'] ?? 'info');
     $role = $type === 'error' ? 'alert' : 'status';
-    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">'
-        . e($message['message'])
-        . '</div>';
+    echo '<div class="flash flash-' . e($type) . '" role="' . e($role) . '">';
+    if (isset($message['booking']) && is_array($message['booking'])) {
+        $booking = $message['booking'];
+        echo 'Your appointment with ' . e((string) ($booking['doctor'] ?? ''))
+            . ' on ' . e((string) ($booking['date'] ?? ''))
+            . ' at ' . e((string) ($booking['time'] ?? ''))
+            . ' has been booked. <a href="' . e(url('/patient/home.php#appointment-' . (int) ($booking['appointment_id'] ?? 0))) . '">View my appointment</a>';
+        echo '</div>';
+        return true;
+    }
+    echo e((string) ($message['message'] ?? '')) . '</div>';
+    return false;
 }
 
 /**

@@ -4,12 +4,31 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/lib/assert.php';
 
+// Keep CLI results buffered until every test has finished. The authentication
+// tests exercise real session and cookie headers in this process.
+ob_start();
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+    if ((error_reporting() & $severity) === 0) {
+        return false;
+    }
+
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
+function close_test_session(): void
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+}
+
 // The suite never touches the application database (ie4727db). Every run uses
 // its own database, rebuilt from 001 + 002 + 003 first so results never depend
 // on what an earlier run left behind. The environment variable (not just a
 // constant) is what child PHP processes spawned by tests inherit.
 const TEST_DATABASE = 'ie4727db_test';
 putenv('CLINIC_DB_NAME=' . TEST_DATABASE);
+putenv('MAIL_DELIVERY=off');
 // Do not load clinic-base/config.php here: some tests define config constants
 // themselves before their first include. test_db_isolation verifies the database.
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/tools/db_reset.php') . ' --test 2>&1', $resetOutput, $resetStatus);
@@ -49,6 +68,7 @@ foreach ($files as $file) {
 
     $before = count($cases);
     $name = basename($file, '.php');
+    close_test_session();
     ob_start();
     try {
         require $file;
@@ -72,6 +92,7 @@ $passed = 0;
 $failed = 0;
 foreach ($cases as $case) {
     try {
+        close_test_session();
         ($case['fn'])();
         echo "PASS: {$case['name']}\n";
         $passed++;
@@ -82,4 +103,5 @@ foreach ($cases as $case) {
 }
 
 echo "{$passed} passed, {$failed} failed\n";
+ob_end_flush();
 exit($failed === 0 ? 0 : 1);

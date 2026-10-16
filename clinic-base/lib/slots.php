@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/** Keep only slots whose start is still ahead of the booking page's captured time. */
+function booking_visible_slots(array $slots, DateTimeImmutable $now): array
+{
+    return array_values(array_filter($slots, static function (array $slot) use ($now): bool {
+        return new DateTimeImmutable((string) $slot['SlotDateTime'], $now->getTimezone()) > $now;
+    }));
+}
+
 /** Choose only among permitted days with a future Available slot. */
 function reschedule_landing_date(string $originalDay, array $availability, string $fallback): string
 {

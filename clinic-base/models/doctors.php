@@ -5,6 +5,42 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
+/**
+ * Upcoming generated slots are the persisted record of doctors' working days.
+ * One row per doctor and day (first start, last start, smallest 1-60 minute
+ * gap) so the footer reads tens of rows, not every slot. Cached per request.
+ */
+function clinic_schedule_days(): array
+{
+    static $rows = null;
+    if ($rows === null) {
+        $rows = q_all(
+            'SELECT `DoctorID`, `SlotDate`, MIN(`SlotTime`) AS `FirstTime`, MAX(`SlotTime`) AS `LastTime`,
+                    MIN(CASE WHEN `Gap` BETWEEN 1 AND 60 THEN `Gap` END) AS `Step`
+             FROM (SELECT `DoctorID`, DATE(`SlotDateTime`) AS `SlotDate`, TIME(`SlotDateTime`) AS `SlotTime`,
+                          TIMESTAMPDIFF(MINUTE, LAG(`SlotDateTime`) OVER (
+                              PARTITION BY `DoctorID`, DATE(`SlotDateTime`) ORDER BY `SlotDateTime`), `SlotDateTime`) AS `Gap`
+                   FROM `slots`
+                   WHERE `SlotDateTime` >= CURDATE()
+                     AND `SlotDateTime` < DATE_ADD(CURDATE(), INTERVAL 30 DAY)) AS `day_slots`
+             GROUP BY `DoctorID`, `SlotDate`
+             ORDER BY `DoctorID`, `SlotDate`'
+        );
+    }
+    return $rows;
+}
+
+/** Footer opening hours; a database failure must not break every page. */
+function clinic_opening_hours_text(): string
+{
+    try {
+        return clinic_opening_hours(clinic_schedule_days());
+    } catch (Throwable $error) {
+        error_log('Footer opening hours unavailable: ' . $error->getMessage());
+        return 'See Find a Doctor for available times';
+    }
+}
+
 /** @return list<array<string, mixed>> */
 function all_doctors(?string $specialty = null): array
 {

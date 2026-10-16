@@ -89,16 +89,16 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <tbody>
                 <?php foreach ($appointments as $appointment): ?>
                     <tr>
-                        <td><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
-                        <td>
+                        <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
+                        <td data-label="Patient">
                             <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $date, 'patient' => (int) $appointment['PatientID']]))) ?>">
                                 <?= e((string) $appointment['PatientName']) ?>
                             </a>
                         </td>
                         <?php $boardRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']); ?>
-                        <td><?= e($boardRemarks['reason'] !== '' ? $boardRemarks['reason'] : ($boardRemarks['legacy'] !== null ? 'Earlier text (author unknown)' : 'Not separately recorded')) ?></td>
-                        <td><?= e((string) $appointment['Status']) ?></td>
-                        <td>
+                        <td data-label="Reason"><?= e($boardRemarks['reason'] !== '' ? $boardRemarks['reason'] : ($boardRemarks['legacy'] !== null ? 'Earlier text (author unknown)' : 'Not separately recorded')) ?></td>
+                        <td data-label="Status"><?= e((string) $appointment['Status']) ?></td>
+                        <td data-label="Actions">
                             <?php if (in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)): ?>
                                 <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
                                 <?php if (appointment_outcome_eligible($appointment, $doctorId)): ?>

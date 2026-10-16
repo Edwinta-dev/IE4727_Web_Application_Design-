@@ -26,3 +26,20 @@
    a second server on a machine we do not own. The stream is capped at 45
    seconds so the browser can reconnect, and it releases the session lock before
    polling.
+10. CSRF tokens are required on state-changing (POST) forms only. Read-only GET
+    filter forms carry no token, because it would leak into the URL; AGENTS.md
+    rule 3 says so explicitly since #196.
+11. Login throttling counts failures per client and login name (5), with a
+    looser per-client cap (20) so spraying many names is still slowed. A
+    broken throttle store fails open with a log line rather than refusing every
+    login (#194).
+12. Booking resolves a specialty to doctor ids in PHP (`all_doctors()` applies
+    the legacy-name aliases) and queries slots by doctor id, so the alias table
+    lives in one place (#196). A reschedule stays with its doctor and specialty.
+13. The footer derives opening hours from a per doctor-day summary query and
+    shows a fixed line if the database is unavailable, so no page depends on the
+    database just to render its footer (#197).
+
+Per-issue decision records (rationale, traps, verified facts) live in
+[`docs/decisions/`](decisions/README.md).
+

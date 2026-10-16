@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ((string) $slot['Status'] === 'Booked' && ($_POST['confirm_booking'] ?? '') !== '1') {
                     throw new InvalidArgumentException('Confirm that blocking this slot cancels the booking and notifies both parties.');
                 }
-                if (!block_slot((int) $slotId, $doctorId)) {
+                if (!block_slot((int) $slotId, $doctorId, (string) $slot['Status'] === 'Booked')) {
                     throw new RuntimeException('The slot could not be blocked.');
                 }
                 flash('The slot was blocked. Any booked appointment was cancelled and both parties were notified.', 'success');
@@ -123,6 +123,8 @@ $gridStart = $parsedDate !== false && $selectedDate !== $today->format('Y-m-d') 
 $gridEnd = $gridStart->modify('+29 days');
 $countsByDate = slot_counts_for_range($doctorId, $gridStart->format('Y-m-d'), $gridEnd->format('Y-m-d'));
 $slots = slots_for_day($doctorId, $selectedDate);
+$currentSlots = array_values(array_filter($slots, static fn (array $slot): bool => schedule_slot_editable($slot, $doctorId)));
+$elapsedSlots = array_values(array_filter($slots, static fn (array $slot): bool => !schedule_slot_editable($slot, $doctorId)));
 
 $pageTitle = 'Doctor Schedule Editor';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -132,12 +134,56 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="page-intro">
         <div class="page-intro-copy">
             <h1>Schedule editor</h1>
-            <p>Generate up to 30 days at a time through <?= e(fmt_date($managementEnd->format('Y-m-d'))) ?>. Existing later slots remain available to manage.</p>
         </div>
     </section>
 
     <?php flash_render(); ?>
     <?php if ($dateError !== ''): ?><p class="flash flash-error" role="alert"><?= e($dateError) ?> Showing <?= e(fmt_date($selectedDate)) ?>.</p><?php endif; ?>
+
+    <section class="schedule-generator" aria-labelledby="generate-heading">
+        <h2 id="generate-heading">Generate schedule</h2>
+        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="generate">
+            <p class="generator-start">Starting <?= e(fmt_date($selectedDate)) ?>; up to 30 days. Choose another date in the calendar below.</p>
+            <input id="start-date" name="start_date" type="hidden" value="<?= e($selectedDate) ?>">
+            <div class="generator-field"><label for="days">Number of days</label><input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required></div>
+            <div class="generator-field"><label for="start-time">Working hours from</label><input id="start-time" name="start_time" type="time" value="09:00" required></div>
+            <div class="generator-field"><label for="end-time">Working hours to</label><input id="end-time" name="end_time" type="time" value="17:00" required></div>
+            <div class="generator-field"><label for="slot-length">Slot length</label><select id="slot-length" name="slot_length"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
+            <details class="days-to-skip"><summary>Days to skip</summary><fieldset>
+                <?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $dayNumber => $dayName): ?>
+                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
+                <?php endforeach; ?>
+            </fieldset></details>
+            <button type="submit">Generate slots</button>
+        </form>
+    </section>
+
+    <section class="day-view" aria-labelledby="day-heading">
+        <h2 id="day-heading">Slots for <?= e(fmt_date($selectedDate)) ?></h2>
+        <?php if ($slots === []): ?><p class="empty-state">No slots have been generated for this day.</p><?php else: ?>
+            <?php foreach ([$currentSlots, $elapsedSlots] as $groupIndex => $slotGroup): ?>
+                <?php if ($groupIndex === 1 && $slotGroup !== []): ?><details class="elapsed-slots"><summary><?= e((string) count($slotGroup)) ?> earlier slots</summary><p>These slots have started; their availability can no longer be changed.</p><?php endif; ?>
+                <?php if ($slotGroup !== []): ?><ul class="slot-list">
+                <?php foreach ($slotGroup as $slot): ?>
+                    <?php $status = (string) $slot['Status']; $stateClass = $status === 'Available' ? 'free' : ($status === 'Booked' ? 'taken' : 'blocked'); $timeClass = !schedule_slot_editable($slot, $doctorId) ? 'past' : ''; ?>
+                    <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
+                        <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
+                        <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : $status) ?></span>
+                        <?php if ($timeClass !== ''): ?><span class="slot-readonly">Elapsed slot</span>
+                        <?php elseif ($status === 'Booked'): ?>
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="Blocked"><label><input type="checkbox" name="confirm_booking" value="1" required> Cancel the appointment and notify the patient and doctor</label><button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button></form>
+                        <?php else: ?>
+                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="<?= e($status === 'Blocked' ? 'Available' : 'Blocked') ?>"><button type="submit"><?= e($status === 'Blocked' ? 'Make available' : 'Block slot') ?></button></form>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?></ul><?php endif; ?>
+                <?php if ($groupIndex === 1 && $slotGroup !== []): ?></details><?php endif; ?>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <p class="schedule-day-counts"><?php foreach (['Available', 'Booked', 'Blocked'] as $status): ?><span><?= e($status) ?>: <?= e((string) ($countsByDate[$selectedDate][$status] ?? 0)) ?></span><?php endforeach; ?></p>
+    </section>
 
     <section class="month-grid" aria-labelledby="month-heading">
         <h2 id="month-heading">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?></h2>
@@ -167,96 +213,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 </article>
             <?php endfor; ?>
         </div>
-    </section>
-
-    <section class="day-view" aria-labelledby="day-heading">
-        <h2 id="day-heading">Slots for <?= e(fmt_date($selectedDate)) ?></h2>
-        <p class="schedule-day-counts">
-            <?php foreach (['Available', 'Booked', 'Blocked'] as $status): ?>
-                <span><?= e($status) ?>: <?= e((string) ($countsByDate[$selectedDate][$status] ?? 0)) ?></span>
-            <?php endforeach; ?>
-        </p>
-        <?php if ($slots === []): ?>
-            <p class="empty-state">No slots have been generated for this day.</p>
-        <?php else: ?>
-            <ul class="slot-list">
-                <?php foreach ($slots as $slot): ?>
-                    <?php
-                    $status = (string) $slot['Status'];
-                    $stateClass = $status === 'Available' ? 'free' : ($status === 'Booked' ? 'taken' : 'blocked');
-                    $timeClass = !schedule_slot_editable($slot, $doctorId) ? 'past' : '';
-                    ?>
-                    <li class="slot <?= e($stateClass) ?><?= e($timeClass !== '' ? ' ' . $timeClass : '') ?>">
-                        <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
-                        <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : $status) ?></span>
-                        <?php if ($timeClass !== ''): ?>
-                            <span class="slot-readonly">This slot has started; availability can no longer be changed.</span>
-                        <?php elseif ($status === 'Booked'): ?>
-                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="action" value="toggle">
-                                <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
-                                <input type="hidden" name="status" value="Blocked">
-                                <label><input type="checkbox" name="confirm_booking" value="1" required> Cancel the appointment and notify the patient and doctor</label>
-                                <button type="submit" onclick="return confirm('This booked slot will cancel the appointment and notify both parties. Continue?');">Block booked slot</button>
-                            </form>
-                        <?php elseif ($status === 'Blocked'): ?>
-                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="action" value="toggle">
-                                <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
-                                <input type="hidden" name="status" value="Available">
-                                <button type="submit">Make available</button>
-                            </form>
-                        <?php else: ?>
-                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="action" value="toggle">
-                                <input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>">
-                                <input type="hidden" name="status" value="Blocked">
-                                <button type="submit">Block slot</button>
-                            </form>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </section>
-    <section class="schedule-generator" aria-labelledby="generate-heading">
-        <h2 id="generate-heading">Generate schedule</h2>
-        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
-            <?= csrf_field() ?>
-            <input type="hidden" name="action" value="generate">
-            <p class="generator-start">Starting <?= e(fmt_date($selectedDate)) ?>. Choose another start date in the calendar above.</p>
-            <input id="start-date" name="start_date" type="hidden" value="<?= e($selectedDate) ?>">
-            <div class="generator-field">
-                <label for="days">Number of days</label>
-                <input id="days" name="days" type="number" min="1" max="<?= e((string) SCHEDULE_DAYS) ?>" value="30" required>
-            </div>
-            <div class="generator-field">
-                <label for="start-time">Working hours from</label>
-                <input id="start-time" name="start_time" type="time" value="09:00" required>
-            </div>
-            <div class="generator-field">
-                <label for="end-time">Working hours to</label>
-                <input id="end-time" name="end_time" type="time" value="17:00" required>
-            </div>
-            <div class="generator-field">
-                <label for="slot-length">Slot length</label>
-                <select id="slot-length" name="slot_length">
-                    <option value="15">15 minutes</option>
-                    <option value="30" selected>30 minutes</option>
-                    <option value="60">60 minutes</option>
-                </select>
-            </div>
-            <fieldset class="days-to-skip">
-                <legend>Days to skip</legend>
-                <?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $dayNumber => $dayName): ?>
-                    <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
-                <?php endforeach; ?>
-            </fieldset>
-            <button type="submit">Generate slots</button>
-        </form>
     </section>
 
 </main>

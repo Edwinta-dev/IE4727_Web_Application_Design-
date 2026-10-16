@@ -103,3 +103,12 @@ function initialiseRegistrationForm() {
 }
 
 document.addEventListener('DOMContentLoaded', initialiseRegistrationForm);
+
+document.addEventListener('DOMContentLoaded', function () {
+    var specialty = document.querySelector('.specialty-filter select[name="specialty"]');
+    if (specialty) {
+        specialty.addEventListener('change', function () {
+            specialty.form.requestSubmit();
+        });
+    }
+});

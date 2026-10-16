@@ -26,7 +26,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="main-content" class="registration-page">
-    <section class="page-intro public-page-intro registration-intro">
+    <section class="page-intro page-intro-spaced public-page-intro registration-intro">
         <div class="page-intro-copy">
             <h1>Create your clinic account</h1>
             <p>Register for patient appointments or join the clinic as a doctor.</p>
@@ -104,7 +104,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="phone">Phone</label>
-                <input id="phone" name="Phone" type="tel" value="<?= e((string) $oldValues['Phone']) ?>" pattern="^\+?[0-9 \(\)\-]{7,20}$" placeholder="e.g. +65 6123 4567" title="Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +." required>
+                <span class="phone-input"><span class="phone-prefix" aria-hidden="true">+65</span><input id="phone" name="Phone" type="tel" inputmode="numeric" autocomplete="tel-national" value="<?= e((string) $oldValues['Phone']) ?>" pattern="[689][0-9]{7}" maxlength="8" placeholder="81234567" title="Enter an 8-digit Singapore number starting with 6, 8 or 9." aria-label="Phone number after +65" required></span>
                 <span class="field-error" data-error-for="Phone" role="alert"><?= e($registrationErrors['Phone'] ?? '') ?></span>
             </p>
             <p>

@@ -13,7 +13,7 @@ assert_contains($directory, 'No times in the next seven days');
 assert_contains($directory, '$bookingWindowEnd');
 assert_true(!str_contains($booking, 'name="actor"'), 'reschedule form does not submit an actor');
 assert_true(!str_contains($action, "\$_POST['actor']"), 'actor cannot come from POST');
-assert_contains($action, "reschedule_appointment(\$appointmentId, \$slotId, is_doctor() ? 'doctor' : 'patient')");
+assert_contains($action, "reschedule_appointment(\$appointmentId, \$slotId, is_doctor() ? 'doctor' : 'patient', (int) \$user['id'], (int) \$appointment['slotID'])");
 assert_contains($action, '(int) $appointment[\'PatientID\'] !== (int) $user[\'id\']');
 assert_contains($action, '(int) $appointment[\'DoctorID\'] !== (int) $user[\'id\']');
 echo "OK: #144 canonical booking links, availability explanation and session-derived actor\n";

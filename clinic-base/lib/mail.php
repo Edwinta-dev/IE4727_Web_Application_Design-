@@ -5,30 +5,41 @@ declare(strict_types=1);
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
-/**
- * Log a notification before attempting local mail delivery.
- *
- * Delivery failure is deliberately non-fatal: the outbox remains the source
- * of truth for the demo even when PHP mailtodisk/mail() is not configured.
- */
+/** Log only. Call inside the transaction that performs the related mutation. */
 function send_mail(string $toEmail, string $subject, string $body, ?int $appointmentId = null): int
 {
-    $notificationId = log_notification($toEmail, $subject, $body, $appointmentId);
-    if (MAIL_DELIVERY === 'off') {
-        return $notificationId;
+    return log_notification($toEmail, $subject, $body, $appointmentId);
+}
+
+/**
+ * Attempt delivery after the mutation commits; transport and status errors are non-fatal.
+ * $transport replaces mail() for one call (same arguments); production callers omit it.
+ */
+function deliver_notifications(array $ids, ?callable $transport = null): void
+{
+    if (MAIL_DELIVERY === 'off') return;
+
+    foreach (array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)) as $id) {
+        try {
+            $row = notification_for_delivery($id);
+            if ($row === null) continue;
+            try {
+                $delivered = $transport !== null
+                    ? (bool) $transport($row['recipient'], $row['Subject'], $row['Body'], 'From: ' . CLINIC_EMAIL)
+                    : @mail($row['recipient'], $row['Subject'], $row['Body'], 'From: ' . CLINIC_EMAIL);
+            } catch (Throwable $exception) {
+                error_log('Clinic mail transport failed: ' . $exception->getMessage());
+                $delivered = false;
+            }
+            try {
+                mark_notification_delivery($id, $delivered);
+            } catch (Throwable $exception) {
+                error_log('Clinic mail delivery status update failed: ' . $exception->getMessage());
+            }
+        } catch (Throwable $exception) {
+            error_log('Clinic mail delivery failed: ' . $exception->getMessage());
+        }
     }
-
-    $delivered = false;
-
-    try {
-        $delivered = @mail($toEmail, $subject, $body, 'From: ' . CLINIC_EMAIL);
-    } catch (Throwable) {
-        $delivered = false;
-    }
-
-    mark_notification_delivery($notificationId, $delivered);
-
-    return $notificationId;
 }
 
 /** @return array{0: string, 1: string} */
