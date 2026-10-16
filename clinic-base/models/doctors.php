@@ -5,6 +5,23 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
+/** Upcoming generated slots are the persisted record of doctors' working days. */
+function clinic_schedule_slots(): array
+{
+    static $rows = null;
+    if ($rows === null) {
+        $rows = q_all(
+            'SELECT `DoctorID`, DATE(`SlotDateTime`) AS `SlotDate`,
+                    TIME(`SlotDateTime`) AS `SlotTime`
+             FROM `slots`
+             WHERE `SlotDateTime` >= CURDATE()
+               AND `SlotDateTime` < DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+             ORDER BY `DoctorID`, `SlotDateTime`'
+        );
+    }
+    return $rows;
+}
+
 /** @return list<array<string, mixed>> */
 function all_doctors(?string $specialty = null): array
 {

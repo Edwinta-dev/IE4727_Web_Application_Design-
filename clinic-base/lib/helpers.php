@@ -10,6 +10,62 @@ function e(mixed $s): string
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Summarise the earliest start and latest finish for each weekday.
+ * Slot length is inferred from the smallest interval on each doctor's day;
+ * a lone slot has no stored duration, so it uses the normal 30-minute length.
+ *
+ * @param list<array{DoctorID: int|string, SlotDate: string, SlotTime: string}> $rows
+ */
+function clinic_opening_hours(array $rows): string
+{
+    $days = [];
+    foreach ($rows as $row) {
+        $days[$row['DoctorID'] . ':' . $row['SlotDate']][] = substr($row['SlotTime'], 0, 5);
+    }
+
+    $week = [];
+    foreach ($days as $key => $times) {
+        sort($times, SORT_STRING);
+        $step = null;
+        for ($i = 1, $count = count($times); $i < $count; $i++) {
+            $gap = intdiv(strtotime($times[$i]) - strtotime($times[$i - 1]), 60);
+            if ($gap > 0 && $gap <= 60) {
+                $step = min($step ?? $gap, $gap);
+            }
+        }
+        $date = substr($key, strpos($key, ':') + 1);
+        $weekday = (int) date('N', strtotime($date));
+        $start = $times[0];
+        $end = date('H:i', strtotime($times[count($times) - 1]) + ($step ?? 30) * 60);
+        if (!isset($week[$weekday])) {
+            $week[$weekday] = [$start, $end];
+        } else {
+            $week[$weekday][0] = min($week[$weekday][0], $start);
+            $week[$weekday][1] = max($week[$weekday][1], $end);
+        }
+    }
+
+    $names = [1 => 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    $groups = [];
+    for ($day = 1; $day <= 7; $day++) {
+        $hours = isset($week[$day]) ? implode('-', $week[$day]) : 'closed';
+        $last = count($groups) - 1;
+        if ($last >= 0 && $groups[$last]['hours'] === $hours) {
+            $groups[$last]['end'] = $day;
+        } else {
+            $groups[] = ['start' => $day, 'end' => $day, 'hours' => $hours];
+        }
+    }
+    return implode(', ', array_map(static function (array $group) use ($names): string {
+        $label = $names[$group['start']];
+        if ($group['end'] !== $group['start']) {
+            $label .= '-' . $names[$group['end']];
+        }
+        return $label . ' ' . $group['hours'];
+    }, $groups));
+}
+
 /** Explain why a requested patient booking date is outside the selectable window. */
 function booking_date_error(mixed $date, DateTimeImmutable $today, int $days): ?string
 {
