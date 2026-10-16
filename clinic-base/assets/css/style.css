@@ -19,6 +19,15 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 #registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="true"] { left: 50%; }
 #registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="false"] { margin-left: 50%; }
 
+@media (min-width: 56.01rem) {
+    .registration-support {
+        position: sticky;
+        top: calc(4.5rem + var(--space-3));
+        max-height: calc(100vh - 4.5rem - var(--space-4));
+        overflow-y: auto;
+    }
+}
+
 .page-intro-spaced { padding-top: var(--space-4); }
 
 /* Keep the brand and desktop navigation on the header's centre line. */
