@@ -77,6 +77,10 @@ if (!$validTime($fromTime) || !$validTime($toTime) || $fromTime > $toTime) {
 $doctors = all_doctors();
 $specialtyInput = $_GET['specialty'] ?? null;
 $selectedSpecialty = is_string($specialtyInput) ? canonical_specialty($specialtyInput) : null;
+if ($reschedule !== null && $doctor !== null) {
+    // A reschedule keeps its doctor, so it also keeps that doctor's specialty.
+    $selectedSpecialty = (string) $doctor['Specialty'];
+}
 if ($selectedSpecialty === null) {
     $selectedSpecialty = $doctor !== null
         ? (string) $doctor['Specialty']
@@ -86,9 +90,18 @@ if ($reschedule === null && $doctor !== null && (string) $doctor['Specialty'] !=
     $doctor = null;
     $doctorId = 0;
 }
+$doctorById = [];
+foreach ($doctors as $candidate) {
+    if ((string) $candidate['Specialty'] === $selectedSpecialty) {
+        $doctorById[(int) $candidate['DoctorID']] = $candidate;
+    }
+}
+if ($doctor !== null) {
+    $doctorById[$doctorId] = $doctor;
+}
 $availability = $doctorId > 0
     ? booking_day_availability($doctorId, $now, BROWSE_DAYS, $fromTime, $toTime)
-    : booking_specialty_day_availability($selectedSpecialty, $now, BROWSE_DAYS, $fromTime, $toTime);
+    : booking_doctors_day_availability(array_keys($doctorById), $now, BROWSE_DAYS, $fromTime, $toTime);
 $availableDays = array_keys(array_filter($availability, static fn (array $counts): bool => $counts['available'] > 0));
 if ($reschedule !== null && !$dateRequested) {
     $selectedDate = reschedule_landing_date(
@@ -103,14 +116,8 @@ $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(a
 ))) : null;
 $slots = $doctorId > 0
     ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
-    : specialty_slots_for_day($selectedSpecialty, $selectedDate, $fromTime, $toTime);
+    : slots_for_doctors_day(array_keys($doctorById), $selectedDate, $fromTime, $toTime);
 $slots = booking_visible_slots($slots, $now);
-$doctorById = [];
-foreach ($doctors as $candidate) {
-    if ((string) $candidate['Specialty'] === $selectedSpecialty) {
-        $doctorById[(int) $candidate['DoctorID']] = $candidate;
-    }
-}
 $representedDoctors = [];
 $timeGroups = [];
 $groupedSlots = [];
@@ -159,18 +166,20 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </section>
 
     <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
-        <fieldset disabled hidden><?= csrf_field() ?></fieldset>
         <input id="date" type="hidden" name="date" value="<?= e($selectedDate) ?>">
 <?php if ($reschedule !== null): ?>
         <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
 <?php endif; ?>
         <p class="booking-specialty-filter">
             <label for="specialty">Specialty</label>
-            <select id="specialty" name="specialty">
+            <select id="specialty" name="specialty"<?php if ($reschedule !== null): ?> disabled aria-describedby="specialty-locked"<?php endif; ?>>
 <?php foreach (canonical_specialties() as $specialty): ?>
                 <option value="<?= e($specialty) ?>"<?= e($selectedSpecialty === $specialty ? ' selected' : '') ?>><?= e($specialty) ?></option>
 <?php endforeach; ?>
             </select>
+<?php if ($reschedule !== null): ?>
+            <small id="specialty-locked">A reschedule stays with the same doctor.</small>
+<?php endif; ?>
         </p>
         <div class="booking-date-filter">
             <span class="booking-filter-label">Date</span>

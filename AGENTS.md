@@ -79,7 +79,7 @@ The brief allows **one home page plus a maximum of ten additional content pages*
 
 1. **Every database call goes through `q($sql, $params)`** in `lib/db.php`. No `->query()`, no `mysqli_`, no string interpolation into SQL, ever. This is what makes SQL injection impossible here, and it is a demo Q&A question.
 2. **Every value echoed into HTML goes through `e()`** in `lib/helpers.php` — including values you believe are safe.
-3. **Every `<form>` contains `csrf_field()`** and every POST handler calls `csrf_check()` before touching the database.
+3. **Every state-changing (POST) `<form>` contains `csrf_field()`** and every POST handler calls `csrf_check()` before touching the database. Read-only GET filter forms carry no token (it would leak into the URL).
 4. **Every protected page calls its guard on the first line after the includes** — `require_login()`, `require_doctor()`, `require_admin()`.
 5. **All SQL lives in `models/`.** A page calls a model function. A page never contains the word `SELECT`.
 6. **POST-Redirect-GET for every mutation.** A refresh must never re-submit.

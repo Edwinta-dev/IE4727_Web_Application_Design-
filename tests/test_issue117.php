@@ -19,17 +19,11 @@ foreach ($pages as $page) {
     preg_match_all('~<form\b[^>]*\bmethod="get"[^>]*>(.*?)</form>~is', $source, $getForms);
     assert_true($getForms[1] !== [], "Expected a GET filter in {$page}");
     foreach ($getForms[1] as $form) {
-        // The project contract requires a CSRF field in every form. A disabled
-        // fieldset keeps the GET filter's token out of the query string.
+        // GET filters change nothing, so they carry no CSRF token: a token would
+        // leak into the query string, and a disabled placeholder only games the
+        // audit (#196). AGENTS.md rule 3 applies to state-changing (POST) forms.
         $tokenCount = substr_count($form, 'csrf_field()') + substr_count($form, 'name="_csrf"');
-        if ($page === 'book.php') {
-            assert_true($tokenCount === 1, 'Booking GET filter must contain exactly one CSRF field');
-        }
-        if ($tokenCount > 0) {
-            assert_true($tokenCount === 1, "GET filter must contain only one CSRF field in {$page}");
-            assert_true((bool) preg_match('~<fieldset\b(?=[^>]*\bdisabled\b)[^>]*>\s*(?:<\?=\s*csrf_field\(\)\s*\?>|<input\b[^>]*name="_csrf"[^>]*>)\s*</fieldset>~is', $form),
-                "GET filter must disable its CSRF field in {$page}");
-        }
+        assert_true($tokenCount === 0, "GET filter must not carry a CSRF field in {$page}");
     }
 
     preg_match_all('~<form\b[^>]*\bmethod="post"[^>]*>(.*?)</form>~is', $source, $postForms);

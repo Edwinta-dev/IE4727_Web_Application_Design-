@@ -7,12 +7,14 @@ require_once dirname(__DIR__, 2) . '/clinic-base/models/slots.php';
 $date = (new DateTimeImmutable('today'))->modify('+3 days')->format('Y-m-d');
 $suffix = bin2hex(random_bytes(4));
 $doctors = [];
-foreach (['Dr. Ada River', 'Dr. Ben Vale'] as $doctorName) {
+// Dr. Ben Vale keeps the legacy "Dentistry" value: specialty browsing must
+// still list him under Dental (#196).
+foreach (['Dr. Ada River' => 'Dental', 'Dr. Ben Vale' => 'Dentistry'] as $doctorName => $specialty) {
     q('INSERT INTO `doctor` (`FullName`, `User`, `HashPass`, `Email`, `Specialty`)
        VALUES (:name, :user, :hash, :email, :specialty)',
         ['name' => $doctorName, 'user' => 'issue179' . $suffix . count($doctors),
             'hash' => password_hash('Password123', PASSWORD_DEFAULT),
-            'email' => 'issue179' . $suffix . count($doctors) . '@example.test', 'specialty' => 'Dental']);
+            'email' => 'issue179' . $suffix . count($doctors) . '@example.test', 'specialty' => $specialty]);
     $doctors[] = (int) db()->lastInsertId();
 }
 $slotIds = [];

@@ -54,10 +54,39 @@ function free_slots(int $doctorId, string $date): array
 /** @return list<array<string, mixed>> */
 function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?string $toTime = null): array
 {
+    return slots_for_doctors_day([$doctorId], $date, $fromTime, $toTime);
+}
+
+/**
+ * `DoctorID IN (...)` with one named placeholder per id. Callers resolve a
+ * specialty to ids in PHP (all_doctors()) so legacy aliases such as
+ * "Dentistry" match their canonical specialty.
+ * @return array{0: string, 1: array<string, int>}
+ */
+function doctor_id_filter(array $doctorIds): array
+{
+    $params = [];
+    foreach (array_values(array_unique(array_map('intval', $doctorIds))) as $i => $id) {
+        $params['doctor_id_' . $i] = $id;
+    }
+
+    return ['`DoctorID` IN (:' . implode(', :', array_keys($params)) . ')', $params];
+}
+
+/**
+ * Slots for one or more doctors on a day, ordered for a merged time grid.
+ * @return list<array<string, mixed>>
+ */
+function slots_for_doctors_day(array $doctorIds, string $date, ?string $fromTime = null, ?string $toTime = null): array
+{
+    if ($doctorIds === []) {
+        return [];
+    }
+    [$doctorFilter, $params] = doctor_id_filter($doctorIds);
     $sql = slot_select() . "
-            WHERE `DoctorID` = :doctor_id
+            WHERE {$doctorFilter}
               AND DATE(`SlotDateTime`) = :slot_date";
-    $params = ['doctor_id' => $doctorId, 'slot_date' => $date];
+    $params['slot_date'] = $date;
 
     if ($fromTime !== null) {
         $sql .= ' AND TIME(`SlotDateTime`) >= :from_time';
@@ -68,55 +97,7 @@ function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?s
         $params['to_time'] = $toTime;
     }
 
-    return q_all($sql . " ORDER BY `SlotDateTime`", $params);
-}
-
-/** Available schedules for every doctor in a specialty, ordered for a merged time grid. */
-function specialty_slots_for_day(string $specialty, string $date, string $fromTime, string $toTime): array
-{
-    return q_all(
-        'SELECT s.`slotID`, s.`DoctorID`, s.`SlotDateTime`, s.`Status`,
-                DATE(s.`SlotDateTime`) AS `SlotDate`, TIME(s.`SlotDateTime`) AS `SlotTime`,
-                d.`FullName` AS `DoctorName`, d.`ImageURL`
-         FROM `slots` s JOIN `doctor` d ON d.`DoctorID` = s.`DoctorID`
-         WHERE d.`Specialty` = :specialty AND DATE(s.`SlotDateTime`) = :slot_date
-           AND TIME(s.`SlotDateTime`) BETWEEN :from_time AND :to_time
-         ORDER BY s.`SlotDateTime`, d.`FullName`',
-        ['specialty' => $specialty, 'slot_date' => $date, 'from_time' => $fromTime, 'to_time' => $toTime]
-    );
-}
-
-/** Availability across the full specialty, with each doctor counted only through their own slots. */
-function booking_specialty_day_availability(string $specialty, DateTimeImmutable $now, int $days, string $fromTime, string $toTime): array
-{
-    $today = $now->setTime(0, 0);
-    $availability = [];
-    for ($offset = 0; $offset < $days; $offset++) {
-        $availability[$today->modify('+' . $offset . ' days')->format('Y-m-d')] =
-            ['total' => 0, 'matching' => 0, 'future' => 0, 'available' => 0];
-    }
-    $rows = q_all(
-        'SELECT s.`SlotDateTime`, s.`Status`, DATE(s.`SlotDateTime`) AS `SlotDate`,
-                TIME(s.`SlotDateTime`) AS `SlotTime`
-         FROM `slots` s JOIN `doctor` d ON d.`DoctorID` = s.`DoctorID`
-         WHERE d.`Specialty` = :specialty AND s.`SlotDateTime` >= :start
-           AND s.`SlotDateTime` < :end',
-        ['specialty' => $specialty, 'start' => $today->format('Y-m-d H:i:s'),
-            'end' => $today->modify('+' . $days . ' days')->format('Y-m-d H:i:s')]
-    );
-    foreach ($rows as $slot) {
-        $counts = &$availability[(string) $slot['SlotDate']];
-        $counts['total']++;
-        if ($slot['SlotTime'] >= $fromTime . ':00' && $slot['SlotTime'] <= $toTime . ':00') {
-            $counts['matching']++;
-            if (new DateTimeImmutable((string) $slot['SlotDateTime']) > $now) {
-                $counts['future']++;
-                if ($slot['Status'] === 'Available') $counts['available']++;
-            }
-        }
-        unset($counts);
-    }
-    return $availability;
+    return q_all($sql . " ORDER BY `SlotDateTime`, `DoctorID`", $params);
 }
 
 /**
@@ -126,16 +107,29 @@ function booking_specialty_day_availability(string $specialty, DateTimeImmutable
  */
 function booking_day_availability(int $doctorId, DateTimeImmutable $now, int $days, string $fromTime, string $toTime): array
 {
+    return booking_doctors_day_availability([$doctorId], $now, $days, $fromTime, $toTime);
+}
+
+/**
+ * The same counts across several doctors (a specialty), each slot counted once.
+ * @return array<string, array{total: int, matching: int, future: int, available: int}>
+ */
+function booking_doctors_day_availability(array $doctorIds, DateTimeImmutable $now, int $days, string $fromTime, string $toTime): array
+{
     $today = $now->setTime(0, 0);
     $availability = [];
     for ($offset = 0; $offset < $days; $offset++) {
         $availability[$today->modify('+' . $offset . ' days')->format('Y-m-d')] =
             ['total' => 0, 'matching' => 0, 'future' => 0, 'available' => 0];
     }
+    if ($doctorIds === []) {
+        return $availability;
+    }
+    [$doctorFilter, $params] = doctor_id_filter($doctorIds);
     $rows = q_all(
-        slot_select() . ' WHERE `DoctorID` = :doctor_id
-            AND `SlotDateTime` >= :start AND `SlotDateTime` < :end ORDER BY `SlotDateTime`',
-        ['doctor_id' => $doctorId, 'start' => $today->format('Y-m-d H:i:s'),
+        slot_select() . " WHERE {$doctorFilter}
+            AND `SlotDateTime` >= :start AND `SlotDateTime` < :end ORDER BY `SlotDateTime`",
+        $params + ['start' => $today->format('Y-m-d H:i:s'),
             'end' => $today->modify('+' . $days . ' days')->format('Y-m-d H:i:s')]
     );
     foreach ($rows as $slot) {
