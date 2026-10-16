@@ -25,6 +25,11 @@ await withTestServer(true, async base => {
           assert.equal(state.scrollbarWidth, 'none', `${width} ${selector}: Firefox scrollbar hidden`);
           assert.equal(state.webkitScrollbarDisplay, 'none', `${width} ${selector}: Chromium scrollbar hidden`);
           assert.equal(state.overflowX, 'auto', `${width} ${selector}: track remains scrollable`);
+          if (width === 1280 && selector === '#specialty-tiles') {
+            assert.ok(state.maximum <= 1, 'Five desktop specialties fit without scrolling');
+            assert.equal(await carousel.locator('[data-doctor-next]:visible, [data-doctor-previous]:visible').count(), 0);
+            continue;
+          }
           assert.ok(state.maximum > 0, `${width} ${selector}: track has offscreen content`);
 
           await carousel.locator('[data-doctor-next]').click();

@@ -8,6 +8,15 @@
 .doctor-carousel .doctor-tiles::-webkit-scrollbar,
 .doctor-carousel .specialty-strip::-webkit-scrollbar { display: none; }
 
+/* Five specialties use the full row on desktop; the existing scroll row remains at smaller widths. */
+@media (min-width: 75rem) {
+    .services .doctor-carousel.has-doctor-carousel { grid-template-columns: minmax(0, 1fr); }
+    .services .doctor-carousel .specialty-strip { --doctors-per-page: 5; grid-column: 1; }
+    .services .doctor-carousel-arrow { position: absolute; z-index: 1; }
+    .services .doctor-carousel [data-doctor-previous] { left: 0; }
+    .services .doctor-carousel [data-doctor-next] { right: 0; }
+}
+
 /* Home: mission follows the specialty strip in a calm two-column section. */
 .about-clinic {
     display: grid;

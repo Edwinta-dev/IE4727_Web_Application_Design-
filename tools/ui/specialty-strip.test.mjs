@@ -78,9 +78,9 @@ try {
               await page.mouse.move(0, 0);
               const next = page.getByRole('button', { name: 'Next specialties', exact: true });
               const previous = page.getByRole('button', { name: 'Previous specialties', exact: true });
-              assert.ok(await next.evaluate(el => el.offsetWidth >= 44 && el.offsetHeight >= 44));
-              assert.equal(await previous.isDisabled(), true);
               if (normal.max > 1) {
+                assert.ok(await next.evaluate(el => el.offsetWidth >= 44 && el.offsetHeight >= 44));
+                assert.equal(await previous.isDisabled(), true);
                 await next.focus();
                 await page.keyboard.press('Enter');
                 await page.waitForTimeout(600);
@@ -95,7 +95,10 @@ try {
                 await previous.click();
                 await page.waitForTimeout(600);
                 assert.ok((await measure(page)).scroll < end.scroll);
-              } else assert.equal(await next.isDisabled(), true);
+              } else {
+                assert.equal(await next.count(), 0, 'No next arrow when all specialties fit');
+                assert.equal(await previous.count(), 0, 'No previous arrow when all specialties fit');
+              }
               await page.setViewportSize({ width: width === 390 ? 1280 : 390, height: 844 });
               await page.waitForTimeout(220);
               assert.ok((await measure(page)).items.every(t => t.layoutWidth >= 180), 'Resize preserves widths');
