@@ -6,6 +6,7 @@ process.env.CLINIC_DB_NAME='ie4727db_test';
 process.env.MAIL_DELIVERY='off';
 const before=process.argv.includes('--before');
 testPhp(['tools/db_reset.php','--test'],{encoding:'utf8'});
+testPhp(['tests/fixtures/issue169_mobile.php'],{encoding:'utf8'});
 await withTestServer(true,async base=>{
  const browser=await chromium.launch({headless:true});
  try {

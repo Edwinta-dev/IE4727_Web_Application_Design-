@@ -344,6 +344,11 @@
     #schedule-editor .day-view { margin-top: 0; }
     #schedule-editor .schedule-generator form { gap: var(--space-1) var(--space-2); }
 }
+@media (max-width: 22.5rem) {
+    #schedule-editor .schedule-month-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    #schedule-editor .schedule-weekday, #schedule-editor .schedule-calendar-gap { display: none; }
+    #schedule-editor .schedule-day a { min-width: 2.75rem; }
+}
 /* Narrow screens keep the useful fields together in semantic, labelled rows. */
 @media (max-width: 30rem) {
     .doctor-directory { min-width: 0; display: block; }
