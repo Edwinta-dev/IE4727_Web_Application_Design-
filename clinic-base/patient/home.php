@@ -139,7 +139,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <span><?= e((string) $notification['Subject']) ?></span>
                 <time datetime="<?= e(str_replace(' ', 'T', (string) $notification['SentAt'])) ?>"><?= e(fmt_date((string) $notification['SentAt']) . ' at ' . fmt_time((string) $notification['SentAt'])) ?></time>
             </summary>
-            <div class="notification-body"><?= nl2br(e((string) $notification['Body']), false) ?></div>
+            <div class="notification-body"><?= nl2br(e(patient_notification_body((string) $notification['Body'])), false) ?></div>
         </details>
 <?php endforeach; ?>
 <?php endif; ?>

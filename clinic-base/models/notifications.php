@@ -20,6 +20,14 @@ function notifications_for_patient(int $patientId): array
     );
 }
 
+/** Stored bodies sign off "Clinic: <APP_NAME>"; show the service name instead.
+ * Display only: the stored notification rows are never rewritten.
+ */
+function patient_notification_body(string $body): string
+{
+    return (string) preg_replace('/^Clinic:[ \t]*\S[^\r\n]*$/m', 'Clinic Appointment Service', $body);
+}
+
 /** @return list<array<string, mixed>> */
 function recent_notifications(int $limit = 20): array
 {
