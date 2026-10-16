@@ -2,6 +2,14 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+/* Keep the brand and desktop navigation on the header's centre line. */
+@media (min-width: 42.01rem) {
+    .clinic-logo,
+    .site-nav a { line-height: 1.4; }
+    .site-nav { align-self: center; align-items: center; }
+    .site-nav ul { align-items: center; }
+}
+
 /* Keep pointer focus quiet while keyboard focus follows the padded nav tab. */
 .site-nav a:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .site-nav a:focus-visible {
