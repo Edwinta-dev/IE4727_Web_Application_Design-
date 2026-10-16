@@ -1,5 +1,25 @@
 'use strict';
 
+document.querySelectorAll('.booking-filters').forEach(function (form) {
+    var specialty = form.querySelector('#specialty');
+    var doctor = form.querySelector('#doctor');
+    function applyFilters() {
+        form.requestSubmit();
+    }
+    specialty.addEventListener('change', function () {
+        doctor.value = '';
+        applyFilters();
+    });
+    doctor.addEventListener('change', function () {
+        var option = doctor.selectedOptions[0];
+        if (option && option.dataset.specialty) specialty.value = option.dataset.specialty;
+        applyFilters();
+    });
+    form.querySelectorAll('input[type="time"]').forEach(function (input) {
+        input.addEventListener('change', applyFilters);
+    });
+});
+
 document.querySelectorAll('.booking-days').forEach(function (days) {
     var tabs = days.querySelector('.day-tabs');
     var arrows = days.querySelectorAll('.day-scroll');

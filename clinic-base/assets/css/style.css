@@ -280,6 +280,17 @@
 }
 
 /* Booking and appointment views */
+.booking-filters.booking-filters { display: grid; grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr) minmax(10rem, 13rem); align-items: start; gap: var(--space-3); }
+.booking-filters > p { margin: 0; }
+.booking-filters select { width: 100%; }
+.booking-date-filter { min-width: 0; }
+.booking-filter-label { display: block; margin-bottom: 0.25rem; font-weight: 700; }
+.booking-date-filter .booking-days { margin-bottom: 0; }
+.booking-filters .day-scroll { flex: 0 0 2.75rem; }
+.booking-date-filter .booking-time-filter { margin-top: var(--space-1); }
+.booking-filters :is(select, input[type="time"], button, .day-tab, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.booking-filters :is(select, input[type="time"], button, .day-tab, summary):focus-visible { outline: 0.2rem solid var(--c-primary); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
+.booking-results .slot-choice:focus-visible + .slot-time { outline-color: var(--c-primary); border-radius: var(--radius-control); }
 .booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
 .booking-filters p { flex: 1 1 10rem; min-width: 0; margin: 0; }
 .booking-filters button { min-height: 2.75rem; }
@@ -341,8 +352,8 @@
 .schedule-grid .slot-booking[open] > form { display: block; }
 @media (max-width: 56rem) { .booking-results { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 40rem) {
-    .booking-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
-    .booking-filters > p, .booking-time-filter[open] { grid-column: 1 / -1; }
+    .booking-filters.booking-filters { grid-template-columns: minmax(0, 1fr); }
+    .booking-filters > p, .booking-time-filter[open] { grid-column: 1; }
     .booking-filters button { padding-inline: var(--space-2); }
     .day-scroll-hint { display: block; margin: 0 0 var(--space-4); color: var(--c-muted); }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
