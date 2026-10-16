@@ -378,6 +378,26 @@
 .booking-slots .slot-choice:focus-visible + .slot-time { outline: 0.2rem solid var(--c-accent); outline-offset: 0.2rem; }
 .booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
 .booking-confirmation h3 { margin-top: 0; }
+
+/* One time cell can be covered by several clinicians. The list is the booking choice. */
+.booking-results .booking-doctor { display: block; padding: var(--space-3); }
+.booking-doctor h2 { font-size: 1.25rem; }
+.booking-doctor > p { margin: 0 0 var(--space-1); }
+.booking-doctor-instruction { color: var(--c-muted); }
+.booking-doctor-list { margin-top: var(--space-2); border-top: 1px solid var(--c-line); }
+.booking-doctor-option { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-bottom: 1px solid var(--c-line); cursor: pointer; }
+.booking-doctor-option[hidden], .booking-slots .slot[hidden] { display: none; }
+.booking-doctor-option input { flex: 0 0 auto; accent-color: var(--c-primary); }
+.booking-doctor-option img { flex: 0 0 3.5rem; width: 3.5rem; height: 3.5rem; object-fit: cover; border-radius: 50%; }
+.booking-doctor-option span { min-width: 0; }
+.booking-doctor-option strong, .booking-doctor-option small { display: block; }
+.booking-doctor-option small { color: var(--c-muted); }
+.booking-doctor-option:focus-within { border-radius: var(--radius-control); }
+.booking-doctor-option input:focus:not(:focus-visible) { outline: none; }
+.booking-doctor-option input:focus-visible { outline: 0.2rem solid var(--c-primary); outline-offset: 0.2rem; border-radius: 50%; }
+.booking-slots .slot-doctors { display: block; padding: 0 var(--space-2) var(--space-2); font-size: 0.9rem; line-height: 1.3; }
+.booking-slots .slot-doctors span { display: block; }
+.booking-confirmation button:disabled { opacity: 0.55; cursor: not-allowed; }
 .schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
 
 /* Doctor schedule: weekday calendar first, generation follows the working day. */

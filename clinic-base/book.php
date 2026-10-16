@@ -82,33 +82,37 @@ if ($selectedSpecialty === null) {
         ? (string) $doctor['Specialty']
         : 'General Practice';
 }
-if ($reschedule === null && ($doctor === null || (string) $doctor['Specialty'] !== $selectedSpecialty)) {
+if ($reschedule === null && $doctor !== null && (string) $doctor['Specialty'] !== $selectedSpecialty) {
     $doctor = null;
-    foreach ($doctors as $candidate) {
-        if ((string) $candidate['Specialty'] === $selectedSpecialty) {
-            $doctor = $candidate;
-            break;
-        }
-    }
-    $doctorId = $doctor !== null ? (int) $doctor['DoctorID'] : 0;
+    $doctorId = 0;
 }
 $availability = $doctorId > 0
     ? booking_day_availability($doctorId, $now, BROWSE_DAYS, $fromTime, $toTime)
-    : [];
+    : booking_specialty_day_availability($selectedSpecialty, $now, BROWSE_DAYS, $fromTime, $toTime);
 $availableDays = array_keys(array_filter($availability, static fn (array $counts): bool => $counts['available'] > 0));
 if ($reschedule !== null && !$dateRequested) {
     $selectedDate = reschedule_landing_date(
         substr((string) $reschedule['appointmentDateTime'], 0, 10), $availability, $selectedDate
     );
 }
-$dayEmptyMessage = $doctorId > 0 ? booking_day_empty_message($availability[$selectedDate]) : null;
+$dayEmptyMessage = booking_day_empty_message($availability[$selectedDate]);
 $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(array_merge(
-    ['doctor' => $doctorId, 'date' => $availableDays[0], 'from' => $fromTime, 'to' => $toTime],
+    ['specialty' => $selectedSpecialty, 'date' => $availableDays[0], 'from' => $fromTime, 'to' => $toTime],
+    $doctorId > 0 ? ['doctor' => $doctorId] : [],
     $reschedule !== null ? ['reschedule' => $rescheduleId] : []
 ))) : null;
 $slots = $doctorId > 0
     ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
-    : [];
+    : specialty_slots_for_day($selectedSpecialty, $selectedDate, $fromTime, $toTime);
+$doctorById = [];
+foreach ($doctors as $candidate) {
+    if ((string) $candidate['Specialty'] === $selectedSpecialty) {
+        $doctorById[(int) $candidate['DoctorID']] = $candidate;
+    }
+}
+$representedDoctors = [];
+$timeGroups = [];
+$groupedSlots = [];
 $bookableSlots = [];
 $otherFutureSlots = [];
 $elapsedSlots = [];
@@ -118,11 +122,18 @@ foreach ($slots as $slot) {
         $elapsedSlots[] = $slot;
     } elseif ((string) $slot['Status'] === 'Available') {
         $bookableSlots[] = $slot;
+        $representedDoctors[(int) $slot['DoctorID']] = $doctorById[(int) $slot['DoctorID']];
+        $timeGroups[(string) $slot['SlotDateTime']][] = $slot;
     } else {
         $otherFutureSlots[] = $slot;
     }
 }
 $slots = array_merge($bookableSlots, $otherFutureSlots);
+if ($doctorId === 0) {
+    // One visible cell per start time; its alternatives stay on the server and in data attributes.
+    foreach ($timeGroups as $time => $alternatives) $groupedSlots[] = $alternatives[0];
+    $slots = $groupedSlots;
+}
 
 $pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -136,7 +147,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <p class="reschedule-context">Current appointment: <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?>.</p>
             <p>Your current booking stays in place until the replacement is confirmed. <a href="<?= e(url($rescheduleActor === 'doctor' ? '/doctor/home.php' : '/patient/home.php')) ?>">Back to appointments</a></p>
 <?php else: ?>
-            <p>Choose a clinician and a time in the next seven days. Bring your medication list and any relevant test results.</p>
+            <p>Choose a specialty, date and appointment time. Bring your medication list and any relevant test results.</p>
 <?php endif; ?>
         </div>
     </section>
@@ -163,7 +174,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(array_merge(
-        ['specialty' => $selectedSpecialty, 'doctor' => $doctorId, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        ['specialty' => $selectedSpecialty, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        $doctorId > 0 ? ['doctor' => $doctorId] : [],
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     ));
 ?>
@@ -190,7 +202,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <p class="booking-doctor-filter">
             <label for="doctor">Doctor</label>
             <select id="doctor" name="doctor">
-                <option value="">Choose a doctor</option>
+                <option value="">All doctors</option>
 <?php foreach ($doctors as $candidate): ?>
                 <option value="<?= e((string) $candidate['DoctorID']) ?>" data-specialty="<?= e((string) $candidate['Specialty']) ?>"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' selected' : '') ?>><?= e((string) $candidate['FullName']) ?></option>
 <?php endforeach; ?>
@@ -205,13 +217,26 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 
 <?php $bookingConfirmed = flash_render(); ?>
 
-<?php if ($doctor === null): ?>
-    <p class="empty-state">Choose a doctor to view their schedule.</p>
-<?php else: ?>
     <section class="booking-results" aria-label="Doctor schedule">
-        <aside class="booking-doctor">
-            <img src="<?= e(url(!empty($doctor['ImageURL']) ? '/' . ltrim((string) $doctor['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="112" height="112" loading="eager" decoding="async" alt="Portrait of <?= e((string) $doctor['FullName']) ?>">
-            <div><h2><?= e((string) $doctor['FullName']) ?></h2><p><?= e((string) $doctor['Specialty']) ?></p><p><?= e(fmt_date($selectedDate)) ?></p></div>
+        <aside class="booking-doctor" aria-labelledby="showing-doctors-heading">
+            <h2 id="showing-doctors-heading">Showing slots for:</h2>
+            <p><?= e($selectedSpecialty) ?></p>
+            <p><?= e(fmt_date($selectedDate)) ?></p>
+<?php if ($representedDoctors === []): ?>
+            <p class="booking-no-doctors">No doctors have available times for this date. Try another date.</p>
+<?php else: ?>
+            <p class="booking-doctor-instruction">Choose a doctor and a time to book.</p>
+            <noscript><p>To book without JavaScript, choose a doctor in the filter above before selecting a time.</p></noscript>
+            <div class="booking-doctor-list">
+<?php foreach ($representedDoctors as $candidate): ?>
+                <label class="booking-doctor-option" data-doctor-id="<?= e((string) $candidate['DoctorID']) ?>">
+                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required>
+                    <img src="<?= e(url(!empty($candidate['ImageURL']) ? '/' . ltrim((string) $candidate['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="56" height="56" loading="eager" decoding="async" alt="">
+                    <span><strong><?= e((string) $candidate['FullName']) ?></strong><small><?= e((string) $candidate['Specialty']) ?></small></span>
+                </label>
+<?php endforeach; ?>
+            </div>
+<?php endif; ?>
         </aside>
         <div class="booking-slots">
 <?php if ($dayEmptyMessage !== null): ?>
@@ -225,10 +250,10 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
 <?php if (!$bookingConfirmed && ($slots !== [] || $elapsedSlots !== [])): ?>
     <div class="slot-booking">
-            <form method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
+            <form id="booking-post" method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
-                <input type="hidden" name="doctor" value="<?= e((string) $doctorId) ?>">
                 <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
+                <input type="hidden" name="specialty" value="<?= e($selectedSpecialty) ?>">
                 <input type="hidden" name="from" value="<?= e($fromTime) ?>">
                 <input type="hidden" name="to" value="<?= e($toTime) ?>">
 <?php if ($reschedule !== null): ?>
@@ -246,8 +271,17 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
         <div class="slot <?= e($stateClass) ?>">
 <?php if ($stateClass === 'free'): ?>
-            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required>
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required>
             <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
+<?php if ($doctorId === 0): ?>
+            <span class="slot-doctors">
+<?php foreach ($timeGroups[(string) $slot['SlotDateTime']] as $coveringSlot): ?>
+                <span data-doctor-id="<?= e((string) $coveringSlot['DoctorID']) ?>" data-slot-id="<?= e((string) $coveringSlot['slotID']) ?>"><?= e((string) $doctorById[(int) $coveringSlot['DoctorID']]['FullName']) ?></span>
+<?php endforeach; ?>
+            </span>
+<?php else: ?>
+            <span class="slot-doctors"><span><?= e((string) $doctor['FullName']) ?></span></span>
+<?php endif; ?>
 <?php else: ?>
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
             <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ($stateClass === 'blocked' ? 'Unavailable' : 'Past')) ?></span>
@@ -269,7 +303,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($dayEmptyMessage === null): ?>
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
-                <p><?= e((string) $doctor['FullName']) ?> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+                <p><span id="selected-doctor" aria-live="polite"><?= e($doctor !== null ? (string) $doctor['FullName'] : 'Choose a doctor') ?></span> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
 <?php if ($reschedule !== null): ?>
                 <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
 <?php else: ?>
@@ -284,7 +318,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
         </div>
     </section>
-<?php endif; ?>
 </main>
 <script src="<?= e(url('/assets/booking-slots.js')) ?>" defer></script>
 <?php

@@ -14,7 +14,7 @@ csrf_check();
 
 $returnUrl = static function (): string {
     $params = [];
-    foreach (['doctor', 'date', 'from', 'to'] as $key) {
+    foreach (['specialty', 'doctor', 'date', 'from', 'to'] as $key) {
         if (isset($_POST[$key]) && is_string($_POST[$key]) && $_POST[$key] !== '') {
             $params[$key] = $_POST[$key];
         }
@@ -32,6 +32,8 @@ $slotId = isset($_POST['slot_id']) && is_string($_POST['slot_id']) && ctype_digi
     ? (int) $_POST['slot_id']
     : 0;
 $reason = isset($_POST['reason']) && is_string($_POST['reason']) ? trim($_POST['reason']) : '';
+$doctorId = isset($_POST['doctor']) && is_string($_POST['doctor']) && ctype_digit($_POST['doctor'])
+    ? (int) $_POST['doctor'] : 0;
 $slot = $slotId > 0 ? find_slot($slotId) : null;
 
 if ($slot === null || $reason === '') {
@@ -41,6 +43,15 @@ if ($slot === null || $reason === '') {
 
 if (strtotime((string) $slot['SlotDateTime']) <= time()) {
     flash('That slot is in the past. Please choose a future slot.', 'error');
+    redirect($returnUrl());
+}
+
+if ($doctorId <= 0 || (int) $slot['DoctorID'] !== $doctorId) {
+    flash('Choose a doctor who is available at that time. Please select the time again.', 'error');
+    redirect($returnUrl());
+}
+if ((string) $slot['Status'] !== 'Available') {
+    flash('That doctor is no longer available at the selected time. Please choose another.', 'error');
     redirect($returnUrl());
 }
 

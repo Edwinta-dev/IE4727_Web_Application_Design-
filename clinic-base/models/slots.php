@@ -71,6 +71,54 @@ function slots_for_day(int $doctorId, string $date, ?string $fromTime = null, ?s
     return q_all($sql . " ORDER BY `SlotDateTime`", $params);
 }
 
+/** Available schedules for every doctor in a specialty, ordered for a merged time grid. */
+function specialty_slots_for_day(string $specialty, string $date, string $fromTime, string $toTime): array
+{
+    return q_all(
+        'SELECT s.`slotID`, s.`DoctorID`, s.`SlotDateTime`, s.`Status`,
+                DATE(s.`SlotDateTime`) AS `SlotDate`, TIME(s.`SlotDateTime`) AS `SlotTime`,
+                d.`FullName` AS `DoctorName`, d.`ImageURL`
+         FROM `slots` s JOIN `doctor` d ON d.`DoctorID` = s.`DoctorID`
+         WHERE d.`Specialty` = :specialty AND DATE(s.`SlotDateTime`) = :slot_date
+           AND TIME(s.`SlotDateTime`) BETWEEN :from_time AND :to_time
+         ORDER BY s.`SlotDateTime`, d.`FullName`',
+        ['specialty' => $specialty, 'slot_date' => $date, 'from_time' => $fromTime, 'to_time' => $toTime]
+    );
+}
+
+/** Availability across the full specialty, with each doctor counted only through their own slots. */
+function booking_specialty_day_availability(string $specialty, DateTimeImmutable $now, int $days, string $fromTime, string $toTime): array
+{
+    $today = $now->setTime(0, 0);
+    $availability = [];
+    for ($offset = 0; $offset < $days; $offset++) {
+        $availability[$today->modify('+' . $offset . ' days')->format('Y-m-d')] =
+            ['total' => 0, 'matching' => 0, 'future' => 0, 'available' => 0];
+    }
+    $rows = q_all(
+        'SELECT s.`SlotDateTime`, s.`Status`, DATE(s.`SlotDateTime`) AS `SlotDate`,
+                TIME(s.`SlotDateTime`) AS `SlotTime`
+         FROM `slots` s JOIN `doctor` d ON d.`DoctorID` = s.`DoctorID`
+         WHERE d.`Specialty` = :specialty AND s.`SlotDateTime` >= :start
+           AND s.`SlotDateTime` < :end',
+        ['specialty' => $specialty, 'start' => $today->format('Y-m-d H:i:s'),
+            'end' => $today->modify('+' . $days . ' days')->format('Y-m-d H:i:s')]
+    );
+    foreach ($rows as $slot) {
+        $counts = &$availability[(string) $slot['SlotDate']];
+        $counts['total']++;
+        if ($slot['SlotTime'] >= $fromTime . ':00' && $slot['SlotTime'] <= $toTime . ':00') {
+            $counts['matching']++;
+            if (new DateTimeImmutable((string) $slot['SlotDateTime']) > $now) {
+                $counts['future']++;
+                if ($slot['Status'] === 'Available') $counts['available']++;
+            }
+        }
+        unset($counts);
+    }
+    return $availability;
+}
+
 /**
  * Read-only availability for the existing patient window and time filters.
  * Use the same captured now as the grid, including the strict future boundary.
