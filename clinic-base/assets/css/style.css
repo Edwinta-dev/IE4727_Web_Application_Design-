@@ -73,6 +73,13 @@
 }
 .specialty-filter label { margin: 0; }
 .specialty-filter select { width: min(20rem, 100%); }
+.specialty-filter select:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.specialty-filter select:focus-visible {
+    outline: 0.2rem solid var(--c-primary);
+    outline-offset: 0.15rem;
+    border-radius: var(--radius-control);
+    box-shadow: none;
+}
 .specialty-filter button { min-height: 2.75rem; padding: 0.45rem 0.85rem; }
 .active-doctor-filter { color: var(--c-muted); }
 .clear-doctor-filter { min-height: 2.75rem; display: inline-flex; align-items: center; }

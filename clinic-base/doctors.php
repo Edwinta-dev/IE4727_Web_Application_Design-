@@ -44,7 +44,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <option value="<?= e($value) ?>"<?= e($selectedSpecialty === $value ? ' selected' : '') ?>><?= e($value) ?></option>
 <?php endforeach; ?>
         </select>
-        <button type="submit">Filter doctors</button>
+        <noscript><button type="submit">Filter doctors</button></noscript>
 <?php if ($selectedSpecialty !== ''): ?>
         <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
         <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
@@ -122,5 +122,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </table>
     </div>
 </main>
+<script src="<?= e(url('/assets/app.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
