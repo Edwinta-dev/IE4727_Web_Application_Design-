@@ -55,7 +55,14 @@ test('footer day summaries come from one row per doctor and day', static functio
         foreach ($times as $time) {
             q('INSERT INTO `slots` (`DoctorID`, `SlotDateTime`) VALUES (1, :time)', ['time' => $date . ' ' . $time]);
         }
-        $day = array_values(array_filter(clinic_schedule_days(), static fn (array $row): bool =>
+        // clinic_schedule_days() caches per request; read it in a fresh one.
+        $modelPath = dirname(__DIR__) . '/clinic-base/models/doctors.php';
+        exec(escapeshellarg(PHP_BINARY) . ' -r ' . escapeshellarg('require ' . var_export($modelPath, true)
+            . '; echo json_encode(clinic_schedule_days());') . ' 2>&1', $output, $status);
+        assert_eq($status, 0, 'summary query runs in a fresh request');
+        $rows = json_decode(implode('', $output), true);
+        assert_true(is_array($rows), 'summary rows decode: ' . substr(implode('', $output), 0, 200));
+        $day = array_values(array_filter($rows, static fn (array $row): bool =>
             (int) $row['DoctorID'] === 1 && $row['SlotDate'] === $date));
         assert_count($day, 1, 'one summary row per doctor and day');
         assert_eq(substr((string) $day[0]['FirstTime'], 0, 5), '05:00', 'first start');
