@@ -42,12 +42,20 @@ await withTestServer(true, async (base) => {
       if (submittedRole !== 'patient') throw Error(`untouched form omitted patient role with JS ${javascriptEnabled}`);
       const phone = page.locator('[name="Phone"]');
       const browserPattern = await phone.getAttribute('pattern');
-      if (browserPattern !== '^\\+?[0-9 \\(\\)\\-]{7,20}$') throw Error(`unexpected rendered phone pattern: ${browserPattern}`);
-      for (const value of ['+65 6123 4567', '(65) 6123-4567', '61234567']) {
+      if (browserPattern !== '[689][0-9]{7}') throw Error(`unexpected rendered phone pattern: ${browserPattern}`);
+      if (await page.locator('.phone-prefix').innerText() !== '+65') throw Error('fixed Singapore prefix is missing');
+      if (await page.locator('.phone-prefix').getAttribute('contenteditable')) throw Error('Singapore prefix became editable');
+      if (await phone.getAttribute('placeholder') !== '81234567') throw Error('phone placeholder suggests a value that fails validation');
+      await phone.click();
+      if (await page.locator('.phone-input').evaluate((group) => getComputedStyle(group).outlineStyle) !== 'none') throw Error('mouse focus showed a phone focus ring');
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Shift+Tab');
+      if (await page.locator('.phone-input').evaluate((group) => getComputedStyle(group).outlineStyle) !== 'solid') throw Error('keyboard focus lost its phone focus ring');
+      for (const value of ['61234567', '81234567', '91234567']) {
         await phone.fill(value);
         if (!(await phone.evaluate((field) => field.validity.valid))) throw Error(`browser rejected supported phone: ${value}`);
       }
-      for (const value of ['6123abc8', '6123/4567']) {
+      for (const value of ['6123abc8', '6123/4567', '71234567', '+65 81234567', '8123456']) {
         await phone.fill(value);
         if (!(await phone.evaluate((field) => field.validity.patternMismatch))) throw Error(`browser missed invalid phone: ${value}`);
       }
@@ -63,10 +71,10 @@ await withTestServer(true, async (base) => {
       const rejected = await page.request.post(base + 'actions/register.php', {
         form: { _csrf: csrf, role: 'patient', ...crafted, Gender: 'Other', Phone: '6123abc8', Allergies: '' },
       });
-      if (!rejected.url().endsWith('/register.php') || !(await rejected.text()).includes('Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +.')) {
+      if (!rejected.url().endsWith('/register.php') || !(await rejected.text()).includes('Enter 8 digits after +65, starting with 6, 8 or 9.')) {
         throw Error('crafted invalid phone bypassed PHP registration validation');
       }
-      await page.locator('[name="Phone"]').fill('+65 61234567');
+      await page.locator('[name="Phone"]').fill('81234567');
       if (patternErrors.length) throw Error(`Chromium rejected phone pattern: ${patternErrors.join('; ')}`);
       await page.locator('button[type="submit"]').click();
       try { await page.waitForURL('**/patient/home.php', { timeout: 12000 }); }

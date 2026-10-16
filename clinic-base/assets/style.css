@@ -435,6 +435,40 @@ main p { max-width: 70ch; }
     border-color: var(--line);
 }
 
+#registration-form .phone-input {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+#registration-form .phone-prefix {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    padding: 0 0.75rem;
+    border: 1px solid var(--line);
+    border-right: 0;
+    border-radius: var(--radius-control) 0 0 var(--radius-control);
+    background: var(--c-surface-band);
+}
+
+#registration-form .phone-input input {
+    min-width: 0;
+    flex: 1;
+    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+
+#registration-form .phone-input input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#registration-form .phone-input:has(input:focus-visible) {
+    border-radius: var(--radius-control);
+    outline: 0.2rem solid var(--brand);
+    outline-offset: 0.2rem;
+}
+
 #registration-form .field-error:empty {
     display: none;
 }

@@ -37,13 +37,16 @@ foreach (['csrf_check()', 'validate(', 'create_patient_account(', 'create_doctor
 if (!preg_match('/\'Phone\'\s*=>\s*\[\'required\',\s*\'regex:([^\']+)\'\]/', $action, $phoneRule)) {
     throw new RuntimeException('patient phone must keep authoritative required and regex validation');
 }
-assert_contains($action, "\$errors['Phone'] = 'Use 7 to 20 characters:", 'specific server phone error');
-foreach (['+65 6123 4567', '(65) 6123-4567', '61234567'] as $validPhone) {
+assert_contains($action, "\$errors['Phone'] = 'Enter 8 digits after +65", 'specific server phone error');
+assert_contains($page, 'class="phone-prefix" aria-hidden="true">+65</span>', 'locked phone prefix');
+assert_contains($page, 'pattern="[689][0-9]{7}" maxlength="8"', 'local phone input contract');
+assert_contains($page, 'placeholder="81234567"', 'local digits placeholder');
+foreach (['61234567', '81234567', '91234567'] as $validPhone) {
     if (validate(['Phone' => $validPhone], ['Phone' => ['required', 'regex:' . $phoneRule[1]]]) !== []) {
         throw new RuntimeException('supported patient phone was rejected by PHP');
     }
 }
-foreach (['', '6123abc8', '6123/4567'] as $invalidPhone) {
+foreach (['', '6123abc8', '6123/4567', '71234567', '+65 81234567', '8123456', '812345678'] as $invalidPhone) {
     if (!isset(validate(['Phone' => $invalidPhone], ['Phone' => ['required', 'regex:' . $phoneRule[1]]])['Phone'])) {
         throw new RuntimeException('invalid patient phone passed PHP validation');
     }
@@ -56,7 +59,7 @@ foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldErro
 $suffix = bin2hex(random_bytes(4));
 $missingFieldUser = 'register_missing_' . $suffix;
 $errors = validate(
-    ['role' => 'patient', 'FullName' => '', 'User' => $missingFieldUser, 'Email' => $missingFieldUser . '@example.local', 'password' => 'Secret123', 'confirm_password' => 'Secret123', 'Gender' => 'Male', 'Phone' => '+65 61234567'],
+    ['role' => 'patient', 'FullName' => '', 'User' => $missingFieldUser, 'Email' => $missingFieldUser . '@example.local', 'password' => 'Secret123', 'confirm_password' => 'Secret123', 'Gender' => 'Male', 'Phone' => '61234567'],
     ['FullName' => 'required']
 );
 if ($errors === [] || q_one('SELECT `PatientID` FROM `patient` WHERE `User` = :user', ['user' => $missingFieldUser]) !== null) {

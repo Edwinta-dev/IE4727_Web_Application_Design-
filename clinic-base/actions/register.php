@@ -49,7 +49,7 @@ if ($data['role'] === 'doctor') {
 } else {
     $rules += [
         'Gender' => 'required|in:Male,Female,Other',
-        'Phone' => ['required', 'regex:/^\+?[0-9 ()-]{7,20}$/'],
+        'Phone' => ['required', 'regex:/^[689][0-9]{7}$/D'],
     ];
 }
 
@@ -58,7 +58,7 @@ if ($data['role'] === 'doctor' && isset($errors['Specialty'])) {
     $errors['Specialty'] = 'Choose a specialty from the list of clinic services.';
 }
 if ($data['role'] === 'patient' && $data['Phone'] !== '' && isset($errors['Phone'])) {
-    $errors['Phone'] = 'Use 7 to 20 characters: digits, spaces, parentheses or hyphens, with an optional leading +.';
+    $errors['Phone'] = 'Enter 8 digits after +65, starting with 6, 8 or 9.';
 }
 if ($errors === [] && user_or_email_taken($data['User'])) {
     $errors['User'] = 'Choose a username that is not already registered';

@@ -29,8 +29,13 @@ $id = create_patient_account([
     'User' => $user,
     'Email' => $email,
     'password' => 'Secret123',
+    'Phone' => '81234567',
     'Allergies' => [],
 ]);
+$storedPhone = q_one('SELECT `Phone` FROM `patient` WHERE `PatientID` = :id', ['id' => $id]);
+if (($storedPhone['Phone'] ?? null) !== '81234567') {
+    throw new RuntimeException('registration phone was not stored in the existing local format');
+}
 
 $created = find_login($user);
 if ($created === null || $created['id'] !== $id || $created['hash'] === 'Secret123' || !password_verify('Secret123', $created['hash'])) {
