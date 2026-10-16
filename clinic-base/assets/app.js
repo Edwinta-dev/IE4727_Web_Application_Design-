@@ -118,3 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    var scheduleDate = document.querySelector('.schedule-date-filter input[name="date"]');
+    if (scheduleDate) {
+        scheduleDate.addEventListener('change', function () {
+            if (scheduleDate.checkValidity()) {
+                scheduleDate.form.requestSubmit();
+            }
+        });
+    }
+});
