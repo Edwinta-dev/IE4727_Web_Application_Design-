@@ -307,7 +307,9 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <label for="reason">Reason for visit</label>
                 <input id="reason" name="reason" type="text" maxlength="255" required>
 <?php endif; ?>
-                <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
+                <div class="booking-form-actions">
+                    <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>
+                </div>
     </section>
 <?php endif; ?>
             </form>

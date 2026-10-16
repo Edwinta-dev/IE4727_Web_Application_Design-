@@ -371,6 +371,7 @@
 .booking-slots .slot-choice:focus-visible + .slot-time { outline: 0.2rem solid var(--c-accent); outline-offset: 0.2rem; }
 .booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
 .booking-confirmation h3 { margin-top: 0; }
+.booking-form-actions { margin-top: var(--space-3); }
 
 /* One time cell can be covered by several clinicians. The list is the booking choice. */
 .booking-results .booking-doctor { display: block; padding: var(--space-3); }
