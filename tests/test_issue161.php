@@ -6,6 +6,8 @@ $page = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
 if ($page === false) {
     throw new RuntimeException('booking page could not be read');
 }
+// Windows checkouts (core.autocrlf) store CRLF; the multi-line needle below uses LF.
+$page = str_replace("\r\n", "\n", $page);
 
 assert_contains($page, '$rescheduleReason = $rescheduleRemarks[\'reason\'];', 'existing visit reason is decoded for reschedule');
 assert_contains($page, 'if ($reschedule !== null): ?>' . "\n" . '                <p class="booking-reason">Reason for visit: <?= e($rescheduleReason', 'reschedule shows escaped read-only reason');
