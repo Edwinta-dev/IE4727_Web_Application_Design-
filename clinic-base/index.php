@@ -144,7 +144,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <p>We want families to know where to turn for everyday health concerns at every age. We aim to make each visit feel considered, from the first booking to the next step in treatment.</p>
             </div>
         </div>
-        <img class="about-clinic-image" src="<?= e(url('/assets/img/about-clinic-consultation.png')) ?>" width="1456" height="1092" loading="lazy" alt="A clinician discusses care with a patient in a consultation room">
+        <img class="about-clinic-image" src="<?= e(url('/assets/img/about-clinic-consultation.jpg')) ?>" width="960" height="720" loading="lazy" alt="A clinician discusses care with a patient in a consultation room">
     </section>
 </main>
 <script src="<?= e(url('/assets/featured-doctors.js')) ?>" defer></script>
