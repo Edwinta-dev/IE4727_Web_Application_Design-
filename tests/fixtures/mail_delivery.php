@@ -70,6 +70,17 @@ try {
     if ($mode === 'off') {
         assert_true($elapsed < 1, 'delivery-off booking under one second: ' . $elapsed);
     }
+    if ($mode === 'on') {
+        // An explicit transport replaces mail() for that call only.
+        $calls = 0;
+        $before = $attempts;
+        deliver_notifications(array_map(static fn (array $row): int => (int) $row['notificationID'], $rows), static function (string $to, string $subject, string $message, string $headers) use (&$calls): bool {
+            $calls++;
+            return true;
+        });
+        assert_eq($calls, 2, 'explicit transport receives each notification');
+        assert_eq($attempts, $before, 'explicit transport bypasses mail()');
+    }
     echo 'OK: ' . $mode . ' booking ' . number_format($elapsed, 3) . 's; ' . $attempts . " mail attempts\n";
 } finally {
     q('DELETE FROM `notifications` WHERE `appointmentID` = :id', ['id' => $id]);

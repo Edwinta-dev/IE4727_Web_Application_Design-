@@ -11,8 +11,11 @@ function send_mail(string $toEmail, string $subject, string $body, ?int $appoint
     return log_notification($toEmail, $subject, $body, $appointmentId);
 }
 
-/** Attempt delivery after the mutation commits; transport and status errors are non-fatal. */
-function deliver_notifications(array $ids): void
+/**
+ * Attempt delivery after the mutation commits; transport and status errors are non-fatal.
+ * $transport replaces mail() for one call (same arguments); production callers omit it.
+ */
+function deliver_notifications(array $ids, ?callable $transport = null): void
 {
     if (MAIL_DELIVERY === 'off') return;
 
@@ -21,8 +24,7 @@ function deliver_notifications(array $ids): void
             $row = notification_for_delivery($id);
             if ($row === null) continue;
             try {
-                $transport = $GLOBALS['clinic_mail_transport'] ?? null;
-                $delivered = is_callable($transport)
+                $delivered = $transport !== null
                     ? (bool) $transport($row['recipient'], $row['Subject'], $row['Body'], 'From: ' . CLINIC_EMAIL)
                     : @mail($row['recipient'], $row['Subject'], $row['Body'], 'From: ' . CLINIC_EMAIL);
             } catch (Throwable $exception) {

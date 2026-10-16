@@ -8,15 +8,21 @@ require_once dirname(__DIR__) . '/clinic-base/models/booking.php';
 
 if (DB_NAME !== 'ie4727db_test') throw new RuntimeException('Probe is restricted to ie4727db_test.');
 $seen = [];
-$GLOBALS['clinic_mail_transport'] = static function (string $to, string $subject, string $body) use (&$seen): bool {
-    $second = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS);
-    $check = $second->prepare('SELECT COUNT(*) FROM `notifications` WHERE `recipient` = ? AND `Subject` = ?');
-    $check->execute([$to, $subject]);
-    $visible = (int) $check->fetchColumn() > 0;
-    $seen[] = !db()->inTransaction() && $visible;
-    echo 'inTransaction=' . (db()->inTransaction() ? 'true' : 'false') . PHP_EOL;
-    return false;
-};
+// Run with -d disable_functions=mail: this double replaces mail() as tests/fixtures/mail_delivery.php does.
+if (function_exists('mail')) throw new RuntimeException('Run with php -d disable_functions=mail');
+if (!function_exists('mail')) {
+    function mail(string $to, string $subject, string $message, string $headers = ''): bool
+    {
+        global $seen;
+        $second = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS);
+        $check = $second->prepare('SELECT COUNT(*) FROM `notifications` WHERE `recipient` = ? AND `Subject` = ?');
+        $check->execute([$to, $subject]);
+        $visible = (int) $check->fetchColumn() > 0;
+        $seen[] = !db()->inTransaction() && $visible;
+        echo 'inTransaction=' . (db()->inTransaction() ? 'true' : 'false') . PHP_EOL;
+        return false;
+    }
+}
 $slot = q_one("SELECT `slotID` FROM `slots` WHERE `Status` = 'Available' AND `SlotDateTime` > NOW() ORDER BY `SlotDateTime`, `slotID` LIMIT 1");
 $patient = q_one('SELECT `PatientID` FROM `patient` ORDER BY `PatientID` LIMIT 1');
 if ($slot === null || $patient === null) throw new RuntimeException('Test seed is missing a patient or available future slot.');
