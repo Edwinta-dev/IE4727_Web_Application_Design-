@@ -17,10 +17,8 @@ assert_contains($schedule, 'These slots have started; their availability can no 
 assert_true(substr_count($schedule, 'This slot has started; availability can no longer be changed.') === 0, 'elapsed-slot explanation is not repeated on each row');
 
 assert_contains($booking, '$bookableSlots');
-assert_contains($booking, '$elapsedSlots');
+assert_contains($booking, 'booking_visible_slots($slots, $now)');
 assert_contains($booking, '$slots = array_merge($bookableSlots, $otherFutureSlots);');
-assert_contains($booking, '<details class="elapsed-slots">');
-assert_contains($booking, 'These appointment times have passed and cannot be booked.');
-assert_true(substr_count($booking, 'These appointment times have passed and cannot be booked.') === 1, 'booking explains elapsed times once');
+assert_true(!str_contains($booking, '<details class="elapsed-slots">'), 'booking hides elapsed slots');
 
-echo "OK: issue #166 prioritizes generation and bookable slots and discloses elapsed slots once\n";
+echo "OK: issue #166 prioritizes generation and bookable slots while the booking page hides elapsed slots\n";

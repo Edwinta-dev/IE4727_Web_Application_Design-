@@ -18,6 +18,6 @@ assert_contains($helpers, 'View my appointment');
 assert_contains($helpers, "'/patient/home.php#appointment-'");
 assert_contains($dashboard, 'id="appointment-<?= e((string) $appointment[\'appointmentID\']) ?>"');
 assert_contains($page, '$bookingConfirmed = flash_render();');
-assert_contains($page, 'if (!$bookingConfirmed && ($slots !== [] || $elapsedSlots !== []))');
+assert_contains($page, 'if (!$bookingConfirmed && $slots !== [])');
 
 echo "OK: issue #167 booking confirmation names the appointment, links to its dashboard row, and hides the booking form\n";

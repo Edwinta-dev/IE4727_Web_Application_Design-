@@ -104,6 +104,7 @@ $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(a
 $slots = $doctorId > 0
     ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
     : specialty_slots_for_day($selectedSpecialty, $selectedDate, $fromTime, $toTime);
+$slots = booking_visible_slots($slots, $now);
 $doctorById = [];
 foreach ($doctors as $candidate) {
     if ((string) $candidate['Specialty'] === $selectedSpecialty) {
@@ -115,12 +116,8 @@ $timeGroups = [];
 $groupedSlots = [];
 $bookableSlots = [];
 $otherFutureSlots = [];
-$elapsedSlots = [];
 foreach ($slots as $slot) {
-    $slotTime = new DateTimeImmutable((string) $slot['SlotDateTime']);
-    if ($slotTime <= $now) {
-        $elapsedSlots[] = $slot;
-    } elseif ((string) $slot['Status'] === 'Available') {
+    if ((string) $slot['Status'] === 'Available') {
         $bookableSlots[] = $slot;
         $representedDoctors[(int) $slot['DoctorID']] = $doctorById[(int) $slot['DoctorID']];
         $timeGroups[(string) $slot['SlotDateTime']][] = $slot;
@@ -129,6 +126,15 @@ foreach ($slots as $slot) {
     }
 }
 $slots = array_merge($bookableSlots, $otherFutureSlots);
+$tomorrowUrl = $selectedDate === $today->format('Y-m-d')
+    && $availability[$selectedDate]['matching'] > 0
+    && $availability[$selectedDate]['future'] === 0
+    ? url('/book.php?' . http_build_query(array_merge(
+        ['specialty' => $selectedSpecialty, 'date' => $today->modify('+1 day')->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        $doctorId > 0 ? ['doctor' => $doctorId] : [],
+        $reschedule !== null ? ['reschedule' => $rescheduleId] : []
+    )))
+    : null;
 if ($doctorId === 0) {
     // One visible cell per start time; its alternatives stay on the server and in data attributes.
     foreach ($timeGroups as $time => $alternatives) $groupedSlots[] = $alternatives[0];
@@ -241,14 +247,16 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="booking-slots">
 <?php if ($dayEmptyMessage !== null): ?>
     <p class="empty-state"><?= e($dayEmptyMessage) ?>
-<?php if ($availableDayUrl !== null): ?>
+<?php if ($tomorrowUrl !== null): ?>
+        <a href="<?= e($tomorrowUrl) ?>">See tomorrow's times</a>.
+<?php elseif ($availableDayUrl !== null): ?>
         <a href="<?= e($availableDayUrl) ?>">View available times on <?= e(fmt_date($availableDays[0])) ?></a>, or choose a date above.
 <?php else: ?>
         No available appointment times within the next <?= e((string) BROWSE_DAYS) ?> days with these time filters. Choose another date or change the time filters above.
 <?php endif; ?>
     </p>
 <?php endif; ?>
-<?php if (!$bookingConfirmed && ($slots !== [] || $elapsedSlots !== [])): ?>
+<?php if (!$bookingConfirmed && $slots !== []): ?>
     <div class="slot-booking">
             <form id="booking-post" method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
@@ -284,22 +292,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
 <?php else: ?>
             <span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span>
-            <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : ($stateClass === 'blocked' ? 'Unavailable' : 'Past')) ?></span>
+            <span class="slot-state"><?= e($stateClass === 'taken' ? 'Booked' : 'Unavailable') ?></span>
 <?php endif; ?>
         </div>
 <?php endforeach; ?>
     </div>
-<?php if ($elapsedSlots !== []): ?>
-    <details class="elapsed-slots">
-        <summary><?= e((string) count($elapsedSlots)) ?> earlier times</summary>
-        <p>These appointment times have passed and cannot be booked.</p>
-        <div class="schedule-grid" aria-label="Earlier appointment times">
-<?php foreach ($elapsedSlots as $slot): ?>
-            <div class="slot past"><span class="slot-time"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></span><span class="slot-state">Past</span></div>
-<?php endforeach; ?>
-        </div>
-    </details>
-<?php endif; ?>
 <?php if ($dayEmptyMessage === null): ?>
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
