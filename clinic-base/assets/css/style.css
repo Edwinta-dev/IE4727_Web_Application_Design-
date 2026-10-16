@@ -2,6 +2,12 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+/* Only the selected registration panel sets the form's height. */
+#registration-form.has-role-switcher .registration-role-track { position: relative; }
+#registration-form.has-role-switcher .registration-role-track > [data-role-fields][aria-hidden="true"] { position: absolute; left: 0; }
+#registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="true"] { left: 50%; }
+#registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="false"] { margin-left: 50%; }
+
 .page-intro-spaced { padding-top: var(--space-4); }
 
 /* Keep the brand and desktop navigation on the header's centre line. */
