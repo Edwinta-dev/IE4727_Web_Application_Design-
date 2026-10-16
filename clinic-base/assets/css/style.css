@@ -73,13 +73,6 @@
 }
 .specialty-filter label { margin: 0; }
 .specialty-filter select { width: min(20rem, 100%); }
-.specialty-filter select:focus:not(:focus-visible) { outline: none; box-shadow: none; }
-.specialty-filter select:focus-visible {
-    outline: 0.2rem solid var(--c-primary);
-    outline-offset: 0.15rem;
-    border-radius: var(--radius-control);
-    box-shadow: none;
-}
 .specialty-filter button { min-height: 2.75rem; padding: 0.45rem 0.85rem; }
 .active-doctor-filter { color: var(--c-muted); }
 .clear-doctor-filter { min-height: 2.75rem; display: inline-flex; align-items: center; }
@@ -288,8 +281,8 @@
 .booking-date-filter .booking-days { margin-bottom: 0; }
 .booking-filters .day-scroll { flex: 0 0 2.75rem; }
 .booking-date-filter .booking-time-filter { margin-top: var(--space-1); }
-.booking-filters :is(select, input[type="time"], button, .day-tab, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
-.booking-filters :is(select, input[type="time"], button, .day-tab, summary):focus-visible { outline: 0.2rem solid var(--c-primary); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
+.booking-filters :is(button, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.booking-filters :is(button, summary):focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
 .booking-results .slot-choice:focus-visible + .slot-time { outline-color: var(--c-primary); border-radius: var(--radius-control); }
 .booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
 .booking-filters p { flex: 1 1 10rem; min-width: 0; margin: 0; }
@@ -304,7 +297,7 @@
 .day-scroll { flex: 0 0 2.75rem; min-height: 2.75rem; padding: 0.4rem; }
 .day-scroll[hidden] { display: none; }
 .day-scroll-hint { display: none; }
-.day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); text-decoration: none; }
+.day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); border-radius: var(--radius-control); text-decoration: none; }
 .day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
 .booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
 .booking-doctor { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
@@ -387,18 +380,24 @@
 .booking-doctor-list { margin-top: var(--space-2); border-top: 1px solid var(--c-line); }
 .booking-doctor-option { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-bottom: 1px solid var(--c-line); cursor: pointer; }
 .booking-doctor-option[hidden], .booking-slots .slot[hidden] { display: none; }
-.booking-doctor-option input { flex: 0 0 auto; accent-color: var(--c-primary); }
+.booking-doctor-option input { flex: 0 0 auto; accent-color: var(--c-primary); border-radius: 50%; }
 .booking-doctor-option img { flex: 0 0 3.5rem; width: 3.5rem; height: 3.5rem; object-fit: cover; border-radius: 50%; }
 .booking-doctor-option span { min-width: 0; }
 .booking-doctor-option strong, .booking-doctor-option small { display: block; }
 .booking-doctor-option small { color: var(--c-muted); }
 .booking-doctor-option:focus-within { border-radius: var(--radius-control); }
-.booking-doctor-option input:focus:not(:focus-visible) { outline: none; }
-.booking-doctor-option input:focus-visible { outline: 0.2rem solid var(--c-primary); outline-offset: 0.2rem; border-radius: 50%; }
 .booking-slots .slot-doctors { display: block; padding: 0 var(--space-2) var(--space-2); font-size: 0.9rem; line-height: 1.3; }
 .booking-slots .slot-doctors span { display: block; }
 .booking-confirmation button:disabled { opacity: 0.55; cursor: not-allowed; }
 .schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
+
+/* Shared keyboard ring for form controls and the booking date picker. */
+:is(input, select, textarea, .day-tab):focus:not(:focus-visible) { outline: none; box-shadow: none; }
+:is(input, select, textarea, .day-tab):focus-visible {
+    outline: 0.2rem solid var(--c-focus-ring);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+}
 
 /* Doctor schedule: weekday calendar first, generation follows the working day. */
 #schedule-editor .schedule-month-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }

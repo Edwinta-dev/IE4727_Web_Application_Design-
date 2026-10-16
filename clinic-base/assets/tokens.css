@@ -15,6 +15,7 @@
     --c-success: #166534;
     --c-danger: #b91c1c;
     --c-danger-hover: #991b1b;
+    --c-focus-ring: var(--c-primary);
     --c-focus-on-dark: #fffdf9;
     --shadow-doctor-tile: 0 0.35rem 1rem rgba(41, 37, 36, 0.10);
     --radius-control: 0.2rem;
