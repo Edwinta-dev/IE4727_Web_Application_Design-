@@ -8,6 +8,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
 
 defined('AUTH_MAX_FAILURES') || define('AUTH_MAX_FAILURES', 5);
 defined('AUTH_FAILURE_WINDOW') || define('AUTH_FAILURE_WINDOW', 900);
+// Looser cap across all usernames from one client, so spraying many accounts is still throttled.
+defined('AUTH_MAX_CLIENT_FAILURES') || define('AUTH_MAX_CLIENT_FAILURES', 20);
 
 /**
  * Log a user in using either role table or the configuration-defined admin.
@@ -17,17 +19,17 @@ function attempt_login(string $userOrEmail, string $plain): bool
 {
     start_session_once();
 
-    if (auth_is_limited()) {
+    if (auth_is_limited($userOrEmail)) {
         return false;
     }
 
     if (!auth_try_credentials($userOrEmail, $plain)) {
-        auth_record_failure();
+        auth_record_failure($userOrEmail);
 
         return false;
     }
 
-    auth_clear_failures();
+    auth_clear_failures($userOrEmail);
 
     return true;
 }
@@ -185,72 +187,120 @@ function auth_redirect_to_login(string $message = 'Please sign in to continue.')
 
 function auth_client_key(): string
 {
-    return hash('sha256', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    return hash('sha256', 'client|' . (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
 }
 
-function auth_is_limited(): bool
+/** One counter per client and login name, so one person's typos never lock out other accounts. */
+function auth_user_key(string $userOrEmail): string
 {
-    $record = auth_failure_store_change(static function (array &$entries): array {
-        $key = auth_client_key();
-        $record = $entries[$key] ?? null;
-        if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
-            unset($entries[$key]);
-            return ['limited' => false];
-        }
+    return hash('sha256', 'user|' . (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . '|' . strtolower(trim($userOrEmail)));
+}
 
-        return ['limited' => (int) ($record['count'] ?? 0) >= AUTH_MAX_FAILURES];
+function auth_record_is_live(mixed $record): bool
+{
+    return is_array($record) && time() - (int) ($record['started'] ?? 0) < AUTH_FAILURE_WINDOW;
+}
+
+/** Read-only check: shared lock, never rewrites the store. A store error allows the attempt. */
+function auth_is_limited(string $userOrEmail): bool
+{
+    $limited = auth_failure_store_read(static function (array $entries) use ($userOrEmail): bool {
+        $user = $entries[auth_user_key($userOrEmail)] ?? null;
+        $client = $entries[auth_client_key()] ?? null;
+
+        return (auth_record_is_live($user) && (int) ($user['count'] ?? 0) >= AUTH_MAX_FAILURES)
+            || (auth_record_is_live($client) && (int) ($client['count'] ?? 0) >= AUTH_MAX_CLIENT_FAILURES);
     });
 
-    return !is_array($record) || (bool) ($record['limited'] ?? false);
+    return $limited === true;
 }
 
-function auth_record_failure(): void
+function auth_record_failure(string $userOrEmail): void
 {
-    auth_failure_store_change(static function (array &$entries): void {
-        $key = auth_client_key();
-        $record = $entries[$key] ?? null;
-        if (!is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
-            $record = ['started' => time(), 'count' => 0];
+    auth_failure_store_change(static function (array &$entries) use ($userOrEmail): void {
+        foreach ([[auth_user_key($userOrEmail), AUTH_MAX_FAILURES], [auth_client_key(), AUTH_MAX_CLIENT_FAILURES]] as [$key, $cap]) {
+            $record = $entries[$key] ?? null;
+            if (!auth_record_is_live($record)) {
+                $record = ['started' => time(), 'count' => 0, 'client' => auth_client_key()];
+            }
+            $record['count'] = min($cap, (int) $record['count'] + 1);
+            $entries[$key] = $record;
         }
-        $record['count'] = min(AUTH_MAX_FAILURES, (int) $record['count'] + 1);
-        $entries[$key] = $record;
     });
 }
 
-/** Shared, non-web-served storage for per-client login failures. */
+/**
+ * Store file for this OS user. Apache and the CLI test runner usually run as different
+ * users; a shared 0600 file created by one would be unreadable by the other.
+ */
 function auth_failure_store_path(): string
 {
-    return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ie4727-clinic-auth-failures.store';
+    $owner = function_exists('posix_geteuid') ? (string) posix_geteuid() : (string) (getenv('USERNAME') ?: getenv('USER') ?: 'shared');
+    $owner = preg_replace('/[^A-Za-z0-9_-]/', '', $owner) ?: 'shared';
+
+    return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ie4727-clinic-auth-failures-' . $owner . '.store';
 }
 
-/** Apply one atomic change while holding the store lock. Only hashed client keys are persisted. */
+/** @return array<string, array<string, mixed>> */
+function auth_failure_store_decode(string|false $contents): array
+{
+    $entries = is_string($contents) && $contents !== '' ? @unserialize($contents, ['allowed_classes' => false]) : [];
+
+    return is_array($entries) ? $entries : [];
+}
+
+/** Read the store under a shared lock. Returns null (and logs) on any store error; a missing store is empty. */
+function auth_failure_store_read(callable $read): mixed
+{
+    $path = auth_failure_store_path();
+    if (!is_file($path)) {
+        return $read([]);
+    }
+    $handle = @fopen($path, 'rb');
+    if ($handle === false) {
+        error_log('auth: login throttle store unreadable; allowing the attempt: ' . $path);
+        return null;
+    }
+    try {
+        if (!flock($handle, LOCK_SH)) {
+            error_log('auth: login throttle store could not be locked; allowing the attempt: ' . $path);
+            return null;
+        }
+        $entries = auth_failure_store_decode(stream_get_contents($handle));
+        flock($handle, LOCK_UN);
+
+        return $read($entries);
+    } finally {
+        fclose($handle);
+    }
+}
+
+/** Apply one atomic change under an exclusive lock. Only hashed keys are persisted. Store errors are logged, never fatal. */
 function auth_failure_store_change(callable $change): mixed
 {
     $path = auth_failure_store_path();
     $handle = @fopen($path, 'c+b');
     if ($handle === false) {
-        // Fail closed: inability to persist throttle state must not permit unlimited guesses.
+        error_log('auth: login throttle store not writable; failure not recorded: ' . $path);
         return null;
     }
     @chmod($path, 0600);
     try {
         if (!flock($handle, LOCK_EX)) {
+            error_log('auth: login throttle store could not be locked; failure not recorded: ' . $path);
             return null;
         }
         rewind($handle);
-        $contents = stream_get_contents($handle);
-        $entries = is_string($contents) && $contents !== '' ? @unserialize($contents, ['allowed_classes' => false]) : [];
-        if (!is_array($entries)) {
-            $entries = [];
-        }
+        $entries = auth_failure_store_decode(stream_get_contents($handle));
         foreach ($entries as $key => $record) {
-            if (!is_string($key) || !is_array($record) || time() - (int) ($record['started'] ?? 0) >= AUTH_FAILURE_WINDOW) {
+            if (!is_string($key) || !auth_record_is_live($record)) {
                 unset($entries[$key]);
             }
         }
         $result = $change($entries);
         rewind($handle);
         if (!ftruncate($handle, 0) || fwrite($handle, serialize($entries)) === false || !fflush($handle)) {
+            error_log('auth: login throttle store write failed: ' . $path);
             return null;
         }
         return $result;
@@ -260,10 +310,19 @@ function auth_failure_store_change(callable $change): mixed
     }
 }
 
-function auth_clear_failures(): void
+/** Clear the counter for one login name; with no name, clear every counter from this client. */
+function auth_clear_failures(string $userOrEmail = ''): void
 {
-    auth_failure_store_change(static function (array &$entries): void {
-        unset($entries[auth_client_key()]);
+    auth_failure_store_change(static function (array &$entries) use ($userOrEmail): void {
+        if ($userOrEmail !== '') {
+            unset($entries[auth_user_key($userOrEmail)]);
+            return;
+        }
+        foreach ($entries as $key => $record) {
+            if ($key === auth_client_key() || (is_array($record) && ($record['client'] ?? null) === auth_client_key())) {
+                unset($entries[$key]);
+            }
+        }
     });
 }
 
