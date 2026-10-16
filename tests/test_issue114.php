@@ -60,9 +60,9 @@ foreach ($navigationCases as [$role, $route, $expected]) {
     }
     if ($role === 'doctor') {
         preg_match_all('/<a href="([^"]+)"/', $html, $doctorLinks);
-        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php?logout=1']
+        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php#about', '/index.php?logout=1']
             || !str_contains($html, '>Day board</a>')) {
-            throw new RuntimeException('Doctor navigation must have one day board destination, schedule and logout');
+            throw new RuntimeException('Doctor navigation must have day board, schedule, About Us and logout destinations');
         }
     }
 }

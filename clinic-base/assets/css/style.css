@@ -1,6 +1,27 @@
 /* Compatibility entry point for the established stylesheet URL. */
 @import url("../tokens.css");
 @import url("../style.css");
+
+/* Home: mission follows the specialty strip in a calm two-column section. */
+.about-clinic {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-5);
+    background: var(--c-paper);
+    scroll-margin-top: var(--space-3);
+}
+.about-clinic-copy { min-width: 0; }
+.about-clinic-eyebrow { margin: 0 0 var(--space-1); color: var(--c-accent); font-weight: 700; }
+.about-clinic h2 { margin-bottom: var(--space-5); }
+.about-clinic-statement + .about-clinic-statement { margin-top: var(--space-4); }
+.about-clinic-statement h3 { margin: 0 0 var(--space-1); color: var(--c-accent); font-family: var(--font-body); font-size: 1rem; letter-spacing: normal; }
+.about-clinic-statement p { margin: 0; color: var(--c-muted); }
+.about-clinic-image { display: block; width: 100%; aspect-ratio: 4 / 3; height: auto; border-radius: var(--radius-tile); object-fit: cover; }
+@media (max-width: 40rem) {
+    .about-clinic { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); padding: var(--space-5) 0; }
+}
 /* Find-a-doctor directory */
 .specialty-filter {
     display: flex;

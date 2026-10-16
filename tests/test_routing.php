@@ -64,17 +64,23 @@ foreach (['clinic-base', 'clinic-plus'] as $app) {
     }
 }
 
-// Every image a page or the seed references must exist in both apps.
+// Seed images are shared by both apps; home-page-only images belong to base.
 $seed = (string) file_get_contents($root . '/schema/003_seed.sql');
 $helpers = (string) file_get_contents($root . '/clinic-base/lib/helpers.php');
 $index = (string) file_get_contents($root . '/clinic-base/index.php');
-preg_match_all('~assets/img/([A-Za-z0-9_.-]+\.(?:jpg|png|svg))~', $seed . $index, $paths);
+preg_match_all('~assets/img/([A-Za-z0-9_.-]+\.(?:jpg|png|svg))~', $seed, $paths);
 preg_match_all('~\'([A-Za-z0-9_]+\.jpg)\'~', $helpers, $specialty);
 foreach (array_unique([...$paths[1], ...$specialty[1]]) as $image) {
     foreach (['clinic-base', 'clinic-plus'] as $app) {
         if (!is_file($root . '/' . $app . '/assets/img/' . $image)) {
             throw new RuntimeException("{$app} is missing referenced image {$image}");
         }
+    }
+}
+preg_match_all('~assets/img/([A-Za-z0-9_.-]+\.(?:jpg|png|svg))~', $index, $homeImages);
+foreach (array_unique($homeImages[1]) as $image) {
+    if (!is_file($root . '/clinic-base/assets/img/' . $image)) {
+        throw new RuntimeException("clinic-base is missing referenced image {$image}");
     }
 }
 

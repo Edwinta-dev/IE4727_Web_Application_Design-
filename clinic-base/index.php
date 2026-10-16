@@ -131,6 +131,21 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <p data-doctor-status aria-live="polite" aria-atomic="true"></p>
         </div>
     </section>
+    <section class="about-clinic" id="about" aria-labelledby="about-heading">
+        <div class="about-clinic-copy">
+            <p class="about-clinic-eyebrow">Our mission</p>
+            <h2 id="about-heading">Our purpose and vision</h2>
+            <div class="about-clinic-statement">
+                <h3>Purpose</h3>
+                <p>We bring general practice, dental care, paediatrics, dermatology and physiotherapy together for our neighbourhood. We give patients clear advice and a straightforward way to arrange follow-up care.</p>
+            </div>
+            <div class="about-clinic-statement">
+                <h3>Vision</h3>
+                <p>We want families to know where to turn for everyday health concerns at every age. We aim to make each visit feel considered, from the first booking to the next step in treatment.</p>
+            </div>
+        </div>
+        <img class="about-clinic-image" src="<?= e(url('/assets/img/about-clinic-consultation.png')) ?>" width="1456" height="1092" loading="lazy" alt="A clinician discusses care with a patient in a consultation room">
+    </section>
 </main>
 <script src="<?= e(url('/assets/featured-doctors.js')) ?>" defer></script>
 <?php
