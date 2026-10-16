@@ -97,7 +97,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <label for="gender">Gender <span class="required-mark" aria-hidden="true">*</span></label>
                 <select id="gender" name="Gender" required aria-required="true">
                     <option value="">Choose your gender</option>
-                    <?php foreach (['Male', 'Female', 'Other'] as $gender): ?>
+                    <?php foreach (['Male', 'Female', 'Other', "I'd rather not disclose"] as $gender): ?>
                         <option value="<?= e($gender) ?>"<?= e($oldValues['Gender'] === $gender ? ' selected' : '') ?>><?= e($gender) ?></option>
                     <?php endforeach; ?>
                 </select>

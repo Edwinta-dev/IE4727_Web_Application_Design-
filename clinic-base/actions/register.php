@@ -48,7 +48,7 @@ if ($data['role'] === 'doctor') {
     ];
 } else {
     $rules += [
-        'Gender' => 'required|in:Male,Female,Other',
+        'Gender' => "required|in:Male,Female,Other,I'd rather not disclose",
         'Phone' => ['required', 'regex:/^[689][0-9]{7}$/D'],
     ];
 }
