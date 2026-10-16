@@ -12,32 +12,20 @@ function e(mixed $s): string
 
 /**
  * Summarise the earliest start and latest finish for each weekday.
- * Slot length is inferred from the smallest interval on each doctor's day;
- * a lone slot has no stored duration, so it uses the normal 30-minute length.
+ * Each row is one doctor's working day (clinic_schedule_days()): its first and
+ * last slot start and the smallest gap between slots (1-60 minutes), which is
+ * taken as the slot length; a day without such a gap uses the normal 30 minutes.
  *
- * @param list<array{DoctorID: int|string, SlotDate: string, SlotTime: string}> $rows
+ * @param list<array{SlotDate: string, FirstTime: string, LastTime: string, Step: int|string|null}> $rows
  */
 function clinic_opening_hours(array $rows): string
 {
-    $days = [];
-    foreach ($rows as $row) {
-        $days[$row['DoctorID'] . ':' . $row['SlotDate']][] = substr($row['SlotTime'], 0, 5);
-    }
-
     $week = [];
-    foreach ($days as $key => $times) {
-        sort($times, SORT_STRING);
-        $step = null;
-        for ($i = 1, $count = count($times); $i < $count; $i++) {
-            $gap = intdiv(strtotime($times[$i]) - strtotime($times[$i - 1]), 60);
-            if ($gap > 0 && $gap <= 60) {
-                $step = min($step ?? $gap, $gap);
-            }
-        }
-        $date = substr($key, strpos($key, ':') + 1);
-        $weekday = (int) date('N', strtotime($date));
-        $start = $times[0];
-        $end = date('H:i', strtotime($times[count($times) - 1]) + ($step ?? 30) * 60);
+    foreach ($rows as $row) {
+        $weekday = (int) date('N', strtotime((string) $row['SlotDate']));
+        $start = substr((string) $row['FirstTime'], 0, 5);
+        $step = $row['Step'] === null ? 30 : (int) $row['Step'];
+        $end = date('H:i', strtotime((string) $row['LastTime']) + $step * 60);
         if (!isset($week[$weekday])) {
             $week[$weekday] = [$start, $end];
         } else {
