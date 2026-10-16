@@ -2,6 +2,12 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+/* Home carousel tracks remain scrollable while their arrow controls provide navigation. */
+.doctor-carousel .doctor-tiles,
+.doctor-carousel .specialty-strip { scrollbar-width: none; }
+.doctor-carousel .doctor-tiles::-webkit-scrollbar,
+.doctor-carousel .specialty-strip::-webkit-scrollbar { display: none; }
+
 /* Home: mission follows the specialty strip in a calm two-column section. */
 .about-clinic {
     display: grid;
