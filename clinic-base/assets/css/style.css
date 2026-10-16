@@ -19,6 +19,30 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 #registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="true"] { left: 50%; }
 #registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="false"] { margin-left: 50%; }
 
+/* Keep both native radio choices visible as labelled tabs; only the arrow to the other role appears. */
+.registration-type.has-role-switcher .registration-role-options { display: grid; }
+.registration-type.has-role-switcher .registration-role-options label { justify-content: center; border-radius: var(--radius-control); }
+.registration-type.has-role-switcher .registration-role-options label:has(input:checked) {
+    border-color: var(--c-primary);
+    background: var(--c-surface-band);
+    color: var(--c-primary-dark);
+    font-weight: 700;
+}
+.registration-type.has-role-switcher .registration-role-switcher { margin-top: var(--space-2); }
+.registration-type.has-role-switcher .registration-role-arrow[hidden] { display: none; }
+.registration-type.has-role-switcher .registration-role-arrow[data-role-switch="doctor"] { grid-column: 3; }
+.registration-type.has-role-switcher .registration-role-heading { grid-column: 2; grid-row: 1; }
+.registration-type.has-role-switcher .registration-role-arrow:focus:not(:focus-visible),
+.registration-type.has-role-switcher .registration-role-options input:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.registration-type.has-role-switcher .registration-role-options input:focus-visible { outline: none; box-shadow: none; }
+.registration-type.has-role-switcher .registration-role-arrow:focus-visible,
+.registration-type.has-role-switcher .registration-role-options label:has(input:focus-visible) {
+    outline: 0.2rem solid var(--c-focus-ring);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+    border-radius: var(--radius-control);
+}
+
 @media (min-width: 56.01rem) {
     .registration-support {
         position: sticky;
