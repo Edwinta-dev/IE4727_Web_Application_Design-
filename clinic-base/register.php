@@ -26,7 +26,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'head
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="main-content" class="registration-page">
-    <section class="page-intro public-page-intro registration-intro">
+    <section class="page-intro page-intro-spaced public-page-intro registration-intro">
         <div class="page-intro-copy">
             <h1>Create your clinic account</h1>
             <p>Register for patient appointments or join the clinic as a doctor.</p>
