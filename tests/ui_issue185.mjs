@@ -20,7 +20,8 @@ await withServer(true, async (base) => {
         if (role === 'doctor') await page.locator('[data-role-switch="doctor"]').click();
         await page.waitForTimeout(250);
         gaps[role] = await page.evaluate((selectedRole) => {
-          const field = document.querySelector(selectedRole === 'patient' ? '#allergies' : '#write-up');
+          // The active panel's last field row, so fields added later (#190's photo) are measured too.
+          const field = document.querySelector(`[data-role-fields="${selectedRole}"] > p:last-of-type`);
           const button = document.querySelector('#registration-form > button[type="submit"]');
           return Math.round((button.getBoundingClientRect().top - field.getBoundingClientRect().bottom) * 10) / 10;
         }, role);
