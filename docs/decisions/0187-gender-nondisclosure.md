@@ -27,7 +27,7 @@ The registration form submits the selected value to the existing POST handler. T
 - `tests/ui_issue187.mjs`: checks selection and full registration in Chromium.
 
 ## Breaks or needs follow-up
-None known.
+Any existing database must have the `ALTER TABLE` from `schema/002_migrate.sql` applied before this form ships; only `ie4727db_test` got it through `tools/db_reset.php --test`. The live server is not in strict SQL mode, so without the migration "I'd rather not disclose" is stored as an empty string with only a "Data truncated" warning, and the patient's choice is silently lost (found in review on 2026-10-17).
 
 ## Problem and constraints
 Issue #187 asks for a non-disclosure option. The adopted schema defines `Gender` as an enum, so the new literal requires a migration. `AGENTS.md` limits schema additions to `002_migrate.sql`; the issue's request to update the schema file is fulfilled there rather than by modifying the fixed `001_schema.sql`.
