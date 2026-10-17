@@ -112,7 +112,7 @@ await withTestServer(true, async (base) => {
     try { await browser.close(); } finally {
       const photo = testPhp(['-r', 'require "clinic-base/lib/db.php"; $row=q_one("SELECT `ImageURL` FROM `doctor` WHERE `User` = :user", ["user" => $argv[1]]); echo $row["ImageURL"] ?? "";', credentials('doctor').User], { encoding: 'utf8' }).trim();
       fixture('cleanup');
-      if (/^assets\/img\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve(root, 'clinic-base', photo), { force: true });
+      if (/^assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve(root, 'clinic-base', photo), { force: true });
     }
     const counts = fixture('counts');
     if (counts.patient !== 0 || counts.doctor !== 0) throw Error('Own registration fixtures remain');

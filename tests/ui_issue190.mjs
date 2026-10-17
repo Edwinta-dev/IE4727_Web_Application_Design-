@@ -79,7 +79,7 @@ try {
       const row = valid.locator('.doctor-directory tr', { hasText: 'Test Doctor' });
       assert.equal(await row.count(), 1);
       const src = await row.locator('img.doctor-photo').getAttribute('src');
-      assert.match(src, /assets\/img\/doctor-[a-f0-9]{32}\.jpg$/);
+      assert.match(src, /assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.jpg$/);
       await row.locator('img.doctor-photo').evaluate(img => img.decode());
       assert.ok(await row.locator('img.doctor-photo').evaluate(img => img.complete && img.naturalWidth > 0), 'directory photo loaded');
       await valid.screenshot({ path: resolve(output, 'doctors-valid-1280.png'), fullPage: true, animations: 'disabled' });
@@ -93,7 +93,7 @@ try {
   console.log('OK: #190 doctor photo and background registration');
 } finally {
   const result = testPhp(['-r', `require 'clinic-base/lib/db.php'; $row=q_one('SELECT ImageURL FROM doctor WHERE User = :user', ['user' => '${username}']); if ($row) { q('DELETE FROM doctor WHERE User = :user', ['user' => '${username}']); echo $row['ImageURL']; }`], { encoding: 'utf8', cwd: root }).trim();
-  if (result && /^assets\/img\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(result)) {
+  if (result && /^assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(result)) {
     await rm(resolve(root, 'clinic-base', result), { force: true });
   }
 }

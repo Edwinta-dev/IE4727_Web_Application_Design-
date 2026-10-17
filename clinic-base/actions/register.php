@@ -82,11 +82,14 @@ if ($data['role'] === 'doctor') {
     $mime = (string) getimagesize($_FILES['ProfilePhoto']['tmp_name'])['mime'];
     $extension = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
     $filename = 'doctor-' . bin2hex(random_bytes(16)) . '.' . $extension;
-    $savedPhoto = dirname(__DIR__) . '/assets/img/' . $filename;
-    if (!move_uploaded_file($_FILES['ProfilePhoto']['tmp_name'], $savedPhoto)) {
+    // Uploads live apart from the site's own images: git-ignored, outside the image size budget.
+    $uploadDir = dirname(__DIR__) . '/' . DOCTOR_PHOTO_DIR;
+    $savedPhoto = $uploadDir . '/' . $filename;
+    if ((!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir))
+        || !move_uploaded_file($_FILES['ProfilePhoto']['tmp_name'], $savedPhoto)) {
         validation_failed(['ProfilePhoto' => 'The profile photo could not be saved. Please try again.'], $data, '/register.php');
     }
-    $data['ImageURL'] = 'assets/img/' . $filename;
+    $data['ImageURL'] = DOCTOR_PHOTO_DIR . '/' . $filename;
 }
 
 $connection = db();

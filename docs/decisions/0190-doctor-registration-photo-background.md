@@ -12,7 +12,7 @@ Doctor registration requires a profile photo and at least 50 characters of profe
 The registration form previously allowed a doctor account without a photo or a useful background. The existing `doctor.ImageURL` and `doctor.WriteUp` columns hold these values. Validation must use a normal multipart POST and keep patient registration working.
 
 ## Main design choice
-Validate the uploaded image on the server with PHP's upload status, size, `getimagesize()` and MIME detection. Generate a random filename under the existing `assets/img` directory, store its relative path in `doctor.ImageURL`, and delete the file if account creation fails. Keep the live character counter local to `register.php`; putting it in shared JavaScript would affect unrelated pages.
+Validate the uploaded image on the server with PHP's upload status, size, `getimagesize()` and MIME detection. Generate a random filename under `assets/uploads/doctors` (`DOCTOR_PHOTO_DIR`), store its relative path in `doctor.ImageURL`, and delete the file if account creation fails. Keep the live character counter local to `register.php`; putting it in shared JavaScript would affect unrelated pages.
 
 ## How it works
 The doctor form marks the background and photo required, describes the 50-character and 2 MB limits, and updates the background count on input. The registration action validates both fields before moving the uploaded file. Account creation stores the generated image path. The existing Find a Doctor page reads `ImageURL` through its doctor model.
@@ -20,6 +20,7 @@ The doctor form marks the background and photo required, describes the 50-charac
 ## Alternatives considered
 - Trust the browser's `accept` and `minlength` attributes: rejected because crafted POSTs bypass them.
 - Keep the counter in shared `assets/app.js`: possible, but the page-local script keeps this one-form behavior within the issue scope.
+- Save uploads in `assets/img` beside the site's own images: the first version did this and was changed after review. That folder is tracked by git, so real doctors' photos would appear as untracked files an agent could commit, and `tests/test_issue198.php` caps every image there at 250 KB while uploads may be 2 MB, so one real upload would fail the suite.
 
 ## Key parameters
 - Background minimum: 50 characters after trimming, using the existing `min` validation rule.
@@ -27,7 +28,7 @@ The doctor form marks the background and photo required, describes the 50-charac
 - Filename: `doctor-` plus 16 random bytes in hex, with an extension derived from detected MIME.
 
 ## Assumptions
-The existing `clinic-base/assets/img` directory is writable by PHP. An uploaded image is retained as submitted after type and size checks.
+PHP can create and write `clinic-base/assets/uploads/doctors` (the action creates it on first upload; it is git-ignored). An uploaded image is retained as submitted after type and size checks.
 
 ## Edge cases
 Missing, failed, oversized, and non-image uploads return field errors. A short background returns a field error. If account creation fails after a successful move, the action rolls back the database transaction and removes the moved file.

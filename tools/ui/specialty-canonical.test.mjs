@@ -66,7 +66,7 @@ try {
           assert.ok(accepted.url().endsWith('/doctor/home.php'), `${accepted.url()}: ${(await accepted.text()).slice(0, 1500)}`);
           assert.equal(php('-r', 'require "clinic-base/models/accounts.php"; echo find_login($argv[1])["name"];', user), 'Dr Edwin');
           const photo = php('-r', 'require "clinic-base/lib/db.php"; $row=q_one("SELECT ImageURL FROM doctor WHERE User = :user", ["user" => $argv[1]]); echo $row["ImageURL"] ?? "";', user);
-          if (/^assets\/img\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve('clinic-base', photo), { force: true });
+          if (/^assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve('clinic-base', photo), { force: true });
         } finally { await page.close(); }
       }
     } finally { await browser.close(); }
