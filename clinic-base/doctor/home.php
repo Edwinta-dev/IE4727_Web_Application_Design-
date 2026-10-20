@@ -59,16 +59,6 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </form>
     </section>
 
-    <nav class="day-board-navigation" aria-label="Day navigation">
-        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>"><span aria-hidden="true">&larr; </span>Previous day</a>
-        <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>">Next day<span aria-hidden="true"> &rarr;</span></a>
-        <?php if ($nextAppointmentDay !== null): ?>
-            <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
-        <?php else: ?>
-            <span>No upcoming appointments after this day.</span>
-        <?php endif; ?>
-    </nav>
-
     <?php flash_render(); ?>
 
     <section class="day-summary summary-strip" aria-label="Day summary">
@@ -80,7 +70,18 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
 
     <section class="day-schedule" aria-label="Appointments for <?= e($date) ?>">
-        <h2><?= e(fmt_date($date)) ?></h2>
+        <nav class="day-board-navigation" aria-label="Day navigation">
+            <div class="day-board-date-controls">
+                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>" aria-label="Previous day"><span aria-hidden="true">&larr;</span><span class="day-board-link-label">Previous day</span></a>
+                <h2><?= e(fmt_date($date)) ?></h2>
+                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>" aria-label="Next day"><span class="day-board-link-label">Next day</span><span aria-hidden="true">&rarr;</span></a>
+            </div>
+            <?php if ($nextAppointmentDay !== null): ?>
+                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
+            <?php else: ?>
+                <span>No upcoming appointments after this day.</span>
+            <?php endif; ?>
+        </nav>
         <?php if ($appointments === []): ?>
             <p class="empty-state">There are no appointments for this day.</p>
         <?php else: ?>

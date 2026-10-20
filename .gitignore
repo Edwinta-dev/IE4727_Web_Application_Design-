@@ -13,3 +13,5 @@ __pycache__/
 UIPROBLEMS/
 # Per-run PHP session dirs created by tools/ui --serve (removed on exit; ignored in case a run is killed)
 .ui-sessions-*/
+# Doctor profile photos uploaded at registration (#190); real users' files, never committed.
+clinic-base/assets/uploads/

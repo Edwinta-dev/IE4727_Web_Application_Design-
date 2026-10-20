@@ -11,7 +11,7 @@ $page = str_replace("\r\n", "\n", $page);
 
 assert_contains($page, '$rescheduleReason = $rescheduleRemarks[\'reason\'];', 'existing visit reason is decoded for reschedule');
 assert_contains($page, 'if ($reschedule !== null): ?>' . "\n" . '                <p class="booking-reason">Reason for visit: <?= e($rescheduleReason', 'reschedule shows escaped read-only reason');
-assert_contains($page, 'else: ?>' . "\n" . '                <label for="reason">Reason for visit</label>' . "\n" . '                <input id="reason" name="reason" type="text" maxlength="255" required>', 'new booking retains required reason input');
+assert_contains($page, 'else: ?>' . "\n" . '                <label for="reason">Reason for visit <span class="required-mark" aria-hidden="true">*</span></label>' . "\n" . '                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true">', 'new booking retains marked and required reason input');
 
 $confirmationStart = strpos($page, '<section class="booking-confirmation"');
 $confirmationEnd = strpos($page, '</section>', $confirmationStart === false ? 0 : $confirmationStart);

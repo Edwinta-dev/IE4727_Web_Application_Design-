@@ -58,13 +58,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <form method="post" action="<?= e(url('/actions/login.php')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="next" value="<?= e($next) ?>">
+            <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
             <p>
-                <label for="username-or-email">Username or email</label>
-                <input id="username-or-email" name="username_or_email" type="text" value="<?= e((string) old('username_or_email')) ?>" autocomplete="username" required>
+                <label for="username-or-email">Username or email <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="username-or-email" name="username_or_email" type="text" value="<?= e((string) old('username_or_email')) ?>" autocomplete="username" required aria-required="true">
             </p>
             <p>
-                <label for="login-password">Password</label>
-                <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+                <label for="login-password">Password <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required aria-required="true">
             </p>
             <p><button type="submit">Sign in</button></p>
         </form>

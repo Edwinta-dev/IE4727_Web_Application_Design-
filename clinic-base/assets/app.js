@@ -22,6 +22,9 @@ function setRegistrationRole(role) {
         switcher.hidden = false;
         track.setAttribute('data-active-role', role);
         heading.textContent = role === 'doctor' ? 'Doctor account' : 'Patient account';
+        switcher.querySelectorAll('[data-role-switch]').forEach(function (button) {
+            button.hidden = button.getAttribute('data-role-switch') === role;
+        });
         track.querySelectorAll('[data-role-fields]').forEach(function (fieldset) {
             fieldset.hidden = false;
             fieldset.setAttribute('aria-hidden', fieldset.getAttribute('data-role-fields') !== role ? 'true' : 'false');
@@ -88,6 +91,9 @@ function initialiseRegistrationForm() {
             if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
                 return;
             }
+            if (event.target.matches('input[name="role"]')) {
+                return;
+            }
             var role = event.key === 'ArrowRight' ? 'doctor' : 'patient';
             var radio = form.querySelector('[name="role"][value="' + role + '"]');
             if (radio) {
@@ -109,6 +115,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (specialty) {
         specialty.addEventListener('change', function () {
             specialty.form.requestSubmit();
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var scheduleDate = document.querySelector('.schedule-date-filter input[name="date"]');
+    if (scheduleDate) {
+        scheduleDate.addEventListener('change', function () {
+            if (scheduleDate.checkValidity()) {
+                scheduleDate.form.requestSubmit();
+            }
         });
     }
 });

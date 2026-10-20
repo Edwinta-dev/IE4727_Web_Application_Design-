@@ -20,6 +20,8 @@ defined('DB_USER') || define('DB_USER', 'root');
 defined('DB_PASS') || define('DB_PASS', '');
 defined('APP_NAME') || define('APP_NAME', 'Clinic Appointment Portal');
 defined('CLINIC_EMAIL') || define('CLINIC_EMAIL', 'clinic@example.local');
+// Doctor profile photos uploaded at registration, relative to clinic-base/ (git-ignored).
+defined('DOCTOR_PHOTO_DIR') || define('DOCTOR_PHOTO_DIR', 'assets/uploads/doctors');
 // Local demos can log notifications without waiting for an unavailable SMTP service.
 defined('MAIL_DELIVERY') || define('MAIL_DELIVERY', getenv('MAIL_DELIVERY') ?: 'on');
 defined('SLOT_MINUTES') || define('SLOT_MINUTES', 30);

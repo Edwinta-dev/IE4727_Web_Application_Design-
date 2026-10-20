@@ -43,17 +43,23 @@ if ($data['role'] === 'doctor') {
     $rules += [
         'Specialty' => 'required|in:' . implode(',', canonical_specialties()),
         'Qualifications' => 'required|max:255',
-        'WriteUp' => 'required|max:65535',
+        'WriteUp' => 'required|min:50|max:65535',
         'Languages' => 'required|max:120',
     ];
 } else {
     $rules += [
-        'Gender' => 'required|in:Male,Female,Other',
+        'Gender' => "required|in:Male,Female,Other,I'd rather not disclose",
         'Phone' => ['required', 'regex:/^[689][0-9]{7}$/D'],
     ];
 }
 
 $errors = validate($data, $rules);
+if ($data['role'] === 'doctor') {
+    $photoError = doctor_photo_error($_FILES['ProfilePhoto'] ?? null);
+    if ($photoError !== null) {
+        $errors['ProfilePhoto'] = $photoError;
+    }
+}
 if ($data['role'] === 'doctor' && isset($errors['Specialty'])) {
     $errors['Specialty'] = 'Choose a specialty from the list of clinic services.';
 }
@@ -69,6 +75,21 @@ if ($errors === [] && user_or_email_taken($data['Email'])) {
 
 if ($errors !== []) {
     validation_failed($errors, $data, '/register.php');
+}
+
+$savedPhoto = null;
+if ($data['role'] === 'doctor') {
+    $mime = (string) getimagesize($_FILES['ProfilePhoto']['tmp_name'])['mime'];
+    $extension = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
+    $filename = 'doctor-' . bin2hex(random_bytes(16)) . '.' . $extension;
+    // Uploads live apart from the site's own images: git-ignored, outside the image size budget.
+    $uploadDir = dirname(__DIR__) . '/' . DOCTOR_PHOTO_DIR;
+    $savedPhoto = $uploadDir . '/' . $filename;
+    if ((!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir))
+        || !move_uploaded_file($_FILES['ProfilePhoto']['tmp_name'], $savedPhoto)) {
+        validation_failed(['ProfilePhoto' => 'The profile photo could not be saved. Please try again.'], $data, '/register.php');
+    }
+    $data['ImageURL'] = DOCTOR_PHOTO_DIR . '/' . $filename;
 }
 
 $connection = db();
@@ -87,6 +108,9 @@ try {
 } catch (Throwable $exception) {
     if ($connection->inTransaction()) {
         $connection->rollBack();
+    }
+    if ($savedPhoto !== null) {
+        unlink($savedPhoto);
     }
     $errors = ['User' => 'That username or email is already registered'];
     validation_failed($errors, $data, '/register.php');

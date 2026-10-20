@@ -1,5 +1,5 @@
 import { chromium } from '../tools/ui/node_modules/playwright/index.mjs';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { withTestServer, root } from '../tools/ui/lib.mjs';
 
@@ -47,7 +47,9 @@ await withTestServer(true, async (base) => {
       if (await page.locator('.phone-prefix').getAttribute('contenteditable')) throw Error('Singapore prefix became editable');
       if (await phone.getAttribute('placeholder') !== '81234567') throw Error('phone placeholder suggests a value that fails validation');
       await phone.click();
-      if (await page.locator('.phone-input').evaluate((group) => getComputedStyle(group).outlineStyle) !== 'none') throw Error('mouse focus showed a phone focus ring');
+      const mouseFocusVisible = await phone.evaluate((field) => field.matches(':focus-visible'));
+      const mouseRing = await page.locator('.phone-input').evaluate((group) => getComputedStyle(group).outlineStyle);
+      if (mouseRing !== (mouseFocusVisible ? 'solid' : 'none')) throw Error('phone focus ring did not follow :focus-visible');
       await page.keyboard.press('Tab');
       await page.keyboard.press('Shift+Tab');
       if (await page.locator('.phone-input').evaluate((group) => getComputedStyle(group).outlineStyle) !== 'solid') throw Error('keyboard focus lost its phone focus ring');
@@ -75,6 +77,10 @@ await withTestServer(true, async (base) => {
         throw Error('crafted invalid phone bypassed PHP registration validation');
       }
       await page.locator('[name="Phone"]').fill('81234567');
+      if (!javascriptEnabled) {
+        await page.locator('[name="password"]').fill('Synthetic123');
+        await page.locator('[name="confirm_password"]').fill('Synthetic123');
+      }
       if (patternErrors.length) throw Error(`Chromium rejected phone pattern: ${patternErrors.join('; ')}`);
       await page.locator('button[type="submit"]').click();
       try { await page.waitForURL('**/patient/home.php', { timeout: 12000 }); }
@@ -93,7 +99,8 @@ await withTestServer(true, async (base) => {
     if (await page.locator('#patient-fields input, #patient-fields select, #patient-fields textarea').evaluateAll((fields) => fields.some((field) => !field.disabled))) throw Error('inactive patient fields remained enabled');
     for (const [name, value] of Object.entries(credentials('doctor'))) await page.locator(`[name="${name}"]`).fill(value);
     await page.locator('[name="Specialty"]').selectOption('General Practice');
-    for (const [name, value] of Object.entries({ Qualifications: 'MBBS', Languages: 'English', WriteUp: 'Synthetic doctor profile.' })) await page.locator(`[name="${name}"]`).fill(value);
+    for (const [name, value] of Object.entries({ Qualifications: 'MBBS', Languages: 'English', WriteUp: 'Synthetic doctor profile with experience in general practice and patient care.' })) await page.locator(`[name="${name}"]`).fill(value);
+    await page.locator('[name="ProfilePhoto"]').setInputFiles(resolve(root, 'clinic-base/assets/img/Doctor_Consulting.jpg'));
     await page.locator('button[type="submit"]').click();
     await page.waitForURL('**/doctor/home.php', { timeout: 12000 });
     await capture(page, 'after', 'doctor');
@@ -102,7 +109,11 @@ await withTestServer(true, async (base) => {
     if (counts.database !== 'ie4727db_test' || counts.patient !== 2 || counts.doctor !== 1) throw Error('Registration rows not isolated: ' + JSON.stringify(counts));
     console.log('Registration fixture after:', counts);
   } finally {
-    try { await browser.close(); } finally { fixture('cleanup'); }
+    try { await browser.close(); } finally {
+      const photo = testPhp(['-r', 'require "clinic-base/lib/db.php"; $row=q_one("SELECT `ImageURL` FROM `doctor` WHERE `User` = :user", ["user" => $argv[1]]); echo $row["ImageURL"] ?? "";', credentials('doctor').User], { encoding: 'utf8' }).trim();
+      fixture('cleanup');
+      if (/^assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve(root, 'clinic-base', photo), { force: true });
+    }
     const counts = fixture('counts');
     if (counts.patient !== 0 || counts.doctor !== 0) throw Error('Own registration fixtures remain');
     console.log('Registration fixture cleaned:', counts);

@@ -1,8 +1,11 @@
 -- Issue #4 migration.
 -- The cleaned adopted dump already contains every structural/content field
--- originally listed for this migration. It must therefore remain a no-op:
+-- originally listed for issue #4. That part remains a no-op:
 -- re-adding any of these columns or keys would make db_reset fail.
--- This file is intentionally idempotent and preserves existing data.
+-- The original issue #4 migration was an idempotent no-op and preserves existing data.
+-- Issue #187: extend the existing Gender enum without changing its column name
+-- or any stored values. Reapplying this definition is safe.
+ALTER TABLE `patient` MODIFY COLUMN `Gender` ENUM('Male','Female','Other','I''d rather not disclose') DEFAULT NULL;
 -- Issue #84: fill short seeded doctor biographies on an existing database.
 -- The length guard preserves any profile text the owner has already edited.
 UPDATE `doctor` SET `WriteUp` = 'Dr. Smith is a family physician who has cared for adults and children in Singapore for more than fifteen years. He focuses on preventive health, chronic disease management and practical advice that helps patients make confident decisions between visits. He takes time to understand how symptoms affect daily routines and agrees on clear next steps with each patient.\n\nAt a consultation, patients can discuss a new concern, review an ongoing condition or plan routine screening. Dr. Smith also supports families with vaccinations and follow-up after illness, coordinating further assessment when a concern needs specialist input. He aims to make each visit useful by explaining findings in plain language and setting out what to monitor at home. Patients are welcome to bring a current medication list and questions..' WHERE `User` = 'drsmith' AND CHAR_LENGTH(`WriteUp`) < 400;

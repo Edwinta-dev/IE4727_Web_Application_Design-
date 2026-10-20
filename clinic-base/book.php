@@ -205,11 +205,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div class="booking-time-fields">
                 <p>
                     <label for="from">From</label>
-                    <input id="from" name="from" type="time" value="<?= e($fromTime) ?>" required>
+                    <input id="from" name="from" type="time" value="<?= e($fromTime) ?>">
                 </p>
                 <p>
                     <label for="to">To</label>
-                    <input id="to" name="to" type="time" value="<?= e($toTime) ?>" required>
+                    <input id="to" name="to" type="time" value="<?= e($toTime) ?>">
                 </p>
             </div>
             </details>
@@ -240,12 +240,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($representedDoctors === []): ?>
             <p class="booking-no-doctors">No doctors have available times for this date. Try another date.</p>
 <?php else: ?>
-            <p class="booking-doctor-instruction">Choose a doctor and a time to book.</p>
+            <p class="booking-doctor-instruction" id="booking-doctor-label">Doctor <span class="required-mark" aria-hidden="true">*</span></p>
             <noscript><p>To book without JavaScript, choose a doctor in the filter above before selecting a time.</p></noscript>
-            <div class="booking-doctor-list">
+            <div class="booking-doctor-list" role="group" aria-labelledby="booking-doctor-label">
 <?php foreach ($representedDoctors as $candidate): ?>
                 <label class="booking-doctor-option" data-doctor-id="<?= e((string) $candidate['DoctorID']) ?>">
-                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required>
+                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required aria-required="true">
                     <img src="<?= e(url(!empty($candidate['ImageURL']) ? '/' . ltrim((string) $candidate['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="56" height="56" loading="eager" decoding="async" alt="">
                     <span><strong><?= e((string) $candidate['FullName']) ?></strong><small><?= e((string) $candidate['Specialty']) ?></small></span>
                 </label>
@@ -269,6 +269,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <div class="slot-booking">
             <form id="booking-post" method="post" action="<?= e(url($reschedule === null ? '/actions/book.php' : '/actions/appointment.php')) ?>">
                 <?= csrf_field() ?>
+                <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
                 <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
                 <input type="hidden" name="specialty" value="<?= e($selectedSpecialty) ?>">
                 <input type="hidden" name="from" value="<?= e($fromTime) ?>">
@@ -277,7 +278,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
                 <input type="hidden" name="reschedule" value="1">
 <?php endif; ?>
-    <div class="schedule-grid" role="group" aria-label="Appointment time">
+    <p class="booking-choice-label" id="appointment-time-label">Appointment time <span class="required-mark" aria-hidden="true">*</span></p>
+    <div class="schedule-grid" role="group" aria-labelledby="appointment-time-label">
 <?php foreach ($slots as $slot):
     $status = (string) ($slot['Status'] ?? 'Blocked');
     $stateClass = match ($status) {
@@ -288,7 +290,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
         <div class="slot <?= e($stateClass) ?>">
 <?php if ($stateClass === 'free'): ?>
-            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required>
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required aria-required="true">
             <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
 <?php if ($doctorId === 0): ?>
             <span class="slot-doctors">
@@ -313,8 +315,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($reschedule !== null): ?>
                 <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
 <?php else: ?>
-                <label for="reason">Reason for visit</label>
-                <input id="reason" name="reason" type="text" maxlength="255" required>
+                <label for="reason">Reason for visit <span class="required-mark" aria-hidden="true">*</span></label>
+                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true">
 <?php endif; ?>
                 <div class="booking-form-actions">
                     <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>

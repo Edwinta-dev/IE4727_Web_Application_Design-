@@ -74,6 +74,29 @@ function string_length(string $value): int
     return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
 }
 
+/** Return a clear upload error, or null for a verified doctor profile photo. */
+function doctor_photo_error(mixed $photo): ?string
+{
+    if (!is_array($photo) || ($photo['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return 'Choose a profile photo.';
+    }
+    if (($photo['error'] ?? null) !== UPLOAD_ERR_OK || !isset($photo['tmp_name'], $photo['size'])
+        || !is_string($photo['tmp_name']) || !is_uploaded_file($photo['tmp_name'])) {
+        return 'The profile photo could not be uploaded. Please choose it again.';
+    }
+    if (!is_int($photo['size']) || $photo['size'] < 1 || $photo['size'] > 2 * 1024 * 1024) {
+        return 'Choose a profile photo no larger than 2 MB.';
+    }
+    $image = @getimagesize($photo['tmp_name']);
+    $mime = $image['mime'] ?? null;
+    $detected = (new finfo(FILEINFO_MIME_TYPE))->file($photo['tmp_name']);
+    if (!is_string($mime) || $mime !== $detected
+        || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+        return 'Choose a JPEG, PNG or WebP profile photo.';
+    }
+    return null;
+}
+
 function valid_date(string $value): bool
 {
     $date = DateTime::createFromFormat('!Y-m-d', $value);

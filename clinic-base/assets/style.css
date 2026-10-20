@@ -962,6 +962,7 @@ input[type="button"]:active {
 
 .registration-role-viewport {
     overflow: hidden;
+    overflow: clip;
 }
 
 .registration-role-track {
