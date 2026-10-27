@@ -90,7 +90,7 @@ document.querySelectorAll('.slot-booking').forEach(function (booking) {
             var matched = alternatives(choice).find(function (entry) { return entry.doctor === doctorId; });
             if (matched) choice.value = matched.slot;
         }
-        if (selectedTime) selectedTime.textContent = choice ? choice.dataset.time : 'Time selected above';
+        if (selectedTime) selectedTime.textContent = choice ? choice.dataset.time : 'Select a time slot above';
         if (selectedDoctor) selectedDoctor.textContent = selected ? selected.querySelector('strong').textContent : 'Choose a doctor';
         if (submit) submit.disabled = !(choice && selected);
     }

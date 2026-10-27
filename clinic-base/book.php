@@ -133,6 +133,18 @@ foreach ($slots as $slot) {
     }
 }
 $slots = array_merge($bookableSlots, $otherFutureSlots);
+$slotInput = $_GET['slot_id'] ?? '';
+$selectedSlot = null;
+if (is_string($slotInput) && ctype_digit($slotInput)) {
+    foreach ($bookableSlots as $slot) {
+        if ((string) $slot['slotID'] === $slotInput) {
+            $selectedSlot = $slot;
+            break;
+        }
+    }
+}
+$selectedSlotTime = $selectedSlot !== null ? (string) $selectedSlot['SlotDateTime'] : null;
+$selectedDoctorId = $selectedSlot !== null ? (int) $selectedSlot['DoctorID'] : $doctorId;
 $tomorrowUrl = $selectedDate === $today->format('Y-m-d')
     && $availability[$selectedDate]['matching'] > 0
     && $availability[$selectedDate]['future'] === 0
@@ -245,7 +257,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div class="booking-doctor-list" role="group" aria-labelledby="booking-doctor-label">
 <?php foreach ($representedDoctors as $candidate): ?>
                 <label class="booking-doctor-option" data-doctor-id="<?= e((string) $candidate['DoctorID']) ?>">
-                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required aria-required="true">
+                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($selectedDoctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required aria-required="true">
                     <img src="<?= e(url(!empty($candidate['ImageURL']) ? '/' . ltrim((string) $candidate['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="56" height="56" loading="eager" decoding="async" alt="">
                     <span><strong><?= e((string) $candidate['FullName']) ?></strong><small><?= e((string) $candidate['Specialty']) ?></small></span>
                 </label>
@@ -290,7 +302,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
         <div class="slot <?= e($stateClass) ?>">
 <?php if ($stateClass === 'free'): ?>
-            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required aria-required="true">
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime']) . ' (' . date('D, j M', strtotime((string) $slot['SlotDateTime'])) . ')') ?>"<?= e($selectedSlotTime === (string) $slot['SlotDateTime'] ? ' checked' : '') ?> required aria-required="true">
             <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
 <?php if ($doctorId === 0): ?>
             <span class="slot-doctors">
@@ -311,7 +323,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($dayEmptyMessage === null): ?>
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
-                <p><span id="selected-doctor" aria-live="polite"><?= e($doctor !== null ? (string) $doctor['FullName'] : 'Choose a doctor') ?></span> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+                <p><span id="selected-doctor" aria-live="polite"><?= e($selectedSlot !== null ? (string) $doctorById[$selectedDoctorId]['FullName'] : ($doctor !== null ? (string) $doctor['FullName'] : 'Choose a doctor')) ?></span> &middot; <span id="selected-time" aria-live="polite"><?= e($selectedSlotTime !== null ? fmt_time($selectedSlotTime) . ' (' . date('D, j M', strtotime($selectedSlotTime)) . ')' : 'Select a time slot above') ?></span></p>
 <?php if ($reschedule !== null): ?>
                 <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
 <?php else: ?>
