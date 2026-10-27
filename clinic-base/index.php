@@ -46,7 +46,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 </div>
             </div>
         </div>
-        <section class="member-login" aria-labelledby="member-login-heading">
+        <section class="member-login" id="login-card" aria-labelledby="member-login-heading">
         <?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
 <?php if ($user !== null): ?>
         <h2 id="member-login-heading">Your clinic account</h2>

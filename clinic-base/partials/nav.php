@@ -65,6 +65,7 @@ $links = match ($navigationRole) {
         ['label' => 'Find a doctor', 'href' => '/doctors.php'],
         ['label' => 'Book an appointment', 'href' => '/book.php'],
         ['label' => 'Register', 'href' => '/register.php'],
+        ['label' => 'Log in', 'href' => '/index.php#login-card'],
     ],
 };
 ?>
