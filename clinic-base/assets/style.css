@@ -382,33 +382,6 @@ main p { max-width: 70ch; }
     font-weight: 700;
 }
 
-.registration-role-options {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
-}
-
-.registration-role-options label {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    min-height: 2.75rem;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-tile);
-    background: var(--surface);
-    cursor: pointer;
-}
-
-.registration-role-options input[type="radio"] {
-    flex: 0 0 auto;
-    width: 1.15rem;
-    min-height: 1.15rem;
-    height: 1.15rem;
-    margin: 0;
-    accent-color: var(--brand);
-}
-
 .registration-details,
 #patient-fields,
 #doctor-fields {
@@ -913,90 +886,6 @@ input[type="button"]:active {
 
     .grow-row > .grow-item:hover img,
     .grow-row > .grow-item:focus-visible img { height: 242px; }
-}
-
-.registration-type.has-role-switcher .registration-role-options {
-    display: none;
-}
-
-.registration-role-switcher {
-    display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr) 3rem;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 3.5rem;
-    text-align: center;
-}
-
-.registration-role-heading {
-    margin: 0;
-    color: var(--brand-dark);
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-}
-
-.registration-role-arrow {
-    display: inline-grid;
-    place-items: center;
-    width: 3rem;
-    min-height: 3rem;
-    padding: 0;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-control);
-    background: var(--surface);
-    color: var(--brand-dark);
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-.registration-role-arrow:hover,
-.registration-role-arrow:active {
-    background: var(--c-button-background-hover);
-    color: var(--c-button-foreground);
-}
-
-.registration-role-arrow:focus-visible {
-    outline: 3px solid var(--brand);
-    outline-offset: 2px;
-}
-
-.registration-role-viewport {
-    overflow: hidden;
-    overflow: clip;
-}
-
-.registration-role-track {
-    display: flex;
-    width: 200%;
-    transform: translateX(0);
-    transition: transform 190ms ease;
-}
-
-#registration-form.has-role-switcher .registration-role-track[data-active-role="doctor"] {
-    transform: translateX(-50%);
-}
-
-#registration-form.has-role-switcher .registration-role-track > [data-role-fields] {
-    flex: 0 0 50%;
-    width: 50%;
-    align-self: start;
-    visibility: hidden;
-    transition: visibility 0s linear 190ms;
-}
-
-#registration-form.has-role-switcher .registration-role-track > [data-role-fields][aria-hidden="false"] {
-    visibility: visible;
-    transition-delay: 0s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .registration-role-track {
-        transition: none;
-    }
-
-    #registration-form.has-role-switcher .registration-role-track > [data-role-fields] {
-        transition: none;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

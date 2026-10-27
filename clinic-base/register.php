@@ -48,16 +48,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
         <fieldset class="registration-type" id="registration-type">
             <legend>Account type <span class="required-mark" aria-hidden="true">*</span></legend>
-            <div class="registration-role-options">
-                <label><input type="radio" name="role" value="patient"<?= e($registrationRole === 'patient' ? ' checked' : '') ?> required aria-required="true"> <span>Patient</span></label>
-                <label><input type="radio" name="role" value="doctor"<?= e($registrationRole === 'doctor' ? ' checked' : '') ?> required aria-required="true"> <span>Doctor</span></label>
-            </div>
+            <label for="registration-role">Registering as</label>
+            <select id="registration-role" name="role" required aria-required="true">
+                <option value="patient"<?= e($registrationRole === 'patient' ? ' selected' : '') ?>>Patient</option>
+                <option value="doctor"<?= e($registrationRole === 'doctor' ? ' selected' : '') ?>>Doctor</option>
+            </select>
             <?php if (isset($registrationErrors['role'])): ?><span class="field-error" data-error-for="role" role="alert"><?= e($registrationErrors['role']) ?></span><?php endif; ?>
-            <div class="registration-role-switcher" hidden>
-                <button type="button" class="registration-role-arrow" data-role-switch="patient" aria-label="Switch to patient account">←</button>
-                <h2 class="registration-role-heading" aria-live="polite"><?= e(ucfirst($registrationRole)) ?> account</h2>
-                <button type="button" class="registration-role-arrow" data-role-switch="doctor" aria-label="Switch to doctor account">→</button>
-            </div>
         </fieldset>
 
         <fieldset class="registration-details">
@@ -89,9 +85,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
         </fieldset>
 
-        <div class="registration-role-viewport">
-        <div class="registration-role-track" data-active-role="<?= e($registrationRole) ?>">
-        <fieldset id="patient-fields" data-role-fields="patient">
+        <fieldset id="patient-fields" data-role-fields="patient"<?= e($registrationRole === 'doctor' ? ' hidden' : '') ?>>
             <legend>Patient details</legend>
             <p>
                 <label for="gender">Gender <span class="required-mark" aria-hidden="true">*</span></label>
@@ -115,7 +109,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
         </fieldset>
 
-        <fieldset id="doctor-fields" data-role-fields="doctor">
+        <fieldset id="doctor-fields" data-role-fields="doctor"<?= e($registrationRole === 'patient' ? ' hidden' : '') ?>>
             <legend>Doctor details</legend>
             <p>
                 <label for="specialty">Specialty <span class="required-mark" aria-hidden="true">*</span></label>
@@ -150,9 +144,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <span class="field-error" data-error-for="ProfilePhoto" role="alert"><?= e($registrationErrors['ProfilePhoto'] ?? '') ?></span>
             </p>
         </fieldset>
-        </div>
-        </div>
-
         <button type="submit">Create account</button>
     </form>
     <aside class="registration-support" aria-label="Registration information">

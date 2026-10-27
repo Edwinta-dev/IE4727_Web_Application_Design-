@@ -36,8 +36,8 @@ await withTestServer(true, async (base) => {
       await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
       await capture(page, 'before', javascriptEnabled ? 'patient-js' : 'patient-nojs');
       console.log(`loaded untouched form with JS ${javascriptEnabled}`);
-      const patientRole = page.locator('input[name="role"][value="patient"]');
-      if (!(await patientRole.isChecked())) throw Error(`patient role not checked with JS ${javascriptEnabled}`);
+      const patientRole = page.locator('select[name="role"]');
+      if (await patientRole.inputValue() !== 'patient') throw Error(`patient role not selected with JS ${javascriptEnabled}`);
       const submittedRole = await page.locator('#registration-form').evaluate((form) => new FormData(form).get('role'));
       if (submittedRole !== 'patient') throw Error(`untouched form omitted patient role with JS ${javascriptEnabled}`);
       const phone = page.locator('[name="Phone"]');
@@ -93,9 +93,9 @@ await withTestServer(true, async (base) => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
-    await page.locator('[data-role-switch="doctor"]').click();
+    await page.locator('select[name="role"]').selectOption('doctor');
     await capture(page, 'before', 'doctor');
-    if (!(await page.locator('[name="role"][value="doctor"]').isChecked())) throw Error('doctor switch did not select doctor role');
+    if (await page.locator('select[name="role"]').inputValue() !== 'doctor') throw Error('doctor dropdown did not select doctor role');
     if (await page.locator('#patient-fields input, #patient-fields select, #patient-fields textarea').evaluateAll((fields) => fields.some((field) => !field.disabled))) throw Error('inactive patient fields remained enabled');
     for (const [name, value] of Object.entries(credentials('doctor'))) await page.locator(`[name="${name}"]`).fill(value);
     await page.locator('[name="Specialty"]').selectOption('General Practice');

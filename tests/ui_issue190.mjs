@@ -31,7 +31,7 @@ try {
       for (const width of [1280, 390]) {
         const page = await browser.newPage({ viewport: { width, height: width === 1280 ? 800 : 844 } });
         await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
-        await page.locator('[data-role-switch="doctor"]').click();
+        await page.locator('select[name="role"]').selectOption('doctor');
         const background = page.locator('[name="WriteUp"]');
         const upload = page.locator('[name="ProfilePhoto"]');
         assert.equal(await upload.getAttribute('required'), '');
@@ -41,7 +41,7 @@ try {
         await background.fill('A short background');
         assert.match(await page.locator('#write-up-count').innerText(), /^18 \/ 50/);
         await page.waitForTimeout(250);
-        assert.equal(await page.locator('.registration-role-viewport').evaluate(el => el.scrollLeft), 0);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
         await page.screenshot({ path: resolve(output, `register-doctor-${width}.png`), fullPage: true, animations: 'disabled' });
         await page.close();
       }
@@ -66,7 +66,7 @@ try {
       const valid = await browser.newPage();
       await prepareStaticAssets(valid, base);
       await valid.goto(base + 'register.php');
-      await valid.locator('[data-role-switch="doctor"]').click();
+      await valid.locator('select[name="role"]').selectOption('doctor');
       for (const [name, value] of Object.entries(doctorData('', {}))) {
         if (['_csrf', 'role', 'Specialty'].includes(name)) continue;
         await valid.locator(`[name="${name}"]`).fill(value);

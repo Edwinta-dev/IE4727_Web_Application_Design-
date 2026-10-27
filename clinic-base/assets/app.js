@@ -23,29 +23,9 @@ function updateRegistrationPasswordMatch(password, confirmation, includeEmpty) {
 }
 
 function setRegistrationRole(role) {
-    var track = document.querySelector('.registration-role-track');
-    var heading = document.querySelector('.registration-role-heading');
-    var switcher = document.querySelector('.registration-role-switcher');
-    var typeFieldset = document.getElementById('registration-type');
-    if (track && heading && switcher && typeFieldset) {
-        document.getElementById('registration-form').classList.add('has-role-switcher');
-        typeFieldset.classList.add('has-role-switcher');
-        switcher.hidden = false;
-        track.setAttribute('data-active-role', role);
-        heading.textContent = role === 'doctor' ? 'Doctor account' : 'Patient account';
-        switcher.querySelectorAll('[data-role-switch]').forEach(function (button) {
-            button.hidden = button.getAttribute('data-role-switch') === role;
-        });
-        track.querySelectorAll('[data-role-fields]').forEach(function (fieldset) {
-            fieldset.hidden = false;
-            fieldset.setAttribute('aria-hidden', fieldset.getAttribute('data-role-fields') !== role ? 'true' : 'false');
-        });
-    }
     document.querySelectorAll('[data-role-fields]').forEach(function (fieldset) {
         var active = fieldset.getAttribute('data-role-fields') === role;
-        if (!track) {
-            fieldset.hidden = !active;
-        }
+        fieldset.hidden = !active;
         fieldset.querySelectorAll('input, select, textarea').forEach(function (field) {
             field.disabled = !active;
         });
@@ -98,41 +78,11 @@ function initialiseRegistrationForm() {
             updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
         });
     }
-    form.querySelectorAll('[name="role"]').forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            setRegistrationRole(radio.value);
-        });
+    var role = form.querySelector('select[name="role"]');
+    role.addEventListener('change', function () {
+        setRegistrationRole(role.value);
     });
-    form.querySelectorAll('[data-role-switch]').forEach(function (button) {
-        button.addEventListener('click', function () {
-            var role = button.getAttribute('data-role-switch');
-            var radio = form.querySelector('[name="role"][value="' + role + '"]');
-            if (radio) {
-                radio.checked = true;
-                setRegistrationRole(role);
-            }
-        });
-    });
-    var roleFieldset = document.getElementById('registration-type');
-    if (roleFieldset) {
-        roleFieldset.addEventListener('keydown', function (event) {
-            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-                return;
-            }
-            if (event.target.matches('input[name="role"]')) {
-                return;
-            }
-            var role = event.key === 'ArrowRight' ? 'doctor' : 'patient';
-            var radio = form.querySelector('[name="role"][value="' + role + '"]');
-            if (radio) {
-                event.preventDefault();
-                radio.checked = true;
-                setRegistrationRole(role);
-            }
-        });
-    }
-    var selected = form.querySelector('[name="role"]:checked');
-    setRegistrationRole(selected ? selected.value : 'patient');
+    setRegistrationRole(role.value);
     form.addEventListener('submit', validateRegistrationForm);
 }
 

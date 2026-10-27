@@ -42,7 +42,7 @@ await withServer(true, async (base) => {
     assert(supportEnd.y + supportEnd.height <= footer.y + 1, 'sticky support overlaps the footer');
 
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.locator('[data-role-switch="doctor"]').click();
+    await page.locator('select[name="role"]').selectOption('doctor');
     await page.evaluate(() => window.scrollTo(0, 650));
     const doctorSupport = await bounds(page, '.registration-support');
     assert(doctorSupport.y >= 80 && doctorSupport.y <= 110, 'doctor form does not keep guidance pinned');
