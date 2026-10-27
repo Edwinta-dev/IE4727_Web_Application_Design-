@@ -25,11 +25,15 @@ $data = [
     'Gender' => trim((string) ($_POST['Gender'] ?? '')),
     'Phone' => trim((string) ($_POST['Phone'] ?? '')),
     'Allergies' => trim((string) ($_POST['Allergies'] ?? '')),
+    'NoKnownAllergies' => ($_POST['NoKnownAllergies'] ?? '') === '1' ? '1' : '',
     'Specialty' => trim((string) ($_POST['Specialty'] ?? '')),
     'Qualifications' => trim((string) ($_POST['Qualifications'] ?? '')),
     'WriteUp' => trim((string) ($_POST['WriteUp'] ?? '')),
     'Languages' => trim((string) ($_POST['Languages'] ?? '')),
 ];
+if ($data['role'] === 'patient' && $data['NoKnownAllergies'] === '1') {
+    $data['Allergies'] = 'No Known Allergies';
+}
 
 $rules = [
     'role' => 'required|in:patient,doctor',

@@ -20,6 +20,7 @@ $oldValues = [];
 foreach ($fields as $field) {
     $oldValues[$field] = old($field);
 }
+$noKnownAllergies = old('NoKnownAllergies') === '1';
 $registrationErrors = errors_all();
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -104,7 +105,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="allergies">Allergies</label>
-                <textarea id="allergies" name="Allergies" placeholder="List allergies, separated by commas"><?= e((string) $oldValues['Allergies']) ?></textarea>
+                <label class="no-known-allergies" for="no-known-allergies"><input id="no-known-allergies" name="NoKnownAllergies" type="checkbox" value="1"<?= e($noKnownAllergies ? ' checked' : '') ?>>No Known Allergies</label>
+                <textarea id="allergies" name="Allergies" placeholder="List allergies, separated by commas"<?= e($noKnownAllergies ? ' readonly' : '') ?>><?= e($noKnownAllergies ? 'No Known Allergies' : (string) $oldValues['Allergies']) ?></textarea>
                 <span class="field-error" data-error-for="Allergies" role="alert"><?= e($registrationErrors['Allergies'] ?? '') ?></span>
             </p>
         </fieldset>
@@ -149,7 +151,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     <aside class="registration-support" aria-label="Registration information">
         <section>
             <h2>What you’ll need</h2>
-            <p>Patients need a phone number and a list of known allergies. Doctors need their specialty, qualifications, languages, a profile photo and at least 50 characters about their background.</p>
+            <p>Patients need a phone number and can list known allergies or select No Known Allergies. Doctors need their specialty, qualifications, languages, a profile photo and at least 50 characters about their background.</p>
         </section>
         <section>
             <h2>What happens next</h2>

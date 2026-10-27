@@ -14,6 +14,10 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 #schedule-editor .schedule-date-filter .required-note { flex-basis: 100%; }
 
 .registration-type select { width: min(100%, 18rem); }
+#registration-form .no-known-allergies { display: flex; align-items: center; gap: var(--space-1); width: fit-content; margin: var(--space-1) 0; font-weight: 400; cursor: pointer; }
+#registration-form .no-known-allergies input { flex: none; margin: 0; }
+#registration-form #allergies[readonly] { background: var(--c-surface-band); color: var(--c-muted); }
+#registration-form .no-known-allergies input:focus-visible { border-radius: var(--radius-control); outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; }
 
 @media (min-width: 56.01rem) {
     .registration-support {

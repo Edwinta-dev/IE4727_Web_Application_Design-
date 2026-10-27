@@ -83,6 +83,22 @@ function initialiseRegistrationForm() {
         setRegistrationRole(role.value);
     });
     setRegistrationRole(role.value);
+    var noKnownAllergies = form.querySelector('[name="NoKnownAllergies"]');
+    var allergies = form.querySelector('[name="Allergies"]');
+    if (noKnownAllergies && allergies) {
+        var typedAllergies = noKnownAllergies.checked ? '' : allergies.value;
+        var updateAllergies = function () {
+            if (noKnownAllergies.checked) {
+                typedAllergies = allergies.value === 'No Known Allergies' ? typedAllergies : allergies.value;
+                allergies.value = 'No Known Allergies';
+            } else {
+                allergies.value = typedAllergies;
+            }
+            allergies.readOnly = noKnownAllergies.checked;
+        };
+        noKnownAllergies.addEventListener('change', updateAllergies);
+        updateAllergies();
+    }
     form.addEventListener('submit', validateRegistrationForm);
 }
 
