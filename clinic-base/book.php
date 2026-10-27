@@ -328,7 +328,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
 <?php else: ?>
                 <label for="reason">Reason for visit <span class="required-mark" aria-hidden="true">*</span></label>
-                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true">
+                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true" placeholder="e.g. Cough and mild fever for 3 days">
 <?php endif; ?>
                 <div class="booking-form-actions">
                     <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>

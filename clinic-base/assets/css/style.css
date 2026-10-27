@@ -332,6 +332,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 }
 
 /* Booking and appointment views */
+#reason::placeholder { color: var(--c-muted); opacity: 1; }
 .booking-filters.booking-filters { display: grid; grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr) minmax(10rem, 13rem); align-items: start; gap: var(--space-3); }
 .booking-filters > p { margin: 0; }
 .booking-filters select { width: 100%; }
