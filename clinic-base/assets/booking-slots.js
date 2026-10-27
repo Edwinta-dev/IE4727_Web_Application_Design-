@@ -15,9 +15,6 @@ document.querySelectorAll('.booking-filters').forEach(function (form) {
         if (option && option.dataset.specialty) specialty.value = option.dataset.specialty;
         applyFilters();
     });
-    form.querySelectorAll('input[type="time"]').forEach(function (input) {
-        input.addEventListener('change', applyFilters);
-    });
 });
 
 document.querySelectorAll('.booking-days').forEach(function (days) {

@@ -37,27 +37,19 @@ try {
                                 return { tabsWidth: tabs.clientWidth, tabsScrollWidth: tabs.scrollWidth,
                                     filterHeight: document.querySelector('.booking-filters').getBoundingClientRect().height,
                                     dateType: document.querySelector('[name="date"]').type,
-                                    timeVisible: !!document.querySelector('#from').getClientRects().length };
+                                    timeFilterCount: document.querySelectorAll('.booking-time-filter').length };
                             });
                             records.push({ count, width, js, ...measured });
                             console.log(JSON.stringify(records.at(-1)));
                             await page.screenshot({ path: `${output}/${count}-${width}-${js}-default.png`, fullPage: true });
                             if (before) continue;
                             assert.equal(measured.dateType, 'hidden', 'Day tabs are the sole date control');
-                            assert.equal(measured.timeVisible, false, 'Time filters are optional and initially closed');
+                            assert.equal(measured.timeFilterCount, 0, 'Time filter is removed');
                             assert.equal(await page.locator('#doctor option:not([value=""])').count(), count);
                             assert.equal(await page.locator('.day-tab').count(), 7, 'Fixed seven-day booking window');
                             assert.equal(await page.locator('.day-tab.selected').count(), 1);
                             assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width);
-                            await page.locator('.booking-time-filter summary').click();
-                            assert.ok(await page.locator('#from').isVisible());
-                            const from = fixture.slots[0].SlotTime.slice(0, 5);
-                            const to = fixture.slots[count - 1].SlotTime.slice(0, 5);
-                            await page.locator('#from').fill(from);
-                            await page.locator('#to').fill(to);
-                            await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Show schedule' }).click()]);
-                            assert.equal(await page.locator('.schedule-grid > .slot').count(), count);
-                            assert.ok(await page.locator('#from').isVisible(), 'Active filters stay visible');
+                            assert.equal(await page.locator('.schedule-grid > .slot').count(), fixture.slots.length, 'All slots for the selected day are shown');
                             if (width === 390) {
                                 assert.ok(await page.locator('.day-scroll-hint').isVisible());
                                 if (js) {
@@ -72,7 +64,7 @@ try {
                             const href = await last.getAttribute('href');
                             await Promise.all([page.waitForNavigation(), last.click()]);
                             assert.equal(await page.locator('.booking-filters [name="date"]').inputValue(), new URL(href, base).searchParams.get('date'));
-                            assert.equal(await page.locator('#from').inputValue(), from);
+                            assert.equal(await page.locator('.booking-time-filter, [name="from"], [name="to"]').count(), 0);
                             await page.screenshot({ path: `${output}/${count}-${width}-${js}-filtered-last-day.png`, fullPage: true });
                             if (js && width === 390 && count === 3) {
                                 await login(page, 'patient', base);
