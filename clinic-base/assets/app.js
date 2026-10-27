@@ -11,6 +11,17 @@ function clearRegistrationErrors() {
     });
 }
 
+function updateRegistrationPasswordMatch(password, confirmation, includeEmpty) {
+    var mismatch = (includeEmpty || confirmation.value !== '') && password.value !== confirmation.value;
+    registrationFieldError('confirm_password', mismatch ? 'Passwords must match.' : '');
+    if (mismatch) {
+        confirmation.setAttribute('aria-invalid', 'true');
+    } else {
+        confirmation.removeAttribute('aria-invalid');
+    }
+    return mismatch;
+}
+
 function setRegistrationRole(role) {
     var track = document.querySelector('.registration-role-track');
     var heading = document.querySelector('.registration-role-heading');
@@ -55,7 +66,7 @@ function validateRegistrationForm(event) {
         }
     });
     if (password && confirmation && password.value !== confirmation.value) {
-        registrationFieldError('confirm_password', 'Passwords must match.');
+        updateRegistrationPasswordMatch(password, confirmation, true);
         valid = false;
     }
     if (!valid) {
@@ -69,6 +80,23 @@ function initialiseRegistrationForm() {
     var form = document.getElementById('registration-form');
     if (!form) {
         return;
+    }
+    var password = form.querySelector('[name="password"]');
+    var confirmation = form.querySelector('[name="confirm_password"]');
+    if (password && confirmation) {
+        var confirmationTouched = false;
+        confirmation.addEventListener('input', function () {
+            confirmationTouched = true;
+            updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
+        });
+        [password, confirmation].forEach(function (field) {
+            field.addEventListener('blur', function () {
+                updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
+            });
+        });
+        password.addEventListener('input', function () {
+            updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
+        });
     }
     form.querySelectorAll('[name="role"]').forEach(function (radio) {
         radio.addEventListener('change', function () {

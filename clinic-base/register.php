@@ -84,8 +84,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="confirm-password">Confirm password <span class="required-mark" aria-hidden="true">*</span></label>
-                <input id="confirm-password" name="confirm_password" type="password" minlength="8" placeholder="Repeat your password" required aria-required="true">
-                <span class="field-error" data-error-for="confirm_password" role="alert"><?= e($registrationErrors['confirm_password'] ?? '') ?></span>
+                <input id="confirm-password" name="confirm_password" type="password" minlength="8" placeholder="Repeat your password" required aria-required="true" aria-describedby="confirm-password-error"<?= e(isset($registrationErrors['confirm_password']) ? ' aria-invalid="true"' : '') ?>>
+                <span id="confirm-password-error" class="field-error" data-error-for="confirm_password" role="alert"><?= e($registrationErrors['confirm_password'] ?? '') ?></span>
             </p>
         </fieldset>
 

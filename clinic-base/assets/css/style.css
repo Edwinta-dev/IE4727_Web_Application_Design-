@@ -459,6 +459,8 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     box-shadow: none;
 }
 
+#registration-form #confirm-password[aria-invalid="true"] { border-color: var(--c-danger); }
+
 /* Doctor schedule: weekday calendar first, generation follows the working day. */
 #schedule-editor .schedule-month-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 #schedule-editor .schedule-weekday { padding: var(--space-2); border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: var(--c-surface-band); text-align: center; font-weight: 700; }
