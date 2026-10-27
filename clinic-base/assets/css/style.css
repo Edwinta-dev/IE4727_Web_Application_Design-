@@ -339,7 +339,6 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .booking-date-filter { min-width: 0; }
 .booking-filter-label { display: block; margin-bottom: 0.25rem; font-weight: 700; }
 .booking-date-filter .booking-days { margin-bottom: 0; }
-.booking-filters .day-scroll { flex: 0 0 2.75rem; }
 .booking-date-filter .booking-time-filter { margin-top: var(--space-1); }
 .booking-filters :is(button, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .booking-filters :is(button, summary):focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
@@ -353,10 +352,11 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .booking-time-filter:not([open]) .booking-time-fields { display: none; }
 .booking-time-fields p { flex: 1 1 7rem; }
 .booking-days { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
-.day-tabs { display: flex; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin: 0; }
-.day-scroll { flex: 0 0 2.75rem; min-height: 2.75rem; padding: 0.4rem; }
-.day-scroll[hidden] { display: none; }
-.day-scroll-hint { display: none; }
+.day-tabs { display: flex; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--c-accent) var(--c-paper); padding: 0 0 var(--space-2); margin: 0; }
+.day-tabs::-webkit-scrollbar { height: 0.4rem; }
+.day-tabs::-webkit-scrollbar-track { background: var(--c-paper); border-radius: var(--radius-tile); }
+.day-tabs::-webkit-scrollbar-thumb { background: var(--c-accent); border-radius: var(--radius-tile); }
+@media (prefers-reduced-motion: reduce) { .day-tabs { scroll-behavior: auto; } }
 .day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); border-radius: var(--radius-control); text-decoration: none; }
 .day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
 .booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
@@ -408,7 +408,6 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     .booking-filters.booking-filters { grid-template-columns: minmax(0, 1fr); }
     .booking-filters > p, .booking-time-filter[open] { grid-column: 1; }
     .booking-filters button { padding-inline: var(--space-2); }
-    .day-scroll-hint { display: block; margin: 0 0 var(--space-4); color: var(--c-muted); }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
     .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }

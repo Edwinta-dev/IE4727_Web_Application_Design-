@@ -184,8 +184,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="booking-date-filter">
             <span class="booking-filter-label">Date</span>
             <div class="booking-days">
-                <button class="day-scroll" type="button" data-direction="-1" aria-label="Show earlier days" aria-controls="booking-day-tabs" hidden>&larr;</button>
-                <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day" aria-describedby="day-scroll-hint">
+                <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(array_merge(
@@ -197,9 +196,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
                 </nav>
-                <button class="day-scroll" type="button" data-direction="1" aria-label="Show later days" aria-controls="booking-day-tabs" hidden>&rarr;</button>
             </div>
-            <p id="day-scroll-hint" class="day-scroll-hint">Scroll sideways to see all seven days.</p>
         </div>
         <p class="booking-doctor-filter">
             <label for="doctor">Doctor</label>
