@@ -2,6 +2,8 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
+:root { --c-action: var(--c-primary); }
+
 .required-mark { color: var(--c-danger); font-weight: 700; }
 .required-note { margin: 0; color: var(--c-muted); }
 label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1); }
@@ -105,6 +107,36 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .specialty-filter button { min-height: 2.75rem; padding: 0.45rem 0.85rem; }
 .active-doctor-filter { color: var(--c-muted); }
 .clear-doctor-filter { min-height: 2.75rem; display: inline-flex; align-items: center; }
+.doctor-search-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.doctor-search-box label {
+    margin: 0;
+    white-space: nowrap;
+}
+.doctor-search-box input[type="search"] {
+    width: min(22rem, 100%);
+    min-height: 2.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-control);
+    background: var(--c-paper);
+    color: var(--c-ink);
+    font: inherit;
+}
+.doctor-search-box input[type="search"]:focus-visible {
+    outline: 0.2rem solid var(--c-action);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+}
+#doctor-search-empty {
+    margin: 0 0 1rem;
+}
+.doctor-directory tbody tr[hidden] {
+    display: none !important;
+}
 .table-scroll { max-width: 100%; overflow-x: auto; }
 .doctor-directory { width: 100%; table-layout: auto; }
 .doctor-directory caption { padding: 0.75rem 0; font-size: 1.15rem; }
@@ -162,6 +194,9 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     .specialty-filter label { flex-basis: 100%; }
     .specialty-filter select { flex: 1 1 12rem; }
     .doctor-directory { min-width: 62rem; }
+    .doctor-search-box { flex-basis: 100%; display: flex; flex-wrap: wrap; }
+    .doctor-search-box label { flex-basis: 100%; }
+    .doctor-search-box input[type="search"] { flex: 1 1 12rem; width: 100%; }
 }
 
 

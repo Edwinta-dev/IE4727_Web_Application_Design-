@@ -45,6 +45,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
         </select>
         <noscript><button type="submit">Filter doctors</button></noscript>
+        <div class="doctor-search-box"><label for="doctor-search">Search doctors</label><input type="search" id="doctor-search" name="q" placeholder="Search by doctor name, specialty, or language..." autocomplete="off"></div>
 <?php if ($selectedSpecialty !== ''): ?>
         <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
         <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
@@ -53,6 +54,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
 
     </section>
+
+    <p id="doctor-search-empty" class="empty-state" hidden>No doctors match your search query. Try another keyword or clear the search.</p>
 
     <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">

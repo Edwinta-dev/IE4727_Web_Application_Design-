@@ -123,3 +123,48 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+
+function initialiseDoctorDirectorySearch() {
+    var searchInput = document.getElementById('doctor-search');
+    var emptyMessage = document.getElementById('doctor-search-empty');
+    if (!searchInput) {
+        return;
+    }
+
+    function onSearchInput() {
+        var query = searchInput.value.trim().toLowerCase();
+        var rows = document.querySelectorAll('.doctor-directory tbody tr');
+        var matchedCount = 0;
+
+        rows.forEach(function (row) {
+            if (row.classList.contains('empty-state')) {
+                return;
+            }
+            var text = (row.textContent || '').toLowerCase();
+            var matched = query === '' || text.includes(query);
+            row.hidden = !matched;
+            if (matched) {
+                matchedCount++;
+            }
+        });
+
+        if (emptyMessage) {
+            emptyMessage.hidden = matchedCount > 0;
+        }
+    }
+
+    searchInput.addEventListener('input', onSearchInput);
+    searchInput.addEventListener('search', onSearchInput);
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+
+    if (searchInput.value) {
+        onSearchInput();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initialiseDoctorDirectorySearch);
