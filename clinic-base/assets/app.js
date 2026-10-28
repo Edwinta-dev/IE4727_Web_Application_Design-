@@ -131,17 +131,18 @@ function initialiseDoctorDirectorySearch() {
     if (!searchInput) {
         return;
     }
+    var rows = document.querySelectorAll('.doctor-directory tbody tr[data-search]');
+    if (rows.length === 0) {
+        return;
+    }
+    searchInput.closest('.doctor-search-box').hidden = false;
 
     function onSearchInput() {
         var query = searchInput.value.trim().toLowerCase();
-        var rows = document.querySelectorAll('.doctor-directory tbody tr');
         var matchedCount = 0;
 
         rows.forEach(function (row) {
-            if (row.classList.contains('empty-state')) {
-                return;
-            }
-            var text = (row.textContent || '').toLowerCase();
+            var text = (row.getAttribute('data-search') || '').toLowerCase();
             var matched = query === '' || text.includes(query);
             row.hidden = !matched;
             if (matched) {
@@ -151,6 +152,9 @@ function initialiseDoctorDirectorySearch() {
 
         if (emptyMessage) {
             emptyMessage.hidden = matchedCount > 0;
+            emptyMessage.textContent = matchedCount > 0
+                ? matchedCount + (matchedCount === 1 ? ' doctor matches' : ' doctors match')
+                : 'No doctors match your search query. Try another keyword or clear the search.';
         }
     }
 

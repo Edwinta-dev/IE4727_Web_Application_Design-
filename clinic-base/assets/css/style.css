@@ -2,8 +2,6 @@
 @import url("../tokens.css");
 @import url("../style.css");
 
-:root { --c-action: var(--c-primary); }
-
 .required-mark { color: var(--c-danger); font-weight: 700; }
 .required-note { margin: 0; color: var(--c-muted); }
 label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1); }
@@ -112,6 +110,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     align-items: center;
     gap: 0.5rem;
 }
+.doctor-search-box[hidden] { display: none !important; }
 .doctor-search-box label {
     margin: 0;
     white-space: nowrap;
@@ -127,7 +126,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     font: inherit;
 }
 .doctor-search-box input[type="search"]:focus-visible {
-    outline: 0.2rem solid var(--c-action);
+    outline: 0.2rem solid var(--c-primary);
     outline-offset: 0.15rem;
     box-shadow: none;
 }

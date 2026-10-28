@@ -22,8 +22,9 @@ if ($doctorsPage === false) {
 foreach ([
     'class="doctor-search-box"',
     '<label for="doctor-search">Search doctors</label>',
-    '<input type="search" id="doctor-search" name="q" placeholder="Search by doctor name, specialty, or language..." autocomplete="off">',
-    '<p id="doctor-search-empty" class="empty-state" hidden>No doctors match your search query. Try another keyword or clear the search.</p>',
+    '<div class="doctor-search-box" hidden>',
+    '<input type="search" id="doctor-search" placeholder="Search by doctor name, specialty, or language..." autocomplete="off">',
+    '<p id="doctor-search-empty" class="empty-state" aria-live="polite" hidden>No doctors match your search query. Try another keyword or clear the search.</p>',
     '<table class="doctor-directory">',
     'class="specialty-filter"',
     '<noscript>',
@@ -49,13 +50,15 @@ foreach ([
     '.doctor-directory tbody tr',
     'row.hidden = !matched',
     'emptyMessage.hidden = matchedCount > 0',
+    "row.getAttribute('data-search')",
+    'rows.length === 0',
+    'matchedCount +',
     "event.key === 'Enter'",
     'event.preventDefault()',
     "document.addEventListener('DOMContentLoaded', initialiseDoctorDirectorySearch)",
 ] as $needle) {
     assert_contains($appJs, $needle, "app.js search logic must contain {$needle}");
 }
-
 // Zero network transport in app.js search logic
 assert_true(strpos($appJs, 'fetch(') === false, 'app.js must not contain fetch');
 assert_true(strpos($appJs, 'XMLHttpRequest') === false, 'app.js must not contain XMLHttpRequest');
@@ -65,6 +68,7 @@ $styleCss = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.
 if ($styleCss === false) {
     throw new RuntimeException('clinic-base/assets/css/style.css could not be read');
 }
+assert_true(strpos($styleCss, 'c-action') === false, 'style.css must use the primary token directly');
 
 foreach ([
     '.doctor-search-box',

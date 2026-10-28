@@ -34,6 +34,7 @@ await withTestServer(true, async (base) => {
         const rows = page.locator('.doctor-directory tbody tr');
 
         assert.equal(await searchInput.count(), 1, `[${width}px] Search input exists`);
+        assert.ok(await searchInput.isVisible(), `[${width}px] Search is revealed when JavaScript runs`);
         assert.equal(await emptyMessage.count(), 1, `[${width}px] Empty state message exists`);
         assert.ok(await emptyMessage.isHidden(), `[${width}px] Empty state message initially hidden`);
 
@@ -51,7 +52,7 @@ await withTestServer(true, async (base) => {
         for (let i = 0; i < totalRows; i++) {
           if (await rows.nth(i).isVisible()) {
             visibleCount++;
-            const text = (await rows.nth(i).innerText()).toLowerCase();
+            const text = (await rows.nth(i).getAttribute('data-search')).toLowerCase();
             assert.ok(text.includes('smith'), `[${width}px] Visible row contains Smith`);
           } else if (width === 390) {
             // Confirm tr[hidden] rule prevents mobile CSS grid override
@@ -69,12 +70,19 @@ await withTestServer(true, async (base) => {
         for (let i = 0; i < totalRows; i++) {
           if (await rows.nth(i).isVisible()) {
             mandarinCount++;
-            const text = (await rows.nth(i).innerText()).toLowerCase();
+            const text = (await rows.nth(i).getAttribute('data-search')).toLowerCase();
             assert.ok(text.includes('mandarin'), `[${width}px] Visible row contains Mandarin`);
           }
         }
         assert.ok(mandarinCount >= 2, `[${width}px] Multiple doctors speak Mandarin (got ${mandarinCount})`);
         assert.ok(await emptyMessage.isHidden(), `[${width}px] Empty message hidden for Mandarin matches`);
+        assert.match(await emptyMessage.innerText(), new RegExp(`${mandarinCount} doctors? match`));
+
+        // Search is limited to name, specialty, and languages, not action labels.
+        await searchInput.fill('book');
+        assert.equal(await rows.locator(':visible').count(), 0, `[${width}px] Book button label is not searchable`);
+        assert.ok(await emptyMessage.isVisible(), `[${width}px] No-match message is shown for book`);
+        assert.match(await emptyMessage.innerText(), /No doctors match/);
 
         // Test 3: Search unmatched query "xyznonexistent"
         await searchInput.fill('xyznonexistent');
@@ -108,6 +116,21 @@ await withTestServer(true, async (base) => {
       }
     }
 
+    // A specialty with no results retains only the table's server-rendered empty state.
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      try {
+        await page.goto(`${base}doctors.php?specialty=No+such+specialty`, { waitUntil: 'networkidle' });
+        assert.equal(await page.locator('.doctor-directory tbody tr.empty-state').count(), 1);
+        assert.ok(await page.locator('.doctor-directory tbody tr.empty-state').isVisible());
+        assert.ok(await page.locator('#doctor-search-empty').isHidden());
+        assert.ok(await page.locator('.doctor-search-box').isHidden(), 'Search is skipped when the specialty has no doctor rows');
+        assert.equal(await page.locator('.empty-state:visible').count(), 1, 'Only the table empty state is shown');
+      } finally {
+        await page.close();
+      }
+    }
+
     // Progressive enhancement: JavaScript disabled
     {
       const context = await browser.newContext({ javaScriptEnabled: false });
@@ -118,6 +141,7 @@ await withTestServer(true, async (base) => {
         assert.ok((await rows.count()) >= 5, 'Server-rendered doctor rows present without JS');
         assert.equal(await page.locator('#specialty').count(), 1, 'Specialty select exists without JS');
         assert.equal(await page.locator('.specialty-filter button').count(), 1, 'Noscript filter button exists');
+        assert.ok(await page.locator('.doctor-search-box').isHidden(), 'Search control stays hidden without JS');
       } finally {
         await context.close();
       }
@@ -234,4 +258,4 @@ await withTestServer(true, async (base) => {
   }
 });
 
-console.log('OK: #211 standout features verified: doctor directory search and printable consultation slip');
+console.log('OK: #212 doctor directory search and #210 printable consultation slip verified');
