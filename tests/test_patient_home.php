@@ -56,4 +56,47 @@ assert_contains($page, 'e(url(\'/book.php\'))', 'empty state links to the existi
 $book = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
 assert_true($book !== false && strpos($book, '/actions/appointment.php') !== false, 'reschedule uses appointment action');
 
+// Issue #210: Printable consultation slip / medical certificate view and @media print styling
+foreach ([
+    'class="button print-slip-button"',
+    'onclick="window.print()"',
+    'Print consultation slip',
+    'class="medical-slip"',
+    'assets/img/clinic-logo.svg',
+    'Medical Consultation Summary & Certificate',
+    'Issue date/time:',
+    'Patient Name:',
+    'Patient ID:',
+    'Attending Doctor:',
+    'Medical Specialty:',
+    'Diagnosis:',
+    'Prescribed Medications:',
+    'Treatment Plan:',
+    'Follow-up instructions:',
+    'Attending Physician Signature',
+    'Clinic Stamp',
+] as $slipNeedle) {
+    assert_contains($page, $slipNeedle, "patient page must contain {$slipNeedle}");
+}
+
+$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+assert_true($css !== false, 'app stylesheet exists');
+assert_contains($css, '@media print', 'print media query exists');
+assert_contains($css, 'margin: 1.5cm;', 'print page margin is set to 1.5cm');
+assert_contains($css, '.medical-slip', 'medical slip styles exist in stylesheet');
+assert_contains($css, '.print-slip-button', 'print slip button styles exist in stylesheet');
+foreach ([
+    '.site-header',
+    '.site-nav',
+    '.site-footer',
+    '.page-intro',
+    '.upcoming-appointments',
+    '.past-appointments',
+    '.cancelled-appointments',
+    '.print-slip-button',
+    '.table-scroll-hint',
+] as $hiddenSelector) {
+    assert_contains($css, $hiddenSelector, "print styles hide {$hiddenSelector}");
+}
+
 echo "PASS: patient appointment page markup checks\n";

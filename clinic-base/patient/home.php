@@ -148,16 +148,94 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <?php if ($visit !== null): ?>
     <?php $visitRemarks = decode_visit_remarks($visit['Remarks'], (string) $visit['Status']); ?>
     <section class="visit-notes" aria-label="Read-only visit notes">
-        <h2>Visit notes</h2>
-        <p><strong>Doctor:</strong> <?= e((string) $visit['DoctorName']) ?> (<?= e((string) ($visit['Specialty'] ?? '')) ?>)</p>
-        <p><strong>Date:</strong> <?= e(fmt_date((string) $visit['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $visit['appointmentDateTime'])) ?></p>
-        <p><strong>Diagnosis:</strong> <?= e((string) ($visit['Diagnosis'] ?? '')) ?></p>
-        <p><strong>Prescription:</strong> <?= e((string) ($visit['Prescription'] ?? '')) ?></p>
-        <p><strong>Treatment:</strong> <?= e((string) ($visit['Treatment'] ?? '')) ?></p>
-        <p><strong>Follow-up:</strong> <?= e((int) $visit['FollowUp'] === 1 ? 'Yes' : 'No') ?></p>
-        <?php if ($visitRemarks['legacy'] !== null): ?><p><strong>Earlier text (author unknown):</strong> <?= e($visitRemarks['legacy']) ?></p><?php endif; ?>
-        <p><strong>Your reason for booking:</strong> <?= e($visitRemarks['reason'] !== '' ? $visitRemarks['reason'] : 'Not separately recorded') ?></p>
-        <p><strong>Doctor remarks:</strong> <?= e($visitRemarks['doctor_remarks']) ?></p>
+        <div class="visit-notes-header">
+            <h2>Visit notes</h2>
+            <button type="button" class="button print-slip-button" onclick="window.print()">Print consultation slip</button>
+        </div>
+        <article class="medical-slip">
+            <div class="slip-header">
+                <div class="slip-letterhead">
+                    <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo" class="slip-logo" width="48" height="48">
+                    <div class="slip-clinic-details">
+                        <p class="slip-clinic-name">Clinic Appointment Portal</p>
+                        <address class="slip-clinic-address">NTU South Spine S2-B3A-06</address>
+                        <p class="slip-clinic-tel">Tel: 999</p>
+                    </div>
+                </div>
+                <h3 class="slip-title">Medical Consultation Summary & Certificate</h3>
+            </div>
+
+            <section class="slip-metadata" aria-label="Consultation metadata">
+                <div class="slip-meta-grid">
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Issue date/time:</span>
+                        <span class="slip-value"><?= e(fmt_date((string) $visit['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $visit['appointmentDateTime'])) ?></span>
+                    </div>
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Patient Name:</span>
+                        <span class="slip-value"><?= e((string) ($user['FullName'] ?? '')) ?></span>
+                    </div>
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Patient ID:</span>
+                        <span class="slip-value"><?= e((string) ($user['PatientID'] ?? $patientId)) ?></span>
+                    </div>
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Attending Doctor:</span>
+                        <span class="slip-value"><?= e((string) $visit['DoctorName']) ?></span>
+                    </div>
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Medical Specialty:</span>
+                        <span class="slip-value"><?= e((string) ($visit['Specialty'] ?? 'General Practice')) ?></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slip-findings" aria-label="Clinical findings">
+                <h4 class="slip-section-heading">Clinical findings</h4>
+                <div class="slip-findings-list">
+                    <div class="slip-finding-item">
+                        <p><strong>Diagnosis:</strong> <?= e((string) ($visit['Diagnosis'] ?? '')) ?></p>
+                    </div>
+                    <div class="slip-finding-item">
+                        <p><strong>Prescribed Medications:</strong> <?= e((string) ($visit['Prescription'] ?? '')) ?></p>
+                    </div>
+                    <div class="slip-finding-item">
+                        <p><strong>Treatment Plan:</strong> <?= e((string) ($visit['Treatment'] ?? '')) ?></p>
+                    </div>
+                    <div class="slip-finding-item">
+                        <p><strong>Follow-up instructions:</strong> <?= e((int) $visit['FollowUp'] === 1 ? 'Yes' : 'No') ?></p>
+                    </div>
+                    <?php if ($visitRemarks['doctor_remarks'] !== ''): ?>
+                    <div class="slip-finding-item">
+                        <p><strong>Doctor remarks:</strong> <?= e($visitRemarks['doctor_remarks']) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    <div class="slip-finding-item">
+                        <p><strong>Your reason for booking:</strong> <?= e($visitRemarks['reason'] !== '' ? $visitRemarks['reason'] : 'Not separately recorded') ?></p>
+                    </div>
+                    <?php if ($visitRemarks['legacy'] !== null): ?>
+                    <div class="slip-finding-item">
+                        <p><strong>Earlier text (author unknown):</strong> <?= e($visitRemarks['legacy']) ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <div class="slip-footer">
+                <div class="slip-validation">
+                    <div class="slip-signature-block">
+                        <div class="slip-signature-line" aria-hidden="true"></div>
+                        <p class="slip-signature-label">Attending Physician Signature</p>
+                        <p class="slip-doctor-name"><?= e((string) $visit['DoctorName']) ?></p>
+                    </div>
+                    <div class="slip-stamp-block">
+                        <div class="slip-stamp-placeholder">
+                            <span class="stamp-text">Clinic Stamp</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
     </section>
 <?php endif; ?>
 </main>
