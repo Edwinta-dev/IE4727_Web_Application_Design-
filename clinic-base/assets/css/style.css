@@ -701,7 +701,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 }
 
 .slip-title {
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 700;
     text-align: center;
@@ -745,7 +745,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 }
 
 .slip-section-heading {
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-family: var(--font-display);
     font-size: 1.1rem;
     font-weight: 700;
     margin: 0 0 var(--space-2);
@@ -819,8 +819,6 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     justify-content: center;
     color: var(--c-muted);
     font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 @media (max-width: 40rem) {
@@ -898,7 +896,7 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 
     .slip-title,
     .slip-section-heading {
-        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif !important;
+        font-family: var(--font-display) !important;
         color: #000000 !important;
     }
 

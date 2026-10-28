@@ -56,15 +56,16 @@ assert_contains($page, 'e(url(\'/book.php\'))', 'empty state links to the existi
 $book = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
 assert_true($book !== false && strpos($book, '/actions/appointment.php') !== false, 'reschedule uses appointment action');
 
-// Issue #210: Printable consultation slip / medical certificate view and @media print styling
+// Issue #213: Printable consultation summary and @media print styling
 foreach ([
     'class="button print-slip-button"',
     'onclick="window.print()"',
-    'Print consultation slip',
+    'Print consultation summary',
     'class="medical-slip"',
     'assets/img/clinic-logo.svg',
-    'Medical Consultation Summary & Certificate',
-    'Issue date/time:',
+    'Consultation summary',
+    'Consultation date:',
+    'Printed on:',
     'Patient Name:',
     'Patient ID:',
     'Attending Doctor:',
@@ -74,10 +75,14 @@ foreach ([
     'Treatment Plan:',
     'Follow-up instructions:',
     'Attending Physician Signature',
-    'Clinic Stamp',
+    'Clinic stamp',
 ] as $slipNeedle) {
     assert_contains($page, $slipNeedle, "patient page must contain {$slipNeedle}");
 }
+assert_true(strpos($page, "\$visit['Specialty'] ?? 'General Practice'") === false, 'consultation summary does not invent a default specialty');
+assert_contains($page, "if (trim((string) (\$visit['Specialty'] ?? '')) !== '')", 'consultation summary omits an empty specialty');
+assert_true(strpos($page, 'Consultation summary</h3>') !== false, 'consultation summary has its accurate title');
+assert_true(strpos($page, 'Print consultation summary</button>') !== false, 'print button names the consultation summary');
 
 $css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
 assert_true($css !== false, 'app stylesheet exists');
@@ -85,6 +90,9 @@ assert_contains($css, '@media print', 'print media query exists');
 assert_contains($css, 'margin: 1.5cm;', 'print page margin is set to 1.5cm');
 assert_contains($css, '.medical-slip', 'medical slip styles exist in stylesheet');
 assert_contains($css, '.print-slip-button', 'print slip button styles exist in stylesheet');
+assert_true(preg_match('/\.slip-title\s*\{\s*font-family:\s*var\(--font-display\);/', $css) === 1, 'slip title uses the display font token');
+assert_true(preg_match('/\.slip-section-heading\s*\{\s*font-family:\s*var\(--font-display\);/', $css) === 1, 'slip section headings use the display font token');
+assert_true(strpos($css, 'Iowan') === false, 'slip rules do not hard-code the display font stack');
 foreach ([
     '.site-header',
     '.site-nav',

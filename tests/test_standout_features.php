@@ -94,14 +94,14 @@ foreach ([
     'require_login();',
     'class="button print-slip-button"',
     'onclick="window.print()"',
-    'Print consultation slip',
+    'Print consultation summary',
     'class="medical-slip"',
     'assets/img/clinic-logo.svg',
     'Clinic Appointment Portal',
     'NTU South Spine S2-B3A-06',
-    'Tel: 999',
-    'Medical Consultation Summary & Certificate',
-    'Issue date/time:',
+    'Consultation summary',
+    'Consultation date:',
+    'Printed on:',
     'Patient Name:',
     'Patient ID:',
     'Attending Doctor:',
@@ -112,15 +112,23 @@ foreach ([
     'Treatment Plan:',
     'Follow-up instructions:',
     'Attending Physician Signature',
-    'Clinic Stamp',
+    'Clinic stamp',
     'completed_appointment_for_patient',
     'patient/home.php?view=',
 ] as $needle) {
     assert_contains($patientHomePage, $needle, "patient/home.php must contain {$needle}");
 }
+assert_true(strpos($patientHomePage, 'Tel: 999') === false, 'consultation summary omits the clinic phone line');
+assert_true(strpos($patientHomePage, "\$visit['Specialty'] ?? 'General Practice'") === false, 'consultation summary does not invent a default specialty');
+assert_true(strpos($patientHomePage, "if (trim((string) (\$visit['Specialty'] ?? '')) !== '')") !== false, 'consultation summary omits an empty specialty');
+assert_true(strpos($patientHomePage, 'Consultation summary</h3>') !== false, 'patient consultation summary has its accurate title');
+assert_true(strpos($patientHomePage, 'Print consultation summary</button>') !== false, 'patient print button names the consultation summary');
 
 // B. Print CSS rules in clinic-base/assets/css/style.css
 foreach ([
+    '.slip-title {',
+    '.slip-section-heading {',
+    'font-family: var(--font-display);',
     '.print-slip-button',
     '.medical-slip',
     '@media print',
@@ -143,6 +151,7 @@ foreach ([
 ] as $needle) {
     assert_contains($styleCss, $needle, "style.css print styles must contain {$needle}");
 }
+assert_true(strpos($styleCss, 'Iowan') === false, 'slip styles use the display font token');
 
 // =========================================================================
 // 3. Database model & isolation verification (ie4727db_test)

@@ -150,7 +150,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="visit-notes" aria-label="Read-only visit notes">
         <div class="visit-notes-header">
             <h2>Visit notes</h2>
-            <button type="button" class="button print-slip-button" onclick="window.print()">Print consultation slip</button>
+            <button type="button" class="button print-slip-button" onclick="window.print()">Print consultation summary</button>
         </div>
         <article class="medical-slip">
             <div class="slip-header">
@@ -159,17 +159,20 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <div class="slip-clinic-details">
                         <p class="slip-clinic-name">Clinic Appointment Portal</p>
                         <address class="slip-clinic-address">NTU South Spine S2-B3A-06</address>
-                        <p class="slip-clinic-tel">Tel: 999</p>
                     </div>
                 </div>
-                <h3 class="slip-title">Medical Consultation Summary & Certificate</h3>
+                <h3 class="slip-title">Consultation summary</h3>
             </div>
 
             <section class="slip-metadata" aria-label="Consultation metadata">
                 <div class="slip-meta-grid">
                     <div class="slip-meta-item">
-                        <span class="slip-label">Issue date/time:</span>
+                        <span class="slip-label">Consultation date:</span>
                         <span class="slip-value"><?= e(fmt_date((string) $visit['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $visit['appointmentDateTime'])) ?></span>
+                    </div>
+                    <div class="slip-meta-item">
+                        <span class="slip-label">Printed on:</span>
+                        <span class="slip-value"><?= e(fmt_date(date('Y-m-d'))) ?></span>
                     </div>
                     <div class="slip-meta-item">
                         <span class="slip-label">Patient Name:</span>
@@ -177,16 +180,18 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     </div>
                     <div class="slip-meta-item">
                         <span class="slip-label">Patient ID:</span>
-                        <span class="slip-value"><?= e((string) ($user['PatientID'] ?? $patientId)) ?></span>
+                        <span class="slip-value"><?= e((string) $patientId) ?></span>
                     </div>
                     <div class="slip-meta-item">
                         <span class="slip-label">Attending Doctor:</span>
                         <span class="slip-value"><?= e((string) $visit['DoctorName']) ?></span>
                     </div>
+                    <?php if (trim((string) ($visit['Specialty'] ?? '')) !== ''): ?>
                     <div class="slip-meta-item">
                         <span class="slip-label">Medical Specialty:</span>
-                        <span class="slip-value"><?= e((string) ($visit['Specialty'] ?? 'General Practice')) ?></span>
+                        <span class="slip-value"><?= e((string) $visit['Specialty']) ?></span>
                     </div>
+                    <?php endif; ?>
                 </div>
             </section>
 
@@ -230,7 +235,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     </div>
                     <div class="slip-stamp-block">
                         <div class="slip-stamp-placeholder">
-                            <span class="stamp-text">Clinic Stamp</span>
+                            <span class="stamp-text">Clinic stamp</span>
                         </div>
                     </div>
                 </div>

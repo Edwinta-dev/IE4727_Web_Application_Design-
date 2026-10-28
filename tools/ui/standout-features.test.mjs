@@ -163,7 +163,7 @@ await withTestServer(true, async (base) => {
 
         const printButton = page.locator('.print-slip-button');
         assert.equal(await printButton.count(), 1, `[${width}px] Print consultation slip button exists`);
-        assert.equal(await printButton.innerText(), 'Print consultation slip', `[${width}px] Button label correct`);
+        assert.equal(await printButton.innerText(), 'Print consultation summary', `[${width}px] Button label correct`);
         assert.equal(await printButton.getAttribute('onclick'), 'window.print()', `[${width}px] Button triggers window.print()`);
         assert.ok(await printButton.isVisible(), `[${width}px] Print button visible on screen`);
 
@@ -172,8 +172,8 @@ await withTestServer(true, async (base) => {
         assert.equal(await slip.count(), 1, `[${width}px] Medical slip container exists`);
         assert.ok(await slip.isVisible(), `[${width}px] Medical slip is visible on screen`);
 
-        // Certificate title & header details
-        assert.equal(await page.locator('.medical-slip .slip-title').innerText(), 'Medical Consultation Summary & Certificate');
+        // Consultation summary title & header details
+        assert.equal(await page.locator('.medical-slip .slip-title').innerText(), 'Consultation summary');
         assert.equal(await page.locator('.medical-slip .slip-clinic-name').innerText(), 'Clinic Appointment Portal');
 
         // Metadata fields
@@ -181,7 +181,8 @@ await withTestServer(true, async (base) => {
         assert.ok(metaText.includes('Alex Tan'), `[${width}px] Slip includes patient name Alex Tan`);
         assert.ok(metaText.includes('Dr. Priya Nair'), `[${width}px] Slip includes attending doctor Dr. Priya Nair`);
         assert.ok(metaText.includes('Dental'), `[${width}px] Slip includes specialty Dental`);
-        assert.ok(metaText.includes('Issue date/time:'), `[${width}px] Slip includes Issue date/time`);
+        assert.ok(metaText.includes('Consultation date:'), `[${width}px] Slip includes Consultation date`);
+        assert.ok(metaText.includes('Printed on:'), `[${width}px] Slip includes Printed on date`);
 
         // Clinical findings
         const findingsText = await page.locator('.medical-slip .slip-findings').innerText();
@@ -193,7 +194,7 @@ await withTestServer(true, async (base) => {
         // Validation footer
         assert.equal(await page.locator('.medical-slip .slip-signature-label').innerText(), 'Attending Physician Signature');
         assert.equal(await page.locator('.medical-slip .slip-doctor-name').innerText(), 'Dr. Priya Nair');
-        assert.equal((await page.locator('.medical-slip .stamp-text').textContent()).trim(), 'Clinic Stamp');
+        assert.equal((await page.locator('.medical-slip .stamp-text').textContent()).trim(), 'Clinic stamp');
 
         // Layout check on screen: no horizontal scrollbar overflow
         const screenOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
