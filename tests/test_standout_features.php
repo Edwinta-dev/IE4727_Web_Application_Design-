@@ -145,7 +145,8 @@ foreach ([
     '.print-slip-button,',
     '.table-scroll-hint,',
     '.visit-notes-header',
-    'display: block !important;',
+    'body:has(.medical-slip) .upcoming-appointments,',
+    'body:has(.medical-slip) .past-appointments,',
     'break-inside: avoid;',
     'filter: grayscale(100%);',
 ] as $needle) {

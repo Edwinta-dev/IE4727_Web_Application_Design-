@@ -155,6 +155,16 @@ await withTestServer(true, async (base) => {
       const page = await browser.newPage({ viewport: { width, height } });
       try {
         await login(page, 'patient', base);
+        await page.goto(`${base}patient/home.php`, { waitUntil: 'networkidle' });
+        assert.equal(await page.locator('.medical-slip').count(), 0, `[${width}px] Normal appointments page has no summary`);
+        await page.emulateMedia({ media: 'print' });
+        for (const selector of ['.upcoming-appointments', '.past-appointments']) {
+          const section = page.locator(selector);
+          assert.ok(await section.isVisible(), `[${width}px] ${selector} remains visible when printing the appointments list`);
+          assert.notEqual(await section.evaluate((el) => window.getComputedStyle(el).display), 'none');
+        }
+        await page.emulateMedia({ media: 'screen' });
+
         await page.goto(`${base}patient/home.php?view=2`, { waitUntil: 'networkidle' });
 
         // Section & Print button verification
@@ -227,6 +237,9 @@ await withTestServer(true, async (base) => {
             assert.equal(display, 'none', `[${width}px] ${selector} must be display: none in print media`);
           }
         }
+        for (const selector of ['.upcoming-appointments', '.past-appointments']) {
+          assert.ok(await page.locator(selector).isHidden(), `[${width}px] ${selector} is hidden while printing an open summary`);
+        }
 
         const slipDisplay = await slip.evaluate((el) => window.getComputedStyle(el).display);
         assert.equal(slipDisplay, 'block', `[${width}px] .medical-slip must be display: block in print media`);
@@ -259,4 +272,4 @@ await withTestServer(true, async (base) => {
   }
 });
 
-console.log('OK: #212 doctor directory search and #210 printable consultation slip verified');
+console.log('OK: #212 doctor directory search, #210 consultation slip and #214 scoped print styles verified');

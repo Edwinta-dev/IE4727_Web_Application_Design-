@@ -833,51 +833,51 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
         margin: 1.5cm;
     }
 
-    .site-header,
-    .site-nav,
-    .site-footer,
-    .page-intro,
-    .upcoming-appointments,
-    .past-appointments,
-    .cancelled-appointments,
-    .patient-notifications,
-    .flash,
-    .skip-link,
-    .print-slip-button,
-    .table-scroll-hint,
-    .visit-notes-header {
-        display: none !important;
+    body:has(.medical-slip) .site-header,
+    body:has(.medical-slip) .site-nav,
+    body:has(.medical-slip) .site-footer,
+    body:has(.medical-slip) .page-intro,
+    body:has(.medical-slip) .upcoming-appointments,
+    body:has(.medical-slip) .past-appointments,
+    body:has(.medical-slip) .cancelled-appointments,
+    body:has(.medical-slip) .patient-notifications,
+    body:has(.medical-slip) .flash,
+    body:has(.medical-slip) .skip-link,
+    body:has(.medical-slip) .print-slip-button,
+    body:has(.medical-slip) .table-scroll-hint,
+    body:has(.medical-slip) .visit-notes-header {
+        display: none;
     }
 
     body,
     main,
     #appointments,
     .visit-notes {
-        background: #ffffff !important;
-        color: #000000 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        border: none !important;
-        box-shadow: none !important;
+        background: #ffffff;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
     }
 
     .medical-slip {
-        display: block !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #000000 !important;
-        border-radius: 0 !important;
-        padding: 1.5rem !important;
-        margin: 0 !important;
-        box-shadow: none !important;
+        display: block;
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 0;
+        padding: 1.5rem;
+        margin: 0;
+        box-shadow: none;
         page-break-inside: avoid;
         break-inside: avoid;
     }
 
     .medical-slip * {
-        color: #000000 !important;
+        color: #000000;
     }
 
     .medical-slip .slip-logo {
@@ -885,26 +885,26 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     }
 
     .slip-header {
-        display: block !important;
-        border-bottom: 2px solid #000000 !important;
+        display: block;
+        border-bottom: 2px solid #000000;
     }
 
     .slip-metadata,
     .slip-findings {
-        border-bottom: 1px solid #000000 !important;
+        border-bottom: 1px solid #000000;
     }
 
     .slip-title,
     .slip-section-heading {
-        font-family: var(--font-display) !important;
-        color: #000000 !important;
+        font-family: var(--font-display);
+        color: #000000;
     }
 
     .slip-signature-line {
-        border-bottom: 1px solid #000000 !important;
+        border-bottom: 1px solid #000000;
     }
 
     .slip-stamp-placeholder {
-        border: 1px dashed #000000 !important;
+        border: 1px dashed #000000;
     }
 }
