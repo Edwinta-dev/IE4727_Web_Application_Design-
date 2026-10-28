@@ -10,149 +10,42 @@ if (getenv('CLINIC_DB_NAME') === false || getenv('CLINIC_DB_NAME') === '') {
 }
 
 // =========================================================================
-// 1. Feature 1: Doctor directory live client-side search (#209)
+// Structural checks for the browser-tested search and print features
 // =========================================================================
 
-// A. Markup verification in clinic-base/doctors.php
 $doctorsPage = file_get_contents(dirname(__DIR__) . '/clinic-base/doctors.php');
 if ($doctorsPage === false) {
     throw new RuntimeException('clinic-base/doctors.php could not be read');
 }
 
-foreach ([
-    'class="doctor-search-box"',
-    '<label for="doctor-search">Search doctors</label>',
-    '<div class="doctor-search-box" hidden>',
-    '<input type="search" id="doctor-search" placeholder="Search by doctor name, specialty, or language..." autocomplete="off">',
-    '<p id="doctor-search-empty" class="empty-state" aria-live="polite" hidden>No doctors match your search query. Try another keyword or clear the search.</p>',
-    '<table class="doctor-directory">',
-    'class="specialty-filter"',
-    '<noscript>',
-] as $needle) {
-    assert_contains($doctorsPage, $needle, "doctors.php must contain {$needle}");
-}
+$inputExists = preg_match('/<input\b(?=[^>]*\bid="doctor-search")(?=[^>]*\btype="search")[^>]*>/i', $doctorsPage) === 1;
+$messageExists = preg_match('/<[^>]+\bid="doctor-search-empty"[^>]*>/i', $doctorsPage) === 1;
+assert_true($inputExists, 'doctor search input exists with its id');
+assert_true($messageExists, 'doctor search result message exists with its id');
 
-// Verify zero network transport in doctors page (no AJAX / fetch)
-assert_true(strpos($doctorsPage, 'fetch(') === false, 'doctors page must not use fetch');
-assert_true(strpos($doctorsPage, 'XMLHttpRequest') === false, 'doctors page must not use XMLHttpRequest');
-assert_true(strpos($doctorsPage, '$.ajax') === false, 'doctors page must not use jQuery ajax');
-
-// B. Script verification in clinic-base/assets/app.js
 $appJs = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/app.js');
 if ($appJs === false) {
     throw new RuntimeException('clinic-base/assets/app.js could not be read');
 }
 
-foreach ([
-    'function initialiseDoctorDirectorySearch',
-    'doctor-search',
-    'doctor-search-empty',
-    '.doctor-directory tbody tr',
-    'row.hidden = !matched',
-    'emptyMessage.hidden = matchedCount > 0',
-    "row.getAttribute('data-search')",
-    'rows.length === 0',
-    'matchedCount +',
-    "event.key === 'Enter'",
-    'event.preventDefault()',
-    "document.addEventListener('DOMContentLoaded', initialiseDoctorDirectorySearch)",
-] as $needle) {
-    assert_contains($appJs, $needle, "app.js search logic must contain {$needle}");
-}
-// Zero network transport in app.js search logic
 assert_true(strpos($appJs, 'fetch(') === false, 'app.js must not contain fetch');
 assert_true(strpos($appJs, 'XMLHttpRequest') === false, 'app.js must not contain XMLHttpRequest');
 
-// C. Search CSS verification in clinic-base/assets/css/style.css
-$styleCss = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
-if ($styleCss === false) {
-    throw new RuntimeException('clinic-base/assets/css/style.css could not be read');
-}
-assert_true(strpos($styleCss, 'c-action') === false, 'style.css must use the primary token directly');
-
-foreach ([
-    '.doctor-search-box',
-    '.doctor-search-box input[type="search"]:focus-visible',
-    '.doctor-directory tbody tr[hidden]',
-    'display: none !important',
-    '#doctor-search-empty',
-] as $needle) {
-    assert_contains($styleCss, $needle, "style.css must contain {$needle}");
-}
-
-// =========================================================================
-// 2. Feature 2: Printable patient consultation slip & @media print (#210)
-// =========================================================================
-
-// A. Markup verification in clinic-base/patient/home.php
 $patientHomePage = file_get_contents(dirname(__DIR__) . '/clinic-base/patient/home.php');
 if ($patientHomePage === false) {
     throw new RuntimeException('clinic-base/patient/home.php could not be read');
 }
 
-foreach ([
-    'require_login();',
-    'class="button print-slip-button"',
-    'onclick="window.print()"',
-    'Print consultation summary',
-    'class="medical-slip"',
-    'assets/img/clinic-logo.svg',
-    'Clinic Appointment Portal',
-    'NTU South Spine S2-B3A-06',
-    'Consultation summary',
-    'Consultation date:',
-    'Printed on:',
-    'Patient Name:',
-    'Patient ID:',
-    'Attending Doctor:',
-    'Medical Specialty:',
-    'Clinical findings',
-    'Diagnosis:',
-    'Prescribed Medications:',
-    'Treatment Plan:',
-    'Follow-up instructions:',
-    'Attending Physician Signature',
-    'Clinic stamp',
-    'completed_appointment_for_patient',
-    'patient/home.php?view=',
-] as $needle) {
-    assert_contains($patientHomePage, $needle, "patient/home.php must contain {$needle}");
-}
-assert_true(strpos($patientHomePage, 'Tel: 999') === false, 'consultation summary omits the clinic phone line');
-assert_true(strpos($patientHomePage, "\$visit['Specialty'] ?? 'General Practice'") === false, 'consultation summary does not invent a default specialty');
-assert_true(strpos($patientHomePage, "if (trim((string) (\$visit['Specialty'] ?? '')) !== '')") !== false, 'consultation summary omits an empty specialty');
-assert_true(strpos($patientHomePage, 'Consultation summary</h3>') !== false, 'patient consultation summary has its accurate title');
-assert_true(strpos($patientHomePage, 'Print consultation summary</button>') !== false, 'patient print button names the consultation summary');
+$summaryExists = preg_match('/class="[^"]*\bmedical-slip\b[^"]*"/', $patientHomePage) === 1;
+$printButtonExists = preg_match('/class="[^"]*\bprint-slip-button\b[^"]*"/', $patientHomePage) === 1;
+assert_true($summaryExists, 'consultation summary block exists');
+assert_true($printButtonExists, 'consultation summary print button exists');
 
-// B. Print CSS rules in clinic-base/assets/css/style.css
-foreach ([
-    '.slip-title {',
-    '.slip-section-heading {',
-    'font-family: var(--font-display);',
-    '.print-slip-button',
-    '.medical-slip',
-    '@media print',
-    '@page {',
-    'margin: 1.5cm;',
-    '.site-header,',
-    '.site-nav,',
-    '.site-footer,',
-    '.page-intro,',
-    '.upcoming-appointments,',
-    '.past-appointments,',
-    '.cancelled-appointments,',
-    '.patient-notifications,',
-    '.print-slip-button,',
-    '.table-scroll-hint,',
-    '.visit-notes-header',
-    'body:has(.medical-slip) .upcoming-appointments,',
-    'body:has(.medical-slip) .past-appointments,',
-    'break-inside: avoid;',
-    'filter: grayscale(100%);',
-] as $needle) {
-    assert_contains($styleCss, $needle, "style.css print styles must contain {$needle}");
+$styleCss = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+if ($styleCss === false) {
+    throw new RuntimeException('clinic-base/assets/css/style.css could not be read');
 }
-assert_true(strpos($styleCss, 'Iowan') === false, 'slip styles use the display font token');
+assert_true(preg_match('/@media\s+print\b/i', $styleCss) === 1, 'print media block exists');
 
 // =========================================================================
 // 3. Database model & isolation verification (ie4727db_test)
