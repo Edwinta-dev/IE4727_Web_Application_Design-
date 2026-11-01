@@ -11,30 +11,21 @@ function clearRegistrationErrors() {
     });
 }
 
-function setRegistrationRole(role) {
-    var track = document.querySelector('.registration-role-track');
-    var heading = document.querySelector('.registration-role-heading');
-    var switcher = document.querySelector('.registration-role-switcher');
-    var typeFieldset = document.getElementById('registration-type');
-    if (track && heading && switcher && typeFieldset) {
-        document.getElementById('registration-form').classList.add('has-role-switcher');
-        typeFieldset.classList.add('has-role-switcher');
-        switcher.hidden = false;
-        track.setAttribute('data-active-role', role);
-        heading.textContent = role === 'doctor' ? 'Doctor account' : 'Patient account';
-        switcher.querySelectorAll('[data-role-switch]').forEach(function (button) {
-            button.hidden = button.getAttribute('data-role-switch') === role;
-        });
-        track.querySelectorAll('[data-role-fields]').forEach(function (fieldset) {
-            fieldset.hidden = false;
-            fieldset.setAttribute('aria-hidden', fieldset.getAttribute('data-role-fields') !== role ? 'true' : 'false');
-        });
+function updateRegistrationPasswordMatch(password, confirmation, includeEmpty) {
+    var mismatch = (includeEmpty || confirmation.value !== '') && password.value !== confirmation.value;
+    registrationFieldError('confirm_password', mismatch ? 'Passwords must match.' : '');
+    if (mismatch) {
+        confirmation.setAttribute('aria-invalid', 'true');
+    } else {
+        confirmation.removeAttribute('aria-invalid');
     }
+    return mismatch;
+}
+
+function setRegistrationRole(role) {
     document.querySelectorAll('[data-role-fields]').forEach(function (fieldset) {
         var active = fieldset.getAttribute('data-role-fields') === role;
-        if (!track) {
-            fieldset.hidden = !active;
-        }
+        fieldset.hidden = !active;
         fieldset.querySelectorAll('input, select, textarea').forEach(function (field) {
             field.disabled = !active;
         });
@@ -55,7 +46,7 @@ function validateRegistrationForm(event) {
         }
     });
     if (password && confirmation && password.value !== confirmation.value) {
-        registrationFieldError('confirm_password', 'Passwords must match.');
+        updateRegistrationPasswordMatch(password, confirmation, true);
         valid = false;
     }
     if (!valid) {
@@ -70,41 +61,44 @@ function initialiseRegistrationForm() {
     if (!form) {
         return;
     }
-    form.querySelectorAll('[name="role"]').forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            setRegistrationRole(radio.value);
+    var password = form.querySelector('[name="password"]');
+    var confirmation = form.querySelector('[name="confirm_password"]');
+    if (password && confirmation) {
+        var confirmationTouched = false;
+        confirmation.addEventListener('input', function () {
+            confirmationTouched = true;
+            updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
         });
-    });
-    form.querySelectorAll('[data-role-switch]').forEach(function (button) {
-        button.addEventListener('click', function () {
-            var role = button.getAttribute('data-role-switch');
-            var radio = form.querySelector('[name="role"][value="' + role + '"]');
-            if (radio) {
-                radio.checked = true;
-                setRegistrationRole(role);
-            }
+        [password, confirmation].forEach(function (field) {
+            field.addEventListener('blur', function () {
+                updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
+            });
         });
-    });
-    var roleFieldset = document.getElementById('registration-type');
-    if (roleFieldset) {
-        roleFieldset.addEventListener('keydown', function (event) {
-            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-                return;
-            }
-            if (event.target.matches('input[name="role"]')) {
-                return;
-            }
-            var role = event.key === 'ArrowRight' ? 'doctor' : 'patient';
-            var radio = form.querySelector('[name="role"][value="' + role + '"]');
-            if (radio) {
-                event.preventDefault();
-                radio.checked = true;
-                setRegistrationRole(role);
-            }
+        password.addEventListener('input', function () {
+            updateRegistrationPasswordMatch(password, confirmation, confirmationTouched);
         });
     }
-    var selected = form.querySelector('[name="role"]:checked');
-    setRegistrationRole(selected ? selected.value : 'patient');
+    var role = form.querySelector('select[name="role"]');
+    role.addEventListener('change', function () {
+        setRegistrationRole(role.value);
+    });
+    setRegistrationRole(role.value);
+    var noKnownAllergies = form.querySelector('[name="NoKnownAllergies"]');
+    var allergies = form.querySelector('[name="Allergies"]');
+    if (noKnownAllergies && allergies) {
+        var typedAllergies = noKnownAllergies.checked ? '' : allergies.value;
+        var updateAllergies = function () {
+            if (noKnownAllergies.checked) {
+                typedAllergies = allergies.value === 'No Known Allergies' ? typedAllergies : allergies.value;
+                allergies.value = 'No Known Allergies';
+            } else {
+                allergies.value = typedAllergies;
+            }
+            allergies.readOnly = noKnownAllergies.checked;
+        };
+        noKnownAllergies.addEventListener('change', updateAllergies);
+        updateAllergies();
+    }
     form.addEventListener('submit', validateRegistrationForm);
 }
 
@@ -129,3 +123,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+
+function initialiseDoctorDirectorySearch() {
+    var searchInput = document.getElementById('doctor-search');
+    var emptyMessage = document.getElementById('doctor-search-empty');
+    if (!searchInput) {
+        return;
+    }
+    var rows = document.querySelectorAll('.doctor-directory tbody tr[data-search]');
+    if (rows.length === 0) {
+        return;
+    }
+    searchInput.closest('.doctor-search-box').hidden = false;
+
+    function onSearchInput() {
+        var query = searchInput.value.trim().toLowerCase();
+        var matchedCount = 0;
+
+        rows.forEach(function (row) {
+            var text = (row.getAttribute('data-search') || '').toLowerCase();
+            var matched = query === '' || text.includes(query);
+            row.hidden = !matched;
+            if (matched) {
+                matchedCount++;
+            }
+        });
+
+        if (emptyMessage) {
+            emptyMessage.hidden = matchedCount > 0;
+            emptyMessage.textContent = matchedCount > 0
+                ? matchedCount + (matchedCount === 1 ? ' doctor matches' : ' doctors match')
+                : 'No doctors match your search query. Try another keyword or clear the search.';
+        }
+    }
+
+    searchInput.addEventListener('input', onSearchInput);
+    searchInput.addEventListener('search', onSearchInput);
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+
+    if (searchInput.value) {
+        onSearchInput();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initialiseDoctorDirectorySearch);

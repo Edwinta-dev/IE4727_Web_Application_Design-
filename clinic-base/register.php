@@ -20,6 +20,7 @@ $oldValues = [];
 foreach ($fields as $field) {
     $oldValues[$field] = old($field);
 }
+$noKnownAllergies = old('NoKnownAllergies') === '1';
 $registrationErrors = errors_all();
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -48,16 +49,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
         <fieldset class="registration-type" id="registration-type">
             <legend>Account type <span class="required-mark" aria-hidden="true">*</span></legend>
-            <div class="registration-role-options">
-                <label><input type="radio" name="role" value="patient"<?= e($registrationRole === 'patient' ? ' checked' : '') ?> required aria-required="true"> <span>Patient</span></label>
-                <label><input type="radio" name="role" value="doctor"<?= e($registrationRole === 'doctor' ? ' checked' : '') ?> required aria-required="true"> <span>Doctor</span></label>
-            </div>
+            <label for="registration-role">Registering as</label>
+            <select id="registration-role" name="role" required aria-required="true">
+                <option value="patient"<?= e($registrationRole === 'patient' ? ' selected' : '') ?>>Patient</option>
+                <option value="doctor"<?= e($registrationRole === 'doctor' ? ' selected' : '') ?>>Doctor</option>
+            </select>
             <?php if (isset($registrationErrors['role'])): ?><span class="field-error" data-error-for="role" role="alert"><?= e($registrationErrors['role']) ?></span><?php endif; ?>
-            <div class="registration-role-switcher" hidden>
-                <button type="button" class="registration-role-arrow" data-role-switch="patient" aria-label="Switch to patient account">←</button>
-                <h2 class="registration-role-heading" aria-live="polite"><?= e(ucfirst($registrationRole)) ?> account</h2>
-                <button type="button" class="registration-role-arrow" data-role-switch="doctor" aria-label="Switch to doctor account">→</button>
-            </div>
         </fieldset>
 
         <fieldset class="registration-details">
@@ -84,14 +81,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="confirm-password">Confirm password <span class="required-mark" aria-hidden="true">*</span></label>
-                <input id="confirm-password" name="confirm_password" type="password" minlength="8" placeholder="Repeat your password" required aria-required="true">
-                <span class="field-error" data-error-for="confirm_password" role="alert"><?= e($registrationErrors['confirm_password'] ?? '') ?></span>
+                <input id="confirm-password" name="confirm_password" type="password" minlength="8" placeholder="Repeat your password" required aria-required="true" aria-describedby="confirm-password-error"<?= e(isset($registrationErrors['confirm_password']) ? ' aria-invalid="true"' : '') ?>>
+                <span id="confirm-password-error" class="field-error" data-error-for="confirm_password" role="alert"><?= e($registrationErrors['confirm_password'] ?? '') ?></span>
             </p>
         </fieldset>
 
-        <div class="registration-role-viewport">
-        <div class="registration-role-track" data-active-role="<?= e($registrationRole) ?>">
-        <fieldset id="patient-fields" data-role-fields="patient">
+        <fieldset id="patient-fields" data-role-fields="patient"<?= e($registrationRole === 'doctor' ? ' hidden' : '') ?>>
             <legend>Patient details</legend>
             <p>
                 <label for="gender">Gender <span class="required-mark" aria-hidden="true">*</span></label>
@@ -110,12 +105,13 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             </p>
             <p>
                 <label for="allergies">Allergies</label>
-                <textarea id="allergies" name="Allergies" placeholder="List allergies, separated by commas"><?= e((string) $oldValues['Allergies']) ?></textarea>
+                <label class="no-known-allergies" for="no-known-allergies"><input id="no-known-allergies" name="NoKnownAllergies" type="checkbox" value="1"<?= e($noKnownAllergies ? ' checked' : '') ?>>No Known Allergies</label>
+                <textarea id="allergies" name="Allergies" placeholder="List allergies, separated by commas"<?= e($noKnownAllergies ? ' readonly' : '') ?>><?= e($noKnownAllergies ? 'No Known Allergies' : (string) $oldValues['Allergies']) ?></textarea>
                 <span class="field-error" data-error-for="Allergies" role="alert"><?= e($registrationErrors['Allergies'] ?? '') ?></span>
             </p>
         </fieldset>
 
-        <fieldset id="doctor-fields" data-role-fields="doctor">
+        <fieldset id="doctor-fields" data-role-fields="doctor"<?= e($registrationRole === 'patient' ? ' hidden' : '') ?>>
             <legend>Doctor details</legend>
             <p>
                 <label for="specialty">Specialty <span class="required-mark" aria-hidden="true">*</span></label>
@@ -150,15 +146,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <span class="field-error" data-error-for="ProfilePhoto" role="alert"><?= e($registrationErrors['ProfilePhoto'] ?? '') ?></span>
             </p>
         </fieldset>
-        </div>
-        </div>
-
         <button type="submit">Create account</button>
     </form>
     <aside class="registration-support" aria-label="Registration information">
         <section>
             <h2>What you’ll need</h2>
-            <p>Patients need a phone number and a list of known allergies. Doctors need their specialty, qualifications, languages, a profile photo and at least 50 characters about their background.</p>
+            <p>Patients need a phone number and can list known allergies or select No Known Allergies. Doctors need their specialty, qualifications, languages, a profile photo and at least 50 characters about their background.</p>
         </section>
         <section>
             <h2>What happens next</h2>

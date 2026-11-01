@@ -45,6 +45,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endforeach; ?>
         </select>
         <noscript><button type="submit">Filter doctors</button></noscript>
+        <div class="doctor-search-box" hidden><label for="doctor-search">Search doctors</label><input type="search" id="doctor-search" placeholder="Search by doctor name, specialty, or language..." autocomplete="off"></div>
 <?php if ($selectedSpecialty !== ''): ?>
         <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
         <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
@@ -53,6 +54,8 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php endif; ?>
 
     </section>
+
+    <p id="doctor-search-empty" class="empty-state" aria-live="polite" hidden>No doctors match your search query. Try another keyword or clear the search.</p>
 
     <div class="table-scroll" role="region" aria-label="Doctor directory" tabindex="0">
     <table class="doctor-directory">
@@ -92,7 +95,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         $nextAvailable = null;
     }
 ?>
-            <tr>
+            <tr data-search="<?= e(implode(' ', array_map(static fn (string $value): string => trim($value), [(string) ($doctor['FullName'] ?? ''), (string) ($doctor['Specialty'] ?? ''), (string) ($doctor['Languages'] ?? '')]))) ?>">
                 <td data-label="Photo">
                     <img src="<?= e(url($image)) ?>" alt="Photo of <?= e((string) ($doctor['FullName'] ?? 'doctor')) ?>" class="doctor-photo">
                 </td>

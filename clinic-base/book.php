@@ -62,18 +62,6 @@ if ($dateRequested && $dateError === null) {
     $selectedDate = $dateInput;
 }
 
-$fromTime = isset($_GET['from']) && is_string($_GET['from']) ? $_GET['from'] : '00:00';
-$toTime = isset($_GET['to']) && is_string($_GET['to']) ? $_GET['to'] : '23:59';
-$validTime = static function (string $time): bool {
-    $parsed = DateTimeImmutable::createFromFormat('!H:i', $time);
-
-    return $parsed !== false && $parsed->format('H:i') === $time;
-};
-if (!$validTime($fromTime) || !$validTime($toTime) || $fromTime > $toTime) {
-    $fromTime = '00:00';
-    $toTime = '23:59';
-}
-
 $doctors = all_doctors();
 $specialtyInput = $_GET['specialty'] ?? null;
 $selectedSpecialty = is_string($specialtyInput) ? canonical_specialty($specialtyInput) : null;
@@ -100,8 +88,8 @@ if ($doctor !== null) {
     $doctorById[$doctorId] = $doctor;
 }
 $availability = $doctorId > 0
-    ? booking_day_availability($doctorId, $now, BROWSE_DAYS, $fromTime, $toTime)
-    : booking_doctors_day_availability(array_keys($doctorById), $now, BROWSE_DAYS, $fromTime, $toTime);
+    ? booking_day_availability($doctorId, $now, BROWSE_DAYS, '00:00', '23:59')
+    : booking_doctors_day_availability(array_keys($doctorById), $now, BROWSE_DAYS, '00:00', '23:59');
 $availableDays = array_keys(array_filter($availability, static fn (array $counts): bool => $counts['available'] > 0));
 if ($reschedule !== null && !$dateRequested) {
     $selectedDate = reschedule_landing_date(
@@ -110,13 +98,13 @@ if ($reschedule !== null && !$dateRequested) {
 }
 $dayEmptyMessage = booking_day_empty_message($availability[$selectedDate]);
 $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(array_merge(
-    ['specialty' => $selectedSpecialty, 'date' => $availableDays[0], 'from' => $fromTime, 'to' => $toTime],
+    ['specialty' => $selectedSpecialty, 'date' => $availableDays[0]],
     $doctorId > 0 ? ['doctor' => $doctorId] : [],
     $reschedule !== null ? ['reschedule' => $rescheduleId] : []
 ))) : null;
 $slots = $doctorId > 0
-    ? slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)
-    : slots_for_doctors_day(array_keys($doctorById), $selectedDate, $fromTime, $toTime);
+    ? slots_for_day($doctorId, $selectedDate)
+    : slots_for_doctors_day(array_keys($doctorById), $selectedDate);
 $slots = booking_visible_slots($slots, $now);
 $representedDoctors = [];
 $timeGroups = [];
@@ -133,11 +121,23 @@ foreach ($slots as $slot) {
     }
 }
 $slots = array_merge($bookableSlots, $otherFutureSlots);
+$slotInput = $_GET['slot_id'] ?? '';
+$selectedSlot = null;
+if (is_string($slotInput) && ctype_digit($slotInput)) {
+    foreach ($bookableSlots as $slot) {
+        if ((string) $slot['slotID'] === $slotInput) {
+            $selectedSlot = $slot;
+            break;
+        }
+    }
+}
+$selectedSlotTime = $selectedSlot !== null ? (string) $selectedSlot['SlotDateTime'] : null;
+$selectedDoctorId = $selectedSlot !== null ? (int) $selectedSlot['DoctorID'] : $doctorId;
 $tomorrowUrl = $selectedDate === $today->format('Y-m-d')
     && $availability[$selectedDate]['matching'] > 0
     && $availability[$selectedDate]['future'] === 0
     ? url('/book.php?' . http_build_query(array_merge(
-        ['specialty' => $selectedSpecialty, 'date' => $today->modify('+1 day')->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        ['specialty' => $selectedSpecialty, 'date' => $today->modify('+1 day')->format('Y-m-d')],
         $doctorId > 0 ? ['doctor' => $doctorId] : [],
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     )))
@@ -184,12 +184,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="booking-date-filter">
             <span class="booking-filter-label">Date</span>
             <div class="booking-days">
-                <button class="day-scroll" type="button" data-direction="-1" aria-label="Show earlier days" aria-controls="booking-day-tabs" hidden>&larr;</button>
-                <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day" aria-describedby="day-scroll-hint">
+                <nav id="booking-day-tabs" class="day-tabs" aria-label="Choose a day">
 <?php for ($offset = 0; $offset < BROWSE_DAYS; $offset++):
     $day = $today->modify('+' . $offset . ' days');
     $dayQuery = http_build_query(array_merge(
-        ['specialty' => $selectedSpecialty, 'date' => $day->format('Y-m-d'), 'from' => $fromTime, 'to' => $toTime],
+        ['specialty' => $selectedSpecialty, 'date' => $day->format('Y-m-d')],
         $doctorId > 0 ? ['doctor' => $doctorId] : [],
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     ));
@@ -197,22 +196,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                     <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
                 </nav>
-                <button class="day-scroll" type="button" data-direction="1" aria-label="Show later days" aria-controls="booking-day-tabs" hidden>&rarr;</button>
             </div>
-            <p id="day-scroll-hint" class="day-scroll-hint">Scroll sideways to see all seven days.</p>
-            <details class="booking-time-filter"<?= e($fromTime !== '00:00' || $toTime !== '23:59' ? ' open' : '') ?>>
-            <summary>Filter by time</summary>
-            <div class="booking-time-fields">
-                <p>
-                    <label for="from">From</label>
-                    <input id="from" name="from" type="time" value="<?= e($fromTime) ?>">
-                </p>
-                <p>
-                    <label for="to">To</label>
-                    <input id="to" name="to" type="time" value="<?= e($toTime) ?>">
-                </p>
-            </div>
-            </details>
         </div>
         <p class="booking-doctor-filter">
             <label for="doctor">Doctor</label>
@@ -245,7 +229,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div class="booking-doctor-list" role="group" aria-labelledby="booking-doctor-label">
 <?php foreach ($representedDoctors as $candidate): ?>
                 <label class="booking-doctor-option" data-doctor-id="<?= e((string) $candidate['DoctorID']) ?>">
-                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($doctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required aria-required="true">
+                    <input type="radio" name="doctor" value="<?= e((string) $candidate['DoctorID']) ?>" form="booking-post"<?= e($selectedDoctorId === (int) $candidate['DoctorID'] ? ' checked' : '') ?> required aria-required="true">
                     <img src="<?= e(url(!empty($candidate['ImageURL']) ? '/' . ltrim((string) $candidate['ImageURL'], '/') : '/assets/img/General_Practice_in_Action.jpg')) ?>" width="56" height="56" loading="eager" decoding="async" alt="">
                     <span><strong><?= e((string) $candidate['FullName']) ?></strong><small><?= e((string) $candidate['Specialty']) ?></small></span>
                 </label>
@@ -261,7 +245,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php elseif ($availableDayUrl !== null): ?>
         <a href="<?= e($availableDayUrl) ?>">View available times on <?= e(fmt_date($availableDays[0])) ?></a>, or choose a date above.
 <?php else: ?>
-        No available appointment times within the next <?= e((string) BROWSE_DAYS) ?> days with these time filters. Choose another date or change the time filters above.
+        No available appointment times within the next <?= e((string) BROWSE_DAYS) ?> days. Choose another date or doctor above.
 <?php endif; ?>
     </p>
 <?php endif; ?>
@@ -272,8 +256,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
                 <input type="hidden" name="date" value="<?= e($selectedDate) ?>">
                 <input type="hidden" name="specialty" value="<?= e($selectedSpecialty) ?>">
-                <input type="hidden" name="from" value="<?= e($fromTime) ?>">
-                <input type="hidden" name="to" value="<?= e($toTime) ?>">
 <?php if ($reschedule !== null): ?>
                 <input type="hidden" name="appointment_id" value="<?= e((string) $reschedule['appointmentID']) ?>">
                 <input type="hidden" name="reschedule" value="1">
@@ -290,7 +272,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 ?>
         <div class="slot <?= e($stateClass) ?>">
 <?php if ($stateClass === 'free'): ?>
-            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime'])) ?>" required aria-required="true">
+            <input class="slot-choice" id="slot-<?= e((string) $slot['slotID']) ?>" type="radio" name="slot_id" value="<?= e((string) $slot['slotID']) ?>" data-doctor-id="<?= e((string) $slot['DoctorID']) ?>" data-time="<?= e(fmt_time((string) $slot['SlotDateTime']) . ' (' . date('D, j M', strtotime((string) $slot['SlotDateTime'])) . ')') ?>"<?= e($selectedSlotTime === (string) $slot['SlotDateTime'] ? ' checked' : '') ?> required aria-required="true">
             <label class="slot-time" for="slot-<?= e((string) $slot['slotID']) ?>"><?= e(fmt_time((string) $slot['SlotDateTime'])) ?></label>
 <?php if ($doctorId === 0): ?>
             <span class="slot-doctors">
@@ -311,12 +293,12 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 <?php if ($dayEmptyMessage === null): ?>
     <section class="booking-confirmation" aria-labelledby="confirmation-heading">
                 <h3 id="confirmation-heading"><?= e($reschedule === null ? 'Confirm appointment' : 'Confirm replacement') ?></h3>
-                <p><span id="selected-doctor" aria-live="polite"><?= e($doctor !== null ? (string) $doctor['FullName'] : 'Choose a doctor') ?></span> &middot; <?= e(fmt_date($selectedDate)) ?> &middot; <span id="selected-time" aria-live="polite">Time selected above</span></p>
+                <p><span id="selected-doctor" aria-live="polite"><?= e($selectedSlot !== null ? (string) $doctorById[$selectedDoctorId]['FullName'] : ($doctor !== null ? (string) $doctor['FullName'] : 'Choose a doctor')) ?></span> &middot; <span id="selected-time" aria-live="polite"><?= e($selectedSlotTime !== null ? fmt_time($selectedSlotTime) . ' (' . date('D, j M', strtotime($selectedSlotTime)) . ')' : 'Select a time slot above') ?></span></p>
 <?php if ($reschedule !== null): ?>
                 <p class="booking-reason">Reason for visit: <?= e($rescheduleReason !== '' ? $rescheduleReason : 'Not separately recorded') ?></p>
 <?php else: ?>
                 <label for="reason">Reason for visit <span class="required-mark" aria-hidden="true">*</span></label>
-                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true">
+                <input id="reason" name="reason" type="text" maxlength="255" required aria-required="true" placeholder="e.g. Cough and mild fever for 3 days">
 <?php endif; ?>
                 <div class="booking-form-actions">
                     <button type="submit"><?= e($reschedule === null ? 'Confirm booking' : 'Confirm reschedule') ?></button>

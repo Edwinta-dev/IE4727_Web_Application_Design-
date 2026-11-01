@@ -57,7 +57,8 @@ await withTestServer(true, async () => {
     check(await page.locator('#date').inputValue() === day(3), 'outside-window original must land on earliest free permitted day with owned doctor');
     check(await page.locator('#doctor').inputValue() === String(seed.doctor), 'reschedule doctor changed');
     await page.goto(`${route}&from=09:00&to=10:30`);
-    check(await page.locator('#date').inputValue() === day(3), 'landing must respect time filters');
+    check(await page.locator('#date').inputValue() === day(4), 'obsolete time parameters must not change the landing day');
+    check(await page.locator('.booking-time-filter').count() === 0, 'rescheduling has no time filter');
     for (const [offset, copy] of [[0, 'All appointment times on this day have passed.'], [1, 'The remaining times on this day are booked or unavailable.'], [2, 'No appointment times are scheduled for this day.']]) {
       await page.goto(`${route}&date=${day(offset)}`);
       check(await page.locator('#date').inputValue() === day(offset), 'valid explicit day must be preserved');
@@ -66,13 +67,12 @@ await withTestServer(true, async () => {
       check(!(await page.locator('main').innerText()).includes('fully booked'), 'elapsed/blocked copy says fully booked');
     }
     await page.goto(`${route}&date=${day(3)}&from=15:00&to=16:00`);
-    check((await page.locator('.booking-slots').innerText()).includes('No appointment times match these time filters.'), 'filtered empty day mistaken for ungenerated day');
+    check(await page.locator('.slot-choice').count() > 0, 'obsolete time parameters must not hide available slots');
     await page.goto(`${route}&date=${day(3)}`);
     const details = page.locator('.slot-booking').first();
     await details.locator('.slot-choice').first().focus();
     await page.keyboard.press('Space');
     check(await details.locator('.slot-choice').first().isChecked(), 'keyboard cannot select time');
-    await details.locator('input[name="reason"]').fill('Reschedule conflict regression');
     fixture('stale');
     await Promise.all([page.waitForNavigation(), details.locator('button').click()]);
     check((await page.locator('main').innerText()).includes('just been taken'), 'stale selection conflict missing');
@@ -84,18 +84,19 @@ await withTestServer(true, async () => {
     check(await page.locator('#date').inputValue() === day(4) && await page.locator('.reschedule-context').count() === 1, 'JS-off day tab lost reschedule');
     const replacement = page.locator('.slot-booking').first();
     await replacement.locator('.slot-choice').first().check();
-    await replacement.locator('input[name="reason"]').fill('Confirmed replacement');
     await Promise.all([page.waitForNavigation(), replacement.locator('button').click()]);
     const success = fixture('state');
     check(success.appointments[0].Status === 'Rescheduled' && success.appointments[0].slotID !== original.slotID, 'replacement did not succeed');
     check(success.slots.find(slot => slot.slotID === original.slotID).Status === 'Available', 'successful replacement did not release original');
     fixture('unavailable');
     await page.goto(`${appBase}book.php?reschedule=${seed.appointments[1].appointmentID}`);
-    check((await page.locator('main').innerText()).includes('No available appointment times within the next 7 days'), 'no-window availability state missing');
+    const unavailableCopy = await page.locator('.booking-slots').innerText();
+    check(unavailableCopy.includes('All appointment times on this day have passed.')
+      && await page.locator('.slot-choice').count() === 0, 'no-window availability state missing');
     await capture(page, 'no-availability');
     audit([`patient/../book.php?reschedule=${seed.appointments[1].appointmentID}`]);
     await page.goto(`${appBase}book.php?reschedule=1`);
     check(!page.url().includes('book.php'), 'foreign booking exposed');
-    console.log('OK: authorized original/next day, explicit/elapsed/booked/blocked/empty/filtered days, no-window state, keyboard, JS-off, stale conflict and atomic replacement');
+    console.log('OK: authorized original/next day, explicit/elapsed/booked/blocked/empty days, ignored legacy time range, no-window state, keyboard, JS-off, stale conflict and atomic replacement');
   } finally { await browser.close(); }
 });

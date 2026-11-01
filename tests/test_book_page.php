@@ -12,8 +12,6 @@ foreach ([
     'method="get"',
     'name="doctor"',
     'name="date"',
-    'name="from"',
-    'name="to"',
     'class="day-tab',
     'class="booking-results"',
     'class="booking-doctor"',
@@ -27,7 +25,7 @@ foreach ([
     'name="slot_id"',
     'name="reason"',
     'csrf_field()',
-    'slots_for_day($doctorId, $selectedDate, $fromTime, $toTime)',
+    'slots_for_day($doctorId, $selectedDate)',
 ] as $needle) {
     assert_contains($page, $needle);
 }
@@ -57,10 +55,10 @@ assert_contains($css, 'color: var(--c-button-foreground);');
 echo "PASS: booking page markup checks\n";
 
 assert_true(strpos($page, 'type="date"') === false, 'day tabs replace the duplicate date picker');
-assert_contains($page, '<summary>Filter by time</summary>');
-assert_contains($page, 'class="booking-time-filter"');
-assert_contains($page, 'Show earlier days');
-assert_contains($page, 'Show later days');
-assert_contains($page, 'Scroll sideways to see all seven days.');
+assert_true(!str_contains($page, 'booking-time-filter'), 'booking has no time filter');
+assert_true(!str_contains($page, 'name="from"') && !str_contains($page, 'name="to"'), 'booking form has no time range fields');
+assert_true(!str_contains($page, "\$_GET['from']") && !str_contains($page, "\$_GET['to']"), 'booking ignores obsolete time range links');
+assert_true(!str_contains($page, 'day-scroll'), 'booking date strip has no arrow buttons or helper caption');
+assert_contains($css, 'scrollbar-width: thin; scrollbar-color: var(--c-accent) var(--c-paper);');
 $nav = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php');
 assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/book.php']");

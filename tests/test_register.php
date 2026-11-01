@@ -15,10 +15,12 @@ if ($page === false || $action === false || $script === false) {
 foreach (['name="FullName"', 'name="User"', 'name="Email"', 'name="Gender"', 'name="Phone"', 'name="Allergies"',
     'name="<?= e($field) ?>"', 'csrf_field()', 'id="registration-form" method="post"',
     'class="registration-layout"', 'class="registration-support"', 'What you’ll need', 'What happens next',
-    'name="role" value="patient"', 'name="role" value="doctor"',
-    'class="registration-role-switcher"', 'data-role-switch="patient"', 'data-role-switch="doctor"',
-    'aria-label="Switch to doctor account"', 'class="registration-role-track" data-active-role="<?= e($registrationRole) ?>"',
-    'errors_all()', 'class="error-summary"', 'data-error-for="role"', 'value="patient"<?= e($registrationRole === \'patient\' ? \' checked\' : \'\') ?>'] as $needle) {
+    'id="registration-role" name="role" required',
+    '<option value="patient"<?= e($registrationRole === \'patient\' ? \' selected\' : \'\') ?>>Patient</option>',
+    '<option value="doctor"<?= e($registrationRole === \'doctor\' ? \' selected\' : \'\') ?>>Doctor</option>',
+    'data-role-fields="patient"<?= e($registrationRole === \'doctor\' ? \' hidden\' : \'\') ?>',
+    'data-role-fields="doctor"<?= e($registrationRole === \'patient\' ? \' hidden\' : \'\') ?>',
+    'errors_all()', 'class="error-summary"', 'data-error-for="role"'] as $needle) {
     assert_contains($page, $needle, 'registration page');
 }
 $styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
@@ -28,7 +30,7 @@ if (str_contains($page, 'registration-support-image')) {
 if ($styles === false) {
     throw new RuntimeException('registration stylesheet could not be read');
 }
-foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', '.registration-role-switcher', 'transition: transform 190ms ease', 'prefers-reduced-motion: reduce', 'aspect-ratio: 4 / 3', '@media (max-width: 56rem)'] as $needle) {
+foreach (['.registration-layout', 'grid-template-columns: minmax(0, 36rem)', 'aspect-ratio: 4 / 3', '@media (max-width: 56rem)'] as $needle) {
     assert_contains($styles, $needle, 'registration layout styles');
 }
 foreach (['csrf_check()', 'validate(', 'create_patient_account(', 'create_doctor_account(', 'beginTransaction()'] as $needle) {
@@ -52,8 +54,13 @@ foreach (['', '6123abc8', '6123/4567', '71234567', '+65 81234567', '8123456', '8
     }
 }
 assert_contains(file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php') ?: '', '$navigationRole', 'navigation role isolation');
-foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldError', 'return false', 'data-role-switch', 'ArrowLeft', 'ArrowRight', 'setRegistrationRole(role)'] as $needle) {
+foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldError', 'return false', 'select[name="role"]', 'setRegistrationRole(role.value)'] as $needle) {
     assert_contains($script, $needle, 'registration javascript');
+}
+foreach (['registration-role-switcher', 'data-role-switch', 'registration-role-arrow', 'registration-role-track'] as $removed) {
+    if (str_contains($page . $script . $styles . (file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css') ?: ''), $removed)) {
+        throw new RuntimeException('obsolete registration role switcher remains: ' . $removed);
+    }
 }
 
 $suffix = bin2hex(random_bytes(4));

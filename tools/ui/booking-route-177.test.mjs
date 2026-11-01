@@ -26,14 +26,9 @@ try {
           const form = page.locator('.booking-filters');
           assert.equal(new URL(page.url()).pathname, new URL('book.php', base).pathname);
           assert.equal(await form.getAttribute('action'), new URL('book.php', base).pathname);
-          await page.locator('#doctor').selectOption('1');
-          await page.locator('.booking-time-filter summary').click();
-          await page.locator('#from').fill('09:00');
-          await page.locator('#to').fill('16:30');
-          await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Show schedule' }).click()]);
+          await Promise.all([page.waitForNavigation(), page.locator('#doctor').selectOption('1')]);
           assert.equal(new URL(page.url()).searchParams.get('doctor'), '1');
-          assert.equal(new URL(page.url()).searchParams.get('from'), '09:00');
-          assert.equal(new URL(page.url()).searchParams.get('to'), '16:30');
+          assert.equal(await page.locator('.booking-time-filter').count(), 0);
           assert.equal(await page.title(), 'Book an Appointment');
           const days = await page.locator('.day-tab').allTextContents();
           const nextClinicDay = days.findIndex((day, index) => index > 0 && !day.trim().startsWith('Sun'));

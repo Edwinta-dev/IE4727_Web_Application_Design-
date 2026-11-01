@@ -7,41 +7,18 @@
 label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1); }
 #registration-form > .required-note { margin-bottom: 0; }
 .member-login form > .required-note { margin-bottom: var(--space-1); }
+.member-login { scroll-margin-top: clamp(5rem, 20vh, 11rem); }
 .booking-slots .required-note { margin-bottom: var(--space-1); }
 .booking-choice-label { margin: 0 0 var(--space-1); font-weight: 700; }
 .booking-doctor .booking-doctor-instruction { color: var(--c-ink); font-weight: 700; }
 #schedule-editor .schedule-generator .required-note { grid-column: 1 / -1; }
 #schedule-editor .schedule-date-filter .required-note { flex-basis: 100%; }
 
-/* Only the selected registration panel sets the form's height. */
-#registration-form.has-role-switcher .registration-role-track { position: relative; }
-#registration-form.has-role-switcher .registration-role-track > [data-role-fields][aria-hidden="true"] { position: absolute; left: 0; }
-#registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="true"] { left: 50%; }
-#registration-form.has-role-switcher .registration-role-track > #doctor-fields[aria-hidden="false"] { margin-left: 50%; }
-
-/* Keep both native radio choices visible as labelled tabs; only the arrow to the other role appears. */
-.registration-type.has-role-switcher .registration-role-options { display: grid; }
-.registration-type.has-role-switcher .registration-role-options label { justify-content: center; border-radius: var(--radius-control); }
-.registration-type.has-role-switcher .registration-role-options label:has(input:checked) {
-    border-color: var(--c-primary);
-    background: var(--c-surface-band);
-    color: var(--c-primary-dark);
-    font-weight: 700;
-}
-.registration-type.has-role-switcher .registration-role-switcher { margin-top: var(--space-2); }
-.registration-type.has-role-switcher .registration-role-arrow[hidden] { display: none; }
-.registration-type.has-role-switcher .registration-role-arrow[data-role-switch="doctor"] { grid-column: 3; }
-.registration-type.has-role-switcher .registration-role-heading { grid-column: 2; grid-row: 1; }
-.registration-type.has-role-switcher .registration-role-arrow:focus:not(:focus-visible),
-.registration-type.has-role-switcher .registration-role-options input:focus:not(:focus-visible) { outline: none; box-shadow: none; }
-.registration-type.has-role-switcher .registration-role-options input:focus-visible { outline: none; box-shadow: none; }
-.registration-type.has-role-switcher .registration-role-arrow:focus-visible,
-.registration-type.has-role-switcher .registration-role-options label:has(input:focus-visible) {
-    outline: 0.2rem solid var(--c-focus-ring);
-    outline-offset: 0.15rem;
-    box-shadow: none;
-    border-radius: var(--radius-control);
-}
+.registration-type select { width: min(100%, 18rem); }
+#registration-form .no-known-allergies { display: flex; align-items: center; gap: var(--space-1); width: fit-content; margin: var(--space-1) 0; font-weight: 400; cursor: pointer; }
+#registration-form .no-known-allergies input { flex: none; margin: 0; }
+#registration-form #allergies[readonly] { background: var(--c-surface-band); color: var(--c-muted); }
+#registration-form .no-known-allergies input:focus-visible { border-radius: var(--radius-control); outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; }
 
 @media (min-width: 56.01rem) {
     .registration-support {
@@ -128,6 +105,37 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .specialty-filter button { min-height: 2.75rem; padding: 0.45rem 0.85rem; }
 .active-doctor-filter { color: var(--c-muted); }
 .clear-doctor-filter { min-height: 2.75rem; display: inline-flex; align-items: center; }
+.doctor-search-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.doctor-search-box[hidden] { display: none !important; }
+.doctor-search-box label {
+    margin: 0;
+    white-space: nowrap;
+}
+.doctor-search-box input[type="search"] {
+    width: min(22rem, 100%);
+    min-height: 2.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-control);
+    background: var(--c-paper);
+    color: var(--c-ink);
+    font: inherit;
+}
+.doctor-search-box input[type="search"]:focus-visible {
+    outline: 0.2rem solid var(--c-primary);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+}
+#doctor-search-empty {
+    margin: 0 0 1rem;
+}
+.doctor-directory tbody tr[hidden] {
+    display: none !important;
+}
 .table-scroll { max-width: 100%; overflow-x: auto; }
 .doctor-directory { width: 100%; table-layout: auto; }
 .doctor-directory caption { padding: 0.75rem 0; font-size: 1.15rem; }
@@ -185,6 +193,9 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     .specialty-filter label { flex-basis: 100%; }
     .specialty-filter select { flex: 1 1 12rem; }
     .doctor-directory { min-width: 62rem; }
+    .doctor-search-box { flex-basis: 100%; display: flex; flex-wrap: wrap; }
+    .doctor-search-box label { flex-basis: 100%; }
+    .doctor-search-box input[type="search"] { flex: 1 1 12rem; width: 100%; }
 }
 
 
@@ -332,13 +343,13 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 }
 
 /* Booking and appointment views */
+#reason::placeholder { color: var(--c-muted); opacity: 1; }
 .booking-filters.booking-filters { display: grid; grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr) minmax(10rem, 13rem); align-items: start; gap: var(--space-3); }
 .booking-filters > p { margin: 0; }
 .booking-filters select { width: 100%; }
 .booking-date-filter { min-width: 0; }
 .booking-filter-label { display: block; margin-bottom: 0.25rem; font-weight: 700; }
 .booking-date-filter .booking-days { margin-bottom: 0; }
-.booking-filters .day-scroll { flex: 0 0 2.75rem; }
 .booking-date-filter .booking-time-filter { margin-top: var(--space-1); }
 .booking-filters :is(button, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .booking-filters :is(button, summary):focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
@@ -352,10 +363,11 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .booking-time-filter:not([open]) .booking-time-fields { display: none; }
 .booking-time-fields p { flex: 1 1 7rem; }
 .booking-days { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
-.day-tabs { display: flex; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin: 0; }
-.day-scroll { flex: 0 0 2.75rem; min-height: 2.75rem; padding: 0.4rem; }
-.day-scroll[hidden] { display: none; }
-.day-scroll-hint { display: none; }
+.day-tabs { display: flex; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--c-accent) var(--c-paper); padding: 0 0 var(--space-2); margin: 0; }
+.day-tabs::-webkit-scrollbar { height: 0.4rem; }
+.day-tabs::-webkit-scrollbar-track { background: var(--c-paper); border-radius: var(--radius-tile); }
+.day-tabs::-webkit-scrollbar-thumb { background: var(--c-accent); border-radius: var(--radius-tile); }
+@media (prefers-reduced-motion: reduce) { .day-tabs { scroll-behavior: auto; } }
 .day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); border-radius: var(--radius-control); text-decoration: none; }
 .day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
 .booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
@@ -407,7 +419,6 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     .booking-filters.booking-filters { grid-template-columns: minmax(0, 1fr); }
     .booking-filters > p, .booking-time-filter[open] { grid-column: 1; }
     .booking-filters button { padding-inline: var(--space-2); }
-    .day-scroll-hint { display: block; margin: 0 0 var(--space-4); color: var(--c-muted); }
     .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
     .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
@@ -458,6 +469,8 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     outline-offset: 0.15rem;
     box-shadow: none;
 }
+
+#registration-form #confirm-password[aria-invalid="true"] { border-color: var(--c-danger); }
 
 /* Doctor schedule: weekday calendar first, generation follows the working day. */
 #schedule-editor .schedule-month-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -608,4 +621,290 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     .appointments .appointment-table-scroll:not(.is-empty) td,
     .admin-outbox th, .admin-outbox td { white-space: normal; }
     .day-schedule .day-board td:last-child { min-width: 0; }
+}
+
+
+/* Printable consultation slip and medical certificate (#210) */
+.visit-notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.visit-notes-header h2 {
+    margin: 0;
+}
+
+.print-slip-button {
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .print-slip-button {
+        transition: none;
+    }
+}
+
+.medical-slip {
+    background: var(--c-surface-tile);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-tile);
+    padding: var(--space-4);
+}
+
+.slip-header {
+    border-bottom: 2px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-letterhead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.slip-logo {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.slip-clinic-details {
+    line-height: 1.35;
+}
+
+.slip-clinic-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--c-ink);
+}
+
+.slip-clinic-address {
+    font-style: normal;
+    font-size: 0.9rem;
+    color: var(--c-muted);
+    margin: 0.15rem 0 0;
+}
+
+.slip-clinic-tel {
+    font-size: 0.9rem;
+    color: var(--c-muted);
+    margin: 0.15rem 0 0;
+}
+
+.slip-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin: var(--space-3) 0 0;
+    color: var(--c-ink);
+    letter-spacing: 0.01em;
+}
+
+.slip-metadata {
+    border-bottom: 1px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+}
+
+.slip-meta-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    font-size: 0.95rem;
+}
+
+.slip-label {
+    font-weight: 600;
+    color: var(--c-muted);
+}
+
+.slip-value {
+    color: var(--c-ink);
+}
+
+.slip-findings {
+    border-bottom: 1px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-section-heading {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-2);
+    color: var(--c-ink);
+}
+
+.slip-findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.slip-finding-item p {
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.slip-finding-item strong {
+    color: var(--c-ink);
+}
+
+.slip-footer {
+    margin-top: var(--space-4);
+}
+
+.slip-validation {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.slip-signature-block {
+    min-width: 14rem;
+}
+
+.slip-signature-line {
+    border-bottom: 1px solid var(--c-ink);
+    height: 2.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.slip-signature-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--c-muted);
+    margin: 0;
+}
+
+.slip-doctor-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--c-ink);
+    margin: 0.2rem 0 0;
+}
+
+.slip-stamp-block {
+    text-align: center;
+}
+
+.slip-stamp-placeholder {
+    width: 7.5rem;
+    height: 5.5rem;
+    border: 1px dashed var(--c-line);
+    border-radius: var(--radius-control);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-muted);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 40rem) {
+    .slip-meta-grid { grid-template-columns: minmax(0, 1fr); }
+    .visit-notes-header { flex-direction: column; align-items: flex-start; }
+    .print-slip-button { width: 100%; }
+    .slip-validation { flex-direction: column; align-items: flex-start; }
+}
+
+@media print {
+    @page {
+        margin: 1.5cm;
+    }
+
+    body:has(.medical-slip) .site-header,
+    body:has(.medical-slip) .site-nav,
+    body:has(.medical-slip) .site-footer,
+    body:has(.medical-slip) .page-intro,
+    body:has(.medical-slip) .upcoming-appointments,
+    body:has(.medical-slip) .past-appointments,
+    body:has(.medical-slip) .cancelled-appointments,
+    body:has(.medical-slip) .patient-notifications,
+    body:has(.medical-slip) .flash,
+    body:has(.medical-slip) .skip-link,
+    body:has(.medical-slip) .print-slip-button,
+    body:has(.medical-slip) .table-scroll-hint,
+    body:has(.medical-slip) .visit-notes-header {
+        display: none;
+    }
+
+    body,
+    main,
+    #appointments,
+    .visit-notes {
+        background: #ffffff;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+    }
+
+    .medical-slip {
+        display: block;
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 0;
+        padding: 1.5rem;
+        margin: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .medical-slip * {
+        color: #000000;
+    }
+
+    .medical-slip .slip-logo {
+        filter: grayscale(100%);
+    }
+
+    .slip-header {
+        display: block;
+        border-bottom: 2px solid #000000;
+    }
+
+    .slip-metadata,
+    .slip-findings {
+        border-bottom: 1px solid #000000;
+    }
+
+    .slip-title,
+    .slip-section-heading {
+        font-family: var(--font-display);
+        color: #000000;
+    }
+
+    .slip-signature-line {
+        border-bottom: 1px solid #000000;
+    }
+
+    .slip-stamp-placeholder {
+        border: 1px dashed #000000;
+    }
 }

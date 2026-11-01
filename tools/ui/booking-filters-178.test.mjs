@@ -18,7 +18,7 @@ await withTestServer(true, async base => {
         assert.ok(await page.locator('.schedule-grid .slot').count() > 0);
         assert.equal(await page.getByText('Show schedule').count(), 0);
         assert.equal(await page.locator('.booking-filters noscript button').isVisible(), false);
-        assert.equal(await page.locator('.booking-filters fieldset:disabled input[name="_csrf"]').count(), 1);
+        assert.equal(await page.locator('.booking-filters input[name="_csrf"]').count(), 0, 'GET filters do not carry a CSRF token');
         assert.ok(await page.locator('.day-tab.selected').isVisible(), 'Selected day stays visible');
         assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width);
 

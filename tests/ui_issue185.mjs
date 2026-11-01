@@ -17,7 +17,7 @@ await withServer(true, async (base) => {
       await page.goto(base + 'register.php', { waitUntil: 'networkidle' });
       const gaps = {};
       for (const role of ['patient', 'doctor']) {
-        if (role === 'doctor') await page.locator('[data-role-switch="doctor"]').click();
+        if (role === 'doctor') await page.locator('select[name="role"]').selectOption('doctor');
         await page.waitForTimeout(250);
         gaps[role] = await page.evaluate((selectedRole) => {
           // The active panel's last field row, so fields added later (#190's photo) are measured too.
