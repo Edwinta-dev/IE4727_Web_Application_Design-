@@ -59,6 +59,6 @@ assert_true(!str_contains($page, 'booking-time-filter'), 'booking has no time fi
 assert_true(!str_contains($page, 'name="from"') && !str_contains($page, 'name="to"'), 'booking form has no time range fields');
 assert_true(!str_contains($page, "\$_GET['from']") && !str_contains($page, "\$_GET['to']"), 'booking ignores obsolete time range links');
 assert_true(!str_contains($page, 'day-scroll'), 'booking date strip has no arrow buttons or helper caption');
-assert_contains($css, 'scrollbar-width: thin; scrollbar-color: var(--c-accent) var(--c-paper);');
+assert_contains($css, '.day-tabs { display: flex; flex-wrap: wrap;');
 $nav = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php');
 assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/book.php']");
