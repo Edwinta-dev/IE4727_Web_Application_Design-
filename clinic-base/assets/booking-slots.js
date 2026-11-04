@@ -17,14 +17,6 @@ document.querySelectorAll('.booking-filters').forEach(function (form) {
     });
 });
 
-document.querySelectorAll('.booking-days').forEach(function (days) {
-    var tabs = days.querySelector('.day-tabs');
-    var selected = tabs.querySelector('.selected');
-    if (selected) {
-        tabs.scrollLeft = selected.offsetLeft - tabs.firstElementChild.offsetLeft;
-    }
-});
-
 document.querySelectorAll('.slot-booking').forEach(function (booking) {
     var results = booking.closest('.booking-results');
     var doctors = Array.from(results.querySelectorAll('.booking-doctor-option'));
