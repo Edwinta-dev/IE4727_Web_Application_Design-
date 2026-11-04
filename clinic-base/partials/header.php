@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+
+// Doctors and admins work from their own pages; the home page is not a destination for them.
+$logoLinksHome = !is_doctor() && !is_admin();
 
 $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
     ? $pageTitle
@@ -21,7 +25,14 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="site-header">
     <div class="site-header-inner">
+        <?php if ($logoLinksHome): ?>
         <a class="clinic-logo" href="<?= e(url('/index.php')) ?>">
             <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
             <span class="site-brand">Clinic Appointment Portal</span>
         </a>
+        <?php else: ?>
+        <div class="clinic-logo">
+            <img src="<?= e(url('/assets/img/clinic-logo.svg')) ?>" alt="Clinic Appointment Portal logo">
+            <span class="site-brand">Clinic Appointment Portal</span>
+        </div>
+        <?php endif; ?>
