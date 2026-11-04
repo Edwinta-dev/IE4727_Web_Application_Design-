@@ -3,7 +3,7 @@
 /*
 Doctor only. Day board for ?date= (if none given and today is empty, jumps to the next day with bookings).
 Attendance buttons open at the start time and post to actions/appointment.php.
-?patient=id shows that patient's history with this doctor.
+?patient=id shows that patient's history with this doctor. Also lists the latest 20 notifications.
 */
 
 declare(strict_types=1);

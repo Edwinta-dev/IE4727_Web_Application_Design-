@@ -2,7 +2,7 @@
 
 /*
 The notifications table: log a message, mark it sent or failed, and list messages.
-Patients see messages whose recipient equals their stored email (latest 20).
+Patients and doctors see messages whose recipient equals their stored email (latest 20).
 */
 
 declare(strict_types=1);

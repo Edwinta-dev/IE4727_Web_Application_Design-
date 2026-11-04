@@ -2,7 +2,6 @@
 
 /*
 Admin statistics: bookings per doctor this week, no-show rates, peak booking hours, mean booking lead time.
-The stats_* functions at the bottom are unused aliases.
 */
 
 declare(strict_types=1);
