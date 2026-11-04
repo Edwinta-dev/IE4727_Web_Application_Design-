@@ -9,7 +9,7 @@ if ($page === false || $action === false) {
 }
 
 foreach ([
-    'require_login();',
+    'require_patient();',
     'appointments_for_patient($patientId, \'upcoming\')',
     'appointments_for_patient($patientId, \'past\')',
     'appointments_for_patient($patientId, \'cancelled\')',
