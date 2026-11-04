@@ -136,6 +136,15 @@ function require_login(): void
     }
 }
 
+function require_patient(): void
+{
+    $user = current_user();
+    if ($user === null || !is_patient()) {
+        http_response_code($user === null ? 401 : 403);
+        auth_redirect_to_login('Please sign in as a patient to continue.');
+    }
+}
+
 function require_doctor(): void
 {
     $user = current_user();
