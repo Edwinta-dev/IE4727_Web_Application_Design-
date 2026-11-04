@@ -2,6 +2,8 @@
 
 /*
 Opens the HTML document and site header. Title comes from $pageTitle set by the page.
+Links tokens.css, style.css and css/style.css directly (each versioned with asset_url), in that order.
+The logo links home for guests and patients; for doctors and admins it is a plain brand.
 nav.php closes the header and footer.php closes the document.
 */
 

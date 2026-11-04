@@ -3,7 +3,8 @@
 /*
 Shared helpers used by every page: e() escaping, session start, url() and redirect(),
 error pages, flash messages and remembered form input, date formatting, booking-window check,
-specialty photos and the footer opening hours.
+specialty photos, the footer opening hours, and asset_url(), which versions CSS and JS links so
+browsers never serve a stale copy.
 */
 
 declare(strict_types=1);
