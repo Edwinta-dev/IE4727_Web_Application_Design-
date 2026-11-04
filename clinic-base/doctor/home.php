@@ -87,7 +87,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <?php if ($nextAppointmentDay !== null): ?>
                 <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
             <?php else: ?>
-                <span>No upcoming appointments after this day.</span>
+                <span>No appointments on later days.</span>
             <?php endif; ?>
         </nav>
         <?php if ($appointments === []): ?>
@@ -108,29 +108,30 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <td data-label="Reason"><?= e($boardRemarks['reason'] !== '' ? $boardRemarks['reason'] : ($boardRemarks['legacy'] !== null ? 'Earlier text (author unknown)' : 'Not separately recorded')) ?></td>
                         <td data-label="Status"><?= e((string) $appointment['Status']) ?></td>
                         <td data-label="Actions">
-                            <?php if (in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true)): ?>
-                                <a href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
-                                <?php if (appointment_outcome_eligible($appointment, $doctorId)): ?>
-                                <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
-                                    <input type="hidden" name="status" value="Completed">
-                                    <button type="submit">Mark completed</button>
-                                </form>
-                                <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
-                                    <input type="hidden" name="status" value="No show">
-                                    <button type="submit">Mark no-show</button>
-                                </form>
-                                <?php else: ?>
-                                    <span>Attendance actions open at the appointment start time.</span>
+                            <?php $isOpen = in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true); ?>
+                            <?php if ($isOpen): ?>
+                                <?php $started = appointment_outcome_eligible($appointment, $doctorId); ?>
+                                <div class="row-actions">
+                                    <?php if ($started): ?>
+                                        <a class="button" href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
+                                        <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
+                                            <input type="hidden" name="status" value="No show">
+                                            <button class="button secondary" type="submit">Mark no-show</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <a class="button secondary" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
+                                </div>
+                                <?php if (!$started): ?>
+                                    <p class="row-note">Visit opens at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></p>
                                 <?php endif; ?>
-                                <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
                             <?php elseif ((string) $appointment['Status'] === 'Completed'): ?>
-                                <a href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
+                                <div class="row-actions">
+                                    <a class="button secondary" href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
+                                </div>
                             <?php else: ?>
-                                <span>No attendance action</span>
+                                <span class="row-note">Nothing to do</span>
                             <?php endif; ?>
                         </td>
                     </tr>
