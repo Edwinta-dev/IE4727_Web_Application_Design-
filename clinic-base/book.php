@@ -322,6 +322,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </div>
     </section>
 </main>
-<script src="<?= e(url('/assets/booking-slots.js')) ?>" defer></script>
+<script src="<?= e(asset_url('/assets/booking-slots.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -154,6 +154,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <img class="about-clinic-image" src="<?= e(url('/assets/img/about-clinic-consultation.jpg')) ?>" width="960" height="720" loading="lazy" alt="A clinician discusses care with a patient in a consultation room">
     </section>
 </main>
-<script src="<?= e(url('/assets/featured-doctors.js')) ?>" defer></script>
+<script src="<?= e(asset_url('/assets/featured-doctors.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -1,6 +1,4 @@
-/* Compatibility entry point for the established stylesheet URL. */
-@import url("../tokens.css");
-@import url("../style.css");
+/* Loaded after assets/tokens.css and assets/style.css, which partials/header.php links separately so each gets its own version number. */
 
 .required-mark { color: var(--c-danger); font-weight: 700; }
 .required-note { margin: 0; color: var(--c-muted); }

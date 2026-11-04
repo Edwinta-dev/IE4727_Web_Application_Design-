@@ -23,8 +23,9 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
-    <link rel="stylesheet" href="<?= e(url('/assets/tokens.css')) ?>">
-    <link rel="stylesheet" href="<?= e(url('/assets/css/style.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('/assets/tokens.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('/assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('/assets/css/style.css')) ?>">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to main content</a>

@@ -84,4 +84,4 @@ $links = match ($navigationRole) {
 </nav>
 </div>
 </header>
-<script src="<?= e(url('/assets/nav.js')) ?>"></script>
+<script src="<?= e(asset_url('/assets/nav.js')) ?>"></script>

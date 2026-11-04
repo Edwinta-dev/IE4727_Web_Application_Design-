@@ -162,6 +162,19 @@ function url(string $path): string
 }
 
 /**
+ * URL of a stylesheet or script with its last-modified time appended (?v=...).
+ * Browsers keep serving an old copy of an unversioned file, so a CSS or JS change
+ * would not reach people who had already visited. A new file gets a new URL.
+ */
+function asset_url(string $path): string
+{
+    $file = dirname(__DIR__) . '/' . ltrim($path, '/');
+    $modified = is_file($file) ? filemtime($file) : false;
+
+    return url($path) . ($modified === false ? '' : '?v=' . $modified);
+}
+
+/**
  * The current request URI as an app path, with the base folder removed.
  */
 function app_request_uri(): string
