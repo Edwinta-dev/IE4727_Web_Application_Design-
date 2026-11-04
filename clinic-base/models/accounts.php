@@ -3,7 +3,8 @@
 /*
 Doctor, patient and admin accounts: find a login by username or email (doctors first),
 check the config admin, create and delete accounts, and the admin console lists.
-Deleting cascades to slots and appointments.
+Deleting a doctor cascades to their slots and appointments. Deleting a patient also frees the slots
+of their upcoming appointments, in one transaction.
 */
 
 declare(strict_types=1);
@@ -181,9 +182,45 @@ function delete_doctor(int $id): void
     q('DELETE FROM `doctor` WHERE `DoctorID` = :id', ['id' => $id]);
 }
 
+/**
+ * Hard-delete a patient. Their appointments are removed by the foreign key, but nothing else would
+ * release the slots those appointments held, so a future booking would leave its slot Booked for
+ * good. Free those slots first, in the same transaction. Past visits keep their slot as it was.
+ */
 function delete_patient(int $id): void
 {
-    q('DELETE FROM `patient` WHERE `PatientID` = :id', ['id' => $id]);
+    $connection = db();
+    $connection->beginTransaction();
+
+    try {
+        // Same lock order as models/booking.php: the appointments first, then the slots by id.
+        $held = q_all(
+            "SELECT `appointmentID`, `slotID`
+             FROM `appointment`
+             WHERE `PatientID` = :id AND `Status` IN ('Future', 'Rescheduled') AND `slotID` IS NOT NULL
+             ORDER BY `appointmentID`
+             FOR UPDATE",
+            ['id' => $id]
+        );
+        $slotIds = array_values(array_unique(array_map(static fn (array $row): int => (int) $row['slotID'], $held)));
+        sort($slotIds, SORT_NUMERIC);
+        foreach ($slotIds as $slotId) {
+            q(
+                "UPDATE `slots`
+                 SET `Status` = 'Available'
+                 WHERE `slotID` = :slot_id AND `Status` = 'Booked' AND `SlotDateTime` > NOW()",
+                ['slot_id' => $slotId]
+            );
+        }
+
+        q('DELETE FROM `patient` WHERE `PatientID` = :id', ['id' => $id]);
+        $connection->commit();
+    } catch (Throwable $exception) {
+        if ($connection->inTransaction()) {
+            $connection->rollBack();
+        }
+        throw $exception;
+    }
 }
 
 /** @param array<string, mixed> $filters @return list<array<string, mixed>> */
