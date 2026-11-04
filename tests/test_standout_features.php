@@ -41,9 +41,9 @@ $printButtonExists = preg_match('/class="[^"]*\bprint-slip-button\b[^"]*"/', $pa
 assert_true($summaryExists, 'consultation summary block exists');
 assert_true($printButtonExists, 'consultation summary print button exists');
 
-$styleCss = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+$styleCss = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 if ($styleCss === false) {
-    throw new RuntimeException('clinic-base/assets/css/style.css could not be read');
+    throw new RuntimeException('clinic-base/assets/style.css could not be read');
 }
 assert_true(preg_match('/@media\s+print\b/i', $styleCss) === 1, 'print media block exists');
 

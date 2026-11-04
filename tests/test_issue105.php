@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
-$stylesheet = file_get_contents($root . '/clinic-base/assets/css/style.css');
+$stylesheet = file_get_contents($root . '/clinic-base/assets/style.css');
 $sharedStylesheet = file_get_contents($root . '/clinic-base/assets/style.css');
 $tokens = file_get_contents($root . '/clinic-base/assets/tokens.css');
 

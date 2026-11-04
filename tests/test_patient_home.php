@@ -84,7 +84,7 @@ assert_contains($page, "if (trim((string) (\$visit['Specialty'] ?? '')) !== '')"
 assert_true(strpos($page, 'Consultation summary</h3>') !== false, 'consultation summary has its accurate title');
 assert_true(strpos($page, 'Print consultation summary</button>') !== false, 'print button names the consultation summary');
 
-$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 assert_true($css !== false, 'app stylesheet exists');
 assert_contains($css, '@media print', 'print media query exists');
 assert_contains($css, 'margin: 1.5cm;', 'print page margin is set to 1.5cm');
@@ -96,7 +96,9 @@ assert_true(preg_match('/(?m)^\s*\.upcoming-appointments\s*,?\s*$/', $css) !== 1
 assert_true(preg_match('/(?m)^\s*\.past-appointments\s*,?\s*$/', $css) !== 1, 'past appointments are not hidden by an unscoped print selector');
 assert_true(preg_match('/\.slip-title\s*\{\s*font-family:\s*var\(--font-display\);/', $css) === 1, 'slip title uses the display font token');
 assert_true(preg_match('/\.slip-section-heading\s*\{\s*font-family:\s*var\(--font-display\);/', $css) === 1, 'slip section headings use the display font token');
-assert_true(strpos($css, 'Iowan') === false, 'slip rules do not hard-code the display font stack');
+// The display font stack is defined once, as the --font-display token; the slip rules must use the token.
+preg_match_all('/[^{}]*\.(?:medical-slip|slip-[a-z-]+)[^{}]*\{[^}]*\}/', $css, $slipRules);
+assert_true($slipRules[0] !== [] && strpos(implode("\n", $slipRules[0]), 'Iowan') === false, 'slip rules do not hard-code the display font stack');
 foreach ([
     '.site-header',
     '.site-nav',

@@ -58,7 +58,7 @@ foreach (['addEventListener', 'validateRegistrationForm', 'registrationFieldErro
     assert_contains($script, $needle, 'registration javascript');
 }
 foreach (['registration-role-switcher', 'data-role-switch', 'registration-role-arrow', 'registration-role-track'] as $removed) {
-    if (str_contains($page . $script . $styles . (file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css') ?: ''), $removed)) {
+    if (str_contains($page . $script . $styles . (file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css') ?: ''), $removed)) {
         throw new RuntimeException('obsolete registration role switcher remains: ' . $removed);
     }
 }

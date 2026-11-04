@@ -29,7 +29,7 @@ assert_true(preg_match('~href="<\?= e\(url\(\'/screens/doctors\.php\'\)\) \?>">F
 assert_true(preg_match('~href="<\?= e\(url\(\'/screens/book\.php\'\)\) \?>">Book an appointment</a>~', $index) === 1, 'Book an appointment goes to the booking page');
 
 // 229: the day checkboxes wrap instead of scrolling sideways.
-$css = (string) file_get_contents($root . 'assets/css/style.css');
+$css = (string) file_get_contents($root . 'assets/style.css');
 assert_true(preg_match('/days-to-skip fieldset\s*\{[^}]*nowrap/', $css) === 0, 'Days to skip no longer forced onto one row');
 assert_true(preg_match('/days-to-skip\s*\{[^}]*overflow:\s*hidden/', $css) === 0, 'Days to skip is not clipped');
 $schedule = (string) file_get_contents($root . 'screens/doctor/schedule.php');

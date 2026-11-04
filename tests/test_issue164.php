@@ -2,7 +2,7 @@
 
 test('mobile action tables retain labelled fields and narrow-screen layouts', static function (): void {
     $root = dirname(__DIR__);
-    $style = (string) file_get_contents($root . '/clinic-base/assets/css/style.css');
+    $style = (string) file_get_contents($root . '/clinic-base/assets/style.css');
     $pages = [
         'directory' => (string) file_get_contents($root . '/clinic-base/screens/doctors.php'),
         'day board' => (string) file_get_contents($root . '/clinic-base/screens/doctor/home.php'),

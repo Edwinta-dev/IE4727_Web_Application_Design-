@@ -20,7 +20,7 @@ require dirname(__DIR__) . '/clinic-base/partials/flash.php';
 require dirname(__DIR__) . '/clinic-base/partials/footer.php';
 $rendered = ob_get_clean();
 
-foreach (['<!doctype html>', '<title>Doctors</title>', 'assets/css/style.css', 'clinic-logo.svg',
+foreach (['<!doctype html>', '<title>Doctors</title>', 'assets/style.css', 'clinic-logo.svg',
     'aria-current="page"', '<div class="site-header-inner">', '<span class="site-brand">Clinic Appointment Portal</span>',
     '<div class="flash flash-success"', '&copy;', '</html>'] as $needle) {
     if (strpos($rendered, $needle) === false) {

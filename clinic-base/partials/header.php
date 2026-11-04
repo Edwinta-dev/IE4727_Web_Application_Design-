@@ -2,7 +2,7 @@
 
 /*
 Opens the HTML document and site header. Title comes from $pageTitle set by the page.
-Links tokens.css, style.css and css/style.css directly (each versioned with asset_url), in that order.
+Links tokens.css and then style.css (each versioned with asset_url), in that order.
 The logo links home for guests and patients; for doctors and admins it is a plain brand.
 nav.php closes the header and footer.php closes the document.
 */
@@ -27,7 +27,6 @@ $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
     <title><?= e($pageTitle) ?></title>
     <link rel="stylesheet" href="<?= e(asset_url('/assets/tokens.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_url('/assets/style.css')) ?>">
-    <link rel="stylesheet" href="<?= e(asset_url('/assets/css/style.css')) ?>">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to main content</a>

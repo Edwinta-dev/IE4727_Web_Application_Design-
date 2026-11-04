@@ -33,7 +33,7 @@ assert_true(!str_contains($page, 'class="page-intro-image"'), 'directory uses it
 
 echo "PASS: doctors page markup checks\n";
 
-$styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+$styles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 $sharedStyles = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 $tokens = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/tokens.css');
 if ($styles === false) {

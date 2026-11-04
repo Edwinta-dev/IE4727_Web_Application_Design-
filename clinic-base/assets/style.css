@@ -1,5 +1,4 @@
 /* Clinic Appointment Portal - hand-written base stylesheet */
-@import url("tokens.css");
 
 :root {
     --ink: var(--c-ink);
@@ -1472,3 +1471,917 @@ main .flash {
 .booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
 .booking-confirmation h3 { margin-top: 0; }
 .schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
+
+/* ==== Newer rules (formerly assets/css/style.css) ====
+   Kept after the base rules above, in the same order they used to load, so the cascade is unchanged.
+   tokens.css is linked separately by partials/header.php and loads first. */
+
+.required-mark { color: var(--c-danger); font-weight: 700; }
+.required-note { margin: 0; color: var(--c-muted); }
+label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1); }
+#registration-form > .required-note { margin-bottom: 0; }
+.member-login form > .required-note { margin-bottom: var(--space-1); }
+.member-login { scroll-margin-top: clamp(5rem, 20vh, 11rem); }
+.booking-slots .required-note { margin-bottom: var(--space-1); }
+.booking-choice-label { margin: 0 0 var(--space-1); font-weight: 700; }
+.booking-doctor .booking-doctor-instruction { color: var(--c-ink); font-weight: 700; }
+#schedule-editor .schedule-generator .required-note { grid-column: 1 / -1; }
+#schedule-editor .schedule-date-filter .required-note { flex-basis: 100%; }
+
+.registration-type select { width: min(100%, 18rem); }
+#registration-form .no-known-allergies { display: flex; align-items: center; gap: var(--space-1); width: fit-content; margin: var(--space-1) 0; font-weight: 400; cursor: pointer; }
+#registration-form .no-known-allergies input { flex: none; margin: 0; }
+#registration-form #allergies[readonly] { background: var(--c-surface-band); color: var(--c-muted); }
+#registration-form .no-known-allergies input:focus-visible { border-radius: var(--radius-control); outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; }
+
+@media (min-width: 56.01rem) {
+    .registration-support {
+        position: sticky;
+        top: calc(4.5rem + var(--space-3));
+        max-height: calc(100vh - 4.5rem - var(--space-4));
+        overflow-y: auto;
+    }
+}
+
+/* The title block that opens a page sits the same distance below the nav on every page. */
+main > .page-intro:first-child { padding-top: var(--space-4); }
+
+/* Keep the brand and desktop navigation on the header's centre line. */
+@media (min-width: 42.01rem) {
+    .clinic-logo,
+    .site-nav a { line-height: 1.4; }
+    .site-nav { align-self: center; align-items: center; }
+    .site-nav ul { align-items: center; }
+}
+
+/* Keep pointer focus quiet while keyboard focus follows the padded nav tab. */
+.site-nav a:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.site-nav a:focus-visible {
+    outline: 0.2rem solid var(--c-focus-on-dark);
+    outline-offset: 0.12rem;
+    box-shadow: none;
+    border-radius: var(--radius-control);
+}
+
+.site-footer .footer-details { display: grid; grid-template-columns: 1fr 0.7fr 1.7fr; gap: var(--space-4); padding-bottom: var(--space-4); }
+.site-footer .footer-details h2 { margin: 0 0 var(--space-1); font-family: var(--font-body); font-size: 1rem; color: var(--c-ink); }
+.site-footer .footer-details address { font-style: normal; }
+.site-footer .footer-details a { padding: 0; min-height: 0; }
+@media (max-width: 40rem) {
+    .site-footer .footer-details { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+}
+
+/* Home carousel tracks remain scrollable while their arrow controls provide navigation. */
+.doctor-carousel .doctor-tiles,
+.doctor-carousel .specialty-strip { scrollbar-width: none; }
+.doctor-carousel .doctor-tiles::-webkit-scrollbar,
+.doctor-carousel .specialty-strip::-webkit-scrollbar { display: none; }
+
+/* Five specialties use the full row on desktop; the existing scroll row remains at smaller widths. */
+@media (min-width: 75rem) {
+    .services .doctor-carousel.has-doctor-carousel { grid-template-columns: minmax(0, 1fr); }
+    .services .doctor-carousel .specialty-strip { --doctors-per-page: 5; grid-column: 1; }
+    .services .doctor-carousel-arrow { position: absolute; z-index: 1; }
+    .services .doctor-carousel [data-doctor-previous] { left: 0; }
+    .services .doctor-carousel [data-doctor-next] { right: 0; }
+}
+
+/* Home: mission follows the specialty strip in a calm two-column section. */
+.about-clinic {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-5);
+    background: var(--c-paper);
+    scroll-margin-top: var(--space-3);
+}
+.about-clinic-copy { min-width: 0; }
+.about-clinic-eyebrow { margin: 0 0 var(--space-1); color: var(--c-accent); font-weight: 700; }
+.about-clinic h2 { margin-bottom: var(--space-5); }
+.about-clinic-statement + .about-clinic-statement { margin-top: var(--space-4); }
+.about-clinic-statement h3 { margin: 0 0 var(--space-1); color: var(--c-accent); font-family: var(--font-body); font-size: 1rem; letter-spacing: normal; }
+.about-clinic-statement p { margin: 0; color: var(--c-muted); }
+.about-clinic-image { display: block; width: 100%; aspect-ratio: 4 / 3; height: auto; border-radius: var(--radius-tile); object-fit: cover; }
+@media (max-width: 40rem) {
+    .about-clinic { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); padding: var(--space-5) 0; }
+}
+/* Find-a-doctor directory */
+.specialty-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+}
+.specialty-filter label { margin: 0; }
+.specialty-filter select { width: min(20rem, 100%); }
+.specialty-filter button { min-height: 2.75rem; padding: 0.45rem 0.85rem; }
+.active-doctor-filter { color: var(--c-muted); }
+.clear-doctor-filter { min-height: 2.75rem; display: inline-flex; align-items: center; }
+.doctor-search-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.doctor-search-box[hidden] { display: none !important; }
+.doctor-search-box label {
+    margin: 0;
+    white-space: nowrap;
+}
+.doctor-search-box input[type="search"] {
+    width: min(22rem, 100%);
+    min-height: 2.75rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-control);
+    background: var(--c-paper);
+    color: var(--c-ink);
+    font: inherit;
+}
+.doctor-search-box input[type="search"]:focus-visible {
+    outline: 0.2rem solid var(--c-primary);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+}
+#doctor-search-empty {
+    margin: 0 0 1rem;
+}
+.doctor-directory tbody tr[hidden] {
+    display: none !important;
+}
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.doctor-directory { width: 100%; table-layout: auto; }
+.doctor-directory caption { padding: 0.75rem 0; font-size: 1.15rem; }
+.doctor-directory th,
+.doctor-directory td { padding: 0.75rem 0.65rem; vertical-align: middle; overflow-wrap: normal; }
+.doctor-directory thead th {
+    background: var(--c-surface-band);
+    color: var(--c-ink);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+}
+.doctor-directory tbody th[scope="row"] {
+    background: transparent;
+    color: var(--c-ink);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: nowrap;
+}
+.doctor-directory tbody th[scope="row"] a { color: var(--c-ink); text-decoration: none; }
+.doctor-directory tbody th[scope="row"] a:hover { text-decoration: underline; text-underline-offset: 0.15em; }
+.doctor-directory tbody td:nth-child(3),
+.doctor-directory tbody td:nth-child(6),
+.doctor-directory tbody td:nth-child(7),
+.doctor-directory thead th:nth-child(3),
+.doctor-directory thead th:nth-child(6),
+.doctor-directory thead th:nth-child(7) { white-space: nowrap; }
+.doctor-directory thead th { line-height: 3.25rem; }
+.doctor-directory tbody td:nth-child(3),
+.doctor-directory tbody td:nth-child(7) { line-height: 4.75rem; }
+.doctor-directory .doctor-photo { display: block; flex: none; width: 4.5rem; min-width: 4.5rem; height: 4.5rem; aspect-ratio: 1; border: 0; border-radius: 50%; box-shadow: 0 0 0 1px var(--c-line); object-fit: cover; object-position: top; }
+.doctor-directory tbody tr:nth-child(even) { background: var(--c-surface); }
+.doctor-next-available span { display: block; white-space: nowrap; }
+.doctor-directory-book {
+    display: inline-flex;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-control);
+    padding-inline: 0.55rem;
+    line-height: 1.2;
+    color: var(--c-primary-dark);
+    background: var(--c-paper);
+    text-decoration: none;
+}
+.doctor-directory-book:hover { border-color: var(--c-primary); background: var(--c-surface); }
+@media (max-width: 40rem) {
+    .specialty-filter { justify-content: flex-start; }
+    .specialty-filter label { flex-basis: 100%; }
+    .specialty-filter select { flex: 1 1 12rem; }
+    .doctor-directory { min-width: 62rem; }
+    .doctor-search-box { flex-basis: 100%; display: flex; flex-wrap: wrap; }
+    .doctor-search-box label { flex-basis: 100%; }
+    .doctor-search-box input[type="search"] { flex: 1 1 12rem; width: 100%; }
+}
+
+
+/* Staff work surfaces: compact filters, wide tables and readable state labels. */
+.day-board-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-3); border-bottom: 1px solid var(--c-line); }
+.day-board-heading .page-intro-copy { flex: 1 1 auto; }
+.day-board-heading h1 { margin-bottom: 0; }
+.day-board-filter { flex: 0 1 30rem; display: grid; grid-template-columns: auto minmax(9rem, 1fr) auto; align-items: end; gap: var(--space-2); }
+.day-board-filter label { min-height: 2.75rem; align-content: end; }
+.day-board-navigation { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding-block: var(--space-2); }
+.day-board-date-controls { display: grid; width: min(100%, 35rem); grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-2); }
+.day-board-date-controls h2 { margin: 0; text-align: center; }
+.day-board-date-controls a { display: inline-flex; align-items: center; gap: 0.25rem; min-height: 2.75rem; }
+.day-board-date-controls a:first-child { justify-self: end; }
+.day-board-date-controls a:last-child { justify-self: start; }
+.day-board-navigation > a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+.day-summary { display: flex; flex-wrap: wrap; gap: var(--space-4); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+.day-summary p { margin: 0; }
+.day-schedule table, .patient-history table, .admin-console table, .admin-outbox table { border-top: 1px solid var(--c-line); }
+.day-schedule th, .patient-history th, .admin-console th, .admin-outbox th { background: var(--c-surface-band); color: var(--c-ink); font-weight: 700; }
+.day-schedule td, .patient-history td, .admin-console td, .admin-outbox td { border-bottom: 1px solid var(--c-line); }
+.day-board td:first-child, .day-board td:nth-child(4),
+.appointment-table td:first-child, .appointment-table td:last-child,
+.admin-console form button { white-space: nowrap; }
+/* Actions: a few same-sized buttons that wrap inside the cell instead of running off the table. */
+.day-board td:last-child { min-width: 11rem; }
+.row-actions { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+.row-actions form { margin: 0; }
+.row-actions .button { min-height: 2.25rem; padding: 0.3rem 0.8rem; font-size: 0.95rem; white-space: nowrap; }
+.day-schedule .day-board td { padding-block: var(--space-3); vertical-align: middle; }
+.row-note { margin: var(--space-1) 0 0; color: var(--c-muted); font-size: 0.93rem; }
+.day-schedule { margin-bottom: var(--space-5); }
+.status-label { display: inline-block; font-weight: 700; white-space: nowrap; }
+.status-future, .status-available, .status-sent { color: var(--c-success); }
+.status-completed, .status-booked { color: var(--c-primary-dark); }
+.status-cancelled, .status-no-show, .status-failed { color: var(--c-danger); }
+.status-rescheduled, .status-blocked, .status-logged, .status-past { color: var(--c-muted); }
+.schedule-month-grid { display: grid; width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--c-line); border-left: 1px solid var(--c-line); }
+.schedule-day { min-width: 0; padding: var(--space-2); border: 0; border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: transparent; }
+.schedule-day.selected { background: var(--c-surface-band); }
+.schedule-day h3 { font-size: 1rem; }
+.schedule-day .slot-count { margin: 0.15rem 0; }
+.slot-list .slot { border: 0; border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
+.slot-list .slot.free, .slot-list .slot.taken, .slot-list .slot.blocked, .slot-list .slot.past { border-left: 0; }
+.slot-list .slot-status { min-width: 8rem; }
+.slot-list .slot-readonly { display: block; margin-top: var(--space-1); line-height: 1.4; }
+.visit-layout { display: grid; grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.8fr); gap: var(--space-5); align-items: start; }
+.visit-sidebar { min-width: 0; }
+.visit-sidebar > section { border-bottom: 1px solid var(--c-line); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
+.visit-sidebar h2, .visit-form-section h2 { margin-top: 0; }
+.visit-form-section { min-width: 0; }
+.visit-form textarea { min-height: 10rem; }
+.visit-form-section p, .visit-history-record p, .visit-notes p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.visit-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.visit-form-actions label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
+.visit-form-actions input[type="checkbox"] { flex: 0 0 1.5rem; }
+.console-filters { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: end; border-block: 1px solid var(--c-line); padding-block: var(--space-3); }
+.console-filters h2 { margin: 0; white-space: nowrap; }
+.console-filters form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.console-filters form label { flex: 1 1 9rem; }
+.console-filters form a { display: inline-flex; min-height: 2.75rem; align-items: center; padding-inline: var(--space-2); }
+.admin-console .table-scroll { overflow-x: auto; }
+.admin-console table { min-width: 42rem; }
+.admin-console td form { display: block; }
+.outbox-table-scroll { max-width: 100%; overflow-x: auto; }
+.outbox-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
+.outbox-delivery-legend { color: var(--c-muted); margin: 0 0 var(--space-2); }
+.staff-table-scroll { overflow-x: auto; }
+.day-board { min-width: 58rem; table-layout: auto; }
+.console-filters { display: flex; flex-wrap: wrap; }
+.console-filters h2 { flex: 0 0 100%; white-space: normal; }
+.console-filters > p { flex: 0 0 100%; margin: 0; }
+.console-filters form { flex: 1 1 40rem; }
+.outbox-filters form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.outbox-filters form label { flex: 0 0 auto; margin: 0; }
+.outbox-filters select { width: 12rem; max-width: 100%; }
+/* Keep headings outside the named table scroll regions. */
+.admin-console .console-section { min-width: 0; }
+.status-help { margin: 0 0 var(--space-2); color: var(--c-muted); max-width: 46rem; }
+.status-help strong { color: var(--c-ink); }
+.filter-summary { margin: var(--space-2) 0 0; color: var(--c-muted); }
+.admin-console .table-scroll-hint { display: block; margin: 0 0 var(--space-2); color: var(--c-muted); }
+.console-table-scroll.is-empty thead { display: none; }
+.console-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
+.admin-console .console-table-scroll table { font-size: 1rem; }
+.admin-console .console-table-scroll.is-empty table { min-width: 0; width: 100%; table-layout: fixed; }
+.admin-console .console-table-scroll.is-empty :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
+.console-table-scroll.is-empty .empty-state { max-width: none; }
+.day-schedule th, .day-schedule td, .patient-history th, .patient-history td,
+.admin-console th, .admin-console td, .admin-outbox th, .admin-outbox td { padding-block: 0.4rem; }
+.day-schedule th, .day-schedule td, .admin-console th, .admin-console td { line-height: 1.95; padding-block: 0; }
+.admin-console table button, .day-schedule table button { box-sizing: border-box; padding-block: 0.25rem; }
+.destructive-action { border-color: var(--c-danger); background: var(--c-danger); color: #fff; min-height: 2.75rem; }
+.destructive-action:hover, .destructive-action:focus-visible { border-color: var(--c-danger-hover); background: var(--c-danger-hover); color: #fff; }
+.stats-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); }
+.stats-strip > h2 { grid-column: 1 / -1; margin-bottom: 0; }
+.stats-strip .stat-card { min-width: 0; border-top: 1px solid var(--c-line); }
+.stats-strip .stat-card p { overflow-wrap: anywhere; }
+.day-board td:last-child button { box-sizing: border-box; height: 2.75rem; margin: 0; padding-block: 0; }
+.admin-console table { table-layout: auto; }
+.day-schedule table th, .day-schedule table td,
+.admin-console table th, .admin-console table td { white-space: nowrap; }
+@media (min-width: 56rem) {
+    .admin-console .console-table-scroll table { table-layout: fixed; }
+    .admin-console .console-table-scroll :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
+    .admin-console .console-table-scroll table:not(.appointment-table) :is(th, td):last-child { width: 11rem; }
+}
+.day-schedule td:last-child a, .day-board td a, .outbox-filters a { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; }
+.admin-outbox .notification-details summary { min-height: 2.75rem; cursor: pointer; color: var(--c-primary-dark); }
+.admin-outbox .notification-details summary:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: 0.1rem; }
+.admin-outbox .notification-body { margin-block: var(--space-2); overflow-wrap: anywhere; }
+
+.patient-notification { border-top: 1px solid var(--c-line); padding: var(--space-3) 0; }
+.patient-notification summary { cursor: pointer; min-height: 2.75rem; overflow-wrap: anywhere; }
+.patient-notification summary span { font-weight: 700; }
+.patient-notification time { display: inline-block; margin-left: var(--space-3); color: var(--c-muted); }
+.patient-notification .notification-body { margin-top: var(--space-3); overflow-wrap: anywhere; }
+@media (max-width: 42rem) {
+    .patient-notification time { display: block; margin-left: 0; }
+}
+.admin-outbox table { width: 100%; min-width: 44rem; table-layout: fixed; }
+.admin-outbox th, .admin-outbox td { line-height: 1.5; padding: var(--space-2); white-space: normal; overflow-wrap: anywhere; }
+.outbox-date-column { width: 16%; }
+.outbox-recipient-column { width: 27%; }
+.outbox-subject-column { width: 43%; }
+.outbox-status-column { width: 14%; }
+.admin-outbox time span { display: block; }
+.admin-outbox .status-label { color: var(--c-muted); font-weight: 400; }
+
+@media (max-width: 56rem) {
+    .schedule-month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .visit-layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+    .visit-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+    .visit-sidebar > section { margin: 0; }
+}
+@media (max-width: 40rem) {
+    .stats-strip { grid-template-columns: minmax(0, 1fr); }
+    .day-board td { line-height: 2.2; }
+    .day-board-heading { align-items: stretch; flex-direction: column; gap: var(--space-2); }
+    .day-board-filter { flex: auto; grid-template-columns: minmax(0, 1fr) auto; }
+    .day-board-filter label { grid-column: 1 / -1; }
+    .day-board-link-label { display: none; }
+    .day-board-date-controls a { justify-content: center; min-width: 2.75rem; }
+    .schedule-month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .visit-sidebar { grid-template-columns: minmax(0, 1fr); }
+    .console-filters { grid-template-columns: minmax(0, 1fr); }
+    .console-filters h2 { white-space: normal; }
+    .console-filters form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .console-filters form label { min-width: 0; }
+    .console-filters form label:has(input[type="date"]) { grid-column: 1 / -1; }
+    .console-filters form input[type="date"] { box-sizing: border-box; max-width: 100%; min-width: 0; width: 100%; }
+    .console-filters form label:first-child, .console-filters form button { grid-column: 1 / -1; }
+}
+
+/* Booking and appointment views */
+#reason::placeholder { color: var(--c-muted); opacity: 1; }
+.booking-filters.booking-filters { display: grid; grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr) minmax(10rem, 13rem); align-items: start; gap: var(--space-3); }
+.booking-filters > p { margin: 0; }
+.booking-filters select { width: 100%; }
+.booking-date-filter { min-width: 0; }
+.booking-filter-label { display: block; margin-bottom: 0.25rem; font-weight: 700; }
+.booking-date-filter .booking-days { margin-bottom: 0; }
+.booking-date-filter .booking-time-filter { margin-top: var(--space-1); }
+.booking-filters :is(button, summary):focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.booking-filters :is(button, summary):focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: 0.15rem; box-shadow: none; border-radius: var(--radius-control); }
+.booking-results .slot-choice:focus-visible + .slot-time { outline-color: var(--c-primary); border-radius: var(--radius-control); }
+.booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
+.booking-filters p { flex: 1 1 10rem; min-width: 0; margin: 0; }
+.booking-filters button { min-height: 2.75rem; }
+.booking-time-filter { flex: 1 1 18rem; min-width: 0; }
+.booking-time-filter summary { cursor: pointer; padding-block: 0.65rem; color: var(--c-primary-dark); }
+.booking-time-fields { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.booking-time-filter:not([open]) .booking-time-fields { display: none; }
+.booking-time-fields p { flex: 1 1 7rem; }
+.booking-days { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+/* All seven days wrap onto as many rows as they need, so no day is ever clipped or hidden off-screen. */
+.day-tabs { display: flex; flex-wrap: wrap; min-width: 0; max-width: 100%; flex: 1; gap: 0.35rem; padding: 0 0 var(--space-2); margin: 0; }
+.day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); border-radius: var(--radius-control); text-decoration: none; }
+.day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
+.booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
+.booking-doctor { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
+.booking-doctor img { flex: 0 0 5.5rem; width: 5.5rem; height: 5.5rem; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
+.booking-doctor h2 { margin: 0 0 0.2rem; font-size: 1.3rem; }
+.booking-doctor p { margin: 0; }
+.booking-slots { min-width: 0; }
+.booking-slots > p { margin-bottom: var(--space-2); }
+.schedule-grid { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); align-items: start; }
+.schedule-grid .slot { min-height: 2.75rem; border: 1px solid var(--c-line); padding: var(--space-2); }
+.schedule-grid .slot.free { background: #e7f2ed; border-color: var(--c-success); }
+.schedule-grid .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.schedule-grid .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.schedule-grid .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.schedule-grid .slot-time, .schedule-grid .slot-state { display: block; }
+.schedule-grid .slot-state { font-weight: 700; }
+.schedule-grid .slot-booking summary { display: flex; min-height: 2.75rem; align-items: center; cursor: pointer; color: var(--c-primary-dark); font-weight: 700; }
+.schedule-grid .slot-booking[open] summary { margin-bottom: var(--space-2); }
+.schedule-grid .slot form { margin-top: var(--space-2); }
+.schedule-grid .slot form p { margin-bottom: 0.5rem; }
+.schedule-grid .slot form input { margin-bottom: var(--space-2); }
+.schedule-grid .slot button { width: 100%; min-height: 2.75rem; }
+.slot-list .slot { border: 1px solid var(--c-line); }
+.slot-list .slot.free { background: #e7f2ed; border-color: var(--c-success); }
+.slot-list .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.doctor-profile .slot a { background: #e7f2ed; border: 1px solid var(--c-success); }
+.appointments { margin-block: var(--space-5); }
+.appointments table { border-top: 1px solid var(--c-line); }
+.appointments th { background: var(--c-surface-band); }
+.appointments th, .appointments td { padding-block: 0; line-height: 2.25rem; }
+.appointments td { vertical-align: middle; }
+.appointments td:last-child { white-space: nowrap; }
+.appointments td:last-child form { display: inline; margin: 0; }
+.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-button-background); border-radius: var(--radius-control); background: var(--c-button-background); color: var(--c-button-foreground); text-decoration: none; }
+.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:focus, .appointment-action:active { color: var(--c-button-foreground); }
+.appointment-action:hover, .appointment-action:focus, .appointment-action:active { background: var(--c-button-background-hover); }
+.appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
+.visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
+.empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
+.schedule-grid .slot.blocked, .slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
+.schedule-grid .slot.past, .slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
+.schedule-grid .slot-booking:not([open]) > form { display: none; }
+.schedule-grid .slot-booking[open] > form { display: block; }
+@media (max-width: 56rem) { .booking-results { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 40rem) {
+    .booking-filters.booking-filters { grid-template-columns: minmax(0, 1fr); }
+    .booking-filters > p, .booking-time-filter[open] { grid-column: 1; }
+    .booking-filters button { padding-inline: var(--space-2); }
+    .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
+    .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
+}
+@media (max-width: 56rem) {
+    .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+    .doctor-profile-identity { grid-row: auto; }
+    .doctor-profile-portrait { max-width: 14rem; }
+}
+@media (max-width: 40rem) {
+    .doctor-specialty-content { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* A time selection shares one confirmation form instead of expanding each cell. */
+.booking-slots .slot-booking > form { margin: 0; }
+.booking-slots .schedule-grid .slot.free { position: relative; padding: 0; }
+.booking-slots .slot-choice { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.booking-slots .slot.free .slot-time { display: flex; align-items: center; min-height: 2.75rem; padding: var(--space-2); margin: 0; color: var(--c-primary-dark); font-weight: 700; }
+.booking-slots .slot-choice:checked + .slot-time { background: var(--c-primary); color: var(--c-button-foreground); }
+.booking-slots .slot-choice:focus-visible + .slot-time { outline: 0.2rem solid var(--c-accent); outline-offset: 0.2rem; }
+.booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
+.booking-confirmation h3 { margin-top: 0; }
+.booking-form-actions { margin-top: var(--space-3); }
+
+/* One time cell can be covered by several clinicians. The list is the booking choice. */
+.booking-results .booking-doctor { display: block; padding: var(--space-3); }
+.booking-doctor h2 { font-size: 1.25rem; }
+.booking-doctor > p { margin: 0 0 var(--space-1); }
+.booking-doctor-instruction { color: var(--c-muted); }
+.booking-doctor-list { margin-top: var(--space-2); border-top: 1px solid var(--c-line); }
+.booking-doctor-option { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-bottom: 1px solid var(--c-line); cursor: pointer; }
+.booking-doctor-option[hidden], .booking-slots .slot[hidden] { display: none; }
+.booking-doctor-option input { flex: 0 0 auto; accent-color: var(--c-primary); border-radius: 50%; }
+.booking-doctor-option img { flex: 0 0 3.5rem; width: 3.5rem; height: 3.5rem; object-fit: cover; border-radius: 50%; }
+.booking-doctor-option span { min-width: 0; }
+.booking-doctor-option strong, .booking-doctor-option small { display: block; }
+.booking-doctor-option small { color: var(--c-muted); }
+.booking-doctor-option:focus-within { border-radius: var(--radius-control); }
+.booking-slots .slot-doctors { display: block; padding: 0 var(--space-2) var(--space-2); font-size: 0.9rem; line-height: 1.3; }
+.booking-slots .slot-doctors span { display: block; }
+.booking-confirmation button:disabled { opacity: 0.55; cursor: not-allowed; }
+.schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
+
+/* Shared keyboard ring for form controls and the booking date picker. */
+:is(input, select, textarea, .day-tab):focus:not(:focus-visible) { outline: none; box-shadow: none; }
+:is(input, select, textarea, .day-tab):focus-visible {
+    outline: 0.2rem solid var(--c-focus-ring);
+    outline-offset: 0.15rem;
+    box-shadow: none;
+}
+
+#registration-form #confirm-password[aria-invalid="true"] { border-color: var(--c-danger); }
+
+/* Doctor schedule: weekday calendar first, generation follows the working day. */
+#schedule-editor .schedule-month-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#schedule-editor .schedule-weekday { padding: var(--space-2); border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: var(--c-surface-band); text-align: center; font-weight: 700; }
+#schedule-editor .schedule-calendar-gap { border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: var(--c-surface-band); }
+#schedule-editor .schedule-day { padding: var(--space-1); text-align: center; }
+#schedule-editor .schedule-day a { display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 2.75rem; color: var(--c-primary-dark); line-height: 1.3; }
+#schedule-editor .calendar-month { display: inline; }
+#schedule-editor .calendar-slot-total { display: block; font-weight: 400; text-decoration: none; }
+#schedule-editor .schedule-day.no-slots { background: var(--c-surface-band); color: var(--c-muted); }
+#schedule-editor .schedule-day.no-slots a { color: var(--c-muted); }
+#schedule-editor .schedule-day.selected { background: var(--c-primary); color: var(--c-button-foreground); }
+#schedule-editor .schedule-day.selected a { color: var(--c-button-foreground); font-weight: 700; }
+#schedule-editor .schedule-date-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+#schedule-editor .schedule-date-filter label { margin: 0; }
+#schedule-editor .schedule-date-filter input[type="date"] { width: auto; min-width: 0; }
+#schedule-editor .day-view { margin-top: var(--space-3); }
+#schedule-editor .schedule-day-counts { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+#schedule-editor .slot-list .slot { padding: var(--space-2); }
+#schedule-editor .slot-time, #schedule-editor .slot-status { display: block; }
+#schedule-editor .slot form { margin-top: var(--space-2); }
+#schedule-editor .slot button { width: 100%; }
+#schedule-editor .schedule-generator { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--c-line); }
+#schedule-editor .schedule-generator form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); align-items: end; }
+#schedule-editor .generator-field { min-width: 0; }
+#schedule-editor .generator-start, #schedule-editor .days-to-skip { grid-column: 1 / -1; margin: 0; }
+#schedule-editor .days-to-skip { padding: var(--space-1) var(--space-2); border: 1px solid var(--c-line); }
+#schedule-editor .days-to-skip summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+#schedule-editor .days-to-skip fieldset { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-top: var(--space-1); padding: var(--space-1); border: 0; }
+#schedule-editor .days-to-skip label { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; min-height: 2.75rem; }
+#schedule-editor .schedule-generator button { justify-self: start; }
+.schedule-generator { scroll-margin-top: 1rem; }
+.elapsed-slots { margin-block: var(--space-3); border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+.elapsed-slots summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+.elapsed-slots > p { margin-block: var(--space-1) var(--space-2); }
+@media (max-width: 40rem) {
+    #schedule-editor .schedule-weekday { padding: var(--space-1) 0; }
+    #schedule-editor .schedule-day { padding-inline: 0; }
+    #schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #schedule-editor .schedule-generator button { grid-column: 1 / -1; }
+    #schedule-editor .schedule-generator { margin-top: 0; padding-top: 0; border-top: 0; }
+    #schedule-editor .day-view { margin-top: 0; }
+    #schedule-editor .schedule-generator form { gap: var(--space-1) var(--space-2); }
+}
+@media (max-width: 22.5rem) {
+    #schedule-editor .schedule-month-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    #schedule-editor .schedule-weekday, #schedule-editor .schedule-calendar-gap { display: none; }
+    #schedule-editor .schedule-day a { min-width: 2.75rem; }
+}
+/* Narrow screens keep the useful fields together in semantic, labelled rows. */
+@media (max-width: 30rem) {
+    .doctor-directory { min-width: 0; display: block; }
+    .doctor-directory caption { display: block; text-align: left; }
+    .doctor-directory thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .doctor-directory tbody { display: grid; gap: var(--space-3); }
+    .doctor-directory tbody tr { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr); align-items: center; border-bottom: 1px solid var(--c-line); padding: var(--space-2) 0; }
+    .doctor-directory tbody :is(th, td) { min-width: 0; padding: 0.3rem 0.5rem; white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+    .doctor-directory tbody td:first-child { grid-column: 1; grid-row: 1 / span 2; }
+    .doctor-directory .doctor-photo { width: 3.5rem; min-width: 3.5rem; height: 3.5rem; }
+    .doctor-directory tbody th[scope="row"] { grid-column: 2; white-space: normal; }
+    .doctor-directory tbody th[scope="row"] a { color: var(--c-primary-dark); text-decoration: underline; text-underline-offset: 0.15em; }
+    .doctor-directory tbody td:nth-child(n+4) { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(6.5rem, 0.75fr) minmax(0, 1fr); gap: var(--space-2); }
+    .doctor-directory tbody td:nth-child(n+4)::before { content: attr(data-label); color: var(--c-muted); font-weight: 700; }
+    .doctor-directory tbody td[data-label="Booking"] { display: flex; justify-content: flex-end; }
+    .doctor-directory-book { min-width: 5rem; }
+
+    .staff-table-scroll, .appointment-table-scroll, .outbox-table-scroll { overflow: visible; }
+    .day-board, .appointment-table-scroll:not(.is-empty) table, .admin-outbox table { display: block; min-width: 0; width: 100%; }
+    .day-board thead, .appointment-table-scroll:not(.is-empty) thead, .admin-outbox thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .day-board tbody, .appointment-table-scroll:not(.is-empty) tbody, .admin-outbox tbody { display: grid; gap: var(--space-3); }
+    .day-board tbody tr, .appointment-table-scroll:not(.is-empty) tbody tr, .admin-outbox tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-3); border-bottom: 1px solid var(--c-line); padding-block: var(--space-2); }
+    .day-board td, .appointment-table-scroll:not(.is-empty) td, .admin-outbox td { min-width: 0; height: auto; padding: 0.35rem 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+    .day-board td::before, .appointment-table-scroll:not(.is-empty) td::before, .admin-outbox td::before { display: block; margin-bottom: 0.15rem; color: var(--c-muted); font-size: 0.9rem; font-weight: 700; content: attr(data-label); }
+    .day-board td[data-label="Actions"], .appointment-table-scroll:not(.is-empty) td[data-label="Actions"], .appointment-table-scroll:not(.is-empty) td[data-label="Visit notes"] { grid-column: 1 / -1; }
+    .day-board td[data-label="Actions"] a, .day-board td[data-label="Actions"] button, .appointment-table-scroll:not(.is-empty) td[data-label="Actions"] a, .appointment-table-scroll:not(.is-empty) td[data-label="Actions"] button, .appointment-table-scroll:not(.is-empty) td[data-label="Visit notes"] a { margin: 0.15rem; }
+    .day-board td:last-child { min-width: 0; }
+    .admin-outbox tbody tr { grid-template-columns: minmax(0, 1fr) auto; }
+    .admin-outbox td[data-label="Sent at"], .admin-outbox td[data-label="Recipient"] { grid-column: 1 / -1; }
+    .admin-outbox td[data-label="Subject"] { grid-column: 1; }
+    .admin-outbox td[data-label="Delivery status"] { grid-column: 2; align-self: end; text-align: right; }
+    .admin-outbox .notification-details summary { overflow-wrap: anywhere; }
+}
+
+/* Schedule editor: pick a day first, then act on its hours or availability. */
+#schedule-editor { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(19rem, 0.8fr); gap: var(--space-4) var(--space-5); align-items: start; }
+#schedule-editor > .page-intro, #schedule-editor > .flash, #schedule-editor > .month-grid { grid-column: 1 / -1; }
+#schedule-editor > .month-grid { grid-row: 2; min-width: 0; }
+#schedule-editor > .day-view { grid-column: 1; grid-row: 3; min-width: 0; margin: 0; }
+#schedule-editor > .schedule-generator { grid-column: 2; grid-row: 3; min-width: 0; margin: var(--space-4) 0 0; padding: 0 0 0 var(--space-4); border-top: 0; border-left: 1px solid var(--c-line); }
+#schedule-editor .page-intro { margin-bottom: 0; }
+#schedule-editor .page-intro p { max-width: 48rem; margin: var(--space-1) 0 0; }
+#schedule-editor :is(.month-grid, .day-view, .schedule-generator) h2 { margin-bottom: var(--space-1); }
+#schedule-editor .schedule-section-help { margin: 0 0 var(--space-3); color: var(--c-muted); }
+#schedule-editor .schedule-date-filter { margin-bottom: var(--space-2); }
+#schedule-editor .schedule-date-filter .required-note { display: none; }
+#schedule-editor .schedule-legend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); list-style: none; margin: 0 0 var(--space-2); padding: 0; }
+#schedule-editor .schedule-legend li { display: inline-flex; align-items: center; gap: var(--space-1); }
+#schedule-editor .schedule-legend li::before { content: ''; width: 0.7rem; height: 0.7rem; display: inline-block; border-radius: 50%; background: var(--c-line); }
+#schedule-editor .schedule-legend li.available::before, #schedule-editor .calendar-state-line .available { background: var(--c-success); }
+#schedule-editor .schedule-legend li.booked::before, #schedule-editor .calendar-state-line .booked { background: var(--c-accent); }
+#schedule-editor .schedule-legend li.blocked::before, #schedule-editor .calendar-state-line .blocked { background: var(--c-ink); }
+#schedule-editor .schedule-day a { gap: 0.15rem; text-decoration: none; }
+#schedule-editor .calendar-state-line { display: flex; width: 70%; height: 0.25rem; overflow: hidden; background: var(--c-line); }
+#schedule-editor .calendar-state-line i { height: 100%; }
+#schedule-editor .schedule-day:not(.selected) a:hover { background: var(--c-surface-band); }
+#schedule-editor .schedule-day a:focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: -0.2rem; border-radius: var(--radius-control); }
+#schedule-editor .slot-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); padding: 0; }
+#schedule-editor .slot-list .slot { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 0 var(--space-2); min-width: 0; border: 1px solid var(--c-line); padding: var(--space-2); }
+#schedule-editor .slot-list .slot.free { background: #e7f2ed; }
+#schedule-editor .slot-list .slot.taken { background: #f7e7e2; }
+#schedule-editor .slot-list .slot.blocked { background: var(--c-surface-band); }
+#schedule-editor .slot-list .slot.past { background: var(--c-paper); }
+#schedule-editor .slot-list .slot-status { min-width: 0; text-align: right; }
+#schedule-editor .slot-list .slot form, #schedule-editor .slot-list .slot-readonly { grid-column: 1 / -1; }
+#schedule-editor .slot-list .slot form { margin: var(--space-2) 0 0; }
+#schedule-editor .slot-list .slot button { width: auto; min-height: 2.5rem; }
+#schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 0.4rem; }
+#schedule-editor .schedule-generator .required-note { margin: 0; }
+#schedule-editor .generator-start { color: var(--c-muted); }
+#schedule-editor .days-to-skip { min-width: 0; }
+#schedule-editor .days-to-skip summary, #schedule-editor .days-to-skip label { min-height: 2rem; }
+#schedule-editor .days-to-skip summary { justify-content: space-between; gap: var(--space-1); }
+#schedule-editor .days-to-skip fieldset { flex-wrap: wrap; }
+#schedule-editor .schedule-generator button { grid-column: 1 / -1; }
+@media (max-width: 56rem) {
+    #schedule-editor { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+    #schedule-editor > .month-grid, #schedule-editor > .day-view, #schedule-editor > .schedule-generator { grid-column: 1; grid-row: auto; }
+    #schedule-editor > .page-intro { order: 0; }
+    #schedule-editor > .month-grid { order: 1; }
+    #schedule-editor > .day-view { order: 2; }
+    #schedule-editor > .schedule-generator { order: 3; }
+    #schedule-editor > .schedule-generator { margin-top: 0; padding: var(--space-4) 0 0; border-left: 0; border-top: 1px solid var(--c-line); }
+}
+@media (max-width: 40rem) {
+    #schedule-editor .slot-list { grid-template-columns: minmax(0, 1fr); }
+    #schedule-editor .schedule-day a { font-size: 0.9rem; }
+    #schedule-editor .calendar-state-line { width: 80%; }
+    #schedule-editor .days-to-skip fieldset { flex-wrap: wrap; overflow: visible; }
+}
+/* Keep older table-wide nowrap rules from forcing mobile cards wider. */
+@media (max-width: 30rem) {
+    .day-schedule .day-board { min-width: 0; }
+    .day-schedule .day-board th, .day-schedule .day-board td,
+    .appointments .appointment-table-scroll:not(.is-empty) th,
+    .appointments .appointment-table-scroll:not(.is-empty) td,
+    .admin-outbox th, .admin-outbox td { white-space: normal; }
+    .day-schedule .day-board td:last-child { min-width: 0; }
+}
+
+
+/* Printable consultation slip and medical certificate (#210) */
+.visit-notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.visit-notes-header h2 {
+    margin: 0;
+}
+
+.print-slip-button {
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .print-slip-button {
+        transition: none;
+    }
+}
+
+.medical-slip {
+    background: var(--c-surface-tile);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-tile);
+    padding: var(--space-4);
+}
+
+.slip-header {
+    border-bottom: 2px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-letterhead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.slip-logo {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.slip-clinic-details {
+    line-height: 1.35;
+}
+
+.slip-clinic-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--c-ink);
+}
+
+.slip-clinic-address {
+    font-style: normal;
+    font-size: 0.9rem;
+    color: var(--c-muted);
+    margin: 0.15rem 0 0;
+}
+
+.slip-clinic-tel {
+    font-size: 0.9rem;
+    color: var(--c-muted);
+    margin: 0.15rem 0 0;
+}
+
+.slip-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin: var(--space-3) 0 0;
+    color: var(--c-ink);
+    letter-spacing: 0.01em;
+}
+
+.slip-metadata {
+    border-bottom: 1px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+}
+
+.slip-meta-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    font-size: 0.95rem;
+}
+
+.slip-label {
+    font-weight: 600;
+    color: var(--c-muted);
+}
+
+.slip-value {
+    color: var(--c-ink);
+}
+
+.slip-findings {
+    border-bottom: 1px solid var(--c-line);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.slip-section-heading {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 var(--space-2);
+    color: var(--c-ink);
+}
+
+.slip-findings-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.slip-finding-item p {
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.slip-finding-item strong {
+    color: var(--c-ink);
+}
+
+.slip-footer {
+    margin-top: var(--space-4);
+}
+
+.slip-validation {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.slip-signature-block {
+    min-width: 14rem;
+}
+
+.slip-signature-line {
+    border-bottom: 1px solid var(--c-ink);
+    height: 2.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.slip-signature-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--c-muted);
+    margin: 0;
+}
+
+.slip-doctor-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--c-ink);
+    margin: 0.2rem 0 0;
+}
+
+.slip-stamp-block {
+    text-align: center;
+}
+
+.slip-stamp-placeholder {
+    width: 7.5rem;
+    height: 5.5rem;
+    border: 1px dashed var(--c-line);
+    border-radius: var(--radius-control);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-muted);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 40rem) {
+    .slip-meta-grid { grid-template-columns: minmax(0, 1fr); }
+    .visit-notes-header { flex-direction: column; align-items: flex-start; }
+    .print-slip-button { width: 100%; }
+    .slip-validation { flex-direction: column; align-items: flex-start; }
+}
+
+@media print {
+    @page {
+        margin: 1.5cm;
+    }
+
+    body:has(.medical-slip) .site-header,
+    body:has(.medical-slip) .site-nav,
+    body:has(.medical-slip) .site-footer,
+    body:has(.medical-slip) .page-intro,
+    body:has(.medical-slip) .upcoming-appointments,
+    body:has(.medical-slip) .past-appointments,
+    body:has(.medical-slip) .cancelled-appointments,
+    body:has(.medical-slip) .patient-notifications,
+    body:has(.medical-slip) .flash,
+    body:has(.medical-slip) .skip-link,
+    body:has(.medical-slip) .print-slip-button,
+    body:has(.medical-slip) .table-scroll-hint,
+    body:has(.medical-slip) .visit-notes-header {
+        display: none;
+    }
+
+    body,
+    main,
+    #appointments,
+    .visit-notes {
+        background: #ffffff;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+    }
+
+    .medical-slip {
+        display: block;
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 0;
+        padding: 1.5rem;
+        margin: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .medical-slip * {
+        color: #000000;
+    }
+
+    .medical-slip .slip-logo {
+        filter: grayscale(100%);
+    }
+
+    .slip-header {
+        display: block;
+        border-bottom: 2px solid #000000;
+    }
+
+    .slip-metadata,
+    .slip-findings {
+        border-bottom: 1px solid #000000;
+    }
+
+    .slip-title,
+    .slip-section-heading {
+        font-family: var(--font-display);
+        color: #000000;
+    }
+
+    .slip-signature-line {
+        border-bottom: 1px solid #000000;
+    }
+
+    .slip-stamp-placeholder {
+        border: 1px dashed #000000;
+    }
+}

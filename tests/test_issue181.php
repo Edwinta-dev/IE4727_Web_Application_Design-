@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$css = file_get_contents(__DIR__ . '/../clinic-base/assets/css/style.css');
+$css = file_get_contents(__DIR__ . '/../clinic-base/assets/style.css');
 $tokens = file_get_contents(__DIR__ . '/../clinic-base/assets/tokens.css');
 assert_true($css !== false && $tokens !== false, 'focus stylesheets are readable');
 

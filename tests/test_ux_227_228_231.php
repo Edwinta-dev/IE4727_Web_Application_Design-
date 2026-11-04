@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // #227 shared title spacing, #228 admin date range in the site date format, #231 "Awaiting outcome" help.
 $root = dirname(__DIR__) . '/clinic-base/';
-$css = (string) file_get_contents($root . 'assets/css/style.css');
+$css = (string) file_get_contents($root . 'assets/style.css');
 assert_true(preg_match('/^main > \.page-intro:first-child\s*\{\s*padding-top:\s*var\(--space-4\)/m', $css) === 1, 'every first page intro gets the same top gap');
 assert_true(strpos($css, '.page-intro-spaced') === false, 'per-page spacing class removed');
 foreach (['screens/book.php', 'screens/register.php'] as $file) {
