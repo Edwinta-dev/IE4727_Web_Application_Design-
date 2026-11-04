@@ -24,9 +24,9 @@ if (count($criteria) !== 32 || $criteria !== array_map(static fn (int $n): strin
 }
 
 $requiredPages = [
-    'index.php', 'doctors.php', 'doctor.php', 'book.php', 'register.php',
-    'patient/home.php', 'doctor/home.php', 'doctor/schedule.php',
-    'doctor/visit.php', 'admin/console.php', 'admin/outbox.php',
+    'screens/index.php', 'screens/doctors.php', 'screens/doctor.php', 'screens/book.php', 'screens/register.php',
+    'screens/patient/home.php', 'screens/doctor/home.php', 'screens/doctor/schedule.php',
+    'screens/doctor/visit.php', 'screens/admin/console.php', 'screens/admin/outbox.php',
 ];
 foreach ($requiredPages as $page) {
     if (strpos($matrix, '`' . $page . '`') === false || strpos($pages, '`' . $page . '`') === false) {

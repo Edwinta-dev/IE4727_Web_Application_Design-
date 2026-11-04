@@ -13,7 +13,7 @@ await withTestServer(true, async base => {
       const height = width === 390 ? 844 : 800;
       const page = await browser.newPage({ viewport: { width, height } });
       try {
-        for (const path of ['index.php', 'doctors.php', 'book.php', 'register.php']) {
+        for (const path of ['index.php', 'screens/doctors.php', 'screens/book.php', 'screens/register.php']) {
           await visit(page, path, base);
           const links = page.locator('#site-navigation a');
           const labels = await links.allTextContents();
@@ -21,7 +21,7 @@ await withTestServer(true, async base => {
           assert.equal(labels[register + 1], 'Log in', `${path} at ${width}px: Log in follows Register`);
           const logIn = links.filter({ hasText: /^Log in$/ });
           assert.equal(await logIn.getAttribute('href'), '/clinic-base/index.php#login-card');
-          if (path !== 'doctors.php') continue;
+          if (path !== 'screens/doctors.php') continue;
           if (width === 390) await page.getByRole('button', { name: 'Menu' }).click();
           await logIn.click();
           await page.waitForURL('**/index.php#login-card');

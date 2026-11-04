@@ -20,7 +20,7 @@ try {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
       await login(page, 'doctor', base);
-      const route = `${base}doctor/visit.php?appt=${seed.visits.current}`;
+      const route = `${base}screens/doctor/visit.php?appt=${seed.visits.current}`;
       const history = page.locator('.patient-history');
       const verifyHistory = async saved => {
         const records = history.locator('.visit-history-record');
@@ -67,21 +67,21 @@ try {
       }
       await capture('saved-refresh');
       if (!baseline) {
-        await page.goto(`${base}doctor/visit.php?appt=${seed.visits.earliest}`);
+        await page.goto(`${base}screens/doctor/visit.php?appt=${seed.visits.earliest}`);
         check(await history.locator('.visit-history-record').count() === 0 && (await history.innerText()).includes('No previous visits recorded'), 'Honest empty history missing');
         await capture('empty');
         const token = await page.locator('input[name="_csrf"]').first().inputValue();
-        const foreignGet = await page.goto(`${base}doctor/visit.php?appt=${seed.visits.foreign_doctor}`);
+        const foreignGet = await page.goto(`${base}screens/doctor/visit.php?appt=${seed.visits.foreign_doctor}`);
         check(foreignGet.status() === 404 && !(await page.locator('body').innerText()).includes('History foreign_doctor'), 'Foreign doctor GET leaks data');
-        const foreignPost = await context.request.post(`${base}doctor/visit.php`, { form: { _csrf: token, appointment_id: String(seed.visits.foreign_doctor), Diagnosis: 'Unauthorized' } });
+        const foreignPost = await context.request.post(`${base}screens/doctor/visit.php`, { form: { _csrf: token, appointment_id: String(seed.visits.foreign_doctor), Diagnosis: 'Unauthorized' } });
         check(foreignPost.status() === 404, 'Foreign doctor POST permitted');
         const patientContext = await browser.newContext({ javaScriptEnabled: false });
         const patientPage = await patientContext.newPage();
         await login(patientPage, 'patient', base);
-        await patientPage.goto(`${base}patient/home.php?view=${seed.visits.current}`);
+        await patientPage.goto(`${base}screens/patient/home.php?view=${seed.visits.current}`);
         const notes = await patientPage.locator('.visit-notes').innerText();
         for (const value of ['Saved diagnosis', 'Saved treatment', 'Saved prescription', 'Follow-up: Yes', 'Reason current', 'Saved doctor remarks']) check(notes.includes(value), `Patient notes missing ${value}`);
-        await patientPage.goto(`${base}patient/home.php?view=${seed.visits.foreign_patient}`);
+        await patientPage.goto(`${base}screens/patient/home.php?view=${seed.visits.foreign_patient}`);
         check(await patientPage.locator('.visit-notes').count() === 0, 'Foreign patient notes visible');
         const patientDenied = await patientContext.request.get(route, { maxRedirects: 0 });
         check(patientDenied.status() === 302 && patientDenied.headers().location.includes('/index.php?next='), 'Patient doctor-visit request was not redirected by the guard');

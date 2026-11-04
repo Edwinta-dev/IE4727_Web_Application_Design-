@@ -27,7 +27,7 @@ await withTestServer(true, async (base) => {
           }
         });
 
-        await page.goto(`${base}doctors.php`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/doctors.php`, { waitUntil: 'networkidle' });
 
         const searchInput = page.locator('#doctor-search');
         const emptyMessage = page.locator('#doctor-search-empty');
@@ -120,7 +120,7 @@ await withTestServer(true, async (base) => {
     {
       const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
       try {
-        await page.goto(`${base}doctors.php?specialty=No+such+specialty`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/doctors.php?specialty=No+such+specialty`, { waitUntil: 'networkidle' });
         assert.equal(await page.locator('.doctor-directory tbody tr.empty-state').count(), 1);
         assert.ok(await page.locator('.doctor-directory tbody tr.empty-state').isVisible());
         assert.ok(await page.locator('#doctor-search-empty').isHidden());
@@ -136,7 +136,7 @@ await withTestServer(true, async (base) => {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage({ viewport: { width: 1280, height: 800 } });
       try {
-        await page.goto(`${base}doctors.php`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/doctors.php`, { waitUntil: 'networkidle' });
         const rows = page.locator('.doctor-directory tbody tr');
         assert.ok((await rows.count()) >= 5, 'Server-rendered doctor rows present without JS');
         assert.equal(await page.locator('#specialty').count(), 1, 'Specialty select exists without JS');
@@ -155,7 +155,7 @@ await withTestServer(true, async (base) => {
       const page = await browser.newPage({ viewport: { width, height } });
       try {
         await login(page, 'patient', base);
-        await page.goto(`${base}patient/home.php`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/patient/home.php`, { waitUntil: 'networkidle' });
         assert.equal(await page.locator('.medical-slip').count(), 0, `[${width}px] Normal appointments page has no summary`);
         await page.emulateMedia({ media: 'print' });
         for (const selector of ['.upcoming-appointments', '.past-appointments']) {
@@ -165,7 +165,7 @@ await withTestServer(true, async (base) => {
         }
         await page.emulateMedia({ media: 'screen' });
 
-        await page.goto(`${base}patient/home.php?view=2`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/patient/home.php?view=2`, { waitUntil: 'networkidle' });
 
         // Section & Print button verification
         const visitNotes = page.locator('.visit-notes');
@@ -255,12 +255,12 @@ await withTestServer(true, async (base) => {
         await page.emulateMedia({ media: 'screen' });
 
         // Patient isolation check: appointment belonging to another patient
-        await page.goto(`${base}patient/home.php?view=3`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/patient/home.php?view=3`, { waitUntil: 'networkidle' });
         assert.equal(await page.locator('.medical-slip').count(), 0, `[${width}px] Cross-patient appointment renders no slip`);
         assert.equal(await page.locator('.print-slip-button').count(), 0, `[${width}px] Cross-patient appointment renders no print button`);
 
         // Non-existent appointment view check
-        await page.goto(`${base}patient/home.php?view=999999`, { waitUntil: 'networkidle' });
+        await page.goto(`${base}screens/patient/home.php?view=999999`, { waitUntil: 'networkidle' });
         assert.equal(await page.locator('.medical-slip').count(), 0, `[${width}px] Non-existent appointment renders no slip`);
         assert.equal(await page.locator('.print-slip-button').count(), 0, `[${width}px] Non-existent appointment renders no print button`);
       } finally {

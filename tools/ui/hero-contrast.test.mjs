@@ -80,7 +80,7 @@ await withTestServer(true, async base => {
     await visit(zoom, 'index.php', base);
     await zoom.screenshot({ path: resolve(directory, 'desktop-200percent-zoom.png'), fullPage: true });
     await login(page, 'patient', base);
-    assert.ok(page.url().endsWith('/patient/home.php'), 'Existing member login still works');
+    assert.ok(page.url().endsWith('/screens/patient/home.php'), 'Existing member login still works');
   } finally {
     await browser.close();
     await writeFile(resolve(directory, 'contrast.json'), JSON.stringify(results, null, 2));

@@ -21,7 +21,7 @@ await withTestServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, `book.php?doctor=1&date=${date}`, base);
+        await visit(page, `screens/book.php?doctor=1&date=${date}`, base);
         const reason = page.locator('#reason');
         assert.ok(await reason.isVisible(), 'Reason field is visible');
         assert.equal(await reason.getAttribute('placeholder'), 'e.g. Cough and mild fever for 3 days');

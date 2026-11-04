@@ -14,7 +14,7 @@ await withTestServer(true, async () => {
     try {
         const page = await browser.newPage();
         await login(page, 'doctor', appBase);
-        await page.goto(`${appBase}doctor/schedule.php?date=${fixture.day}`);
+        await page.goto(`${appBase}screens/doctor/schedule.php?date=${fixture.day}`);
         assert.equal(await page.getByRole('heading', { name: 'Set working hours' }).count(), 1);
         assert.equal(await page.getByRole('heading', { name: /Block time on/ }).count(), 1);
         assert.equal(await page.locator('.schedule-legend li').count(), 4);

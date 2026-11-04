@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/doctor/home.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/doctor/home.php');
 $action = file_get_contents(dirname(__DIR__) . '/clinic-base/actions/appointment.php');
-$book = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
+$book = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/book.php');
 if ($page === false || $action === false || $book === false) {
     throw new RuntimeException('doctor page or appointment flow could not be read');
 }

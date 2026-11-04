@@ -23,18 +23,18 @@ try {
         try {
           for (const width of [1280, 390]) {
             await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
-            await visit(page, 'doctors.php');
+            await visit(page, 'screens/doctors.php');
             check(await page.locator('.doctor-directory tbody tr').count() === count, 'doctor list count');
             // The clinic exposes five canonical specialties; unknown fixture values are filtered.
             check(await page.locator('#specialty option').count() === Math.min(count, 5) + 1, 'specialty list count');
             const links = await page.locator('.doctor-directory-book').evaluateAll(nodes => nodes.map(n => n.getAttribute('href')));
             const unavailableLinks = await page.locator('.doctor-directory tbody tr').evaluateAll((rows, ids) => rows.filter(row =>
-              ids.some(id => row.querySelector(`a[href$="doctor.php?id=${id}"]`))).map(row => row.querySelectorAll('.doctor-directory-book').length), fixture.unavailable);
+              ids.some(id => row.querySelector(`a[href$="screens/doctor.php?id=${id}"]`))).map(row => row.querySelectorAll('.doctor-directory-book').length), fixture.unavailable);
             measurements.push({ count, width, links, unavailableLinks });
             if (!before) {
               check(unavailableLinks.every(n => n === 0), 'unavailable doctor has a Book link');
               for (const id of fixture.unavailable) {
-                const row = page.locator(`tr:has(a[href$="doctor.php?id=${id}"])`);
+                const row = page.locator(`tr:has(a[href$="screens/doctor.php?id=${id}"])`);
                 check((await row.innerText()).includes('No times in the next seven days'), 'missing availability explanation');
               }
               check(links.every(href => new URL(href, appBase).searchParams.has('doctor') && !href.includes('doctor_id')), 'noncanonical directory URL');
@@ -42,7 +42,7 @@ try {
               await link.click();
               check(await page.locator('#date').inputValue() === fixture.date, 'directory link did not land on next available date');
             }
-            await visit(page, `book.php?doctor_id=${fixture.doctor}&date=${fixture.date}`);
+            await visit(page, `screens/book.php?doctor_id=${fixture.doctor}&date=${fixture.date}`);
             check(await page.locator('#doctor').inputValue() === String(fixture.doctor), 'legacy deep link doctor');
             check(await page.locator('#date').inputValue() === fixture.date, 'legacy deep link date ignored');
             check(await page.locator('.day-tab.selected').count() === 1, 'selected day missing');
@@ -51,7 +51,7 @@ try {
             await page.getByRole('button', { name: 'Show schedule' }).click();
             check(new URL(page.url()).searchParams.get('doctor') === String(fixture.doctor), 'filter lost canonical doctor');
             check(await page.locator('#date').inputValue() === fixture.date, 'filter lost date');
-            await visit(page, 'doctors.php');
+            await visit(page, 'screens/doctors.php');
             // Reveal the action column on narrow screens for visual evidence.
             await page.locator('.table-scroll').evaluate(n => { n.scrollLeft = n.scrollWidth; });
             await page.screenshot({ path: `${out}/doctors-${count}-${width}.png`, fullPage: true });
@@ -61,7 +61,7 @@ try {
               const actorPage = await browser.newPage({ javaScriptEnabled: false });
               try {
                 await login(actorPage, role);
-                await visit(actorPage, `book.php?reschedule=${fixture.appointment}&doctor=${fixture.doctor}&date=${fixture.date}`);
+                await visit(actorPage, `screens/book.php?reschedule=${fixture.appointment}&doctor=${fixture.doctor}&date=${fixture.date}`);
                 check(await actorPage.locator('.slot-booking input[name="actor"]').count() === 0, 'untrusted actor field remains');
                 const token = await actorPage.locator('.slot-booking input[name="_csrf"]').first().inputValue();
                 const response = await actorPage.context().request.post(`${appBase}actions/appointment.php`, { form: {

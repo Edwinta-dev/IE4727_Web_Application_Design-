@@ -84,11 +84,11 @@ await withTestServer(true, async base => {
         }
         measurements.push({ name, ...initial, keyboard, touch });
       }
-      await page.goto(base + 'admin/console.php?status=Future');
+      await page.goto(base + 'screens/admin/console.php?status=Future');
       assert.ok((await page.locator('.appointment-table tbody .status-label').allTextContents()).every(status => status === 'Future'));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width, 'filtered page fits viewport');
       await page.screenshot({ path: `${evidence}/admin-filtered-${width}.png`, fullPage: true });
-      await page.goto(base + 'admin/console.php?doctor=99999999');
+      await page.goto(base + 'screens/admin/console.php?doctor=99999999');
       for (const name of ['Patients', 'Doctors', 'Appointments']) {
         const region = page.getByRole('region', { name, exact: true });
         const empty = await region.evaluate(el => ({ width: el.clientWidth, scroll: el.scrollWidth, columns: el.querySelectorAll('th').length, span: el.querySelector('td').colSpan, text: el.querySelector('.empty-state').getBoundingClientRect().width }));
@@ -99,10 +99,10 @@ await withTestServer(true, async base => {
         measurements.push({ name, viewport: width, empty });
       }
       await page.screenshot({ path: `${evidence}/admin-empty-${width}.png`, fullPage: true });
-      await page.goto(base + 'admin/console.php');
+      await page.goto(base + 'screens/admin/console.php');
     }
     const before = counts();
-    const rejected = await page.context().request.post(base + 'admin/console.php', { form: { action: 'delete_doctor', id: String(fixture.doctor), _csrf: 'invalid' } });
+    const rejected = await page.context().request.post(base + 'screens/admin/console.php', { form: { action: 'delete_doctor', id: String(fixture.doctor), _csrf: 'invalid' } });
     assert.equal(rejected.status(), 419);
     assert.deepEqual(counts(), before, 'CSRF rejection preserves fixture');
     for (const role of ['Doctor', 'Patient']) {
@@ -113,7 +113,7 @@ await withTestServer(true, async base => {
       assert.deepEqual(counts(), unchanged, 'cancel preserves row and dependents');
       page.once('dialog', dialog => dialog.accept());
       await Promise.all([page.waitForNavigation(), button.click()]);
-      assert.ok(page.url().includes('/admin/console.php?'), 'PRG redirect');
+      assert.ok(page.url().includes('/screens/admin/console.php?'), 'PRG redirect');
       assert.ok(await page.getByRole('status').filter({ hasText: `${role} account and its` }).isVisible());
       const current = counts();
       if (role === 'Doctor') assert.ok(current.doctor === 0 && current.slot === 0 && current.doctorAppointment === 0 && current.patient === 1);

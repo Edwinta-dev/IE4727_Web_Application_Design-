@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/doctor/visit.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/doctor/visit.php');
 $appointments = file_get_contents(dirname(__DIR__) . '/clinic-base/models/appointments.php');
 $booking = file_get_contents(dirname(__DIR__) . '/clinic-base/models/booking.php');
 if ($page === false || $appointments === false || $booking === false) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/doctors.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/doctors.php');
 if ($page === false) {
     throw new RuntimeException('doctors page could not be read');
 }

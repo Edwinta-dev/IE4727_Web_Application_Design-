@@ -19,7 +19,7 @@ await withTestServer(true, async () => {
   try {
     const page = await browser.newPage();
     await login(page, 'doctor', appBase);
-    const open = async date => page.goto(`${appBase}doctor/schedule.php?date=${encodeURIComponent(date)}`, { waitUntil: 'networkidle' });
+    const open = async date => page.goto(`${appBase}screens/doctor/schedule.php?date=${encodeURIComponent(date)}`, { waitUntil: 'networkidle' });
     const generate = async (date, days = 1) => {
       await open(date);
       check(await page.locator('#start-date').inputValue() === date, 'generation must use the opened calendar date');
@@ -56,7 +56,7 @@ await withTestServer(true, async () => {
     const noticesBefore = notifications();
     await open(today);
     const token = await page.locator('.schedule-generator input[name="_csrf"]').inputValue();
-    const rejected = await page.context().request.post(`${appBase}doctor/schedule.php`, { form: { _csrf: token, action: 'generate', start_date: day(365), days: '1', start_time: '09:00', end_time: '11:00', slot_length: '30' } });
+    const rejected = await page.context().request.post(`${appBase}screens/doctor/schedule.php`, { form: { _csrf: token, action: 'generate', start_date: day(365), days: '1', start_time: '09:00', end_time: '11:00', slot_length: '30' } });
     check(rejected.ok(), 'out-of-range POST must redirect normally');
     check((await rejected.text()).includes('365-day management window'), 'rejected generation must explain the limit');
     check(count(day(365)) === 0 && notifications() === noticesBefore, 'day beyond limit must create no rows or notices');
@@ -72,7 +72,7 @@ await withTestServer(true, async () => {
     check(notifications() === noticesBefore, 'schedule rejection must not create notifications');
     const noJs = await browser.newPage({ javaScriptEnabled: false });
     await login(noJs, 'doctor', appBase);
-    await noJs.goto(`${appBase}doctor/schedule.php?date=${day(40)}`);
+    await noJs.goto(`${appBase}screens/doctor/schedule.php?date=${day(40)}`);
     check(await noJs.locator('.day-view .slot').count() === before40 + 4, 'day +40 must render without JavaScript');
     await noJs.locator('#schedule-date').fill(day(364));
     await noJs.getByRole('button', { name: 'Show date' }).focus();

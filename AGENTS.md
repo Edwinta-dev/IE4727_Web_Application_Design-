@@ -71,7 +71,7 @@ Permitted stack: **HTML5, CSS3, vanilla JavaScript, PHP, MySQL/MariaDB.** Nothin
 
 ### The page cap — do not break it
 
-The brief allows **one home page plus a maximum of ten additional content pages** — the eleven are listed in `docs/PAGES.md`. **Never create a twelfth page.** If a task seems to need one, comment on the issue instead.
+The brief allows **one home page plus a maximum of ten additional content pages** — the eleven are listed in `docs/PAGES.md`. They live in `clinic-base/screens/`; the root `clinic-base/index.php` is only a one-line stub that includes `screens/index.php`, not a page. **Never create a twelfth page.** If a task seems to need one, comment on the issue instead.
 
 ---
 
@@ -150,7 +150,7 @@ Never commit `config.local.php`, `.env`, anything under `mail/`, or dependency f
 1. **Writes a `notifications` row** — `sender`, **`recipient`** (correct spelling), `Subject`, `Body`, `appointmentID` (when the mail concerns an appointment), `deliveryStatus='logged'`.
 2. *Then* attempts delivery via PHP `mail()`, which XAMPP dumps to disk via `mailtodisk`, and updates `deliveryStatus` to `sent` or `failed`.
 
-Row first, delivery second. If delivery fails the demo still works, because `admin/outbox.php` reads the table, not the mailbox. Delivery failure is logged, never fatal, never shown to the patient.
+Row first, delivery second. If delivery fails the demo still works, because `screens/admin/outbox.php` reads the table, not the mailbox. Delivery failure is logged, never fatal, never shown to the patient.
 
 ---
 

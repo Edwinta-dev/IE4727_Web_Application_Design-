@@ -24,8 +24,8 @@ try {
           await page.waitForLoadState('load');
           await page.screenshot({ path: `${output}/before-${width}-booking.png`, fullPage: true });
           const form = page.locator('.booking-filters');
-          assert.equal(new URL(page.url()).pathname, new URL('book.php', base).pathname);
-          assert.equal(await form.getAttribute('action'), new URL('book.php', base).pathname);
+          assert.equal(new URL(page.url()).pathname, new URL('screens/book.php', base).pathname);
+          assert.equal(await form.getAttribute('action'), new URL('screens/book.php', base).pathname);
           await Promise.all([page.waitForNavigation(), page.locator('#doctor').selectOption('1')]);
           assert.equal(new URL(page.url()).searchParams.get('doctor'), '1');
           assert.equal(await page.locator('.booking-time-filter').count(), 0);
@@ -42,7 +42,7 @@ try {
           await choice.check();
           await page.locator('#reason').fill('Routine health review');
           await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Confirm booking' }).click()]);
-          assert.equal(new URL(page.url()).pathname, new URL('book.php', base).pathname);
+          assert.equal(new URL(page.url()).pathname, new URL('screens/book.php', base).pathname);
           assert.match(await page.locator('body').innerText(), /has been booked/i);
           const booked = php('-r', `require 'clinic-base/lib/db.php'; echo q_val('SELECT COUNT(*) FROM appointment WHERE slotID = ? AND Status = ?', [${Number(slotId)}, 'Future']);`).trim();
           assert.equal(booked, '1');

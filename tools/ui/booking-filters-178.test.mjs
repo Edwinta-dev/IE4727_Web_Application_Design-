@@ -10,7 +10,7 @@ await withTestServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, 'book.php', base);
+        await visit(page, 'screens/book.php', base);
         const today = await page.locator('#date').inputValue();
         assert.equal(await page.locator('#specialty').inputValue(), 'General Practice');
         assert.equal(await page.locator('.day-tab.selected').count(), 1);
@@ -52,7 +52,7 @@ await withTestServer(true, async base => {
 
       const noJs = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, javaScriptEnabled: false });
       try {
-        await visit(noJs, 'book.php', base);
+        await visit(noJs, 'screens/book.php', base);
         assert.ok(await noJs.locator('.booking-filters noscript button').isVisible());
         await noJs.locator('#specialty').selectOption('Dental');
         await noJs.locator('.booking-filters noscript button').click();

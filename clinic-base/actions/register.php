@@ -17,7 +17,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/register.php');
+    redirect('/screens/register.php');
 }
 
 csrf_check();
@@ -85,7 +85,7 @@ if ($errors === [] && user_or_email_taken($data['Email'])) {
 }
 
 if ($errors !== []) {
-    validation_failed($errors, $data, '/register.php');
+    validation_failed($errors, $data, '/screens/register.php');
 }
 
 $savedPhoto = null;
@@ -98,7 +98,7 @@ if ($data['role'] === 'doctor') {
     $savedPhoto = $uploadDir . '/' . $filename;
     if ((!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir))
         || !move_uploaded_file($_FILES['ProfilePhoto']['tmp_name'], $savedPhoto)) {
-        validation_failed(['ProfilePhoto' => 'The profile photo could not be saved. Please try again.'], $data, '/register.php');
+        validation_failed(['ProfilePhoto' => 'The profile photo could not be saved. Please try again.'], $data, '/screens/register.php');
     }
     $data['ImageURL'] = DOCTOR_PHOTO_DIR . '/' . $filename;
 }
@@ -124,7 +124,7 @@ try {
         unlink($savedPhoto);
     }
     $errors = ['User' => 'That username or email is already registered'];
-    validation_failed($errors, $data, '/register.php');
+    validation_failed($errors, $data, '/screens/register.php');
 }
 
 if (!attempt_login($data['User'], $data['password'])) {
@@ -133,4 +133,4 @@ if (!attempt_login($data['User'], $data['password'])) {
 }
 
 flash('Welcome to the Clinic Appointment Portal.', 'success');
-redirect($data['role'] === 'doctor' ? '/doctor/home.php' : '/patient/home.php');
+redirect($data['role'] === 'doctor' ? '/screens/doctor/home.php' : '/screens/patient/home.php');

@@ -20,7 +20,7 @@ for (let reset = 0; reset < 2; reset++) {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
       await login(page, 'doctor', base);
-      const route = `${base}doctor/home.php?date=${seed.pending[0].appointmentDateTime.slice(0, 10)}`;
+      const route = `${base}screens/doctor/home.php?date=${seed.pending[0].appointmentDateTime.slice(0, 10)}`;
       await page.goto(route);
       check(await page.getByRole('link', { name: 'Start visit', exact: true }).count() === 2, 'Both started appointments offer Start visit');
       check(await page.getByRole('button', { name: 'Mark completed', exact: true }).count() === 0, 'Mark completed is no longer a board control (#230)');

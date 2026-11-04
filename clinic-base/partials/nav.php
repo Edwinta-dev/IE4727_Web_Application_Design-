@@ -19,55 +19,55 @@ $navigationRole = is_array($user) ? (string) ($user['role'] ?? '') : '';
 // become a second current tab, and the logout action is never a page.
 $currentTab = match ($navigationRole) {
     'patient' => match ($currentPath) {
-        '/patient/home.php' => '/patient/home.php',
-        '/doctors.php' => '/doctors.php',
-        '/book.php' => '/book.php',
+        '/screens/patient/home.php' => '/screens/patient/home.php',
+        '/screens/doctors.php' => '/screens/doctors.php',
+        '/screens/book.php' => '/screens/book.php',
         default => null,
     },
     'doctor' => match ($currentPath) {
-        '/doctor/home.php' => '/doctor/home.php',
-        '/doctor/schedule.php' => '/doctor/schedule.php',
+        '/screens/doctor/home.php' => '/screens/doctor/home.php',
+        '/screens/doctor/schedule.php' => '/screens/doctor/schedule.php',
         default => null,
     },
     'admin' => match ($currentPath) {
-        '/admin/console.php' => '/admin/console.php',
-        '/admin/outbox.php' => '/admin/outbox.php',
+        '/screens/admin/console.php' => '/screens/admin/console.php',
+        '/screens/admin/outbox.php' => '/screens/admin/outbox.php',
         default => null,
     },
     default => match ($currentPath) {
         '/' => '/index.php',
         '/index.php' => '/index.php',
-        '/doctors.php' => '/doctors.php',
-        '/book.php' => '/book.php',
-        '/register.php' => '/register.php',
+        '/screens/doctors.php' => '/screens/doctors.php',
+        '/screens/book.php' => '/screens/book.php',
+        '/screens/register.php' => '/screens/register.php',
         default => null,
     },
 };
 
 $links = match ($navigationRole) {
     'patient' => [
-        ['label' => 'My appointments', 'href' => '/patient/home.php'],
-        ['label' => 'Find a doctor', 'href' => '/doctors.php'],
-        ['label' => 'Book an appointment', 'href' => '/book.php'],
+        ['label' => 'My appointments', 'href' => '/screens/patient/home.php'],
+        ['label' => 'Find a doctor', 'href' => '/screens/doctors.php'],
+        ['label' => 'Book an appointment', 'href' => '/screens/book.php'],
         ['label' => 'About Us', 'href' => '/index.php#about'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'doctor' => [
-        ['label' => 'Day board', 'href' => '/doctor/home.php'],
-        ['label' => 'Schedule', 'href' => '/doctor/schedule.php'],
+        ['label' => 'Day board', 'href' => '/screens/doctor/home.php'],
+        ['label' => 'Schedule', 'href' => '/screens/doctor/schedule.php'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'admin' => [
-        ['label' => 'Console', 'href' => '/admin/console.php'],
-        ['label' => 'Outbox', 'href' => '/admin/outbox.php'],
+        ['label' => 'Console', 'href' => '/screens/admin/console.php'],
+        ['label' => 'Outbox', 'href' => '/screens/admin/outbox.php'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     default => [
         ['label' => 'Home', 'href' => '/index.php'],
         ['label' => 'About Us', 'href' => '/index.php#about'],
-        ['label' => 'Find a doctor', 'href' => '/doctors.php'],
-        ['label' => 'Book an appointment', 'href' => '/book.php'],
-        ['label' => 'Register', 'href' => '/register.php'],
+        ['label' => 'Find a doctor', 'href' => '/screens/doctors.php'],
+        ['label' => 'Book an appointment', 'href' => '/screens/book.php'],
+        ['label' => 'Register', 'href' => '/screens/register.php'],
         ['label' => 'Log in', 'href' => '/index.php#login-card'],
     ],
 };

@@ -29,7 +29,7 @@ try {
       for (const count of [3, 7, 12]) {
         php('tools/db_reset.php', '--test');
         php('tools/ui/featured-doctors-fixture.php', String(count));
-        const path = `book.php?doctor=1&date=${fixture.date}&from=${fixture.slots[0].SlotTime.slice(0, 5)}&to=${fixture.slots[count - 1].SlotTime.slice(0, 5)}`;
+        const path = `screens/book.php?doctor=1&date=${fixture.date}&from=${fixture.slots[0].SlotTime.slice(0, 5)}&to=${fixture.slots[count - 1].SlotTime.slice(0, 5)}`;
         for (const width of [1280, 390]) {
           for (const js of [true, false]) {
             const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, javaScriptEnabled: js });

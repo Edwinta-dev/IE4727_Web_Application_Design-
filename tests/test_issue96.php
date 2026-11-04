@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$index = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/index.php');
+$index = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/index.php');
 $style = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 $audit = (string) file_get_contents(dirname(__DIR__) . '/tools/ui/audit.mjs');
 $agents = (string) file_get_contents(dirname(__DIR__) . '/AGENTS.md');

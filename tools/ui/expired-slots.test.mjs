@@ -25,7 +25,7 @@ try {
     try {
       for (const width of [390, 1280]) {
         const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, javaScriptEnabled: false });
-        await visit(page, `doctor/schedule.php?date=${day}`, base);
+        await visit(page, `screens/doctor/schedule.php?date=${day}`, base);
         assert.ok(await page.locator('.elapsed-slots').count() === 1, 'schedule groups elapsed slots');
         assert.ok(await page.locator('.schedule-generator').isVisible(), 'generation form is visible');
         const generator = await page.locator('.schedule-generator').boundingBox();
@@ -42,7 +42,7 @@ try {
         await page.close();
       }
       const booking = await browser.newPage({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
-      await visit(booking, `book.php?doctor=${doctorId}&date=${day}`, base);
+      await visit(booking, `screens/book.php?doctor=${doctorId}&date=${day}`, base);
       assert.ok(await booking.locator('.elapsed-slots').count() === 1, 'booking groups elapsed times');
       const firstSlot = await booking.locator('.schedule-grid > .slot').first().innerText();
       assert.equal(firstSlot.includes('Past'), false, 'bookable times lead the displayed slot list');

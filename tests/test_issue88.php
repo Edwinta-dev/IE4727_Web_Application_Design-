@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
-$home = file_get_contents($root . '/clinic-base/doctor/home.php');
-$schedule = file_get_contents($root . '/clinic-base/doctor/schedule.php');
-$visit = file_get_contents($root . '/clinic-base/doctor/visit.php');
-$console = file_get_contents($root . '/clinic-base/admin/console.php');
-$outbox = file_get_contents($root . '/clinic-base/admin/outbox.php');
+$home = file_get_contents($root . '/clinic-base/screens/doctor/home.php');
+$schedule = file_get_contents($root . '/clinic-base/screens/doctor/schedule.php');
+$visit = file_get_contents($root . '/clinic-base/screens/doctor/visit.php');
+$console = file_get_contents($root . '/clinic-base/screens/admin/console.php');
+$outbox = file_get_contents($root . '/clinic-base/screens/admin/outbox.php');
 $styles = file_get_contents($root . '/clinic-base/assets/css/style.css');
 
 foreach (['doctor day board' => $home, 'doctor schedule' => $schedule, 'doctor visit' => $visit, 'admin console' => $console, 'admin outbox' => $outbox, 'staff styles' => $styles] as $label => $source) {

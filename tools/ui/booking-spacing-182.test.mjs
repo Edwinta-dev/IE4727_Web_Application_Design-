@@ -10,7 +10,7 @@ await withServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, 'book.php?doctor=1', base);
+        await visit(page, 'screens/book.php?doctor=1', base);
         const days = await page.locator('.day-tab').allTextContents();
         const nextClinicDay = days.findIndex((day, index) => index > 0 && !day.trim().startsWith('Sun'));
         assert.ok(nextClinicDay > 0, 'a future clinic day is available');

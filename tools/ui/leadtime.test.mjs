@@ -33,7 +33,7 @@ await withTestServer(true, async base => {
     for (const width of [1280, 390]) {
       await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
       for (const [state, query, result, coverage] of states) {
-        await page.goto(`${base}admin/console.php?${query}`);
+        await page.goto(`${base}screens/admin/console.php?${query}`);
         const metric = page.locator('.stat-card').filter({ has: page.getByRole('heading', { name: 'Mean booking lead time' }) });
         assert.equal(await metric.locator('.metric-note').getAttribute('open'), null, 'Formula starts collapsed');
         await metric.locator('.metric-note summary').click();

@@ -28,7 +28,7 @@ function audit_relative(string $base, string $path): string
 }
 
 foreach (['patient', 'doctor', 'admin'] as $roleDirectory) {
-    foreach (audit_php_files($base . DIRECTORY_SEPARATOR . $roleDirectory) as $path) {
+    foreach (audit_php_files($base . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . $roleDirectory) as $path) {
         $source = file_get_contents($path);
         if ($source === false) {
             throw new RuntimeException('Could not read ' . $path);
@@ -99,8 +99,8 @@ foreach (audit_php_files($base . DIRECTORY_SEPARATOR . 'actions') as $path) {
 }
 
 $appointmentAction = file_get_contents($base . DIRECTORY_SEPARATOR . 'actions' . DIRECTORY_SEPARATOR . 'appointment.php');
-$doctorHome = file_get_contents($base . DIRECTORY_SEPARATOR . 'doctor' . DIRECTORY_SEPARATOR . 'home.php');
-$doctorVisit = file_get_contents($base . DIRECTORY_SEPARATOR . 'doctor' . DIRECTORY_SEPARATOR . 'visit.php');
+$doctorHome = file_get_contents($base . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . 'doctor' . DIRECTORY_SEPARATOR . 'home.php');
+$doctorVisit = file_get_contents($base . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . 'doctor' . DIRECTORY_SEPARATOR . 'visit.php');
 $appointmentsModel = file_get_contents($base . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php');
 if ($appointmentAction === false || $doctorHome === false || $doctorVisit === false || $appointmentsModel === false) {
     throw new RuntimeException('Could not read tenant-isolation sources');

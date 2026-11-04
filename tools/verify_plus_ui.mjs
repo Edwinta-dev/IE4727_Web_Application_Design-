@@ -10,8 +10,8 @@ async function checkPlus() {
     const page = await browser.newPage();
 
     // 1. Check htmx partial swaps on booking
-    console.log('1. Opening clinic-plus/book.php?doctor=1 ...');
-    await page.goto(BASE_URL_PLUS + 'book.php?doctor=1', { waitUntil: 'networkidle' });
+    console.log('1. Opening clinic-plus/screens/book.php?doctor=1 ...');
+    await page.goto(BASE_URL_PLUS + 'screens/book.php?doctor=1', { waitUntil: 'networkidle' });
     console.log('Booking title:', await page.title());
 
     const hasHtmx = await page.locator('script[src*="htmx"]').count();

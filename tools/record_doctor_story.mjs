@@ -67,7 +67,7 @@ async function runDoctorStory() {
 
         // Step 3: Manage Schedule Availability
         console.log('3. Navigating to Schedule Management...');
-        await page.goto(BASE_URL + 'doctor/schedule.php', { waitUntil: 'networkidle' });
+        await page.goto(BASE_URL + 'screens/doctor/schedule.php', { waitUntil: 'networkidle' });
         await delay(2500);
 
         // Locate an available slot and block it
@@ -95,7 +95,7 @@ async function runDoctorStory() {
         // Step 4: Clinical Visit Consultation
         console.log('4. Navigating to Patient Visit Record...');
         // Use an editable appointment for Dr. Smith (appt=23)
-        await page.goto(BASE_URL + 'doctor/visit.php?appt=23', { waitUntil: 'networkidle' });
+        await page.goto(BASE_URL + 'screens/doctor/visit.php?appt=23', { waitUntil: 'networkidle' });
         await delay(2500);
 
         // Inspect Patient Profile & Allergies

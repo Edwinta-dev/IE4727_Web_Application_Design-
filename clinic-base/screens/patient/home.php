@@ -8,11 +8,11 @@ Cancel and reschedule buttons post to actions/appointment.php.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 require_patient();
 
@@ -27,8 +27,8 @@ $viewId = is_string($viewIdInput) && ctype_digit($viewIdInput) ? (int) $viewIdIn
 $visit = $viewId > 0 ? completed_appointment_for_patient($patientId, $viewId) : null;
 
 $pageTitle = 'My Appointments';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="appointments">
     <section class="page-intro">
@@ -50,7 +50,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
             <tbody>
 <?php if ($upcoming === []): ?>
-                <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/book.php')) ?>">Book an appointment</a></div></td></tr>
+                <tr><td colspan="6"><div class="empty-state appointment-empty-state"><p>You have no upcoming appointments.</p><a class="button appointment-action" href="<?= e(url('/screens/book.php')) ?>">Book an appointment</a></div></td></tr>
 <?php else: ?>
 <?php foreach ($upcoming as $appointment): ?>
                 <tr id="appointment-<?= e((string) $appointment['appointmentID']) ?>">
@@ -60,7 +60,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
                     <td data-label="Status"><?= e((string) $appointment['Status']) ?></td>
                     <td data-label="Actions">
-                        <a class="button appointment-action" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
+                        <a class="button appointment-action" href="<?= e(url('/screens/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => (int) $appointment['DoctorID']]))) ?>">Reschedule</a>
                         <form method="post" action="<?= e(url('/actions/appointment.php')) ?>" onsubmit="return confirm('Cancel this appointment?');">
                             <?= csrf_field() ?>
                             <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
@@ -97,7 +97,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <td data-label="Status"><?= e(in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true) ? 'Awaiting outcome' : (string) $appointment['Status']) ?></td>
                     <td data-label="Visit notes">
 <?php if ((string) $appointment['Status'] === 'Completed'): ?>
-                        <a href="<?= e(url('/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
+                        <a href="<?= e(url('/screens/patient/home.php?view=' . (int) $appointment['appointmentID'])) ?>">View visit notes</a>
 <?php else: ?>
                         <?= e("\u{2014}") ?>
 <?php endif; ?>
@@ -250,4 +250,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
 <?php endif; ?>
 </main>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

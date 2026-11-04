@@ -26,7 +26,7 @@ await withTestServer(true, async (base) => {
       for (const doctor of ['1', '']) {
         const params = new URLSearchParams({ date: fixture.today });
         if (doctor) params.set('doctor', doctor);
-        await visit(page, `book.php?${params}`, base);
+        await visit(page, `screens/book.php?${params}`, base);
         assert.equal(await page.locator('.slot.past, .elapsed-slots').count(), 0);
         assert.equal(await page.getByText('Past', { exact: true }).count(), 0);
         const visibleTimes = await page.locator('.slot-time').allTextContents();
@@ -41,7 +41,7 @@ await withTestServer(true, async (base) => {
           assert.ok(hour * 100 + Number(match[2]) > currentMinutes, `elapsed slot shown: ${label}`);
         }
       }
-      await visit(page, `book.php?doctor=${fixture.doctor}&date=${fixture.today}`, base);
+      await visit(page, `screens/book.php?doctor=${fixture.doctor}&date=${fixture.today}`, base);
       assert.equal(await page.locator('.slot').count(), 0);
       assert.equal(await page.locator('.empty-state').count(), 1);
       const tomorrowLink = page.getByRole('link', { name: "See tomorrow's times" });

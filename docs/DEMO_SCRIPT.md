@@ -33,26 +33,26 @@ username and a local-only email address.
 
 ### 0:00–1:30 — registration and login
 
-Open `http://localhost/<repo>/register.php`, submit a new patient with a name,
+Open `http://localhost/<repo>/screens/register.php`, submit a new patient with a name,
 username, local email, gender, phone, and allergy values, then sign in through
 the login form. Expected result: the registration succeeds, the request
-redirects, and `patient/home.php` displays the authenticated patient's empty
+redirects, and `screens/patient/home.php` displays the authenticated patient's empty
 appointment state. This demonstrates validation, bcrypt credentials, CSRF, and
 the JSON `Allergies` round trip.
 
 ### 1:30–3:00 — doctors and slots
 
-Open `doctors.php`, inspect a seeded doctor profile, and select a future
+Open `screens/doctors.php`, inspect a seeded doctor profile, and select a future
 available slot. Point out that the displayed date and time come from the
 single `SlotDateTime` value. In a second browser session, sign in as a doctor,
-open `doctor/schedule.php`, create one future slot, block it, and reopen it.
+open `screens/doctor/schedule.php`, create one future slot, block it, and reopen it.
 Expected result: the slot states persist after each POST-Redirect-GET refresh;
 past, booked, blocked, and available states remain distinct.
 
 ### 3:00–5:00 — booking and double-book protection
 
 As the temporary patient, book the selected future slot. Expected output is a
-redirected confirmation and one `Future` appointment on `patient/home.php`.
+redirected confirmation and one `Future` appointment on `screens/patient/home.php`.
 Attempt the same slot as a second patient. Expected output is a rejection and
 the original appointment and `Booked` slot remain intact. This demonstrates
 the transaction and the database `uq_slot` guard.
@@ -67,8 +67,8 @@ appointment points to its exact slot, and the status/history shows the supported
 
 ### 6:30–8:30 — doctor visit record
 
-As the seeded doctor who owns the appointment, open `doctor/home.php` and then
-`doctor/visit.php`. Save diagnosis, prescription, treatment, a `FollowUp` flag,
+As the seeded doctor who owns the appointment, open `screens/doctor/home.php` and then
+`screens/doctor/visit.php`. Save diagnosis, prescription, treatment, a `FollowUp` flag,
 remarks, and a supported completed outcome. Expected output: the POST redirects
 back to the visit page and the saved values are visible. A doctor account must
 not see or edit another doctor's appointment.
@@ -83,8 +83,8 @@ delivery may be `sent` or `failed` and must not make the user operation fail.
 
 ### 10:00–11:00 — admin console and outbox
 
-Sign in with the configured admin credentials, open `admin/console.php`, then
-`admin/outbox.php`. Expected output: account/operational counts, notification
+Sign in with the configured admin credentials, open `screens/admin/console.php`, then
+`screens/admin/outbox.php`. Expected output: account/operational counts, notification
 rows with `recipient` and `deliveryStatus` (`logged`, `sent`, or `failed`), and
 newest rows first. Immediately after reset there are two synthetic `logged`
 rows, one for a patient and one for a doctor; both say they were not delivered.

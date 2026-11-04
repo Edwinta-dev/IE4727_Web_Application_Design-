@@ -21,7 +21,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPAR
 require_login();
 csrf_check();
 
-$home = is_doctor() ? '/doctor/home.php' : '/patient/home.php';
+$home = is_doctor() ? '/screens/doctor/home.php' : '/screens/patient/home.php';
 if (!is_patient() && !is_doctor()) {
     flash('Please sign in as a patient or doctor to manage appointments.', 'error');
     redirect('/index.php?next=' . rawurlencode($home));
@@ -78,7 +78,7 @@ if (!isset($_POST['reschedule']) || $slot === null
     || strtotime((string) $appointment['appointmentDateTime']) <= time()
     || booking_date_error(substr((string) $slot['SlotDateTime'], 0, 10), new DateTimeImmutable('today'), BROWSE_DAYS) !== null) {
     flash('Choose a valid future slot to reschedule this appointment.', 'error');
-    redirect('/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
+    redirect('/screens/book.php?reschedule=' . $appointmentId . '&doctor=' . (int) $appointment['DoctorID']);
 }
 
 $result = reschedule_appointment($appointmentId, $slotId, is_doctor() ? 'doctor' : 'patient', (int) $user['id'], (int) $appointment['slotID']);

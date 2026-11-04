@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/patient/home.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/patient/home.php');
 $action = file_get_contents(dirname(__DIR__) . '/clinic-base/actions/appointment.php');
 if ($page === false || $action === false) {
     throw new RuntimeException('patient appointment page or action could not be read');
@@ -51,9 +51,9 @@ assert_contains($style, '.appointment-table-scroll.is-empty table { width: 100%;
 assert_contains($style, '.appointment-table-scroll:not(.is-empty) :is(th, td) { overflow-wrap: normal; white-space: nowrap; }', 'populated columns stay readable while scrolling');
 assert_contains($style, '.appointment-action:link, .appointment-action:visited', 'reschedule text remains legible on its button');
 assert_contains($page, 'class="empty-state appointment-empty-state"', 'upcoming empty state has one container');
-assert_contains($page, 'e(url(\'/book.php\'))', 'empty state links to the existing booking page');
+assert_contains($page, 'e(url(\'/screens/book.php\'))', 'empty state links to the existing booking page');
 
-$book = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
+$book = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/book.php');
 assert_true($book !== false && strpos($book, '/actions/appointment.php') !== false, 'reschedule uses appointment action');
 
 // Issue #213: Printable consultation summary and @media print styling

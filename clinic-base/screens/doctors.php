@@ -7,9 +7,9 @@ Links to each doctor's profile and to book.php.
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
 
 $specialties = all_specialties();
 $specialtyOptions = array_values(array_filter(
@@ -26,8 +26,8 @@ $doctors = all_doctors($selectedSpecialty !== '' ? $selectedSpecialty : null);
 $bookingWindowEnd = (new DateTimeImmutable('today'))->modify('+' . BROWSE_DAYS . ' days');
 
 $pageTitle = 'Find a Doctor';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
     <section class="doctor-directory-intro" aria-labelledby="doctor-directory-heading">
@@ -41,7 +41,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         </div>
 
 <?php if ($specialtyOptions !== []): ?>
-    <form class="specialty-filter" method="get" action="<?= e(url('/doctors.php')) ?>">
+    <form class="specialty-filter" method="get" action="<?= e(url('/screens/doctors.php')) ?>">
         <label for="specialty">Specialty</label>
         <select id="specialty" name="specialty">
             <option value="">All specialties</option>
@@ -53,7 +53,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         <div class="doctor-search-box" hidden><label for="doctor-search">Search doctors</label><input type="search" id="doctor-search" placeholder="Search by doctor name, specialty, or language..." autocomplete="off"></div>
 <?php if ($selectedSpecialty !== ''): ?>
         <span class="active-doctor-filter">Showing <?= e($selectedSpecialty) ?></span>
-        <a class="clear-doctor-filter" href="<?= e(url('/doctors.php')) ?>">Clear</a>
+        <a class="clear-doctor-filter" href="<?= e(url('/screens/doctors.php')) ?>">Clear</a>
 <?php endif; ?>
     </form>
 <?php endif; ?>
@@ -104,7 +104,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <td data-label="Photo">
                     <img src="<?= e(url($image)) ?>" alt="Photo of <?= e((string) ($doctor['FullName'] ?? 'doctor')) ?>" class="doctor-photo">
                 </td>
-                <th scope="row" data-label="Doctor"><a href="<?= e(url('/doctor.php?id=' . $doctorId)) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
+                <th scope="row" data-label="Doctor"><a href="<?= e(url('/screens/doctor.php?id=' . $doctorId)) ?>"><?= e((string) ($doctor['FullName'] ?? '')) ?></a></th>
                 <td data-label="Specialty"><?= e((string) ($doctor['Specialty'] ?? 'Not listed')) ?></td>
                 <td data-label="Qualifications"><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></td>
                 <td data-label="Languages"><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></td>
@@ -118,7 +118,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 </td>
                 <td data-label="Booking">
 <?php if ($nextAvailable !== null): ?>
-                    <a class="doctor-directory-book" href="<?= e(url('/book.php?doctor=' . $doctorId . '&date=' . substr((string) $nextAvailable, 0, 10))) ?>">Book</a>
+                    <a class="doctor-directory-book" href="<?= e(url('/screens/book.php?doctor=' . $doctorId . '&date=' . substr((string) $nextAvailable, 0, 10))) ?>">Book</a>
 <?php else: ?>
                     No times in the next seven days
 <?php endif; ?>
@@ -132,4 +132,4 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 </main>
 <script src="<?= e(asset_url('/assets/app.js')) ?>" defer></script>
 <?php
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

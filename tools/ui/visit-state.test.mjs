@@ -18,10 +18,10 @@ try {
       const page = await context.newPage();
       await login(page, 'doctor', base);
       // Use the real logged-in session's token even when no notes form is shown.
-      await page.goto(`${base}doctor/visit.php?appt=${seed.visits[0].id}`);
+      await page.goto(`${base}screens/doctor/visit.php?appt=${seed.visits[0].id}`);
       const token = await page.locator('input[name="_csrf"]').first().inputValue();
       for (const visit of seed.visits) {
-        await page.goto(`${base}doctor/visit.php?appt=${visit.id}`);
+        await page.goto(`${base}screens/doctor/visit.php?appt=${visit.id}`);
         const eligible = visit.period === 'past' && ['Future', 'Rescheduled', 'Completed'].includes(visit.status);
         const disallowed = ['Cancelled', 'No show'].includes(visit.status);
         const form = page.locator('form.visit-form');
@@ -53,7 +53,7 @@ try {
           await Promise.all([page.waitForNavigation(), form.getByRole('button', { name: 'Save visit notes' }).click()]);
           check((await page.locator('body').innerText()).includes('Visit notes saved.'), 'No-JS save confirmation missing');
         } else {
-          const response = await context.request.post(`${base}doctor/visit.php?appt=${visit.id}`, { form: { _csrf: token, appointment_id: String(visit.id), ...fields } });
+          const response = await context.request.post(`${base}screens/doctor/visit.php?appt=${visit.id}`, { form: { _csrf: token, appointment_id: String(visit.id), ...fields } });
           check(response.ok() && (await response.text()).includes(disallowed ? `This appointment is ${visit.status}.` : 'This appointment has not started.'), 'Ineligible POST reason missing');
         }
         const after = snapshot(visit.id);
@@ -67,9 +67,9 @@ try {
         }
       }
       const beforeForeign = snapshot(seed.foreign);
-      const get = await page.goto(`${base}doctor/visit.php?appt=${seed.foreign}`);
+      const get = await page.goto(`${base}screens/doctor/visit.php?appt=${seed.foreign}`);
       check(get.status() === 404 && await page.locator('form.visit-form').count() === 0, 'Foreign visit GET not denied');
-      const post = await context.request.post(`${base}doctor/visit.php`, { form: { _csrf: token, appointment_id: String(seed.foreign), Diagnosis: 'Unauthorized' } });
+      const post = await context.request.post(`${base}screens/doctor/visit.php`, { form: { _csrf: token, appointment_id: String(seed.foreign), Diagnosis: 'Unauthorized' } });
       check(post.status() === 404 && JSON.stringify(snapshot(seed.foreign)) === JSON.stringify(beforeForeign), 'Foreign save not denied/non-mutating');
       console.log('OK: test DB verified; JS-off future/past status matrix, foreign GET/POST, non-mutating rejected saves, all-field historical saves, focus and 1280/390 captures');
     } finally { await browser.close(); }

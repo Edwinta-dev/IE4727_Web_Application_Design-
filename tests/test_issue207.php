@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/register.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/register.php');
 $action = file_get_contents(dirname(__DIR__) . '/clinic-base/actions/register.php');
 $script = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/app.js');
 if ($page === false || $action === false || $script === false) {

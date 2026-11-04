@@ -12,7 +12,7 @@ const slots = JSON.parse(testPhp(['-r', `require 'clinic-base/lib/db.php';
     FROM slots WHERE DoctorID = 1 AND Status = 'Available' AND SlotDateTime > NOW()
     ORDER BY SlotDateTime LIMIT 2"));`], { encoding: 'utf8' }));
 assert.equal(slots.length, 2, 'seed needs two future slots');
-const route = `book.php?doctor=${slots[0].DoctorID}&date=${slots[0].day}`;
+const route = `screens/book.php?doctor=${slots[0].DoctorID}&date=${slots[0].day}`;
 const shots = resolve('UIPROBLEMS/after/iter8/issue201-booking-time/after');
 await mkdir(shots, { recursive: true });
 

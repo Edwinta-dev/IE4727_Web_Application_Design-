@@ -37,10 +37,10 @@ credentials from `clinic-base/config.local.php`.
 ### Doctor
 
 1. Sign in as a seeded doctor.
-2. Open `doctor/home.php` and confirm only that doctor's appointments appear.
-3. Open `doctor/schedule.php`, create or block a future slot, then refresh and
+2. Open `screens/doctor/home.php` and confirm only that doctor's appointments appear.
+3. Open `screens/doctor/schedule.php`, create or block a future slot, then refresh and
    confirm the state is persisted.
-4. Open `doctor/visit.php`, save visit details, and confirm the POST redirects
+4. Open `screens/doctor/visit.php`, save visit details, and confirm the POST redirects
    before the updated record is displayed.
 
 Evidence: screenshot or screen recording plus the relevant appointment/slot
@@ -49,9 +49,9 @@ rows from the isolated database; never include credentials in the artefact.
 ### Patient
 
 1. Register or sign in as a seeded patient.
-2. Open `doctors.php`, inspect a profile, and choose a future available slot.
+2. Open `screens/doctors.php`, inspect a profile, and choose a future available slot.
 3. Book it, confirm the redirect and confirmation, then open
-   `patient/home.php` to verify the appointment.
+   `screens/patient/home.php` to verify the appointment.
 4. Attempt the same slot from a second patient; the booking must be rejected
    and the original appointment must remain intact.
 
@@ -61,8 +61,8 @@ isolated database.
 ### Admin
 
 1. Sign in with `ADMIN_USER` and `ADMIN_HASH` configured locally.
-2. Open `admin/console.php` and verify the account/operational summary.
-3. Open `admin/outbox.php` and verify notification rows show `recipient` and
+2. Open `screens/admin/console.php` and verify the account/operational summary.
+3. Open `screens/admin/outbox.php` and verify notification rows show `recipient` and
    `deliveryStatus`.
 4. Exercise only the documented cleanup action in the isolated database and
    verify the doctor cascade; do not run it against production data.

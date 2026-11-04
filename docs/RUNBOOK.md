@@ -33,7 +33,7 @@ In Bash, use `read -r -s admin_password`, then
 hash. It does not set `DB_NAME`, reset a database, or change mail delivery.
 Never commit this file. Run setup before copying `clinic-base/` into htdocs,
 or copy the generated ignored file into the deployed base folder afterward.
-Sign in at `/clinic-base/index.php` as `admin` with your chosen password, then
+Sign in at `/clinic-base/` (the root `index.php` stub opens the home page) as `admin` with your chosen password, then
 open Outbox. Opening the protected URL while signed out displays a sign-in
 message and preserves the outbox return URL.
 

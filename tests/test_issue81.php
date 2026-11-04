@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 $pages = [
-    'clinic-base/doctors.php',
-    'clinic-base/doctor.php',
-    'clinic-base/book.php',
-    'clinic-base/register.php',
-    'clinic-base/patient/home.php',
-    'clinic-base/doctor/home.php',
-    'clinic-base/doctor/schedule.php',
-    'clinic-base/doctor/visit.php',
-    'clinic-base/admin/console.php',
-    'clinic-base/admin/outbox.php',
+    'clinic-base/screens/doctors.php',
+    'clinic-base/screens/doctor.php',
+    'clinic-base/screens/book.php',
+    'clinic-base/screens/register.php',
+    'clinic-base/screens/patient/home.php',
+    'clinic-base/screens/doctor/home.php',
+    'clinic-base/screens/doctor/schedule.php',
+    'clinic-base/screens/doctor/visit.php',
+    'clinic-base/screens/admin/console.php',
+    'clinic-base/screens/admin/outbox.php',
 ];
 
 foreach ($pages as $pagePath) {
     $page = file_get_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . $pagePath);
-    $usesExpectedIntro = $pagePath === 'clinic-base/doctors.php'
+    $usesExpectedIntro = $pagePath === 'clinic-base/screens/doctors.php'
         ? str_contains((string) $page, 'class="photo-banner doctor-directory-banner"')
         : str_contains((string) $page, 'class="page-intro');
     if ($page === false || !$usesExpectedIntro) {

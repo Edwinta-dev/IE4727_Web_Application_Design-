@@ -15,29 +15,29 @@ $renderNavigation = static function (?string $role, string $route): string {
 $navigationCases = [
     [null, '/', '/index.php'],
     [null, '/index.php', '/index.php'],
-    [null, '/doctors.php', '/doctors.php'],
-    [null, '/book.php?doctor=1', '/book.php'],
-    [null, '/register.php', '/register.php'],
-    [null, '/doctor.php?id=1', null],
+    [null, '/screens/doctors.php', '/screens/doctors.php'],
+    [null, '/screens/book.php?doctor=1', '/screens/book.php'],
+    [null, '/screens/register.php', '/screens/register.php'],
+    [null, '/screens/doctor.php?id=1', null],
     [null, '/other/home.php', null],
     [null, '/unknown.php?next=/index.php', null],
-    ['patient', '/patient/home.php', '/patient/home.php'],
-    ['patient', '/patient/home.php?date=2026-10-01', '/patient/home.php'],
-    ['patient', '/doctors.php', '/doctors.php'],
-    ['patient', '/book.php?doctor=1', '/book.php'],
+    ['patient', '/screens/patient/home.php', '/screens/patient/home.php'],
+    ['patient', '/screens/patient/home.php?date=2026-10-01', '/screens/patient/home.php'],
+    ['patient', '/screens/doctors.php', '/screens/doctors.php'],
+    ['patient', '/screens/book.php?doctor=1', '/screens/book.php'],
     ['patient', '/index.php', null],
-    ['patient', '/doctor.php?id=1', null],
+    ['patient', '/screens/doctor.php?id=1', null],
     ['patient', '/other/patient/home.php', null],
-    ['doctor', '/doctor/home.php', '/doctor/home.php'],
-    ['doctor', '/doctor/schedule.php?date=2026-10-01', '/doctor/schedule.php'],
-    ['doctor', '/doctor/visit.php?appt=1', null],
-    ['doctor', '/patient/home.php', null],
+    ['doctor', '/screens/doctor/home.php', '/screens/doctor/home.php'],
+    ['doctor', '/screens/doctor/schedule.php?date=2026-10-01', '/screens/doctor/schedule.php'],
+    ['doctor', '/screens/doctor/visit.php?appt=1', null],
+    ['doctor', '/screens/patient/home.php', null],
     ['doctor', '/index.php', null],
-    ['doctor', '/doctor/schedule.php/unknown', null],
-    ['admin', '/admin/console.php', '/admin/console.php'],
-    ['admin', '/admin/outbox.php', '/admin/outbox.php'],
+    ['doctor', '/screens/doctor/schedule.php/unknown', null],
+    ['admin', '/screens/admin/console.php', '/screens/admin/console.php'],
+    ['admin', '/screens/admin/outbox.php', '/screens/admin/outbox.php'],
     ['admin', '/index.php', null],
-    ['admin', '/unknown.php?next=/admin/console.php', null],
+    ['admin', '/unknown.php?next=/screens/admin/console.php', null],
 ];
 
 foreach ($navigationCases as [$role, $route, $expected]) {
@@ -52,21 +52,21 @@ foreach ($navigationCases as [$role, $route, $expected]) {
     if ($role === 'patient') {
         preg_match_all('/<a href="([^"]+)"/', $html, $patientLinks);
         if (count(array_unique($patientLinks[1])) !== count($patientLinks[1])
-            || !str_contains($html, 'href="/patient/home.php"')
-            || !str_contains($html, 'href="/book.php"')
-            || str_contains($html, 'href="/patient/home.php#appointments"')) {
+            || !str_contains($html, 'href="/screens/patient/home.php"')
+            || !str_contains($html, 'href="/screens/book.php"')
+            || str_contains($html, 'href="/screens/patient/home.php#appointments"')) {
             throw new RuntimeException('Patient navigation must have distinct appointments, doctor search and booking destinations');
         }
     }
     if ($role === 'admin') {
         preg_match_all('/<a href="([^"]+)"/', $html, $adminLinks);
-        if ($adminLinks[1] !== ['/admin/console.php', '/admin/outbox.php', '/index.php?logout=1']) {
+        if ($adminLinks[1] !== ['/screens/admin/console.php', '/screens/admin/outbox.php', '/index.php?logout=1']) {
             throw new RuntimeException('Admin navigation must have console, outbox and logout destinations only');
         }
     }
     if ($role === 'doctor') {
         preg_match_all('/<a href="([^"]+)"/', $html, $doctorLinks);
-        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php?logout=1']
+        if ($doctorLinks[1] !== ['/screens/doctor/home.php', '/screens/doctor/schedule.php', '/index.php?logout=1']
             || !str_contains($html, '>Day board</a>')) {
             throw new RuntimeException('Doctor navigation must have day board, schedule and logout destinations only');
         }
@@ -74,7 +74,7 @@ foreach ($navigationCases as [$role, $route, $expected]) {
 }
 
 $registrationRole = 'patient';
-$renderNavigation(null, '/register.php');
+$renderNavigation(null, '/screens/register.php');
 if ($registrationRole !== 'patient') {
     throw new RuntimeException('Navigation changed the registration form role');
 }

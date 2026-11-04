@@ -6,8 +6,8 @@ $root = dirname(__DIR__);
 $files = [
     'clinic-base/partials/header.php',
     'clinic-base/partials/nav.php',
-    'clinic-base/doctor.php',
-    'clinic-base/admin/outbox.php',
+    'clinic-base/screens/doctor.php',
+    'clinic-base/screens/admin/outbox.php',
     'clinic-base/assets/style.css',
     'docs/ACCESSIBILITY_CHECKLIST.md',
 ];
@@ -20,12 +20,12 @@ foreach ($files as $file) {
 $read = static fn (string $file): string => (string) file_get_contents($root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $file));
 $checks = [
     [$read('clinic-base/partials/header.php'), 'skip-link'],
-    [$read('clinic-base/doctor.php'), 'id="main-content"'],
+    [$read('clinic-base/screens/doctor.php'), 'id="main-content"'],
     [$read('clinic-base/partials/nav.php'), 'aria-label="Main navigation"'],
-    [$read('clinic-base/doctor.php'), 'aria-label="Book an appointment with'],
-    [$read('clinic-base/admin/outbox.php'), '<table aria-labelledby="outbox-list-heading">'],
-    [$read('clinic-base/admin/outbox.php'), '<h2 id="outbox-list-heading">Message log</h2>'],
-    [$read('clinic-base/admin/outbox.php'), 'scope="col"'],
+    [$read('clinic-base/screens/doctor.php'), 'aria-label="Book an appointment with'],
+    [$read('clinic-base/screens/admin/outbox.php'), '<table aria-labelledby="outbox-list-heading">'],
+    [$read('clinic-base/screens/admin/outbox.php'), '<h2 id="outbox-list-heading">Message log</h2>'],
+    [$read('clinic-base/screens/admin/outbox.php'), 'scope="col"'],
     [$read('clinic-base/assets/style.css'), ':focus-visible'],
     [$read('clinic-base/assets/style.css'), 'prefers-reduced-motion'],
     [$read('docs/ACCESSIBILITY_CHECKLIST.md'), '200% zoom'],

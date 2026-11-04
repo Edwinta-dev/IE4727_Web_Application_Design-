@@ -96,10 +96,10 @@ async function capture(browser, base) {
     await visit(page, 'index.php', base);
     await shot(page, '03-specialty-strip-10-items-1280.png', { el: '.services' });
     reset();
-    await visit(page, 'doctors.php', base);
+    await visit(page, 'screens/doctors.php', base);
     await page.locator('select[name=specialty]').evaluate(select => select.size = 8);
     await shot(page, '05-doctors-specialty-filter-1280.png', { full: true });
-    await visit(page, 'register.php', base);
+    await visit(page, 'screens/register.php', base);
     await page.locator('.registration-role-arrow').last().click();
     await shot(page, '05-register-doctor-specialty-text-1280.png', { full: true });
     await login(page, 'patient', base);
@@ -109,7 +109,7 @@ async function capture(browser, base) {
         $date = date('Y-m-d', strtotime("+$offset days"));
         if (count(free_slots(1, $date)) >= 8) { echo json_encode(['date'=>$date]); break; }
       }`));
-    const booking = `book.php?doctor=1&date=${fixture.date}&from=00%3A00&to=23%3A59`;
+    const booking = `screens/book.php?doctor=1&date=${fixture.date}&from=00%3A00&to=23%3A59`;
     await visit(page, booking, base);
     await shot(page, '06-book-slots-closed-1280.png', { full: true });
     // #139 replaced expanding per-slot details with one shared radio form.
@@ -118,7 +118,7 @@ async function capture(browser, base) {
     await page.locator('.slot-choice').nth(7).check();
     assert.equal(await page.locator('.slot-choice:checked').count(), 1);
     await shot(page, '06-book-slots-two-open-1280.png', { full: true });
-    await visit(page, 'doctors.php', base);
+    await visit(page, 'screens/doctors.php', base);
     await shot(page, '11-doctors-book-unavailable-1280.png', { full: true });
     const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
     try {
@@ -130,26 +130,26 @@ async function capture(browser, base) {
       await mobile.context().clearCookies();
       await visit(mobile, 'index.php', base);
       await shot(mobile, '12-phone-header-home-390.png');
-      await visit(mobile, 'register.php', base);
+      await visit(mobile, 'screens/register.php', base);
       await shot(mobile, '12-phone-register-390.png', { full: true });
     } finally { await mobile.close(); }
     await page.context().clearCookies();
     await login(page, 'doctor', base);
     await shot(page, '10-doctor-dayboard-1280.png', { full: true });
-    await page.goto(base + `doctor/schedule.php?date=${fixture.date}`, { waitUntil: 'domcontentloaded' });
-    assert.ok(page.url().includes('/doctor/schedule.php?'));
+    await page.goto(base + `screens/doctor/schedule.php?date=${fixture.date}`, { waitUntil: 'domcontentloaded' });
+    assert.ok(page.url().includes('/screens/doctor/schedule.php?'));
     await shot(page, '13-doctor-schedule-1280.png', { full: true });
     await page.context().clearCookies();
     await prepareStaticAssets(page, base);
-    const guard = await page.goto(base + 'admin/outbox.php');
+    const guard = await page.goto(base + 'screens/admin/outbox.php');
     assert.equal(guard.status(), 200);
     assert.ok(new URL(page.url()).pathname.endsWith('/index.php'));
     assert.equal(await page.locator('.member-login .flash[role="alert"]').innerText(), 'Please sign in as an admin to continue.');
     await shot(page, '09-outbox-guard-redirect-no-message-1280.png');
     await login(page, 'admin', base);
     await shot(page, '09-admin-landing-1280.png', { full: true });
-    await page.goto(base + 'admin/outbox.php', { waitUntil: 'domcontentloaded' });
-    assert.ok(page.url().endsWith('/admin/outbox.php'));
+    await page.goto(base + 'screens/admin/outbox.php', { waitUntil: 'domcontentloaded' });
+    assert.ok(page.url().endsWith('/screens/admin/outbox.php'));
     await shot(page, '07-outbox-list-1280.png', { full: true });
   } finally { await page.close(); }
   // Use installed Google Chrome, rather than relabelling bundled Chromium.
@@ -182,9 +182,9 @@ async function matrix(browser, base) {
           await hoverCheck(page, '.doctor-tile', 0, motion);
           await hoverCheck(page, '.specialty-item', 0, motion);
           await page.screenshot({ path: resolve(output, 'matrix', `${count}-${width}-${motion}-home.png`), fullPage: true });
-          await visit(page, 'doctors.php', base);
+          await visit(page, 'screens/doctors.php', base);
           assert.equal(await page.locator('tbody tr').count(), count);
-          await visit(page, `book.php?doctor=${fixture.doctor}&date=${fixture.date}`, base);
+          await visit(page, `screens/book.php?doctor=${fixture.doctor}&date=${fixture.date}`, base);
           assert.equal(await page.locator('.schedule-grid > .slot').count(), count);
           assert.equal(await page.locator('#doctor option:not([value=""])').count(), count);
           const heights = () => page.locator('.schedule-grid > .slot').evaluateAll(nodes => nodes.map(el => el.offsetHeight));
