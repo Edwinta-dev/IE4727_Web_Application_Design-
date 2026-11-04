@@ -3,7 +3,7 @@
 /*
 Public home page. ?logout=1 logs out first and redirects.
 Shows the hero, doctor carousel and about section, plus the login form, which posts to actions/login.php.
-next= carries the page to return to after login.
+next= carries the page to return to after login. Reached through the root index.php stub.
 */
 
 declare(strict_types=1);

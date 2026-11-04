@@ -2,6 +2,7 @@
 
 /*
 Navigation links for the current role (guest, patient, doctor, admin), with aria-current on the active page.
+Doctors and admins get only their working pages and Log out. Loads nav.js, versioned.
 Log out links to index.php?logout=1.
 */
 

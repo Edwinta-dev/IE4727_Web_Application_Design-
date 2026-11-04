@@ -2,7 +2,8 @@
 
 /*
 Doctor only. Day board for ?date= (if none given and today is empty, jumps to the next day with bookings).
-Attendance buttons open at the start time and post to actions/appointment.php.
+Each row shows only what is true now: before the start time Reschedule (and when the visit opens);
+once started, Start visit (to the visit notes page) and Mark no-show, which posts to actions/appointment.php.
 ?patient=id shows that patient's history with this doctor. Also lists the latest 20 notifications.
 */
 

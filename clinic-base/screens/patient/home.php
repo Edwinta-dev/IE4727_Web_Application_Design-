@@ -1,9 +1,9 @@
 <?php
 
 /*
-Signed-in patient dashboard. Lists upcoming, past and cancelled appointments,
+Patient only (a doctor or admin gets 403). Dashboard: Lists upcoming, past and cancelled appointments,
 the printable visit summary for ?view=id, and the latest 20 notifications.
-Cancel and reschedule buttons post to actions/appointment.php.
+Cancel and reschedule buttons post to actions/appointment.php. "Awaiting outcome" is explained in text.
 */
 
 declare(strict_types=1);

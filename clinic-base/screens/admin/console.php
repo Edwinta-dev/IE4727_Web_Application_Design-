@@ -3,7 +3,7 @@
 /*
 Admin only. GET filters by doctor, status and dates.
 POST (token checked) deletes a doctor or patient account, which cascades to their slots and appointments.
-Also shows the booking statistics.
+Repeats the chosen date range in "04 Nov 2026" form under the filters. Also shows the booking statistics.
 */
 
 declare(strict_types=1);
