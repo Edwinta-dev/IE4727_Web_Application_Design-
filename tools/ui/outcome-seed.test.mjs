@@ -22,7 +22,8 @@ for (let reset = 0; reset < 2; reset++) {
       await login(page, 'doctor', base);
       const route = `${base}doctor/home.php?date=${seed.pending[0].appointmentDateTime.slice(0, 10)}`;
       await page.goto(route);
-      check(await page.getByRole('button', { name: 'Mark completed', exact: true }).count() === 2, 'Both completed controls must be visible');
+      check(await page.getByRole('link', { name: 'Start visit', exact: true }).count() === 2, 'Both started appointments offer Start visit');
+      check(await page.getByRole('button', { name: 'Mark completed', exact: true }).count() === 0, 'Mark completed is no longer a board control (#230)');
       check(await page.getByRole('button', { name: 'Mark no-show', exact: true }).count() === 2, 'Both no-show controls must be visible');
       if (reset === 0) return; // Both fresh resets prove immediate authenticated visibility.
       const capture = async label => {
@@ -48,8 +49,15 @@ for (let reset = 0; reset < 2; reset++) {
       }
       for (const [index, status] of ['Completed', 'No show'].entries()) {
         await page.goto(route);
-        const row = page.locator('tr').filter({ has: page.locator(`input[name="appointment_id"][value="${seed.pending[index].appointmentID}"]`) });
-        await Promise.all([page.waitForNavigation(), row.getByRole('button', { name: index === 0 ? 'Mark completed' : 'Mark no-show', exact: true }).click()]);
+        if (index === 0) {
+          // The board no longer has a Mark completed button, but the handler still accepts it.
+          const posted = await context.request.post(`${base}actions/appointment.php`, { form: { _csrf: token, appointment_id: String(seed.pending[0].appointmentID), status: 'Completed' }, maxRedirects: 0 });
+          check(posted.status() === 302, 'Completed POST must redirect');
+          await page.goto(route);
+        } else {
+          const row = page.locator('tr').filter({ has: page.locator(`input[name="appointment_id"][value="${seed.pending[index].appointmentID}"]`) });
+          await Promise.all([page.waitForNavigation(), row.getByRole('button', { name: 'Mark no-show', exact: true }).click()]);
+        }
         check((await page.locator('main').innerText()).includes(`Appointment marked as ${status}.`), 'Outcome confirmation missing');
         const after = snapshot();
         const saved = after.appointments.find(a => a.appointmentID === seed.pending[index].appointmentID);
