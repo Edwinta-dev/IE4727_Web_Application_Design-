@@ -50,29 +50,17 @@ try {
                             assert.equal(await page.locator('.day-tab.selected').count(), 1);
                             assert.equal(await page.locator('.day-scroll, .day-scroll-hint').count(), 0, 'Date strip has no arrows or helper caption');
                             assert.equal(await page.getByText('Scroll sideways to see all seven days.').count(), 0);
-                            const scrollbar = await page.locator('.day-tabs').evaluate(el => ({
-                                width: getComputedStyle(el).scrollbarWidth,
-                                color: getComputedStyle(el).scrollbarColor,
-                                height: getComputedStyle(el, '::-webkit-scrollbar').height,
-                                thumb: getComputedStyle(el, '::-webkit-scrollbar-thumb').backgroundColor,
-                                overflow: el.scrollWidth - el.clientWidth,
-                            }));
-                            assert.equal(scrollbar.width, 'thin');
-                            assert.match(scrollbar.color, /rgb\(194, 65, 12\)/);
-                            assert.equal(scrollbar.thumb, 'rgb(194, 65, 12)');
-                            assert.ok(parseFloat(scrollbar.height) > 0 && parseFloat(scrollbar.height) <= 8);
-                            assert.ok(scrollbar.overflow > 0, 'Date strip remains horizontally scrollable');
-                            if (count === 3 && js) {
-                                assert.equal(await page.locator('.day-tabs').evaluate(el => getComputedStyle(el).scrollBehavior), 'auto', 'Reduced motion disables smooth scrolling');
-                                await page.emulateMedia({ reducedMotion: 'no-preference' });
-                                assert.equal(await page.locator('.day-tabs').evaluate(el => getComputedStyle(el).scrollBehavior), 'smooth', 'Day strip scrolls smoothly');
-                                await page.emulateMedia({ reducedMotion: 'reduce' });
-                            }
-                            await page.locator('.day-tabs').evaluate(el => { el.scrollLeft = el.scrollWidth; });
-                            await page.waitForFunction(() => {
-                                const el = document.querySelector('.day-tabs');
-                                return el.scrollLeft > 0;
+                            // #226: the seven days wrap; none is clipped, scrolled away or hidden.
+                            const tabLayout = await page.locator('.day-tabs').evaluate(el => {
+                                const box = el.getBoundingClientRect();
+                                const tabs = [...el.querySelectorAll('.day-tab')].map(t => t.getBoundingClientRect());
+                                return { overflow: el.scrollWidth - el.clientWidth, allInside: tabs.every(r => r.left >= box.left - 1 && r.right <= box.right + 1 && r.width > 0),
+                                    rows: new Set(tabs.map(r => Math.round(r.top))).size, wraps: getComputedStyle(el).flexWrap };
                             });
+                            assert.equal(tabLayout.wraps, 'wrap');
+                            assert.ok(tabLayout.overflow <= 0, 'Day tabs do not scroll sideways');
+                            assert.ok(tabLayout.allInside, 'Every day tab is fully visible');
+                            assert.ok(tabLayout.rows >= 1 && tabLayout.rows <= 4, 'Day tabs wrap into a few rows');
                             assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width);
                             assert.equal(await page.locator('.schedule-grid > .slot').count(), fixture.slots.length, 'All slots for the selected day are shown');
                             const last = page.locator('.day-tab').last();
