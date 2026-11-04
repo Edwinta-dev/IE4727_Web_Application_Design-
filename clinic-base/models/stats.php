@@ -109,10 +109,3 @@ function mean_booking_lead_time(array $filters = []): array
         'invalid' => (int) $row['InvalidSamples'],
     ];
 }
-
-// Descriptive aliases keep the model convenient for callers and CLI checks.
-function stats_appointments_per_doctor_this_week(): array { return appointments_per_doctor_this_week(); }
-function stats_no_show_rate(): array { return overall_no_show_rate(); }
-function stats_no_show_rate_per_doctor(): array { return no_show_rate_per_doctor(); }
-function stats_peak_booking_hours(): array { return peak_booking_hours(); }
-function stats_mean_booking_lead_time(array $filters = []): array { return mean_booking_lead_time($filters); }
