@@ -1,5 +1,12 @@
 <?php
 
+/*
+Requires login, a matching token, and a patient account.
+Re-checks the posted slot in this order: slot exists and reason given, slot is in the future,
+slot belongs to the chosen doctor, slot is still Available, date is inside the booking window.
+Then books it and redirects back to book.php with a confirmation.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

@@ -1,5 +1,12 @@
 <?php
 
+/*
+Doctor only, and only for their own appointment (otherwise 404).
+GET shows the patient's allergies, history and reason for visit.
+POST (token checked) saves diagnosis, treatment, prescription, follow-up and remarks and marks it Completed.
+Saving is allowed only from the appointment start time.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

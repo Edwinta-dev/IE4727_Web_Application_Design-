@@ -1,5 +1,10 @@
 <?php
 
+/*
+Pure slot logic with no database: generate slot times, convert HH:MM and minutes,
+hide slots that have started, choose the reschedule landing day, word the empty-day message.
+*/
+
 declare(strict_types=1);
 
 /** Keep only slots whose start is still ahead of the booking page's captured time. */

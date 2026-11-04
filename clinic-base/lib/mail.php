@@ -1,5 +1,11 @@
 <?php
 
+/*
+send_mail() only writes a notifications row (status logged), inside the booking transaction.
+deliver_notifications() runs after commit and tries PHP mail(), marking rows sent or failed
+(skipped when MAIL_DELIVERY is off). The mail_* functions build each message.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';

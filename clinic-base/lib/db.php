@@ -1,5 +1,10 @@
 <?php
 
+/*
+The only database entry point. One PDO connection per request; q(), q_one(), q_all(), q_val()
+run parameterised queries. Never build SQL from input directly.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';

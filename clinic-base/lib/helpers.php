@@ -1,5 +1,11 @@
 <?php
 
+/*
+Shared helpers used by every page: e() escaping, session start, url() and redirect(),
+error pages, flash messages and remembered form input, date formatting, booking-window check,
+specialty photos and the footer opening hours.
+*/
+
 declare(strict_types=1);
 
 /**

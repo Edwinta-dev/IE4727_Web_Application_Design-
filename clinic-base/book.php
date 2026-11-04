@@ -1,5 +1,13 @@
 <?php
 
+/*
+Slot picker, open to guests for browsing.
+1. With ?reschedule=id: requires login, ownership and a future Future/Rescheduled appointment, then pins the doctor.
+2. Reads specialty, doctor and date from GET (date must be inside the booking window).
+3. Shows day tabs with availability counts, then that day's future slots.
+Booking posts to actions/book.php; rescheduling posts to actions/appointment.php.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

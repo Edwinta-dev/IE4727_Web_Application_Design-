@@ -1,5 +1,10 @@
 <?php
 
+/*
+Admin and logging defaults on top of lib/config.php.
+Not loaded by the pages; tools/db_reset.php loads it. Real admin credentials belong in config.local.php.
+*/
+
 declare(strict_types=1);
 
 // Single source of truth for database and app settings (including
