@@ -1,5 +1,12 @@
 <?php
 
+/*
+POST only. Checks the token, then validates shared fields plus role-specific ones
+(doctor: specialty, profile text, photo; patient: gender, phone, allergies).
+Checks username and email are unused, creates the account in a transaction,
+removes the saved photo if that fails, then signs the new user in.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

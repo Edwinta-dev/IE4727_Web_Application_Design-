@@ -1,5 +1,11 @@
 <?php
 
+/*
+Public home page. ?logout=1 logs out first and redirects.
+Shows the hero, doctor carousel and about section, plus the login form, which posts to actions/login.php.
+next= carries the page to return to after login.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

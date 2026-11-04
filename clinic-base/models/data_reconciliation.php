@@ -1,5 +1,10 @@
 <?php
 
+/*
+Command-line tooling only (tools/reconcile_data.php). Inventories, plans, backs up,
+deletes and restores demo rows. Not part of the web app.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/lib/db.php';

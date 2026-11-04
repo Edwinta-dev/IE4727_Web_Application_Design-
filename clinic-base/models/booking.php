@@ -1,5 +1,12 @@
 <?php
 
+/*
+Every appointment and slot change, each in a transaction: book, reschedule, cancel,
+mark attendance, block/unblock a slot, save visit notes.
+Locks the appointment first, then slots in ascending id order. Notification rows are written
+inside the transaction; mail delivery is attempted after commit.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';

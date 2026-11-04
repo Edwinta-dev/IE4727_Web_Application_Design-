@@ -1,5 +1,9 @@
 <?php
 
+/*
+Reads a patient profile (Allergies decoded from JSON). The profile update function is only used by tests.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';

@@ -1,5 +1,13 @@
 <?php
 
+/*
+Doctor only. Validates ?date= against the management window.
+POST (token checked) then branches on action:
+1. generate: create slots for a date range, hours, length and skipped weekdays
+2. toggle: block or reopen one slot (blocking a booked slot needs confirmation and cancels the appointment)
+Always redirects afterwards.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

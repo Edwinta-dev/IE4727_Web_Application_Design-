@@ -1,5 +1,11 @@
 <?php
 
+/*
+Public registration form. The role dropdown switches between patient and doctor fields (assets/app.js).
+Refills from the session after a failed submit and shows saved errors.
+Posts multipart (for the doctor photo) to actions/register.php.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

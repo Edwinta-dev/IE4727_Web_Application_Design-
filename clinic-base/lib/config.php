@@ -1,5 +1,10 @@
 <?php
 
+/*
+Single source of settings. Hides PHP errors from visitors, loads config.local.php if present,
+then defines defaults (database, timezone, slot sizes, MAIL_DELIVERY) only where not already set.
+*/
+
 declare(strict_types=1);
 
 // Shipped deployments must never expose PHP diagnostics to visitors.

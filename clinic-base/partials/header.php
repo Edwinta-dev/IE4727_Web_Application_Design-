@@ -1,5 +1,10 @@
 <?php
 
+/*
+Opens the HTML document and site header. Title comes from $pageTitle set by the page.
+nav.php closes the header and footer.php closes the document.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

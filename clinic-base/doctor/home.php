@@ -1,5 +1,11 @@
 <?php
 
+/*
+Doctor only. Day board for ?date= (if none given and today is empty, jumps to the next day with bookings).
+Attendance buttons open at the start time and post to actions/appointment.php.
+?patient=id shows that patient's history with this doctor.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

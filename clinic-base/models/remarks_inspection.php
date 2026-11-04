@@ -1,5 +1,10 @@
 <?php
 
+/*
+Command-line tooling only (tools/inspect_remarks.php). Prints one appointment's remarks
+with terminal control characters escaped.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/lib/db.php';

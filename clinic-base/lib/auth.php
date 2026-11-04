@@ -1,5 +1,11 @@
 <?php
 
+/*
+Login, logout, current_user() and the role guards (the require_* functions).
+Guests get 401, wrong role gets 403. Failed logins are counted in a file:
+5 per login name or 20 per client within 15 minutes.
+*/
+
 declare(strict_types=1);
 // Authorization responses use http_response_code(401) and http_response_code(403).
 
