@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 require_doctor();
 
@@ -42,6 +43,7 @@ $historyPatientId = is_string($historyPatientInput) && ctype_digit($historyPatie
     ? (int) $historyPatientInput
     : 0;
 $history = $historyPatientId > 0 ? patient_history_for_doctor($historyPatientId, $doctorId) : [];
+$notifications = notifications_for_doctor($doctorId);
 
 $pageTitle = 'Doctor Day Board';
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
@@ -154,5 +156,23 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         <?php endif; ?>
     </section>
     <?php endif; ?>
+
+    <section class="patient-notifications" aria-labelledby="notifications-heading">
+        <h2 id="notifications-heading">Latest notifications</h2>
+<?php if ($notifications === []): ?>
+        <p class="empty-state">You have no notifications.</p>
+<?php else: ?>
+        <p>Booking updates for your appointments. Your latest 20 messages are shown.</p>
+<?php foreach ($notifications as $notification): ?>
+        <details class="patient-notification">
+            <summary>
+                <span><?= e((string) $notification['Subject']) ?></span>
+                <time datetime="<?= e(str_replace(' ', 'T', (string) $notification['SentAt'])) ?>"><?= e(fmt_date((string) $notification['SentAt']) . ' at ' . fmt_time((string) $notification['SentAt'])) ?></time>
+            </summary>
+            <div class="notification-body"><?= nl2br(e(patient_notification_body((string) $notification['Body'])), false) ?></div>
+        </details>
+<?php endforeach; ?>
+<?php endif; ?>
+    </section>
 </main>
 <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -20,6 +20,22 @@ function notifications_for_patient(int $patientId): array
     );
 }
 
+/** Latest messages addressed to this doctor's stored email.
+ * @return list<array<string, mixed>>
+ */
+function notifications_for_doctor(int $doctorId): array
+{
+    return q_all(
+        'SELECT n.`notificationID`, n.`Subject`, n.`Body`, n.`SentAt`
+         FROM `notifications` n
+         INNER JOIN `doctor` d ON d.`Email` = n.`recipient`
+         WHERE d.`DoctorID` = :doctor_id
+         ORDER BY n.`SentAt` DESC, n.`notificationID` DESC
+         LIMIT 20',
+        ['doctor_id' => $doctorId]
+    );
+}
+
 /** Stored bodies sign off "Clinic: <APP_NAME>"; show the service name instead.
  * Display only: the stored notification rows are never rewritten.
  */
