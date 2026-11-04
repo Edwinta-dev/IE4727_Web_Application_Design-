@@ -27,7 +27,8 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     }
 }
 
-.page-intro-spaced { padding-top: var(--space-4); }
+/* The title block that opens a page sits the same distance below the nav on every page. */
+main > .page-intro:first-child { padding-top: var(--space-4); }
 
 /* Keep the brand and desktop navigation on the header's centre line. */
 @media (min-width: 42.01rem) {
@@ -272,6 +273,9 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .outbox-filters select { width: 12rem; max-width: 100%; }
 /* Keep headings outside the named table scroll regions. */
 .admin-console .console-section { min-width: 0; }
+.status-help { margin: 0 0 var(--space-2); color: var(--c-muted); max-width: 46rem; }
+.status-help strong { color: var(--c-ink); }
+.filter-summary { margin: var(--space-2) 0 0; color: var(--c-muted); }
 .admin-console .table-scroll-hint { display: block; margin: 0 0 var(--space-2); color: var(--c-muted); }
 .console-table-scroll.is-empty thead { display: none; }
 .console-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
