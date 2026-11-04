@@ -81,6 +81,10 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
 <?php if ($past !== []): ?>
         <p class="table-scroll-hint">Swipe or scroll the table to see times, status and visit notes.</p>
 <?php endif; ?>
+<?php $awaitingOutcome = array_filter($past, static fn (array $row): bool => in_array((string) $row['Status'], ['Future', 'Rescheduled'], true)); ?>
+<?php if ($awaitingOutcome !== []): ?>
+        <p class="status-help"><strong>Awaiting outcome</strong> means the visit time has passed and your doctor has not recorded the result yet. Visit notes appear here once they do.</p>
+<?php endif; ?>
         <div class="appointment-table-scroll<?= e($past === [] ? ' is-empty' : '') ?>" role="region" aria-labelledby="past-heading"<?php if ($past !== []): ?> tabindex="0"<?php endif; ?>>
         <table>
             <thead><tr><th scope="col">Doctor</th><th scope="col">Specialty</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Visit notes</th></tr></thead>

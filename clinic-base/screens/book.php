@@ -164,7 +164,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
-    <section class="page-intro page-intro-spaced booking-intro">
+    <section class="page-intro booking-intro">
         <div class="page-intro-copy">
             <h1><?= e($reschedule !== null ? 'Reschedule an appointment' : 'Book an appointment') ?></h1>
 <?php if ($reschedule !== null): ?>

@@ -60,6 +60,14 @@ $weeklyMax = max(array_map(static fn (array $row): int => (int) $row['Bookings']
 $peakMax = max(array_map(static fn (array $row): int => (int) $row['Bookings'], $peakHours) ?: [0]);
 $noShowMax = max(array_map(static fn (array $row): float => (float) $row['Rate'], $noShowDoctors) ?: [0]);
 
+$rangeFrom = fmt_date($filters['date_from']);
+$rangeTo = fmt_date($filters['date_to']);
+$rangeSummary = match (true) {
+    $rangeFrom !== '' && $rangeTo !== '' => 'Showing appointments from ' . $rangeFrom . ' to ' . $rangeTo . '.',
+    $rangeFrom !== '' => 'Showing appointments from ' . $rangeFrom . ' onwards.',
+    $rangeTo !== '' => 'Showing appointments up to ' . $rangeTo . '.',
+    default => '',
+};
 $pageTitle = 'Administrator Console';
 require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
 require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
@@ -107,6 +115,7 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
             <label>Status <select name="status"><option value="">All statuses</option><?php foreach (['Future', 'Cancelled', 'No show', 'Completed', 'Rescheduled'] as $status): ?><option value="<?= e($status) ?>"<?= e($filters['status'] === $status ? ' selected' : '') ?>><?= e($status) ?></option><?php endforeach; ?></select></label>
             <label>From <input type="date" name="date_from" value="<?= e($filters['date_from']) ?>"></label><label>To <input type="date" name="date_to" value="<?= e($filters['date_to']) ?>"></label><button type="submit">Apply filters</button><a href="<?= e(url('/screens/admin/console.php')) ?>">Clear</a>
         </form>
+        <?php if ($rangeSummary !== ''): ?><p class="filter-summary"><?= e($rangeSummary) ?></p><?php endif; ?>
     </section>
 
     <section class="console-section"><h2 id="patients-heading">Patients</h2>
