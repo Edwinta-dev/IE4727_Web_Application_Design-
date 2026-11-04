@@ -224,7 +224,8 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 .day-board td:last-child { min-width: 11rem; }
 .row-actions { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
 .row-actions form { margin: 0; }
-.row-actions .button { min-height: 2.5rem; padding: 0.4rem 0.9rem; font-size: 0.95rem; white-space: nowrap; }
+.row-actions .button { min-height: 2.25rem; padding: 0.3rem 0.8rem; font-size: 0.95rem; white-space: nowrap; }
+.day-schedule .day-board td { padding-block: var(--space-3); vertical-align: middle; }
 .row-note { margin: var(--space-1) 0 0; color: var(--c-muted); font-size: 0.93rem; }
 .day-schedule { margin-bottom: var(--space-5); }
 .status-label { display: inline-block; font-weight: 700; white-space: nowrap; }
