@@ -168,7 +168,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             <div class="generator-field"><label for="start-time">Working hours from <span class="required-mark" aria-hidden="true">*</span></label><input id="start-time" name="start_time" type="time" value="09:00" required aria-required="true"></div>
             <div class="generator-field"><label for="end-time">Working hours to <span class="required-mark" aria-hidden="true">*</span></label><input id="end-time" name="end_time" type="time" value="17:00" required aria-required="true"></div>
             <div class="generator-field"><label for="slot-length">Slot length <span class="required-mark" aria-hidden="true">*</span></label><select id="slot-length" name="slot_length" required aria-required="true"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
-            <details class="days-to-skip" open><summary>Days to skip <span class="days-scroll-hint">Scroll for Sunday →</span></summary><fieldset>
+            <details class="days-to-skip" open><summary>Days to skip</summary><fieldset>
                 <?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $dayNumber => $dayName): ?>
                     <label><input type="checkbox" name="skip_days[]" value="<?= e((string) $dayNumber) ?>"<?= e($dayNumber === 0 ? ' checked' : '') ?>> <?= e($dayName) ?></label>
                 <?php endforeach; ?>
