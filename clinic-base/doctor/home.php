@@ -111,8 +111,9 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                             <?php $isOpen = in_array((string) $appointment['Status'], ['Future', 'Rescheduled'], true); ?>
                             <?php if ($isOpen): ?>
                                 <?php $started = appointment_outcome_eligible($appointment, $doctorId); ?>
-                                <div class="row-actions">
-                                    <?php if ($started): ?>
+                                <?php /* Only what is true now: before the start time an appointment can be moved but not started; once started it can be started or marked no-show but not moved. */ ?>
+                                <?php if ($started): ?>
+                                    <div class="row-actions">
                                         <a class="button" href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
                                         <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
                                             <?= csrf_field() ?>
@@ -120,10 +121,11 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                             <input type="hidden" name="status" value="No show">
                                             <button class="button secondary" type="submit">Mark no-show</button>
                                         </form>
-                                    <?php endif; ?>
-                                    <a class="button secondary" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
-                                </div>
-                                <?php if (!$started): ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="row-actions">
+                                        <a class="button secondary" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
+                                    </div>
                                     <p class="row-note">Visit opens at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></p>
                                 <?php endif; ?>
                             <?php elseif ((string) $appointment['Status'] === 'Completed'): ?>

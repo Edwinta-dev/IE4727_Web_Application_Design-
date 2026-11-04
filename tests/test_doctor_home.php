@@ -22,6 +22,8 @@ foreach (['is_doctor()', 'set_appointment_status(', 'reschedule_appointment($app
 }
 assert_contains($book, "is_doctor() ? 'doctor' : 'patient'");
 assert_true(strpos($page, 'SELECT ') === false, 'doctor page must not contain SQL');
+assert_true(preg_match('/<\\?php if \\(\$started\\): \\?>.*?Start visit.*?Mark no-show.*?<\\?php else: \\?>.*?Reschedule.*?<\\?php endif; \\?>/s', $page) === 1,
+    'started appointments offer Start visit and Mark no-show; not-yet-started ones offer Reschedule (never both)');
 assert_true(strpos($page, 'Mark completed') === false, 'Mark completed is gone: saving visit notes completes the appointment (#230)');
 assert_true(strpos($page, 'Attendance actions open at') === false, 'the long unwrapped sentence is replaced by a short note (#224)');
 assert_true(strpos($page, 'No upcoming appointments after this day') === false, 'misleading wording replaced (#224)');
