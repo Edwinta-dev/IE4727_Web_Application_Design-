@@ -15,7 +15,7 @@ await withTestServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, 'book.php', base);
+        await visit(page, 'screens/book.php', base);
         for (const [name, selector] of [['date', '.day-tab.selected'], ['reason', '#reason']]) {
           const control = page.locator(selector);
           assert.equal(await control.count(), 1, `${name} control exists`);

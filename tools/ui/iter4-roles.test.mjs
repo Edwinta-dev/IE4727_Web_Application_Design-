@@ -25,9 +25,9 @@ try {
     const browser = await chromium.launch({ headless: true });
     try {
       for (const [role, routes] of [
-        ['patient', [`patient/home.php?view=${seed.visits.earlier}`]],
-        ['doctor', ['doctor/home.php', 'doctor/schedule.php', `doctor/visit.php?appt=${seed.visits.current}`]],
-        ['admin', ['admin/console.php', 'admin/outbox.php']],
+        ['patient', [`screens/patient/home.php?view=${seed.visits.earlier}`]],
+        ['doctor', ['screens/doctor/home.php', 'screens/doctor/schedule.php', `screens/doctor/visit.php?appt=${seed.visits.current}`]],
+        ['admin', ['screens/admin/console.php', 'screens/admin/outbox.php']],
       ]) {
         const context = await browser.newContext({ javaScriptEnabled: false });
         try {
@@ -47,7 +47,7 @@ try {
             titles.set(title, route);
             assert.equal(await page.locator('main h1').count(), 1);
             if (role === 'patient') assert.equal(await page.locator('.visit-notes').count(), 1);
-            if (route.startsWith('doctor/visit.php')) assert.equal(await page.locator('.patient-history .visit-history-record').count(), 2);
+            if (route.startsWith('screens/doctor/visit.php')) assert.equal(await page.locator('.patient-history .visit-history-record').count(), 2);
             const slug = route.split('?')[0].replace('.php', '').replaceAll('/', '-');
             for (const width of [1280, 390]) {
               await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });

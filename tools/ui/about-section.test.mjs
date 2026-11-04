@@ -48,7 +48,7 @@ await withTestServer(true, async base => {
         if (width === 1280) assert.ok(layout.copyRight < layout.imageLeft, 'desktop image sits beside text');
         else assert.ok(layout.copyBottom < layout.imageTop, 'mobile image sits below text');
 
-        await page.goto(base + 'doctors.php');
+        await page.goto(base + 'screens/doctors.php');
         if (width === 390) await page.locator('.nav-toggle').click();
         const link = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'About Us' });
         assert.equal(await link.getAttribute('href'), '/clinic-base/index.php#about');

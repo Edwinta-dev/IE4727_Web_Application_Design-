@@ -67,7 +67,7 @@ function childEnvironment() {
   }
   return env;
 }
-const pages = ['index.php','doctors.php','doctor.php?id=1','book.php?doctor=1','register.php','patient/home.php','doctor/home.php','doctor/schedule.php','doctor/visit.php','admin/console.php','admin/outbox.php'];
+const pages = ['index.php','screens/doctors.php','screens/doctor.php?id=1','screens/book.php?doctor=1','screens/register.php','screens/patient/home.php','screens/doctor/home.php','screens/doctor/schedule.php','screens/doctor/visit.php','screens/admin/console.php','screens/admin/outbox.php'];
 export const slug = (p) => p.replace(/\.php.*/, '').replace(/[/?=&]+/g, '-').replace(/^-|-$/g, '').replace(/\.php$/, '') || 'home';
 export function parseArgs(args) {
   const out={serve:false,label:null,within:null,app:'clinic-base',paths:[]};
@@ -137,17 +137,17 @@ export async function login(page, role, base=appBase) {
   await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('form button[type="submit"]').click()]);
   await waitForPageAssets(page);
   const body=await page.locator('body').innerText();
-  const expected={patient:'/patient/home.php',doctor:'/doctor/home.php',admin:'/admin/console.php'}[role];
+  const expected={patient:'/screens/patient/home.php',doctor:'/screens/doctor/home.php',admin:'/screens/admin/console.php'}[role];
   if(body.match(/Session expired|could not sign you in|form could not be verified/i)||page.url().includes('/actions/login.php')||!page.url().includes(expected))throw Error(`Login failed for ${role} role (${user}); protected pages skipped: ${body.match(/Session expired|could not sign you in|form could not be verified/i)?.[0]||'expected role home did not open'}.`);
 }
 export async function prepare(page,path,base=appBase) {
   const role=path.startsWith('patient/')?'patient':path.startsWith('doctor/')?'doctor':path.startsWith('admin/')?'admin':null;
   if(role)await login(page,role,base);
-  if(path==='doctor/visit.php'){
+  if(path==='screens/doctor/visit.php'){
     let href=null;
     for(let day=0;day<31&&!href;day++){
       const date=new Date();date.setDate(date.getDate()+day);
-      await page.goto(base+'doctor/home.php?date='+date.toISOString().slice(0,10),{waitUntil:'networkidle'});
+      await page.goto(base+'screens/doctor/home.php?date='+date.toISOString().slice(0,10),{waitUntil:'networkidle'});
       href=await page.locator('a[href*="visit.php?appt="]').first().getAttribute('href').catch(()=>null);
     }
     if(!href)throw Error('No Future appointment link found on doctor home for doctor/visit.php.');

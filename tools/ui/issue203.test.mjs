@@ -21,7 +21,7 @@ await withTestServer(true, async base => {
       for (const javaScriptEnabled of [true, false]) {
         const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, javaScriptEnabled });
         try {
-          await visit(page, `book.php?doctor=1&date=${day}&from=15:00&to=15:30`, base);
+          await visit(page, `screens/book.php?doctor=1&date=${day}&from=15:00&to=15:30`, base);
           assert.equal(await page.locator('.booking-time-filter, [name="from"], [name="to"]').count(), 0);
           assert.equal(await page.locator('.schedule-grid > .slot').count(), expected, 'Every future slot is shown despite obsolete time query parameters');
           assert.ok(await page.locator('#specialty').isVisible());

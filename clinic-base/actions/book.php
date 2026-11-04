@@ -27,7 +27,7 @@ $returnUrl = static function (): string {
         }
     }
 
-    return '/book.php' . ($params === [] ? '' : '?' . http_build_query($params));
+    return '/screens/book.php' . ($params === [] ? '' : '?' . http_build_query($params));
 };
 
 if (!is_patient()) {
@@ -91,4 +91,4 @@ foreach (['from', 'to'] as $key) {
         $params[$key] = $_POST[$key];
     }
 }
-redirect('/book.php?' . http_build_query($params));
+redirect('/screens/book.php?' . http_build_query($params));

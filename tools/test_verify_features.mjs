@@ -32,14 +32,14 @@ async function verifyFeatures() {
     console.log('  [Base Home] Login card present:', loginCard > 0);
 
     // 1.2 Doctors Directory UI & Filtering
-    await pageBase.goto(BASE_URL_BASE + 'doctors.php', { waitUntil: 'networkidle' });
+    await pageBase.goto(BASE_URL_BASE + 'screens/doctors.php', { waitUntil: 'networkidle' });
     const doctorCountTotal = await pageBase.locator('.doctor-card').count();
     const filterOptions = await pageBase.locator('.specialty-pills a, .specialty-chip, .filter-chip, a[href*="specialty="]').count();
     console.log('  [Base Doctors] Total doctor cards rendered:', doctorCountTotal);
     console.log('  [Base Doctors] Specialty filter links:', filterOptions);
 
     // 1.3 Doctor Detailed Profile UI
-    await pageBase.goto(BASE_URL_BASE + 'doctor.php?id=1', { waitUntil: 'networkidle' });
+    await pageBase.goto(BASE_URL_BASE + 'screens/doctor.php?id=1', { waitUntil: 'networkidle' });
     const doctorName = await pageBase.locator('h1').innerText();
     const doctorQuals = await pageBase.locator('.doctor-qualifications, .qualifications, p:has-text("MBBS")').count();
     const doctorBio = await pageBase.locator('.doctor-bio, .writeup, p:has-text("family physician")').count();
@@ -61,14 +61,14 @@ async function verifyFeatures() {
     console.log('  [Base Doctor Dashboard] Date picker switcher present:', dateSwitcher > 0);
 
     // 1.5 Doctor Schedule Management UI
-    await pageBase.goto(BASE_URL_BASE + 'doctor/schedule.php', { waitUntil: 'networkidle' });
+    await pageBase.goto(BASE_URL_BASE + 'screens/doctor/schedule.php', { waitUntil: 'networkidle' });
     const scheduleSlots = await pageBase.locator('.schedule-slot, .slot, .schedule-grid button, .schedule-grid form').count();
     const blockButtons = await pageBase.locator('button:has-text("Block"), button:has-text("Reopen")').count();
     console.log('  [Base Doctor Schedule] Slot items/controls rendered:', scheduleSlots);
     console.log('  [Base Doctor Schedule] Interactive Block/Reopen buttons:', blockButtons);
 
     // 1.6 Patient Clinical Consultation Visit Notes UI
-    await pageBase.goto(BASE_URL_BASE + 'doctor/visit.php?appt=23', { waitUntil: 'networkidle' });
+    await pageBase.goto(BASE_URL_BASE + 'screens/doctor/visit.php?appt=23', { waitUntil: 'networkidle' });
     const visitPatientName = await pageBase.locator('.patient-profile h2, .patient-name').innerText();
     const allergyDisplay = await pageBase.locator('.patient-profile').first().innerText();
     const diagInput = await pageBase.locator('[name="Diagnosis"]').count();
@@ -108,7 +108,7 @@ async function verifyFeatures() {
     if (pageAdmin.url().includes('console.php')) {
         const adminStats = await pageAdmin.locator('.stat, .stats-card, .metric, table').count();
         console.log('  [Base Admin Console] Operational metrics/tables:', adminStats);
-        await pageAdmin.goto(BASE_URL_BASE + 'admin/outbox.php', { waitUntil: 'networkidle' });
+        await pageAdmin.goto(BASE_URL_BASE + 'screens/admin/outbox.php', { waitUntil: 'networkidle' });
         const outboxRows = await pageAdmin.locator('table tbody tr').count();
         console.log('  [Base Admin Outbox] Notification log rows:', outboxRows);
     }
@@ -123,8 +123,8 @@ async function verifyFeatures() {
     await pagePlus.goto(BASE_URL_PLUS + 'index.php', { waitUntil: 'networkidle' });
     console.log('  [Plus Home] Title:', await pagePlus.title());
 
-    // 2.2 htmx Dynamic Partial Slots in clinic-plus/book.php
-    await pagePlus.goto(BASE_URL_PLUS + 'book.php?doctor=1', { waitUntil: 'networkidle' });
+    // 2.2 htmx Dynamic Partial Slots in clinic-plus/screens/book.php
+    await pagePlus.goto(BASE_URL_PLUS + 'screens/book.php?doctor=1', { waitUntil: 'networkidle' });
     const htmxScriptTag = await pagePlus.locator('script[src*="htmx"]').count();
     const hxGetAttributes = await pagePlus.locator('[hx-get]').count();
     const schedulePanel = await pagePlus.locator('#schedule-panel').count();

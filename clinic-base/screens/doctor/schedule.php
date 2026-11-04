@@ -10,12 +10,12 @@ Always redirects afterwards.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
 
 require_doctor();
 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     : $created . ' new schedule slot' . ($created === 1 ? '' : 's') . ' created.',
                 'success'
             );
-            redirect('/doctor/schedule.php?date=' . rawurlencode($from));
+            redirect('/screens/doctor/schedule.php?date=' . rawurlencode($from));
         }
 
         if ($action === 'toggle') {
@@ -117,13 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 flash('The slot is available again.', 'success');
             }
-            redirect('/doctor/schedule.php?date=' . rawurlencode($selectedDate));
+            redirect('/screens/doctor/schedule.php?date=' . rawurlencode($selectedDate));
         }
 
         throw new InvalidArgumentException('Unknown schedule action.');
     } catch (Throwable $exception) {
         flash($exception->getMessage(), 'error');
-        redirect('/doctor/schedule.php?date=' . rawurlencode($selectedDate));
+        redirect('/screens/doctor/schedule.php?date=' . rawurlencode($selectedDate));
     }
 }
 
@@ -142,8 +142,8 @@ $currentSlots = array_values(array_filter($slots, static fn (array $slot): bool 
 $elapsedSlots = array_values(array_filter($slots, static fn (array $slot): bool => !schedule_slot_editable($slot, $doctorId)));
 
 $pageTitle = 'Doctor Schedule Editor';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="schedule-editor">
     <section class="page-intro">
@@ -158,7 +158,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
     <section class="schedule-generator" aria-labelledby="generate-heading">
         <h2 id="generate-heading">Set working hours</h2>
-        <form method="post" action="<?= e(url('/doctor/schedule.php')) ?>">
+        <form method="post" action="<?= e(url('/screens/doctor/schedule.php')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="generate">
             <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
@@ -191,9 +191,9 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                         <span class="slot-status status-label status-<?= e($timeClass !== '' ? 'past' : strtolower($status)) ?>"><?= e($timeClass !== '' ? 'Past' : $status) ?></span>
                         <?php if ($timeClass !== ''): ?><span class="slot-readonly">Elapsed slot</span>
                         <?php elseif ($status === 'Booked'): ?>
-                            <form class="schedule-booked-form" data-patient="<?= e($bookedPatients[(int) $slot['slotID']] ?? 'this patient') ?>" method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="Blocked"><p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p><label><input type="checkbox" name="confirm_booking" value="1" required aria-required="true"> Cancel <?= e($bookedPatients[(int) $slot['slotID']] ?? 'this patient') ?>'s appointment and notify both parties <span class="required-mark" aria-hidden="true">*</span></label><button type="submit" onclick="return confirm('Block this time for ' + this.form.dataset.patient + '? Their appointment will be cancelled and both parties notified.');">Block booked slot</button></form>
+                            <form class="schedule-booked-form" data-patient="<?= e($bookedPatients[(int) $slot['slotID']] ?? 'this patient') ?>" method="post" action="<?= e(url('/screens/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="Blocked"><p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p><label><input type="checkbox" name="confirm_booking" value="1" required aria-required="true"> Cancel <?= e($bookedPatients[(int) $slot['slotID']] ?? 'this patient') ?>'s appointment and notify both parties <span class="required-mark" aria-hidden="true">*</span></label><button type="submit" onclick="return confirm('Block this time for ' + this.form.dataset.patient + '? Their appointment will be cancelled and both parties notified.');">Block booked slot</button></form>
                         <?php else: ?>
-                            <form method="post" action="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="<?= e($status === 'Blocked' ? 'Available' : 'Blocked') ?>"><button type="submit"><?= e($status === 'Blocked' ? 'Make available' : 'Block slot') ?></button></form>
+                            <form method="post" action="<?= e(url('/screens/doctor/schedule.php?date=' . rawurlencode($selectedDate))) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="slot_id" value="<?= e((string) $slot['slotID']) ?>"><input type="hidden" name="status" value="<?= e($status === 'Blocked' ? 'Available' : 'Blocked') ?>"><button type="submit"><?= e($status === 'Blocked' ? 'Make available' : 'Block slot') ?></button></form>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?></ul><?php endif; ?>
@@ -206,7 +206,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="month-grid" aria-labelledby="month-heading">
         <h2 id="month-heading">Choose a date</h2>
         <p class="schedule-section-help">30 days from <?= e(fmt_date($gridStart->format('Y-m-d'))) ?>. Select a day to see its appointment times.</p>
-        <form class="schedule-date-filter" method="get" action="<?= e(url('/doctor/schedule.php')) ?>">
+        <form class="schedule-date-filter" method="get" action="<?= e(url('/screens/doctor/schedule.php')) ?>">
             <p class="required-note"><span class="required-mark" aria-hidden="true">*</span> required</p>
             <label for="schedule-date">Open a date <span class="required-mark" aria-hidden="true">*</span></label>
             <input id="schedule-date" name="date" type="date" min="<?= e($today->format('Y-m-d')) ?>" value="<?= e($selectedDate) ?>" required aria-required="true">
@@ -230,7 +230,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 $dayDescription = fmt_date($dayDate) . ': ' . $dayCounts['Available'] . ' Available, ' . $dayCounts['Booked'] . ' Booked, ' . $dayCounts['Blocked'] . ' Blocked';
                 ?>
                 <article class="schedule-day<?= e($totalSlots === 0 ? ' no-slots' : '') ?><?= e($dayDate === $selectedDate ? ' selected' : '') ?>">
-                    <a href="<?= e(url('/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>" aria-label="<?= e($dayDescription) ?>"<?php if ($dayDate === $selectedDate): ?> aria-current="date"<?php endif; ?>><time datetime="<?= e($dayDate) ?>"><?= e($day->format('j')) ?><?php if ($offset === 0 || $day->format('j') === '1'): ?> <span class="calendar-month"><?= e($day->format('M')) ?></span><?php endif; ?></time>
+                    <a href="<?= e(url('/screens/doctor/schedule.php?date=' . rawurlencode($dayDate))) ?>" aria-label="<?= e($dayDescription) ?>"<?php if ($dayDate === $selectedDate): ?> aria-current="date"<?php endif; ?>><time datetime="<?= e($dayDate) ?>"><?= e($day->format('j')) ?><?php if ($offset === 0 || $day->format('j') === '1'): ?> <span class="calendar-month"><?= e($day->format('M')) ?></span><?php endif; ?></time>
                     <span class="calendar-slot-total"><?= e($totalSlots === 0 ? 'No slots' : $totalSlots . ' slots') ?></span><?php if ($totalSlots > 0): ?><span class="calendar-state-line" aria-hidden="true"><i class="available" style="width: <?= e((string) round(100 * $dayCounts['Available'] / $totalSlots)) ?>%"></i><i class="booked" style="width: <?= e((string) round(100 * $dayCounts['Booked'] / $totalSlots)) ?>%"></i><i class="blocked" style="width: <?= e((string) round(100 * $dayCounts['Blocked'] / $totalSlots)) ?>%"></i></span><?php endif; ?></a>
                 </article>
             <?php endfor; ?>
@@ -239,4 +239,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 
 </main>
 <script src="<?= e(asset_url('/assets/app.js')) ?>" defer></script>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

@@ -15,11 +15,11 @@ $read = static function (string $relative) use ($root): string {
 $helpers = $read('clinic-base/lib/helpers.php');
 $csrf = $read('clinic-base/lib/csrf.php');
 $config = $read('clinic-base/lib/config.php');
-$book = $read('clinic-base/book.php');
+$book = $read('clinic-base/screens/book.php');
 $bookAction = $read('clinic-base/actions/book.php');
-$doctor = $read('clinic-base/doctor.php');
-$visit = $read('clinic-base/doctor/visit.php');
-$console = $read('clinic-base/admin/console.php');
+$doctor = $read('clinic-base/screens/doctor.php');
+$visit = $read('clinic-base/screens/doctor/visit.php');
+$console = $read('clinic-base/screens/admin/console.php');
 
 foreach (['render_status_page', 'render_not_found', 'class="status-page"', 'clinic-logo.svg'] as $needle) {
     assert_contains($helpers, $needle, 'shared error page is missing ' . $needle);

@@ -74,7 +74,7 @@ Stage 'Route smoke tests' {
     $server = Start-Job -ScriptBlock { param($directory, $listenPort) Set-Location $directory; php -S "127.0.0.1:$listenPort" -t (Join-Path $directory 'clinic-base') } -ArgumentList $root, $port
     try {
         Start-Sleep -Milliseconds 500
-        foreach ($route in @('/doctor.php?id=1', '/assets/img/clinic-logo.svg')) {
+        foreach ($route in @('/screens/doctor.php?id=1', '/assets/img/clinic-logo.svg')) {
             $client = [Net.Sockets.TcpClient]::new('127.0.0.1', $port)
             $stream = $client.GetStream()
             $request = [Text.Encoding]::ASCII.GetBytes("GET $route HTTP/1.1`r`nHost: localhost`r`nConnection: close`r`n`r`n")

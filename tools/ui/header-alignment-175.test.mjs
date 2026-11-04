@@ -11,9 +11,9 @@ await mkdir(evidence, { recursive: true });
 
 const paths = {
   guest: 'index.php',
-  patient: 'patient/home.php',
-  doctor: 'doctor/home.php',
-  admin: 'admin/console.php',
+  patient: 'screens/patient/home.php',
+  doctor: 'screens/doctor/home.php',
+  admin: 'screens/admin/console.php',
 };
 
 await withTestServer(true, async base => {

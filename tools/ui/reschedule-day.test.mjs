@@ -38,7 +38,7 @@ await withTestServer(true, async () => {
   try {
     const page = await browser.newPage({ javaScriptEnabled: false });
     await login(page, 'patient');
-    const route = `${appBase}book.php?reschedule=${original.appointmentID}`;
+    const route = `${appBase}screens/book.php?reschedule=${original.appointmentID}`;
     await page.goto(route);
     await capture(page, 'landing');
     await page.goto(`${route}&date=${day(0)}`);
@@ -49,11 +49,11 @@ await withTestServer(true, async () => {
       encoding: 'utf8', env: { ...process.env, UI_BASE_URL: appBase }, windowsHide: true,
     }).trim());
     // The supported relative-route workflow retains patient login in prepare().
-    audit([`patient/../book.php?reschedule=${original.appointmentID}`,
-      `patient/../book.php?reschedule=${original.appointmentID}&date=${day(0)}`]);
+    audit([`patient/../screens/book.php?reschedule=${original.appointmentID}`,
+      `patient/../screens/book.php?reschedule=${original.appointmentID}&date=${day(0)}`]);
     await page.goto(route);
     check(await page.locator('#date').inputValue() === day(4), 'entry must prefer selectable original day');
-    await page.goto(`${appBase}book.php?reschedule=${seed.appointments[1].appointmentID}&doctor=1`);
+    await page.goto(`${appBase}screens/book.php?reschedule=${seed.appointments[1].appointmentID}&doctor=1`);
     check(await page.locator('#date').inputValue() === day(3), 'outside-window original must land on earliest free permitted day with owned doctor');
     check(await page.locator('#doctor').inputValue() === String(seed.doctor), 'reschedule doctor changed');
     await page.goto(`${route}&from=09:00&to=10:30`);
@@ -89,14 +89,14 @@ await withTestServer(true, async () => {
     check(success.appointments[0].Status === 'Rescheduled' && success.appointments[0].slotID !== original.slotID, 'replacement did not succeed');
     check(success.slots.find(slot => slot.slotID === original.slotID).Status === 'Available', 'successful replacement did not release original');
     fixture('unavailable');
-    await page.goto(`${appBase}book.php?reschedule=${seed.appointments[1].appointmentID}`);
+    await page.goto(`${appBase}screens/book.php?reschedule=${seed.appointments[1].appointmentID}`);
     const unavailableCopy = await page.locator('.booking-slots').innerText();
     check(unavailableCopy.includes('All appointment times on this day have passed.')
       && await page.locator('.slot-choice').count() === 0, 'no-window availability state missing');
     await capture(page, 'no-availability');
-    audit([`patient/../book.php?reschedule=${seed.appointments[1].appointmentID}`]);
-    await page.goto(`${appBase}book.php?reschedule=1`);
-    check(!page.url().includes('book.php'), 'foreign booking exposed');
+    audit([`patient/../screens/book.php?reschedule=${seed.appointments[1].appointmentID}`]);
+    await page.goto(`${appBase}screens/book.php?reschedule=1`);
+    check(!page.url().includes('screens/book.php'), 'foreign booking exposed');
     console.log('OK: authorized original/next day, explicit/elapsed/booked/blocked/empty days, ignored legacy time range, no-window state, keyboard, JS-off, stale conflict and atomic replacement');
   } finally { await browser.close(); }
 });

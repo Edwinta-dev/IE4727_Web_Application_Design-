@@ -13,9 +13,9 @@ if ($spec === false) {
 preg_match_all('/\| `([^`]+\.php)` \| (PENDING|IMPLEMENTED|BUILT) \|/', $spec, $matches);
 $pages = $matches[1];
 $expected = [
-    'index.php', 'doctors.php', 'doctor.php', 'book.php', 'register.php',
-    'patient/home.php', 'doctor/home.php', 'doctor/schedule.php',
-    'doctor/visit.php', 'admin/console.php', 'admin/outbox.php',
+    'screens/index.php', 'screens/doctors.php', 'screens/doctor.php', 'screens/book.php', 'screens/register.php',
+    'screens/patient/home.php', 'screens/doctor/home.php', 'screens/doctor/schedule.php',
+    'screens/doctor/visit.php', 'screens/admin/console.php', 'screens/admin/outbox.php',
 ];
 if ($pages !== $expected || count($pages) !== 11 || count(array_unique($pages)) !== 11) {
     fwrite(STDERR, "FAIL: page budget must contain exactly the documented eleven pages\n");

@@ -10,7 +10,7 @@ await withServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, 'doctors.php', base);
+        await visit(page, 'screens/doctors.php', base);
         const filter = page.locator('.specialty-filter');
         assert.equal(await filter.locator('button:visible').count(), 0, 'no visible submit button with JavaScript');
         await page.keyboard.press('Tab');
@@ -39,7 +39,7 @@ await withServer(true, async base => {
 
       const noJs = await browser.newPage({ javaScriptEnabled: false, viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(noJs, 'doctors.php', base);
+        await visit(noJs, 'screens/doctors.php', base);
         const filter = noJs.locator('.specialty-filter');
         assert.equal(await filter.locator('button:visible').count(), 1, 'noscript submit is visible');
         await filter.locator('select').selectOption('Dental');

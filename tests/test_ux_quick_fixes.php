@@ -19,20 +19,20 @@ $none = ['2026-11-04' => $counts(0), '2026-11-05' => $counts(0)];
 assert_eq(booking_default_date('2026-11-04', $none), '2026-11-04', 'no day has times, so it stays on today');
 
 $root = dirname(__DIR__) . '/clinic-base/';
-$book = (string) file_get_contents($root . 'book.php');
+$book = (string) file_get_contents($root . 'screens/book.php');
 assert_true(preg_match('/\$reschedule === null && !\$dateRequested\)\s*\{\s*\$selectedDate = booking_default_date\(/', $book) === 1,
     'book.php applies the default only when no date was requested and it is not a reschedule');
 
 // 225: hero buttons have different destinations.
-$index = (string) file_get_contents($root . 'index.php');
-assert_true(preg_match('~href="<\?= e\(url\(\'/doctors\.php\'\)\) \?>">Find a doctor</a>~', $index) === 1, 'Find a doctor goes to the doctor list');
-assert_true(preg_match('~href="<\?= e\(url\(\'/book\.php\'\)\) \?>">Book an appointment</a>~', $index) === 1, 'Book an appointment goes to the booking page');
+$index = (string) file_get_contents($root . 'screens/index.php');
+assert_true(preg_match('~href="<\?= e\(url\(\'/screens/doctors\.php\'\)\) \?>">Find a doctor</a>~', $index) === 1, 'Find a doctor goes to the doctor list');
+assert_true(preg_match('~href="<\?= e\(url\(\'/screens/book\.php\'\)\) \?>">Book an appointment</a>~', $index) === 1, 'Book an appointment goes to the booking page');
 
 // 229: the day checkboxes wrap instead of scrolling sideways.
 $css = (string) file_get_contents($root . 'assets/css/style.css');
 assert_true(preg_match('/days-to-skip fieldset\s*\{[^}]*nowrap/', $css) === 0, 'Days to skip no longer forced onto one row');
 assert_true(preg_match('/days-to-skip\s*\{[^}]*overflow:\s*hidden/', $css) === 0, 'Days to skip is not clipped');
-$schedule = (string) file_get_contents($root . 'doctor/schedule.php');
+$schedule = (string) file_get_contents($root . 'screens/doctor/schedule.php');
 assert_true(strpos($schedule, 'Scroll for Sunday') === false, 'scroll hint removed');
 assert_true(substr_count($schedule, 'name="skip_days[]"') === 1 && strpos($schedule, "0 => 'Sunday'") !== false, 'all seven days are still offered');
 

@@ -22,19 +22,19 @@ try {
         for (const width of [1280, 390]) {
           const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
           try {
-            for (const path of ['index.php', 'doctors.php', 'register.php']) {
+            for (const path of ['index.php', 'screens/doctors.php', 'screens/register.php']) {
               await visit(page, path, base);
-              if (path === 'register.php') {
+              if (path === 'screens/register.php') {
                 await page.locator('[data-role-switch="doctor"]').click();
                 await page.waitForTimeout(220);
               }
-              const selector = path === 'index.php' ? '.specialty-item h3' : path === 'doctors.php' ? '#specialty option:not([value=""])' : '#specialty option:not([value=""])';
+              const selector = path === 'index.php' ? '.specialty-item h3' : path === 'screens/doctors.php' ? '#specialty option:not([value=""])' : '#specialty option:not([value=""])';
               const specialties = await page.locator(selector).allTextContents();
               assert.equal(specialties.includes('Dentistry'), false);
               assert.equal(new Set(specialties).size, specialties.length);
-              if (path !== 'register.php') assert.deepEqual(specialties, expected.specialties);
+              if (path !== 'screens/register.php') assert.deepEqual(specialties, expected.specialties);
               else assert.deepEqual(specialties, ['Dental', 'Dermatology', 'General Practice', 'Paediatrics', 'Physiotherapy']);
-              if (path === 'doctors.php') {
+              if (path === 'screens/doctors.php') {
                 assert.equal(await page.locator('tbody tr').count(), count);
                 assert.ok((await page.locator('tbody').innerText()).includes('Dr Edwin'));
               }
@@ -43,7 +43,7 @@ try {
               measurements.push({ count, width, path, specialties, documentWidth });
               await page.screenshot({ path: resolve(output, `${count}-${path.replace('.php', '')}-${width}.png`), fullPage: true });
             }
-            await visit(page, 'doctors.php?specialty=Dental', base);
+            await visit(page, 'screens/doctors.php?specialty=Dental', base);
             assert.ok((await page.locator('tbody').innerText()).includes('Dr Edwin'));
           } finally { await page.close(); }
         }
@@ -52,18 +52,18 @@ try {
       for (const javaScriptEnabled of [true, false]) {
         const page = await browser.newPage({ javaScriptEnabled });
         try {
-          await visit(page, 'register.php', base);
+          await visit(page, 'screens/register.php', base);
           const csrf = await page.locator('[name="_csrf"]').inputValue();
           const user = `issue138_${javaScriptEnabled}`;
           const form = { _csrf: csrf, role: 'doctor', FullName: 'dr edwin', User: user,
             Email: `${user}@example.test`, password: 'Password123', confirm_password: 'Password123',
             Specialty: 'Dentistry', Qualifications: 'BDS', Languages: 'English', WriteUp: 'Dental care with training and experience in community oral health services.' };
           const rejected = await page.request.post(base + 'actions/register.php', { form });
-          assert.ok(rejected.url().endsWith('/register.php'));
+          assert.ok(rejected.url().endsWith('/screens/register.php'));
           assert.ok((await rejected.text()).includes('Choose a specialty from the list of clinic services.'));
           assert.equal(php('-r', 'require "clinic-base/models/accounts.php"; echo user_or_email_taken($argv[1]) ? "exists" : "absent";', user), 'absent');
           const accepted = await page.request.post(base + 'actions/register.php', { multipart: { ...form, Specialty: 'Dental', ProfilePhoto: { name: 'doctor.jpg', mimeType: 'image/jpeg', buffer: await readFile(resolve('clinic-base/assets/img/Doctor_Consulting.jpg')) } } });
-          assert.ok(accepted.url().endsWith('/doctor/home.php'), `${accepted.url()}: ${(await accepted.text()).slice(0, 1500)}`);
+          assert.ok(accepted.url().endsWith('/screens/doctor/home.php'), `${accepted.url()}: ${(await accepted.text()).slice(0, 1500)}`);
           assert.equal(php('-r', 'require "clinic-base/models/accounts.php"; echo find_login($argv[1])["name"];', user), 'Dr Edwin');
           const photo = php('-r', 'require "clinic-base/lib/db.php"; $row=q_one("SELECT ImageURL FROM doctor WHERE User = :user", ["user" => $argv[1]]); echo $row["ImageURL"] ?? "";', user);
           if (/^assets\/uploads\/doctors\/doctor-[a-f0-9]{32}\.(jpg|png|webp)$/.test(photo)) await rm(resolve('clinic-base', photo), { force: true });

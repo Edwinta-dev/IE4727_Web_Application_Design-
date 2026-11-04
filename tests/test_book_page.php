@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/book.php');
 $action = file_get_contents(dirname(__DIR__) . '/clinic-base/actions/book.php');
 if ($page === false || $action === false) {
     throw new RuntimeException('booking page or action could not be read');
@@ -61,4 +61,4 @@ assert_true(!str_contains($page, "\$_GET['from']") && !str_contains($page, "\$_G
 assert_true(!str_contains($page, 'day-scroll'), 'booking date strip has no arrow buttons or helper caption');
 assert_contains($css, '.day-tabs { display: flex; flex-wrap: wrap;');
 $nav = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/nav.php');
-assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/book.php']");
+assert_contains($nav, "['label' => 'Book an appointment', 'href' => '/screens/book.php']");

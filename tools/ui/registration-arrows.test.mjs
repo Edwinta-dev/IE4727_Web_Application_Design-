@@ -37,7 +37,7 @@ try {
         for (const motion of ['no-preference', 'reduce']) {
           const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, reducedMotion: motion });
           try {
-            await visit(page, 'register.php', base);
+            await visit(page, 'screens/register.php', base);
             for (const role of ['patient', 'doctor']) {
               await page.locator(`[data-role-switch="${role}"]`).click();
               await page.waitForTimeout(220);

@@ -4,10 +4,10 @@ test('mobile action tables retain labelled fields and narrow-screen layouts', st
     $root = dirname(__DIR__);
     $style = (string) file_get_contents($root . '/clinic-base/assets/css/style.css');
     $pages = [
-        'directory' => (string) file_get_contents($root . '/clinic-base/doctors.php'),
-        'day board' => (string) file_get_contents($root . '/clinic-base/doctor/home.php'),
-        'patient dashboard' => (string) file_get_contents($root . '/clinic-base/patient/home.php'),
-        'outbox' => (string) file_get_contents($root . '/clinic-base/admin/outbox.php'),
+        'directory' => (string) file_get_contents($root . '/clinic-base/screens/doctors.php'),
+        'day board' => (string) file_get_contents($root . '/clinic-base/screens/doctor/home.php'),
+        'patient dashboard' => (string) file_get_contents($root . '/clinic-base/screens/patient/home.php'),
+        'outbox' => (string) file_get_contents($root . '/clinic-base/screens/admin/outbox.php'),
     ];
     foreach ($pages as $name => $source) {
         if (!str_contains($source, 'data-label=')) {

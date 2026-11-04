@@ -7,9 +7,9 @@ Unknown id returns a 404 page.
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
 
 $idInput = $_GET['id'] ?? '';
 $doctorId = is_string($idInput) && ctype_digit($idInput) ? (int) $idInput : 0;
@@ -25,8 +25,8 @@ $image = trim((string) ($doctor['ImageURL'] ?? ''));
 $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 $name = (string) $doctor['FullName'];
 $pageTitle = $name . ' - Doctor Profile';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="main-content" class="doctor-profile">
     <aside class="doctor-profile-identity" aria-label="Doctor details">
@@ -37,7 +37,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <div><dt>Qualifications</dt><dd><?= e((string) ($doctor['Qualifications'] ?? 'Not listed')) ?></dd></div>
             <div><dt>Languages</dt><dd><?= e((string) ($doctor['Languages'] ?? 'Not listed')) ?></dd></div>
         </dl>
-        <a class="button doctor-book-button" aria-label="Book an appointment with <?= e($name) ?>" href="<?= e(url('/book.php?doctor=' . $doctorId)) ?>">Book with <?= e($name) ?></a>
+        <a class="button doctor-book-button" aria-label="Book an appointment with <?= e($name) ?>" href="<?= e(url('/screens/book.php?doctor=' . $doctorId)) ?>">Book with <?= e($name) ?></a>
     </aside>
 
     <div class="doctor-profile-content">
@@ -72,14 +72,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <ul class="available-slots">
                     <?php foreach ($slots as $slot):
                         $date = (string) $slot['SlotDate'];
-                        $href = '/book.php?doctor=' . $doctorId . '&date=' . rawurlencode($date) . '&slot=' . (int) $slot['slotID'];
+                        $href = '/screens/book.php?doctor=' . $doctorId . '&date=' . rawurlencode($date) . '&slot=' . (int) $slot['slotID'];
                     ?>
                         <li class="slot free"><a href="<?= e(url($href)) ?>"><?= e(fmt_date($date)) ?> at <?= e(fmt_time((string) $slot['SlotTime'])) ?></a></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
-            <p><a class="full-schedule-link" href="<?= e(url('/book.php?doctor=' . $doctorId)) ?>">View the full schedule</a></p>
+            <p><a class="full-schedule-link" href="<?= e(url('/screens/book.php?doctor=' . $doctorId)) ?>">View the full schedule</a></p>
         </section>
     </div>
 </main>
-<?php require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

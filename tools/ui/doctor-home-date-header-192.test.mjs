@@ -11,7 +11,7 @@ await withTestServer(true, async base => {
     await login(page, 'doctor', base);
     for (const width of [1280, 390]) {
       await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
-      await page.goto(base + 'doctor/home.php', { waitUntil: 'load' });
+      await page.goto(base + 'screens/doctor/home.php', { waitUntil: 'load' });
       const positions = await page.evaluate(() => {
         const schedule = document.querySelector('.day-schedule').getBoundingClientRect();
         const controls = document.querySelector('.day-board-date-controls').getBoundingClientRect();

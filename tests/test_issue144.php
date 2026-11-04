@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__) . '/clinic-base/';
-$directory = file_get_contents($root . 'doctors.php');
-$booking = file_get_contents($root . 'book.php');
+$directory = file_get_contents($root . 'screens/doctors.php');
+$booking = file_get_contents($root . 'screens/book.php');
 $action = file_get_contents($root . 'actions/appointment.php');
 assert_contains($directory, 'book.php?doctor=');
 assert_true(!str_contains($directory, 'book.php?doctor_id='), 'directory emits canonical booking parameter');

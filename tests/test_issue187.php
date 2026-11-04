@@ -8,9 +8,9 @@ require_once dirname(__DIR__) . '/clinic-base/models/patients.php';
 
 $root = dirname(__DIR__);
 $choice = "I'd rather not disclose";
-$page = file_get_contents($root . '/clinic-base/register.php');
+$page = file_get_contents($root . '/clinic-base/screens/register.php');
 $action = file_get_contents($root . '/clinic-base/actions/register.php');
-$visit = file_get_contents($root . '/clinic-base/doctor/visit.php');
+$visit = file_get_contents($root . '/clinic-base/screens/doctor/visit.php');
 if ($page === false || $action === false || $visit === false) {
     throw new RuntimeException('Gender registration files could not be read');
 }

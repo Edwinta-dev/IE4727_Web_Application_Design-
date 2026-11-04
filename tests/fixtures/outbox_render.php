@@ -10,4 +10,4 @@ session_save_path(sys_get_temp_dir());
 session_start();
 $_SESSION['role'] = 'admin';
 $_SESSION['id'] = 'admin';
-require dirname(__DIR__, 2) . '/clinic-base/admin/outbox.php';
+require dirname(__DIR__, 2) . '/clinic-base/screens/admin/outbox.php';

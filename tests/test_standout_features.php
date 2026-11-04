@@ -13,9 +13,9 @@ if (getenv('CLINIC_DB_NAME') === false || getenv('CLINIC_DB_NAME') === '') {
 // Structural checks for the browser-tested search and print features
 // =========================================================================
 
-$doctorsPage = file_get_contents(dirname(__DIR__) . '/clinic-base/doctors.php');
+$doctorsPage = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/doctors.php');
 if ($doctorsPage === false) {
-    throw new RuntimeException('clinic-base/doctors.php could not be read');
+    throw new RuntimeException('clinic-base/screens/doctors.php could not be read');
 }
 
 $inputExists = preg_match('/<input\b(?=[^>]*\bid="doctor-search")(?=[^>]*\btype="search")[^>]*>/i', $doctorsPage) === 1;
@@ -31,9 +31,9 @@ if ($appJs === false) {
 assert_true(strpos($appJs, 'fetch(') === false, 'app.js must not contain fetch');
 assert_true(strpos($appJs, 'XMLHttpRequest') === false, 'app.js must not contain XMLHttpRequest');
 
-$patientHomePage = file_get_contents(dirname(__DIR__) . '/clinic-base/patient/home.php');
+$patientHomePage = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/patient/home.php');
 if ($patientHomePage === false) {
-    throw new RuntimeException('clinic-base/patient/home.php could not be read');
+    throw new RuntimeException('clinic-base/screens/patient/home.php could not be read');
 }
 
 $summaryExists = preg_match('/class="[^"]*\bmedical-slip\b[^"]*"/', $patientHomePage) === 1;

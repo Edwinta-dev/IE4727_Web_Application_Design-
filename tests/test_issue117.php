@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 $base = dirname(__DIR__) . '/clinic-base';
 $pages = [
-    'doctors.php',
-    'admin/console.php',
-    'admin/outbox.php',
-    'book.php',
-    'doctor/home.php',
-    'doctor/schedule.php',
+    'screens/doctors.php',
+    'screens/admin/console.php',
+    'screens/admin/outbox.php',
+    'screens/book.php',
+    'screens/doctor/home.php',
+    'screens/doctor/schedule.php',
 ];
 
 foreach ($pages as $page) {
@@ -34,7 +34,7 @@ foreach ($pages as $page) {
         "Navigation link carries an obsolete token in {$page}");
 }
 
-assert_contains((string) file_get_contents($base . '/admin/console.php'), 'csrf_check()',
+assert_contains((string) file_get_contents($base . '/screens/admin/console.php'), 'csrf_check()',
     'Admin deletion must verify CSRF before mutation');
 foreach (['actions/book.php', 'actions/register.php', 'actions/appointment.php'] as $action) {
     assert_contains((string) file_get_contents($base . '/' . $action), 'csrf_check()',
@@ -60,8 +60,8 @@ $counts = static function (): array {
 $rowCountsBefore = $counts();
 $requests = [
     ['patient', 1, 'actions/book.php', ['slot_id' => '1', 'reason' => 'Check-up']],
-    ['doctor', 1, 'doctor/schedule.php', ['action' => 'generate', 'start_date' => date('Y-m-d'), 'days' => '1']],
-    ['admin', 'admin', 'admin/console.php', ['action' => 'delete_patient', 'id' => '1']],
+    ['doctor', 1, 'screens/doctor/schedule.php', ['action' => 'generate', 'start_date' => date('Y-m-d'), 'days' => '1']],
+    ['admin', 'admin', 'screens/admin/console.php', ['action' => 'delete_patient', 'id' => '1']],
 ];
 foreach ($requests as [$role, $id, $handler, $fields]) {
     foreach (['missing', 'invalid'] as $case) {

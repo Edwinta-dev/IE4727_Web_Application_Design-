@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 $action = (string) file_get_contents($root . '/clinic-base/actions/book.php');
-$page = (string) file_get_contents($root . '/clinic-base/book.php');
-$dashboard = (string) file_get_contents($root . '/clinic-base/patient/home.php');
+$page = (string) file_get_contents($root . '/clinic-base/screens/book.php');
+$dashboard = (string) file_get_contents($root . '/clinic-base/screens/patient/home.php');
 $helpers = (string) file_get_contents($root . '/clinic-base/lib/helpers.php');
 
 assert_contains($action, 'flash_booking_confirmation(');
@@ -15,7 +15,7 @@ assert_contains($helpers, "e((string) (\$booking['doctor'] ?? ''))");
 assert_contains($helpers, "e((string) (\$booking['date'] ?? ''))");
 assert_contains($helpers, "e((string) (\$booking['time'] ?? ''))");
 assert_contains($helpers, 'View my appointment');
-assert_contains($helpers, "'/patient/home.php#appointment-'");
+assert_contains($helpers, "'/screens/patient/home.php#appointment-'");
 assert_contains($dashboard, 'id="appointment-<?= e((string) $appointment[\'appointmentID\']) ?>"');
 assert_contains($page, '$bookingConfirmed = flash_render();');
 assert_contains($page, 'if (!$bookingConfirmed && $slots !== [])');

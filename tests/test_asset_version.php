@@ -25,7 +25,7 @@ assert_true(strpos($links[1][0], 'tokens.css') !== false && strpos($links[1][1],
 $css = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
 assert_true(strpos($css, '@import') === false, 'no @import, which could not be versioned');
 
-foreach (['partials/nav.php', 'register.php', 'doctor/schedule.php', 'doctors.php', 'index.php', 'book.php'] as $file) {
+foreach (['partials/nav.php', 'screens/register.php', 'screens/doctor/schedule.php', 'screens/doctors.php', 'screens/index.php', 'screens/book.php'] as $file) {
     $source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/' . $file);
     assert_true(preg_match("/<script src=\"<\\?= e\\(url\\('\\/assets/", $source) === 0, "$file loads its script through asset_url()");
 }

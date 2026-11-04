@@ -45,7 +45,7 @@ async function runPatientStory() {
 
         // Step 2: Browse Doctors
         console.log('2. Navigating to Find a Doctor...');
-        await page.click('nav a[href*="doctors.php"]');
+        await page.click('nav a[href*="screens/doctors.php"]');
         await page.waitForLoadState('networkidle');
         await delay(2000);
 
@@ -69,14 +69,14 @@ async function runPatientStory() {
 
         // Step 3: Inspect Doctor Profile (Dr. John Smith)
         console.log('3. Viewing Dr. John Smith Profile...');
-        const doctorProfileLink = page.locator('a[href*="doctor.php?id=1"]').first();
+        const doctorProfileLink = page.locator('a[href*="screens/doctor.php?id=1"]').first();
         await doctorProfileLink.click();
         await page.waitForLoadState('networkidle');
         await delay(2500);
 
         // Step 4: Click Book Appointment
         console.log('4. Navigating to Booking Page...');
-        const bookButton = page.locator('a[href*="book.php"]').first();
+        const bookButton = page.locator('a[href*="screens/book.php"]').first();
         await bookButton.click();
         await page.waitForLoadState('networkidle');
         await delay(2000);
@@ -95,7 +95,7 @@ async function runPatientStory() {
 
         // Step 6: Go to Book Appointment as Logged-in Patient
         console.log('6. Navigating to Booking form for Dr. John Smith...');
-        await page.goto(BASE_URL + 'book.php?doctor=1', { waitUntil: 'networkidle' });
+        await page.goto(BASE_URL + 'screens/book.php?doctor=1', { waitUntil: 'networkidle' });
         await delay(2000);
 
         // Check if there are available day tabs
@@ -133,7 +133,7 @@ async function runPatientStory() {
 
         if (!slotFound) {
             console.log('   Notice: No free slots in the immediate window, proceeding to dashboard...');
-            await page.goto(BASE_URL + 'patient/home.php', { waitUntil: 'networkidle' });
+            await page.goto(BASE_URL + 'screens/patient/home.php', { waitUntil: 'networkidle' });
         }
         await delay(2500);
 

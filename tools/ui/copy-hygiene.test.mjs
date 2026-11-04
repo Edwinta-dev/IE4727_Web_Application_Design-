@@ -21,23 +21,23 @@ try {
   await withTestServer(true, async base => {
     const browser = await chromium.launch({ headless: true });
     try {
-      for (const path of ['doctor/schedule.php', 'admin/outbox.php', 'admin/console.php', 'patient/home.php', 'doctor/home.php', 'doctor/visit.php']) {
+      for (const path of ['screens/doctor/schedule.php', 'screens/admin/outbox.php', 'screens/admin/console.php', 'screens/patient/home.php', 'screens/doctor/home.php', 'screens/doctor/visit.php']) {
         const page = await browser.newPage({ javaScriptEnabled: false });
         try {
-          await visit(page, path === 'doctor/visit.php' ? `${path}?appt=${visitId}` : path, base);
+          await visit(page, path === 'screens/doctor/visit.php' ? `${path}?appt=${visitId}` : path, base);
           for (const width of [1280, 390]) {
             await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
             assert.equal(await page.locator('h1 img').count(), 0, `${path}: no heading logo`);
             assert.ok(await page.locator('.site-header img').count() > 0, `${path}: header image retained`);
             assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width, `${path}: document fits`);
             const record = { path, width };
-            if (path === 'doctor/schedule.php') {
+            if (path === 'screens/doctor/schedule.php') {
               const counts = await page.locator('.schedule-day .calendar-slot-total').allTextContents();
               assert.equal(counts.length, 30);
               assert.ok(counts.every(text => /^\s*([1-9]\d* slots|No slots)\s*$/.test(text)), 'Calendar totals never show zero counts');
               record.counts = counts;
             }
-            if (path === 'admin/outbox.php') {
+            if (path === 'screens/admin/outbox.php') {
               // #150 puts the complete body inside the subject cell. Assert
               // the displayed subject, while retaining the full-message check.
               const subjects = await page.locator('tbody .notification-details summary').allTextContents();
@@ -47,7 +47,7 @@ try {
               assert.equal(await page.locator('.notification-details').count(), subjects.length, 'Full messages retained');
               record.subjects = subjects;
             }
-            if (path === 'admin/console.php') {
+            if (path === 'screens/admin/console.php') {
               const note = page.locator('.metric-note');
               assert.equal(await note.getAttribute('open'), null, 'Formula collapsed by default');
               assert.ok(!(await page.locator('.stat-card').last().innerText()).includes('appointments included'));
@@ -55,7 +55,7 @@ try {
               assert.ok((await note.innerText()).includes('27 of 27 appointments included; 0 excluded.'));
               await note.locator('summary').click();
             }
-            if (path === 'patient/home.php') {
+            if (path === 'screens/patient/home.php') {
               const cells = await page.locator('#past-heading').locator('..').locator('tbody td:last-child').allTextContents();
               assert.ok(cells.some(text => text.trim() === '\u2014'));
               assert.ok(cells.every(text => !text.includes('Not available')));
@@ -70,13 +70,13 @@ try {
         php('tools/ui/featured-doctors-fixture.php', String(count));
         const page = await browser.newPage();
         try {
-          await visit(page, 'admin/console.php', base);
+          await visit(page, 'screens/admin/console.php', base);
           for (const width of [1280, 390]) {
             await page.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
             assert.equal(await page.locator('.console-filters select[name="doctor"] option:not([value=""])').count(), count);
             assert.equal(await page.locator('[aria-labelledby="doctors-heading"] tbody tr').count(), count);
             assert.equal(await page.locator('html').evaluate(el => el.scrollWidth), width);
-            records.push({ path: 'admin/console.php', width, doctors: count });
+            records.push({ path: 'screens/admin/console.php', width, doctors: count });
           }
         } finally { await page.close(); }
         const date = php('-r', `require 'clinic-base/models/slots.php';
@@ -86,7 +86,7 @@ try {
           echo $date;`).trim();
         const schedule = await browser.newPage();
         try {
-          await visit(schedule, `doctor/schedule.php?date=${date}`, base);
+          await visit(schedule, `screens/doctor/schedule.php?date=${date}`, base);
           for (const width of [1280, 390]) {
             await schedule.setViewportSize({ width, height: width === 1280 ? 800 : 844 });
             assert.equal(await schedule.locator('.day-view .slot').count(), count, 'Database-backed schedule slots');
@@ -95,7 +95,7 @@ try {
             assert.equal((await schedule.locator('.schedule-day.selected .calendar-slot-total').textContent()).trim(), `${count} slots`);
             assert.ok((await schedule.locator('.schedule-day.selected a').getAttribute('aria-label')).endsWith(`${count - 1} Available, 0 Booked, 1 Blocked`));
             assert.equal(await schedule.locator('html').evaluate(el => el.scrollWidth), width);
-            records.push({ path: 'doctor/schedule.php', width, slots: count, counts });
+            records.push({ path: 'screens/doctor/schedule.php', width, slots: count, counts });
           }
         } finally { await schedule.close(); }
       }

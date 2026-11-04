@@ -22,14 +22,14 @@ foreach ($samples as $localDateTime => $display) {
 $rows = admin_search(['date_from' => '2041-01-02', 'date_to' => '2041-01-02']);
 assert_eq(array_column($rows, 'appointmentDateTime'), array_reverse(array_keys($samples)), 'admin model retains fixture wall times without a date shift');
 
-$page = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/admin/console.php');
+$page = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/console.php');
 $styles = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
 assert_contains($page, '<time datetime="<?= e(str_replace(', 'appointment cells expose a machine-readable local time');
 assert_contains($page, 'e(fmt_date((string) $appointment[\'appointmentDateTime\']))', 'appointment date uses shared formatter');
 assert_contains($page, 'e(fmt_time((string) $appointment[\'appointmentDateTime\']))', 'appointment time uses shared formatter');
 assert_true(!str_contains($page, 'e($appointment[\'appointmentDateTime\'])'), 'raw appointment timestamps are not printed');
 assert_eq(substr_count($page, '<button class="destructive-action" type="submit">Delete account</button>'), 2, 'both account tables distinguish delete');
-foreach (['onsubmit="return confirm(this.dataset.confirmation);"', 'method="post"', 'csrf_field()', 'csrf_check()', 'redirect(\'/admin/console.php?'] as $needle) {
+foreach (['onsubmit="return confirm(this.dataset.confirmation);"', 'method="post"', 'csrf_field()', 'csrf_check()', 'redirect(\'/screens/admin/console.php?'] as $needle) {
     assert_contains($page, $needle, 'delete confirmation and POST safeguards');
 }
 assert_contains($styles, '.destructive-action:hover, .destructive-action:focus-visible', 'shared destructive hover and focus style');

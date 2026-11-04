@@ -44,9 +44,9 @@ if (!attempt_login($data['username_or_email'], $data['password'])) {
 
 $user = current_user();
 $roleHome = match ((string) ($user['role'] ?? '')) {
-    'doctor' => '/doctor/home.php',
-    'patient' => '/patient/home.php',
-    'admin' => '/admin/console.php',
+    'doctor' => '/screens/doctor/home.php',
+    'patient' => '/screens/patient/home.php',
+    'admin' => '/screens/admin/console.php',
     default => '/index.php',
 };
 redirect($data['next'] !== '' ? login_return_path($data['next']) : $roleHome);

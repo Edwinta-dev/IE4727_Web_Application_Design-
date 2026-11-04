@@ -25,7 +25,7 @@ async function checkAdmin() {
     console.log('Admin Console Stats Headers:', statCards);
 
     // Check Outbox
-    await page.goto(BASE_URL + 'admin/outbox.php', { waitUntil: 'networkidle' });
+    await page.goto(BASE_URL + 'screens/admin/outbox.php', { waitUntil: 'networkidle' });
     console.log('Outbox Title:', await page.title());
     const rowCount = await page.locator('.admin-outbox table tbody tr').count();
     console.log('Outbox message rows in UI:', rowCount);

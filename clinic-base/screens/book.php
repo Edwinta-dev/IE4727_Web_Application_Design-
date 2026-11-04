@@ -10,12 +10,12 @@ Booking posts to actions/book.php; rescheduling posts to actions/appointment.php
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
 
 $rescheduleRequested = array_key_exists('reschedule', $_GET);
 $rescheduleIdInput = $_GET['reschedule'] ?? '';
@@ -41,7 +41,7 @@ if ($rescheduleRequested) {
         $rescheduleActor = is_doctor() ? 'doctor' : 'patient';
     } else {
         flash('That appointment cannot be rescheduled.', 'error');
-        redirect(is_doctor() ? '/doctor/home.php' : '/patient/home.php');
+        redirect(is_doctor() ? '/screens/doctor/home.php' : '/screens/patient/home.php');
     }
 }
 
@@ -108,7 +108,7 @@ if ($reschedule === null && !$dateRequested) {
     $selectedDate = booking_default_date($selectedDate, $availability);
 }
 $dayEmptyMessage = booking_day_empty_message($availability[$selectedDate]);
-$availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(array_merge(
+$availableDayUrl = $availableDays !== [] ? url('/screens/book.php?' . http_build_query(array_merge(
     ['specialty' => $selectedSpecialty, 'date' => $availableDays[0]],
     $doctorId > 0 ? ['doctor' => $doctorId] : [],
     $reschedule !== null ? ['reschedule' => $rescheduleId] : []
@@ -147,7 +147,7 @@ $selectedDoctorId = $selectedSlot !== null ? (int) $selectedSlot['DoctorID'] : $
 $tomorrowUrl = $selectedDate === $today->format('Y-m-d')
     && $availability[$selectedDate]['matching'] > 0
     && $availability[$selectedDate]['future'] === 0
-    ? url('/book.php?' . http_build_query(array_merge(
+    ? url('/screens/book.php?' . http_build_query(array_merge(
         ['specialty' => $selectedSpecialty, 'date' => $today->modify('+1 day')->format('Y-m-d')],
         $doctorId > 0 ? ['doctor' => $doctorId] : [],
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
@@ -160,8 +160,8 @@ if ($doctorId === 0) {
 }
 
 $pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main>
     <section class="page-intro page-intro-spaced booking-intro">
@@ -169,14 +169,14 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
             <h1><?= e($reschedule !== null ? 'Reschedule an appointment' : 'Book an appointment') ?></h1>
 <?php if ($reschedule !== null): ?>
             <p class="reschedule-context">Current appointment: <?= e((string) $reschedule['DoctorName']) ?> on <?= e(fmt_date((string) $reschedule['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $reschedule['appointmentDateTime'])) ?>.</p>
-            <p>Your current booking stays in place until the replacement is confirmed. <a href="<?= e(url($rescheduleActor === 'doctor' ? '/doctor/home.php' : '/patient/home.php')) ?>">Back to appointments</a></p>
+            <p>Your current booking stays in place until the replacement is confirmed. <a href="<?= e(url($rescheduleActor === 'doctor' ? '/screens/doctor/home.php' : '/screens/patient/home.php')) ?>">Back to appointments</a></p>
 <?php else: ?>
             <p>Choose a specialty, date and appointment time. Bring your medication list and any relevant test results.</p>
 <?php endif; ?>
         </div>
     </section>
 
-    <form class="booking-filters" method="get" action="<?= e(url('/book.php')) ?>">
+    <form class="booking-filters" method="get" action="<?= e(url('/screens/book.php')) ?>">
         <input id="date" type="hidden" name="date" value="<?= e($selectedDate) ?>">
 <?php if ($reschedule !== null): ?>
         <input type="hidden" name="reschedule" value="<?= e((string) $rescheduleId) ?>">
@@ -204,7 +204,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
         $reschedule !== null ? ['reschedule' => $rescheduleId] : []
     ));
 ?>
-                    <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
+                    <a class="day-tab<?= e($selectedDate === $day->format('Y-m-d') ? ' selected' : '') ?>" href="<?= e(url('/screens/book.php?' . $dayQuery)) ?>"<?php if ($selectedDate === $day->format('Y-m-d')): ?> aria-current="date"<?php endif; ?>><?= e($day->format('D d M')) ?></a>
 <?php endfor; ?>
                 </nav>
             </div>
@@ -324,4 +324,4 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
 </main>
 <script src="<?= e(asset_url('/assets/booking-slots.js')) ?>" defer></script>
 <?php
-require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

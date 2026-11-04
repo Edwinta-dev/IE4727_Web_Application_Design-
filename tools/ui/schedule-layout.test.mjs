@@ -22,7 +22,7 @@ await withTestServer(true, async () => {
  try {
   const page = await browser.newPage({javaScriptEnabled: false});
   await login(page, 'doctor', appBase);
-  const open = date => page.goto(`${appBase}doctor/schedule.php?date=${date}`, {waitUntil: 'load'});
+  const open = date => page.goto(`${appBase}screens/doctor/schedule.php?date=${date}`, {waitUntil: 'load'});
   const measurements = [];
   for (const width of [1280, 390]) {
    await page.setViewportSize({width, height: width === 1280 ? 800 : 844});

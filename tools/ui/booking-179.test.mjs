@@ -9,7 +9,7 @@ testPhp(['tools/db_reset.php', '--test'], { encoding: 'utf8' });
 const fixture = JSON.parse(php("$f = require 'tests/fixtures/booking_179.php'; echo json_encode($f);"));
 const [ada, ben] = fixture.doctors;
 const adaEarly = fixture.slots[`${ada}:06:30:00`];
-const route = `book.php?specialty=Dental&date=${fixture.date}&from=06%3A00&to=08%3A00`;
+const route = `screens/book.php?specialty=Dental&date=${fixture.date}&from=06%3A00&to=08%3A00`;
 
 await withTestServer(true, async base => {
   const browser = await chromium.launch({ headless: true });

@@ -9,12 +9,12 @@ Saving is allowed only from the appointment start time.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'patients.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'patients.php';
 
 require_doctor();
 
@@ -61,13 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (InvalidArgumentException $exception) {
         flash($exception->getMessage(), 'error');
     }
-    redirect('/doctor/visit.php?appt=' . $appointmentId);
+    redirect('/screens/doctor/visit.php?appt=' . $appointmentId);
 }
 
 $patient = find_patient((int) $appointment['PatientID']);
 if ($patient === null) {
     flash('The patient record could not be found.', 'error');
-    redirect('/doctor/home.php');
+    redirect('/screens/doctor/home.php');
 }
 
 $history = patient_history((int) $appointment['PatientID'], $doctorId, $appointmentId);
@@ -76,8 +76,8 @@ $visitState = visit_notes_state($appointment, $doctorId);
 $visitEligible = $visitState === 'editable';
 $visitRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']);
 $pageTitle = 'Doctor Visit';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="visit">
     <section class="page-intro">
@@ -146,7 +146,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                 <?php if ((int) ($appointment['FollowUp'] ?? 0) === 1): ?><p><strong>Follow-up:</strong> <?= e('Required') ?></p><?php endif; ?>
             <?php endif; ?>
         <?php else: ?>
-        <form class="visit-form" method="post" action="<?= e(url('/doctor/visit.php?appt=' . $appointmentId)) ?>">
+        <form class="visit-form" method="post" action="<?= e(url('/screens/doctor/visit.php?appt=' . $appointmentId)) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="appointment_id" value="<?= e((string) $appointmentId) ?>">
 
@@ -171,4 +171,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     </section>
     </div>
 </main>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

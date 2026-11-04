@@ -140,7 +140,7 @@ function base_path(): string
         return $base;
     }
 
-    // e.g. "/doctor/home.php": the script's path inside the app folder.
+    // e.g. "/screens/doctor/home.php": the script's path inside the app folder.
     $inApp = str_replace('\\', '/', substr($file, strlen($root)));
     if ($inApp !== '' && strcasecmp(substr($script, -strlen($inApp)), $inApp) === 0) {
         $base = rtrim(substr($script, 0, -strlen($inApp)), '/');
@@ -150,7 +150,7 @@ function base_path(): string
 }
 
 /**
- * Turn an app path such as "/book.php?doctor=1" into a URL that works under any base folder.
+ * Turn an app path such as "/screens/book.php?doctor=1" into a URL that works under any base folder.
  */
 function url(string $path): string
 {
@@ -355,7 +355,7 @@ function flash_render(): bool
         echo 'Your appointment with ' . e((string) ($booking['doctor'] ?? ''))
             . ' on ' . e((string) ($booking['date'] ?? ''))
             . ' at ' . e((string) ($booking['time'] ?? ''))
-            . ' has been booked. <a href="' . e(url('/patient/home.php#appointment-' . (int) ($booking['appointment_id'] ?? 0))) . '">View my appointment</a>';
+            . ' has been booked. <a href="' . e(url('/screens/patient/home.php#appointment-' . (int) ($booking['appointment_id'] ?? 0))) . '">View my appointment</a>';
         echo '</div>';
         return true;
     }

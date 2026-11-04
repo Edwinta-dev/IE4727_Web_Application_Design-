@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/book.php');
 if ($page === false) {
     throw new RuntimeException('booking page could not be read');
 }

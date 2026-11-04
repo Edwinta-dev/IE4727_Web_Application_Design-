@@ -11,7 +11,7 @@ await withServer(true, async base => {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
         const gaps = [];
-        for (const path of ['book.php', 'register.php']) {
+        for (const path of ['screens/book.php', 'screens/register.php']) {
           await visit(page, path, base);
           const spacing = await page.locator('.page-intro-spaced').evaluate(intro => {
             const nav = document.querySelector('.site-header');

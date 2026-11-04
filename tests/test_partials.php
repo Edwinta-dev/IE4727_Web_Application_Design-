@@ -9,7 +9,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 start_session_once();
 $_SESSION = [];
-$_SERVER['REQUEST_URI'] = '/doctors.php';
+$_SERVER['REQUEST_URI'] = '/screens/doctors.php';
 
 $pageTitle = 'Doctors';
 ob_start();
@@ -32,12 +32,12 @@ foreach (['<!doctype html>', '<title>Doctors</title>', 'assets/css/style.css', '
 // and patient/home.php are different pages.
 $_SESSION = ['role' => 'admin', 'id' => 'admin'];
 $GLOBALS['_auth_current_user_cache'] = ['role' => 'admin', 'id' => 'admin'];
-$_SERVER['REQUEST_URI'] = '/admin/outbox.php';
+$_SERVER['REQUEST_URI'] = '/screens/admin/outbox.php';
 ob_start();
 require dirname(__DIR__) . '/clinic-base/partials/nav.php';
 $adminNav = ob_get_clean();
-if (strpos($adminNav, 'href="/admin/outbox.php" aria-current="page"') === false
-    || strpos($adminNav, 'href="/admin/console.php" aria-current="page"') !== false) {
+if (strpos($adminNav, 'href="/screens/admin/outbox.php" aria-current="page"') === false
+    || strpos($adminNav, 'href="/screens/admin/console.php" aria-current="page"') !== false) {
     throw new RuntimeException('admin navigation did not mark only the current page');
 }
 if (strpos($adminNav, 'class="nav-logout"') === false || strpos($adminNav, '</nav>') === false

@@ -8,11 +8,11 @@ Attendance buttons open at the start time and post to actions/appointment.php.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
+require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
 require_doctor();
 
@@ -52,15 +52,15 @@ $history = $historyPatientId > 0 ? patient_history_for_doctor($historyPatientId,
 $notifications = notifications_for_doctor($doctorId);
 
 $pageTitle = 'Doctor Day Board';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
+require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
 ?>
 <main id="appointments">
     <section class="page-intro day-board-heading">
         <div class="page-intro-copy">
             <h1>Day board</h1>
         </div>
-        <form class="day-board-filter" method="get" action="<?= e(url('/doctor/home.php')) ?>">
+        <form class="day-board-filter" method="get" action="<?= e(url('/screens/doctor/home.php')) ?>">
             <label for="day">Schedule date</label>
             <input id="day" name="date" type="date" value="<?= e($date) ?>" required>
             <button type="submit">Show day</button>
@@ -80,12 +80,12 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
     <section class="day-schedule" aria-label="Appointments for <?= e($date) ?>">
         <nav class="day-board-navigation" aria-label="Day navigation">
             <div class="day-board-date-controls">
-                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>" aria-label="Previous day"><span aria-hidden="true">&larr;</span><span class="day-board-link-label">Previous day</span></a>
+                <a href="<?= e(url('/screens/doctor/home.php?' . http_build_query(['date' => $previousDay]))) ?>" aria-label="Previous day"><span aria-hidden="true">&larr;</span><span class="day-board-link-label">Previous day</span></a>
                 <h2><?= e(fmt_date($date)) ?></h2>
-                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>" aria-label="Next day"><span class="day-board-link-label">Next day</span><span aria-hidden="true">&rarr;</span></a>
+                <a href="<?= e(url('/screens/doctor/home.php?' . http_build_query(['date' => $followingDay]))) ?>" aria-label="Next day"><span class="day-board-link-label">Next day</span><span aria-hidden="true">&rarr;</span></a>
             </div>
             <?php if ($nextAppointmentDay !== null): ?>
-                <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
+                <a href="<?= e(url('/screens/doctor/home.php?' . http_build_query(['date' => $nextAppointmentDay]))) ?>">Jump to next appointment</a>
             <?php else: ?>
                 <span>No appointments on later days.</span>
             <?php endif; ?>
@@ -100,7 +100,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                     <tr>
                         <td data-label="Time"><?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></td>
                         <td data-label="Patient">
-                            <a href="<?= e(url('/doctor/home.php?' . http_build_query(['date' => $date, 'patient' => (int) $appointment['PatientID']]))) ?>">
+                            <a href="<?= e(url('/screens/doctor/home.php?' . http_build_query(['date' => $date, 'patient' => (int) $appointment['PatientID']]))) ?>">
                                 <?= e((string) $appointment['PatientName']) ?>
                             </a>
                         </td>
@@ -114,7 +114,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                 <?php /* Only what is true now: before the start time an appointment can be moved but not started; once started it can be started or marked no-show but not moved. */ ?>
                                 <?php if ($started): ?>
                                     <div class="row-actions">
-                                        <a class="button" href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
+                                        <a class="button" href="<?= e(url('/screens/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Start visit</a>
                                         <form method="post" action="<?= e(url('/actions/appointment.php')) ?>">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="appointment_id" value="<?= e((string) $appointment['appointmentID']) ?>">
@@ -124,13 +124,13 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
                                     </div>
                                 <?php else: ?>
                                     <div class="row-actions">
-                                        <a class="button secondary" href="<?= e(url('/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
+                                        <a class="button secondary" href="<?= e(url('/screens/book.php?' . http_build_query(['reschedule' => (int) $appointment['appointmentID'], 'doctor' => $doctorId, 'date' => $date, 'actor' => 'doctor']))) ?>">Reschedule</a>
                                     </div>
                                     <p class="row-note">Visit opens at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></p>
                                 <?php endif; ?>
                             <?php elseif ((string) $appointment['Status'] === 'Completed'): ?>
                                 <div class="row-actions">
-                                    <a class="button secondary" href="<?= e(url('/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
+                                    <a class="button secondary" href="<?= e(url('/screens/doctor/visit.php?appt=' . (int) $appointment['appointmentID'])) ?>">Edit visit notes</a>
                                 </div>
                             <?php else: ?>
                                 <span class="row-note">Nothing to do</span>
@@ -184,4 +184,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 <?php endif; ?>
     </section>
 </main>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';

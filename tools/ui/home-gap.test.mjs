@@ -91,7 +91,7 @@ await withTestServer(true, async base => {
           }
         }
       }
-      for (const route of ['doctors.php', 'doctors.php?specialty=NoSuchSpecialty']) {
+      for (const route of ['screens/doctors.php', 'screens/doctors.php?specialty=NoSuchSpecialty']) {
         await visit(page, route, base);
         const result = await page.evaluate(() => {
           const main = document.querySelector('main').getBoundingClientRect();

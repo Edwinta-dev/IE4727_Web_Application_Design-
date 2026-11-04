@@ -30,7 +30,7 @@ try {
                     for (const js of before ? [true] : [true, false]) {
                         const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 }, javaScriptEnabled: js, reducedMotion: 'reduce' });
                         try {
-                            const path = `book.php?doctor=1&date=${fixture.date}`;
+                            const path = `screens/book.php?doctor=1&date=${fixture.date}`;
                             await visit(page, path, base);
                             const measured = await page.evaluate(() => {
                                 const tabs = document.querySelector('.day-tabs');

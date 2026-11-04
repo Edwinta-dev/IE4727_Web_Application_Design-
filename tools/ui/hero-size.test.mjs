@@ -15,8 +15,8 @@ await withTestServer(true, async base => {
     const page = await browser.newPage();
     for (const [name, route] of [
       ['home', 'index.php'],
-      ['directory', 'doctors.php'],
-      ['filtered', 'doctors.php?specialty=General%20Practice'],
+      ['directory', 'screens/doctors.php'],
+      ['filtered', 'screens/doctors.php?specialty=General%20Practice'],
     ]) {
       for (const width of [390, 768, 1280, 1920]) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });

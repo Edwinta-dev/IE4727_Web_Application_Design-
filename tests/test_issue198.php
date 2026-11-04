@@ -11,7 +11,7 @@ foreach (glob($imageDir . '/*.{jpg,jpeg,png,webp,gif}', GLOB_BRACE) ?: [] as $im
     assert_true(filesize($image) <= PAGE_IMAGE_MAX_BYTES,
         basename($image) . ' is ' . filesize($image) . ' bytes; export it at display size (max ' . PAGE_IMAGE_MAX_BYTES . ')');
 }
-$index = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/index.php');
+$index = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/index.php');
 assert_contains($index, "/assets/img/about-clinic-consultation.jpg')) ?>\" width=\"960\" height=\"720\"",
     'About Us uses the compressed photo with its real dimensions');
 echo "OK: #198 page images within size budget\n";

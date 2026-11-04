@@ -29,7 +29,7 @@ try {
             q('UPDATE notifications SET deliveryStatus = :status WHERE notificationID = :id',
               ['status' => '${['failed', 'sent', 'logged'][ids.length % 3]}', 'id' => $id]); echo $id;`)));
         }
-        await page.goto(base + 'admin/outbox.php');
+        await page.goto(base + 'screens/admin/outbox.php');
         assert.equal(await page.locator('tbody tr').count(), total);
         for (const width of [1280, 1024, 390]) {
           await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });

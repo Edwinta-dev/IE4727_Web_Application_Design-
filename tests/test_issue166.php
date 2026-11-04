@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-$schedule = file_get_contents(dirname(__DIR__) . '/clinic-base/doctor/schedule.php');
-$booking = file_get_contents(dirname(__DIR__) . '/clinic-base/book.php');
+$schedule = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/doctor/schedule.php');
+$booking = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/book.php');
 if ($schedule === false || $booking === false) {
     throw new RuntimeException('schedule pages could not be read');
 }

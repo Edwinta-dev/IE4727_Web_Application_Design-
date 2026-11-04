@@ -27,6 +27,6 @@ try {
     db()->rollBack();
 }
 
-$page = file_get_contents(dirname(__DIR__) . '/clinic-base/patient/home.php');
+$page = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/patient/home.php');
 assert_true($page !== false, 'patient page is readable');
 assert_contains($page, "nl2br(e(patient_notification_body((string) \$notification['Body'])), false)", 'sign-off is mapped, then escaped, at render time');

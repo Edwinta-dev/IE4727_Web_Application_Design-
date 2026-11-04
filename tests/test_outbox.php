@@ -33,7 +33,7 @@ try {
     ]);
 }
 
-$source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/admin/outbox.php');
+$source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/outbox.php');
 foreach (['require_admin()', 'details', 'recipient', 'empty-state'] as $needle) {
     if (strpos($source, $needle) === false) {
         throw new RuntimeException("outbox page is missing {$needle}");

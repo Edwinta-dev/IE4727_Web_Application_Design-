@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$index = file_get_contents(dirname(__DIR__) . '/clinic-base/index.php');
+$index = file_get_contents(dirname(__DIR__) . '/clinic-base/screens/index.php');
 $login = file_get_contents(dirname(__DIR__) . '/clinic-base/actions/login.php');
 
 if ($index === false || $login === false) {

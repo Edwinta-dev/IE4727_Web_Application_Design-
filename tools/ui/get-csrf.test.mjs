@@ -4,12 +4,12 @@ import { withTestServer, visit } from './lib.mjs';
 process.env.CLINIC_DB_NAME = 'ie4727db_test';
 
 const cases = [
-  ['doctors.php', '.specialty-filter', 'specialty', 'General Practice'],
-  ['admin/console.php', '.console-filters form', 'status', 'Future'],
-  ['admin/outbox.php', '.outbox-filters form', 'deliveryStatus', 'logged'],
-  ['book.php', '.booking-filters', 'doctor', '1'],
-  ['doctor/home.php', '.day-board-filter', 'date', null],
-  ['doctor/schedule.php', '.month-grid form', 'date', null],
+  ['screens/doctors.php', '.specialty-filter', 'specialty', 'General Practice'],
+  ['screens/admin/console.php', '.console-filters form', 'status', 'Future'],
+  ['screens/admin/outbox.php', '.outbox-filters form', 'deliveryStatus', 'logged'],
+  ['screens/book.php', '.booking-filters', 'doctor', '1'],
+  ['screens/doctor/home.php', '.day-board-filter', 'date', null],
+  ['screens/doctor/schedule.php', '.month-grid form', 'date', null],
 ];
 
 await withTestServer(true, async base => {
@@ -33,7 +33,7 @@ await withTestServer(true, async base => {
         for (const href of await page.locator('a[href]').evaluateAll(anchors => anchors.map(a => a.href))) {
           if (new URL(href).searchParams.has('_csrf')) throw Error(`${route}: navigation link carries token`);
         }
-        if (['doctors.php', 'admin/console.php', 'admin/outbox.php'].includes(route)) {
+        if (['screens/doctors.php', 'screens/admin/console.php', 'screens/admin/outbox.php'].includes(route)) {
           const clear = page.locator(`${selector} a`, { hasText: 'Clear' });
           await clear.click();
           if (new URL(page.url()).searchParams.has('_csrf')) throw Error(`${route}: clear URL carries token`);

@@ -15,7 +15,7 @@ await withTestServer(true, async base => {
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       try {
-        await visit(page, 'register.php', base);
+        await visit(page, 'screens/register.php', base);
         const password = page.locator('#password');
         const confirm = page.locator('#confirm-password');
         const error = page.locator('[data-error-for="confirm_password"]');
@@ -49,14 +49,14 @@ await withTestServer(true, async base => {
           await confirm.fill('Password124');
           await page.locator('#registration-form button[type="submit"]').click();
           assert.equal(await error.innerText(), 'Passwords must match.', 'Submit should keep mismatch feedback');
-          assert.ok(page.url().endsWith('/register.php'));
+          assert.ok(page.url().endsWith('/screens/register.php'));
         }
       } finally { await page.close(); }
     }
     if (!before) {
       const page = await browser.newPage({ javaScriptEnabled: false });
       try {
-        await visit(page, 'register.php', base);
+        await visit(page, 'screens/register.php', base);
         assert.equal(await page.locator('[data-error-for="confirm_password"]').innerText(), '');
         assert.ok(await page.locator('#registration-form').evaluate(form => form.noValidate));
       } finally { await page.close(); }

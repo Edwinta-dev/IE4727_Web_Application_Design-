@@ -5,13 +5,13 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
 
 foreach (['console', 'outbox'] as $page) {
-    $source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/admin/' . $page . '.php');
+    $source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/' . $page . '.php');
     assert_eq(substr_count($source, "'partials' . DIRECTORY_SEPARATOR . 'flash.php'"), 1, $page . ' renders shared flash once');
     assert_true(strpos($source, "'partials' . DIRECTORY_SEPARATOR . 'flash.php'") > strpos($source, '<main'), $page . ' renders flash inside main');
 }
 
-$console = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/admin/console.php');
-foreach (['csrf_check()', 'require_admin()', 'account_by_id(', "flash('That account could not be found.", "flash('Choose a valid account", "redirect('/admin/console.php?'"] as $needle) {
+$console = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/console.php');
+foreach (['csrf_check()', 'require_admin()', 'account_by_id(', "flash('That account could not be found.", "flash('Choose a valid account", "redirect('/screens/admin/console.php?'"] as $needle) {
     assert_contains($console, $needle, 'console feedback and PRG');
 }
 

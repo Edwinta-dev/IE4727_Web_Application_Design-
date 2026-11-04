@@ -34,7 +34,7 @@ test('reschedule keeps its doctor when another specialty is requested', static f
     $appointmentId = (int) db()->lastInsertId();
 
     $runner = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'ie4727-issue196-' . getmypid() . '.php';
-    $book = var_export(dirname(__DIR__) . '/clinic-base/book.php', true);
+    $book = var_export(dirname(__DIR__) . '/clinic-base/screens/book.php', true);
     $get = var_export(['reschedule' => (string) $appointmentId, 'doctor' => (string) $doctorId,
         'specialty' => 'Dental', 'date' => $day], true);
     file_put_contents($runner, "<?php\nini_set('session.save_path', sys_get_temp_dir());\nsession_start();\n"

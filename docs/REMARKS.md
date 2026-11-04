@@ -29,13 +29,13 @@ Rescheduling leaves Remarks intact. Do not add columns or rewrite old records.
 
 ## Existing readers
 
-- `doctor/home.php`: decoded reason in the appointment board; an author-unknown
+- `screens/doctor/home.php`: decoded reason in the appointment board; an author-unknown
   marker for completed legacy text. Full notes belong to the visit page.
-- `doctor/visit.php`: separately labelled patient reason, editable doctor
+- `screens/doctor/visit.php`: separately labelled patient reason, editable doctor
   remarks and author-unknown earlier text; prior-visit history uses the same decoder.
-- `patient/home.php`: owned completed-visit notes label reason, doctor remarks
+- `screens/patient/home.php`: owned completed-visit notes label reason, doctor remarks
   and author-unknown earlier text separately.
-- `admin/console.php` and `admin/outbox.php`: do not render the Remarks column.
+- `screens/admin/console.php` and `screens/admin/outbox.php`: do not render the Remarks column.
   There is no existing appointment remarks export subsystem. Notifications
   are delivery records, not a raw Remarks export.
 - Visit-state fixture snapshots already use this decoder. SQL dumps/reset
