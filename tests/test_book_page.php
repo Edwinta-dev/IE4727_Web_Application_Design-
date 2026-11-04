@@ -46,7 +46,7 @@ foreach (['$rescheduleRequested', 'name="reschedule" value="<?= e((string) $resc
     assert_contains($page, $needle, 'rescheduling context and filter routing');
 }
 $tokens = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/tokens.css');
-$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/css/style.css');
+$css = file_get_contents(dirname(__DIR__) . '/clinic-base/assets/style.css');
 assert_true($tokens !== false && $css !== false, 'button styles should be readable');
 assert_contains($tokens, '--c-button-foreground: #ffffff;');
 assert_contains($css, '.appointment-action:focus');
