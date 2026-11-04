@@ -1,5 +1,10 @@
 <?php
 
+/*
+Rule-based form validation (required, email, min, max, in, matches, regex...) returning the first error per field.
+validation_failed() saves errors and old input and redirects back. Also checks the doctor photo upload.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';

@@ -1,5 +1,10 @@
 <?php
 
+/*
+Packs the patient's reason and the doctor's remarks into the single Remarks column as prefixed JSON,
+and reads older plain text safely.
+*/
+
 declare(strict_types=1);
 
 // Remarks is a TEXT column (65,535 bytes). New rows use a versioned record;

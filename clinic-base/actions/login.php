@@ -1,5 +1,11 @@
 <?php
 
+/*
+POST only; anything else redirects home. Checks the token, then validates the fields.
+The login attempt tries doctor, patient, then the config admin, and applies the lockout.
+Redirects to next= (safe app paths only) or to the user's role home page.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

@@ -36,7 +36,7 @@ foreach (['patient', 'doctor', 'admin'] as $roleDirectory) {
 
         $tokens = token_get_all($source);
         $guardPosition = null;
-        if (preg_match('/\brequire_(?:login|doctor|admin)\s*\(/', $source, $guardMatch, PREG_OFFSET_CAPTURE) === 1) {
+        if (preg_match('/\brequire_(?:login|patient|doctor|admin)\s*\(/', $source, $guardMatch, PREG_OFFSET_CAPTURE) === 1) {
             $guardPosition = $guardMatch[0][1];
         }
         $outputPosition = null;

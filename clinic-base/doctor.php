@@ -1,5 +1,10 @@
 <?php
 
+/*
+Public profile for one doctor (?id=). Shows details, a specialty summary and their next available slots.
+Unknown id returns a 404 page.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

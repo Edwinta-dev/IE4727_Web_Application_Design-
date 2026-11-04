@@ -58,11 +58,17 @@ foreach ($navigationCases as [$role, $route, $expected]) {
             throw new RuntimeException('Patient navigation must have distinct appointments, doctor search and booking destinations');
         }
     }
+    if ($role === 'admin') {
+        preg_match_all('/<a href="([^"]+)"/', $html, $adminLinks);
+        if ($adminLinks[1] !== ['/admin/console.php', '/admin/outbox.php', '/index.php?logout=1']) {
+            throw new RuntimeException('Admin navigation must have console, outbox and logout destinations only');
+        }
+    }
     if ($role === 'doctor') {
         preg_match_all('/<a href="([^"]+)"/', $html, $doctorLinks);
-        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php#about', '/index.php?logout=1']
+        if ($doctorLinks[1] !== ['/doctor/home.php', '/doctor/schedule.php', '/index.php?logout=1']
             || !str_contains($html, '>Day board</a>')) {
-            throw new RuntimeException('Doctor navigation must have day board, schedule, About Us and logout destinations');
+            throw new RuntimeException('Doctor navigation must have day board, schedule and logout destinations only');
         }
     }
 }

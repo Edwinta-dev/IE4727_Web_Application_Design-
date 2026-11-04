@@ -1,5 +1,10 @@
 <?php
 
+/*
+The notifications table: log a message, mark it sent or failed, and list messages.
+Patients and doctors see messages whose recipient equals their stored email (latest 20).
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';

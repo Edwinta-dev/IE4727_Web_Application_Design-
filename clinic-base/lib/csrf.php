@@ -1,5 +1,10 @@
 <?php
 
+/*
+One CSRF token per session. csrf_field() goes in every POST form;
+csrf_check() runs first in every POST handler and shows a 419 page on mismatch.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';

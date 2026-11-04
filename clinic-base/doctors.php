@@ -1,5 +1,10 @@
 <?php
 
+/*
+Public doctor directory. GET specialty filter; keyword search is added by assets/app.js.
+Links to each doctor's profile and to book.php.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

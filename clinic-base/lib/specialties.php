@@ -1,5 +1,10 @@
 <?php
 
+/*
+The five clinic specialties and the legacy alias Dentistry -> Dental.
+Also tidies a doctor's displayed name and specialty without changing stored rows.
+*/
+
 declare(strict_types=1);
 
 /** The clinic's existing services, shared by registration and directory lists. */

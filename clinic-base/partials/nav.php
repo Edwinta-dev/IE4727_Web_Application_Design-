@@ -1,5 +1,10 @@
 <?php
 
+/*
+Navigation links for the current role (guest, patient, doctor, admin), with aria-current on the active page.
+Log out links to index.php?logout=1.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
@@ -50,13 +55,11 @@ $links = match ($navigationRole) {
     'doctor' => [
         ['label' => 'Day board', 'href' => '/doctor/home.php'],
         ['label' => 'Schedule', 'href' => '/doctor/schedule.php'],
-        ['label' => 'About Us', 'href' => '/index.php#about'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     'admin' => [
         ['label' => 'Console', 'href' => '/admin/console.php'],
         ['label' => 'Outbox', 'href' => '/admin/outbox.php'],
-        ['label' => 'About Us', 'href' => '/index.php#about'],
         ['label' => 'Log out', 'href' => '/index.php?logout=1'],
     ],
     default => [

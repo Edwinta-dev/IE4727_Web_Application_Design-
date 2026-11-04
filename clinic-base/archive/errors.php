@@ -1,5 +1,10 @@
 <?php
 
+/*
+Error logging with a correlation id and an uncaught-exception handler.
+Not loaded by any page; only tests/test_errors.php uses it.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config.php';

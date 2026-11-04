@@ -1,5 +1,14 @@
 <?php
 
+/*
+Requires login and a submitted token matching the session token.
+Only patients and doctors may use it, and the appointment must belong to the signed-in user.
+Then it handles, in this order:
+1. Doctor marking an appointment Completed or No show
+2. Patient cancelling (doctor cancelling is not handled here)
+3. Patient or doctor rescheduling to a new slot
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';

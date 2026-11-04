@@ -1,5 +1,11 @@
 <?php
 
+/*
+Doctor, patient and admin accounts: find a login by username or email (doctors first),
+check the config admin, create and delete accounts, and the admin console lists.
+Deleting cascades to slots and appointments.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';

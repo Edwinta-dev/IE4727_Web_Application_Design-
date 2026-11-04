@@ -1,5 +1,11 @@
 <?php
 
+/*
+Signed-in patient dashboard. Lists upcoming, past and cancelled appointments,
+the printable visit summary for ?view=id, and the latest 20 notifications.
+Cancel and reschedule buttons post to actions/appointment.php.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
@@ -8,7 +14,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATO
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
 
-require_login();
+require_patient();
 
 $user = current_user();
 $patientId = (int) $user['id'];

@@ -1,5 +1,11 @@
 <?php
 
+/*
+Admin only. GET filters by doctor, status and dates.
+POST (token checked) deletes a doctor or patient account, which cascades to their slots and appointments.
+Also shows the booking statistics.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';

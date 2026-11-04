@@ -1,5 +1,10 @@
 <?php
 
+/*
+Slot queries and creation. Generates slots with INSERT IGNORE (never deletes existing ones),
+and returns a day's slots plus per-day availability counts for the booking and schedule pages.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';

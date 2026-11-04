@@ -1,5 +1,9 @@
 <?php
 
+/*
+Admin statistics: bookings per doctor this week, no-show rates, peak booking hours, mean booking lead time.
+*/
+
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
