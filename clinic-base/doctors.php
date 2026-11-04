@@ -130,6 +130,6 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
     </table>
     </div>
 </main>
-<script src="<?= e(url('/assets/app.js')) ?>" defer></script>
+<script src="<?= e(asset_url('/assets/app.js')) ?>" defer></script>
 <?php
 require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
