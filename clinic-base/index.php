@@ -48,7 +48,7 @@ require __DIR__ . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.
                 <p>Choose a doctor in general practice, dental care, paediatrics, dermatology or physiotherapy. Book online and manage your appointments here.</p>
                 <div class="hero-actions">
                     <a class="button" href="<?= e(url('/doctors.php')) ?>">Find a doctor</a>
-                    <a class="button secondary" href="<?= e(url('/doctors.php')) ?>">Book an appointment</a>
+                    <a class="button secondary" href="<?= e(url('/book.php')) ?>">Book an appointment</a>
                 </div>
             </div>
         </div>

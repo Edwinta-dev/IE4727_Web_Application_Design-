@@ -104,6 +104,9 @@ if ($reschedule !== null && !$dateRequested) {
         substr((string) $reschedule['appointmentDateTime'], 0, 10), $availability, $selectedDate
     );
 }
+if ($reschedule === null && !$dateRequested) {
+    $selectedDate = booking_default_date($selectedDate, $availability);
+}
 $dayEmptyMessage = booking_day_empty_message($availability[$selectedDate]);
 $availableDayUrl = $availableDays !== [] ? url('/book.php?' . http_build_query(array_merge(
     ['specialty' => $selectedSpecialty, 'date' => $availableDays[0]],

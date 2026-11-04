@@ -590,12 +590,10 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
 #schedule-editor .schedule-generator form { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 0.4rem; }
 #schedule-editor .schedule-generator .required-note { margin: 0; }
 #schedule-editor .generator-start { color: var(--c-muted); }
-#schedule-editor .days-to-skip { min-width: 0; overflow: hidden; }
+#schedule-editor .days-to-skip { min-width: 0; }
 #schedule-editor .days-to-skip summary, #schedule-editor .days-to-skip label { min-height: 2rem; }
 #schedule-editor .days-to-skip summary { justify-content: space-between; gap: var(--space-1); }
-#schedule-editor .days-scroll-hint { color: var(--c-muted); font-weight: 400; }
-#schedule-editor .days-to-skip fieldset { flex-wrap: nowrap; overflow-x: auto; }
-#schedule-editor .days-to-skip label { flex: 0 0 auto; }
+#schedule-editor .days-to-skip fieldset { flex-wrap: wrap; }
 #schedule-editor .schedule-generator button { grid-column: 1 / -1; }
 @media (max-width: 56rem) {
     #schedule-editor { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
@@ -610,7 +608,6 @@ label[for]:has(> .required-mark) { display: block; margin-bottom: var(--space-1)
     #schedule-editor .slot-list { grid-template-columns: minmax(0, 1fr); }
     #schedule-editor .schedule-day a { font-size: 0.9rem; }
     #schedule-editor .calendar-state-line { width: 80%; }
-    #schedule-editor .days-scroll-hint { display: none; }
     #schedule-editor .days-to-skip fieldset { flex-wrap: wrap; overflow: visible; }
 }
 /* Keep older table-wide nowrap rules from forcing mobile cards wider. */

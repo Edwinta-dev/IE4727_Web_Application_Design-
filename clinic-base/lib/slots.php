@@ -30,6 +30,12 @@ function reschedule_landing_date(string $originalDay, array $availability, strin
     return $fallback;
 }
 
+/** The day the booking page opens on when none was asked for: today if it has bookable times, else the first day that does. */
+function booking_default_date(string $today, array $availability): string
+{
+    return reschedule_landing_date($today, $availability, $today);
+}
+
 /** Explain the displayed day without confusing elapsed slots with booked ones. */
 function booking_day_empty_message(array $counts): ?string
 {
