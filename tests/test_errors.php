@@ -5,7 +5,7 @@ declare(strict_types=1);
 $log = tempnam(sys_get_temp_dir(), 'clinic-errors-');
 define('APP_LOG_FILE', $log);
 define('APP_VERBOSE_ERRORS', false);
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'errors.php';
+require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'archive' . DIRECTORY_SEPARATOR . 'errors.php';
 
 app_log('test diagnostic', ['secret' => 'not rendered']);
 $contents = file_get_contents($log);
