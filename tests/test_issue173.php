@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
 require_once dirname(__DIR__) . '/clinic-base/models/doctors.php';
+require_once dirname(__DIR__) . '/clinic-base/models/opening_hours.php';
 
 test('footer hours use weekday minima and daily finishing times', static function (): void {
     // One row per doctor and day, as clinic_schedule_days() returns them.
@@ -56,7 +57,7 @@ test('footer day summaries come from one row per doctor and day', static functio
             q('INSERT INTO `slots` (`DoctorID`, `SlotDateTime`) VALUES (1, :time)', ['time' => $date . ' ' . $time]);
         }
         // clinic_schedule_days() caches per request; read it in a fresh one.
-        $modelPath = dirname(__DIR__) . '/clinic-base/models/doctors.php';
+        $modelPath = dirname(__DIR__) . '/clinic-base/models/opening_hours.php';
         exec(escapeshellarg(PHP_BINARY) . ' -r ' . escapeshellarg('require ' . var_export($modelPath, true)
             . '; echo json_encode(clinic_schedule_days());') . ' 2>&1', $output, $status);
         assert_eq($status, 0, 'summary query runs in a fresh request');

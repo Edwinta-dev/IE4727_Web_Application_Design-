@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
+require_once dirname(__DIR__) . '/clinic-base/lib/specialties.php';
 
 foreach (['Unknown specialty', '', 'Specialty care 7'] as $specialty) {
     assert_eq(specialty_image($specialty), '/assets/img/specialty-neutral.svg', 'unknown specialty uses a neutral image');

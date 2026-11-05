@@ -42,6 +42,7 @@ if ($helpers === false) {
     throw new RuntimeException('doctor profile helpers could not be read');
 }
 require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
+require_once dirname(__DIR__) . '/clinic-base/lib/specialties.php';
 require_once dirname(__DIR__) . '/clinic-base/models/doctors.php';
 foreach (['General Practice', 'Dental', 'Paediatrics', 'Dermatology', 'Physiotherapy', 'Unknown'] as $specialty) {
     $profile = specialty_profile($specialty);
