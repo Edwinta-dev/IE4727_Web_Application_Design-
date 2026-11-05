@@ -6,6 +6,8 @@ declare(strict_types=1);
 // (e.g. /IE4727_Web_Application_Design-/clinic-base/) as well as from a web root.
 
 $root = dirname(__DIR__);
+// clinic-plus is the separate enhancements fork; only check it when it is checked out.
+$apps = array_values(array_filter(['clinic-base', 'clinic-plus'], static fn (string $app): bool => is_dir($root . '/' . $app)));
 
 /**
  * Run url()/app_request_uri() in a fresh PHP process, since base_path() caches per request.
@@ -24,7 +26,7 @@ $probe = static function (string $app, string $scriptName, string $scriptFile, s
     return trim((string) $output);
 };
 
-foreach (['clinic-base', 'clinic-plus'] as $app) {
+foreach ($apps as $app) {
     $routingCases = [
         'XAMPP subfolder' => [
             '/IE4727_Web_Application_Design-/' . $app . '/screens/doctor/home.php',
@@ -71,7 +73,7 @@ $index = (string) file_get_contents($root . '/clinic-base/screens/index.php');
 preg_match_all('~assets/img/([A-Za-z0-9_.-]+\.(?:jpg|png|svg))~', $seed, $paths);
 preg_match_all('~\'([A-Za-z0-9_]+\.jpg)\'~', $helpers, $specialty);
 foreach (array_unique([...$paths[1], ...$specialty[1]]) as $image) {
-    foreach (['clinic-base', 'clinic-plus'] as $app) {
+    foreach ($apps as $app) {
         if (!is_file($root . '/' . $app . '/assets/img/' . $image)) {
             throw new RuntimeException("{$app} is missing referenced image {$image}");
         }

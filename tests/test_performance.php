@@ -10,20 +10,21 @@ if (!is_file($budgetPath) || !is_file($asset)) {
     exit(1);
 }
 $budget = (string) file_get_contents($budgetPath);
-foreach (['Rendered PHP page source', 'Images per page', 'Total local image bytes', 'SQL calls per request', 'Slow query threshold', 'clinic-logo.svg', '160 × 160', '372'] as $needle) {
+foreach (['Rendered PHP page source', 'Images per page', 'Total local image bytes', 'SQL calls per request', 'Slow query threshold', 'clinic-logo.svg', '160 × 160', '366'] as $needle) {
     if (strpos($budget, $needle) === false) {
         fwrite(STDERR, "FAIL: performance budget is missing {$needle}\n");
         exit(1);
     }
 }
-$bytes = filesize($asset);
-if ($bytes !== 372) {
+// Compare with LF line endings so a CRLF checkout (core.autocrlf) measures the same asset.
+$bytes = strlen(str_replace("\r\n", "\n", (string) file_get_contents($asset)));
+if ($bytes !== 366) {
     fwrite(STDERR, "FAIL: clinic-logo.svg byte inventory is stale\n");
     exit(1);
 }
 $files = [
-    $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'doctor.php',
-    $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . 'outbox.php',
+    $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . 'doctor.php',
+    $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . 'outbox.php',
     $root . DIRECTORY_SEPARATOR . 'clinic-base' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php',
 ];
 foreach ($files as $file) {

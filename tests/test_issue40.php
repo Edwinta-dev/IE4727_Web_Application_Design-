@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+
+// clinic-plus is the separate enhancements fork (see docs/RUNBOOK.md); skip when it is not checked out.
+if (!is_dir(dirname(__DIR__) . '/clinic-plus')) {
+    return;
+}
 $events = file_get_contents(dirname(__DIR__) . '/clinic-plus/events.php');
 $board = file_get_contents(dirname(__DIR__) . '/clinic-plus/doctor/board.php');
 $model = file_get_contents(dirname(__DIR__) . '/clinic-plus/models/appointments.php');
