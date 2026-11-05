@@ -564,11 +564,6 @@ main p { max-width: 70ch; }
     align-items: start;
 }
 
-.doctor-profile {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(15rem, 1fr);
-    gap: var(--space-5);
-}
 
 .doctor-profile-header,
 .doctor-details,
@@ -909,14 +904,7 @@ input[type="button"]:active {
     .grow-row > .grow-item:focus-visible img { height: 220px; }
 }
 
-.table-scroll {
-    max-width: 100%;
-    overflow-x: auto;
-}
 
-.doctor-directory {
-    width: 100%;
-}
 
 input[type="checkbox"],
 input[type="radio"] {
@@ -1373,44 +1361,11 @@ main .flash {
 .doctor-profile .available-slots { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
 .doctor-profile .slot { padding: 0; border: 0; border-radius: 0; background: transparent; }
 .doctor-profile .slot.free { border-left: 0; }
-.doctor-profile .slot a { display: flex; min-height: 2.75rem; align-items: center; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--c-paper); padding: 0.5rem 0.75rem; text-decoration: none; }
+.doctor-profile .slot a { display: flex; min-height: 2.75rem; align-items: center; border-radius: var(--radius-control); padding: 0.5rem 0.75rem; text-decoration: none; }
 .doctor-profile .slot a:hover { border-color: var(--c-primary); background: var(--c-surface); }
 
 /* Booking and appointment views */
-.booking-filters { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); margin: 0 0 var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
-.booking-filters p { flex: 1 1 10rem; min-width: 9rem; margin: 0; }
-.booking-filters button { min-height: 2.75rem; }
-.day-tabs { display: flex; max-width: 100%; gap: 0.35rem; overflow-x: auto; padding: 0 0 var(--space-2); margin-bottom: var(--space-4); }
-.day-tab { flex: 0 0 auto; min-width: 4.75rem; min-height: 2.75rem; padding: 0.55rem 0.7rem; text-align: center; border-bottom: 2px solid var(--c-line); text-decoration: none; }
-.day-tab.selected { border-color: var(--c-primary); color: var(--c-primary-dark); font-weight: 700; }
-.booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
-.booking-doctor { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
-.booking-doctor img { flex: 0 0 5.5rem; width: 5.5rem; height: 5.5rem; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
-.booking-doctor h2 { margin: 0 0 0.2rem; font-size: 1.3rem; }
-.booking-doctor p { margin: 0; }
-.booking-slots { min-width: 0; }
-.booking-slots > p { margin-bottom: var(--space-2); }
-.schedule-grid { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); }
-.schedule-grid .slot { min-height: 2.75rem; border: 1px solid var(--c-line); padding: var(--space-2); }
-.schedule-grid .slot.free { background: #e7f2ed; border-color: var(--c-success); }
-.schedule-grid .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
-.schedule-grid .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
-.schedule-grid .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
-.schedule-grid .slot-time, .schedule-grid .slot-state { display: block; }
-.schedule-grid .slot-state { font-weight: 700; }
-.schedule-grid .slot-booking summary { display: flex; min-height: 2.75rem; align-items: center; cursor: pointer; color: var(--c-primary-dark); font-weight: 700; }
-.schedule-grid .slot-booking[open] summary { margin-bottom: var(--space-2); }
-.schedule-grid .slot form { margin-top: var(--space-2); }
-.schedule-grid .slot form p { margin-bottom: 0.5rem; }
-.schedule-grid .slot form input { margin-bottom: var(--space-2); }
-.schedule-grid .slot button { width: 100%; min-height: 2.75rem; }
-.slot-list .slot { border: 1px solid var(--c-line); }
-.slot-list .slot.free { background: #e7f2ed; border-color: var(--c-success); }
-.slot-list .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
-.slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
-.slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
-.doctor-profile .slot a { background: #e7f2ed; border: 1px solid var(--c-success); }
-.appointments { margin-block: var(--space-5); }
+.day-tabs {overflow-x: auto; margin-bottom: var(--space-4); }
 /* Patient tables keep every column in a labelled, keyboard-scrollable region. Empty tables fit the page. */
 .appointment-table-scroll { max-width: 100%; overflow-x: auto; }
 .appointment-table-scroll:focus-visible { outline: 0.2rem solid var(--c-accent); outline-offset: -0.2rem; }
@@ -1422,55 +1377,30 @@ main .flash {
 .appointment-empty-state { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); font-style: normal; }
 .appointment-empty-state p { margin: 0; }
 .table-scroll-hint { display: none; }
-.appointments table { border-top: 1px solid var(--c-line); }
-.appointments th { background: var(--c-surface-band); }
-.appointments th, .appointments td { padding-block: 0; line-height: 2.25rem; }
 .appointment-table-scroll:not(.is-empty) :is(th, td) { overflow-wrap: normal; white-space: nowrap; }
-.appointments td { vertical-align: middle; }
 .appointment-table-scroll:not(.is-empty) td { height: 3.25rem; }
 .appointment-table-scroll:not(.is-empty) td a { display: inline-flex; align-items: center; padding-block: 0; vertical-align: middle; }
 .appointments td button { vertical-align: middle; }
-.appointments td:last-child { white-space: nowrap; }
-.appointments td:last-child form { display: inline; margin: 0; }
-.appointment-action { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; margin: 0; padding: 0.2rem 0.65rem; border: 1px solid var(--c-button-background); border-radius: var(--radius-control); background: var(--c-button-background); color: var(--c-button-foreground); text-decoration: none; }
-.appointment-action:link, .appointment-action:visited, .appointment-action:hover, .appointment-action:focus, .appointment-action:active { color: var(--c-button-foreground); }
-.appointment-action:hover, .appointment-action:focus, .appointment-action:active { background: var(--c-button-background-hover); }
-.appointment-cancel { border-color: var(--c-danger); background: var(--c-danger); }
-.visit-notes { margin: var(--space-5) 0; padding: var(--space-3) 0; border-block: 1px solid var(--c-line); }
-.empty-state { margin: 0; padding: var(--space-3); background: var(--c-surface-band); border: 1px solid var(--c-line); }
-.schedule-grid .slot.blocked, .slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
-.schedule-grid .slot.past, .slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
-.schedule-grid .slot-booking:not([open]) > form { display: none; }
-.schedule-grid .slot-booking[open] > form { display: block; }
-@media (max-width: 56rem) { .booking-results { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 56rem) { }
 @media (max-width: 40rem) {
     .booking-filters { align-items: stretch; }
     .booking-filters p { flex-basis: calc(50% - var(--space-2)); }
     .booking-filters button { flex: 1 1 100%; }
-    .schedule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .appointment-table-scroll:not(.is-empty) table { min-width: 46rem; width: 100%; table-layout: auto; }
-    .appointment-table-scroll.is-empty table { width: 100%; table-layout: fixed; }
+    
+    
+    
     .table-scroll-hint { display: block; margin: 0 0 var(--space-2); color: var(--c-muted); }
 }
 @media (max-width: 56rem) {
-    .doctor-profile { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
-    .doctor-profile-identity { grid-row: auto; }
-    .doctor-profile-portrait { max-width: 14rem; }
+    
+    
+    
 }
 @media (max-width: 40rem) {
-    .doctor-specialty-content { grid-template-columns: minmax(0, 1fr); }
+    
 }
 
 /* A time selection shares one confirmation form instead of expanding each cell. */
-.booking-slots .slot-booking > form { margin: 0; }
-.booking-slots .schedule-grid .slot.free { position: relative; padding: 0; }
-.booking-slots .slot-choice { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.booking-slots .slot.free .slot-time { display: flex; align-items: center; min-height: 2.75rem; padding: var(--space-2); margin: 0; color: var(--c-primary-dark); font-weight: 700; }
-.booking-slots .slot-choice:checked + .slot-time { background: var(--c-primary); color: var(--c-button-foreground); }
-.booking-slots .slot-choice:focus-visible + .slot-time { outline: 0.2rem solid var(--c-accent); outline-offset: 0.2rem; }
-.booking-confirmation { margin-top: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--c-line); }
-.booking-confirmation h3 { margin-top: 0; }
-.schedule-day .slot-count { display: inline-block; margin: 0 var(--space-1) var(--space-1) 0; padding: 0.15rem 0.4rem; background: var(--c-surface-band); border: 1px solid var(--c-line); border-radius: var(--radius-control); }
 
 /* ==== Newer rules (formerly assets/css/style.css) ====
    Kept after the base rules above, in the same order they used to load, so the cascade is unchanged.
@@ -1712,8 +1642,7 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .schedule-day { min-width: 0; padding: var(--space-2); border: 0; border-right: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); background: transparent; }
 .schedule-day.selected { background: var(--c-surface-band); }
 .schedule-day h3 { font-size: 1rem; }
-.schedule-day .slot-count { margin: 0.15rem 0; }
-.slot-list .slot { border: 0; border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
+.slot-list .slot {border-bottom: 1px solid var(--c-line); border-radius: 0; background: transparent; padding-inline: 0; }
 .slot-list .slot.free, .slot-list .slot.taken, .slot-list .slot.blocked, .slot-list .slot.past { border-left: 0; }
 .slot-list .slot-status { min-width: 8rem; }
 .slot-list .slot-readonly { display: block; margin-top: var(--space-1); line-height: 1.4; }
@@ -1727,8 +1656,8 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .visit-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .visit-form-actions label { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
 .visit-form-actions input[type="checkbox"] { flex: 0 0 1.5rem; }
-.console-filters { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: end; border-block: 1px solid var(--c-line); padding-block: var(--space-3); }
-.console-filters h2 { margin: 0; white-space: nowrap; }
+.console-filters {grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: end; border-block: 1px solid var(--c-line); padding-block: var(--space-3); }
+.console-filters h2 { margin: 0;}
 .console-filters form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
 .console-filters form label { flex: 1 1 9rem; }
 .console-filters form a { display: inline-flex; min-height: 2.75rem; align-items: center; padding-inline: var(--space-2); }
@@ -1853,7 +1782,7 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .booking-results { display: grid; grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 2fr); gap: var(--space-4); align-items: start; }
 .booking-doctor { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--c-surface-band); }
 .booking-doctor img { flex: 0 0 5.5rem; width: 5.5rem; height: 5.5rem; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
-.booking-doctor h2 { margin: 0 0 0.2rem; font-size: 1.3rem; }
+.booking-doctor h2 { margin: 0 0 0.2rem;}
 .booking-doctor p { margin: 0; }
 .booking-slots { min-width: 0; }
 .booking-slots > p { margin-bottom: var(--space-2); }
@@ -1964,22 +1893,21 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 #schedule-editor .schedule-day.no-slots a { color: var(--c-muted); }
 #schedule-editor .schedule-day.selected { background: var(--c-primary); color: var(--c-button-foreground); }
 #schedule-editor .schedule-day.selected a { color: var(--c-button-foreground); font-weight: 700; }
-#schedule-editor .schedule-date-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+#schedule-editor .schedule-date-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);}
 #schedule-editor .schedule-date-filter label { margin: 0; }
 #schedule-editor .schedule-date-filter input[type="date"] { width: auto; min-width: 0; }
 #schedule-editor .day-view { margin-top: var(--space-3); }
 #schedule-editor .schedule-day-counts { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-#schedule-editor .slot-list .slot { padding: var(--space-2); }
 #schedule-editor .slot-time, #schedule-editor .slot-status { display: block; }
 #schedule-editor .slot form { margin-top: var(--space-2); }
 #schedule-editor .slot button { width: 100%; }
 #schedule-editor .schedule-generator { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--c-line); }
-#schedule-editor .schedule-generator form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2) var(--space-3); align-items: end; }
+#schedule-editor .schedule-generator form { display: grid; gap: var(--space-2) var(--space-3); align-items: end; }
 #schedule-editor .generator-field { min-width: 0; }
 #schedule-editor .generator-start, #schedule-editor .days-to-skip { grid-column: 1 / -1; margin: 0; }
 #schedule-editor .days-to-skip { padding: var(--space-1) var(--space-2); border: 1px solid var(--c-line); }
 #schedule-editor .days-to-skip summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
-#schedule-editor .days-to-skip fieldset { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin-top: var(--space-1); padding: var(--space-1); border: 0; }
+#schedule-editor .days-to-skip fieldset { display: flex; gap: var(--space-1) var(--space-3); margin-top: var(--space-1); padding: var(--space-1); border: 0; }
 #schedule-editor .days-to-skip label { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0; min-height: 2.75rem; }
 #schedule-editor .schedule-generator button { justify-self: start; }
 .schedule-generator { scroll-margin-top: 1rem; }
