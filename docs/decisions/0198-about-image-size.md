@@ -20,12 +20,12 @@ JPEG at 960x720 rather than WebP. WebP would be smaller still, but every other p
 
 ## Traps: why the obvious fix is wrong
 - Keep the `width`/`height` attributes equal to the file's real pixels (960x720). The CSS sets `aspect-ratio: 4 / 3`, but the attributes still drive the browser's space reservation before CSS loads.
-- Do not raise the 250 KB budget in `tests/test_issue198.php` to let one large file through; re-export the file instead.
+- Do not raise the 250 KB budget in `tests/test_image_size_budget.php` to let one large file through; re-export the file instead.
 
 ## Components
 - `clinic-base/assets/img/about-clinic-consultation.jpg` - new 960x720 JPEG.
 - `clinic-base/index.php` - About Us `<img>` source and dimensions.
-- `tests/test_issue198.php` - image size budget and the About Us reference.
+- `tests/test_image_size_budget.php` - image size budget and the About Us reference.
 
 ## Breaks or needs follow-up
 None. `about-clinic-consultation.png` is deleted; nothing else referenced it.
@@ -42,7 +42,7 @@ JPEG quality 82 adds slight compression artefacts that are not visible at displa
 
 ## Key parameters
 - Output 960x720, JPEG quality 82: chosen for a roughly 480 px wide column at 2x density.
-- Budget 250 KB (`tests/test_issue198.php::PAGE_IMAGE_MAX_BYTES`): about twice the largest existing photo.
+- Budget 250 KB (`tests/test_image_size_budget.php::PAGE_IMAGE_MAX_BYTES`): about twice the largest existing photo.
 
 ## Assumptions
 - The About Us column stays at most about half of a 1280 px layout; a full-width layout would need a larger export.
@@ -58,7 +58,7 @@ JPEG quality 82 adds slight compression artefacts that are not visible at displa
 None.
 
 ## How it was verified
-`tests/test_issue198.php` and `tests/test_index.php` pass. The new file was opened and checked visually; its size is 89,467 bytes.
+`tests/test_image_size_budget.php` and `tests/test_index.php` pass. The new file was opened and checked visually; its size is 89,467 bytes.
 
 ## To change this
 To serve WebP, export one beside the JPEG and wrap the `<img>` in a `<picture>` with a WebP `<source>`; cost: two files to keep in step.
@@ -103,10 +103,10 @@ project test harness
 - Trade-offs: 0 checked, 0 tested, 1 claimed
 - Not verified: 0 checked, 0 tested, 1 claimed
   - [checked] Components: `clinic-base/assets/img/about-clinic-consultation.jpg` - new 960x720 JPEG. (named code exists and changed)
-  - [checked] Key parameters: Budget 250 KB (`tests/test_issue198.php::PAGE_IMAGE_MAX_BYTES`): about twice the larges... (value matches the code: PAGE_IMAGE_MAX_BYTES = 256000)
-  - [tested] How it was verified: `tests/test_issue198.php` and `tests/test_index.php` pass. The new file was opened and... (test gate passed: project test harness)
+  - [checked] Key parameters: Budget 250 KB (`tests/test_image_size_budget.php::PAGE_IMAGE_MAX_BYTES`): about twice the larges... (value matches the code: PAGE_IMAGE_MAX_BYTES = 256000)
+  - [tested] How it was verified: `tests/test_image_size_budget.php` and `tests/test_index.php` pass. The new file was opened and... (test gate passed: project test harness)
   - [checked] Components: `clinic-base/index.php` - About Us `<img>` source and dimensions. (named code exists and changed)
-  - [claimed] Components: `tests/test_issue198.php` - image size budget and the About Us reference. (names no code)
+  - [claimed] Components: `tests/test_image_size_budget.php` - image size budget and the About Us reference. (names no code)
   - [claimed] Key parameters: Output 960x720, JPEG quality 82: chosen for a roughly 480 px wide column at 2x density. (no cited constant with a matching value)
   - [claimed] Edge cases: Handled: any future image over budget fails the suite with its file name and size. (names no code)
   - full per-claim list (12) in the JSON record

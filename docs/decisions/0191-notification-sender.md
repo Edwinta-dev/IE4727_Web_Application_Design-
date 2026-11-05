@@ -26,7 +26,7 @@ Rewrite the sign-off line when the page is drawn, rather than changing the text 
 - `clinic-base/models/notifications.php::patient_notification_body` - replaces the "Clinic: ..." sign-off line with the service name.
 - `clinic-base/models/notifications.php::notifications_for_patient` - unchanged query (the earlier attempt's `sender` column was removed again).
 - `clinic-base/patient/home.php` - passes each body through `patient_notification_body()` before `e()` and `nl2br()`.
-- `tests/test_issue191.php` - sign-off mapping on a real `mail_cancelled()` body, CRLF history, mid-line text, and the stored row left unchanged.
+- `tests/test_patient_notification_body.php` - sign-off mapping on a real `mail_cancelled()` body, CRLF history, mid-line text, and the stored row left unchanged.
 - `tests/ui_issue191.mjs` - Chromium check at 1280 and 390 pixels against `ie4727db_test`.
 
 ## Breaks or needs follow-up
@@ -60,7 +60,7 @@ The sign-off is rewritten on every render, a single regular expression per messa
 None. The decision record and the two test files are allowed by the scope rules.
 
 ## How it was verified
-`tests/test_issue191.php` passes, and the full suite (`php tests/run.php`, `CLINIC_DB_NAME=ie4727db_test`) passes, 114 tests with 0 failures. `node tests/ui_issue191.mjs before` on the original code showed "Clinic: Clinic Appointment Portal"; `node tests/ui_issue191.mjs after` shows "Clinic Appointment Service" and no "Clinic:" at 1280 and 390 pixels. Screenshots are under `UIPROBLEMS/after/iter7/issue191-notification-sender/`.
+`tests/test_patient_notification_body.php` passes, and the full suite (`php tests/run.php`, `CLINIC_DB_NAME=ie4727db_test`) passes, 114 tests with 0 failures. `node tests/ui_issue191.mjs before` on the original code showed "Clinic: Clinic Appointment Portal"; `node tests/ui_issue191.mjs after` shows "Clinic Appointment Service" and no "Clinic:" at 1280 and 390 pixels. Screenshots are under `UIPROBLEMS/after/iter7/issue191-notification-sender/`.
 
 ## To change this
 To fix the source text as well, change the sign-off in the four builders in `clinic-base/lib/mail.php`; keep `patient_notification_body()` for messages already stored.
@@ -106,10 +106,10 @@ not available
   - [checked] Components: `clinic-base/models/notifications.php::patient_notification_body` - replaces the "Clini... (named code exists and changed)
   - [checked] Components: `clinic-base/models/notifications.php::notifications_for_patient` - unchanged query (th... (named code exists and changed)
   - [checked] Components: `clinic-base/patient/home.php` - passes each body through `patient_notification_body()`... (named code exists and changed)
-  - [claimed] Components: `tests/test_issue191.php` - sign-off mapping on a real `mail_cancelled()` body, CRLF hi... (names no code)
+  - [claimed] Components: `tests/test_patient_notification_body.php` - sign-off mapping on a real `mail_cancelled()` body, CRLF hi... (names no code)
   - [claimed] Key parameters: Display name "Clinic Appointment Service" (`clinic-base/models/notifications.php::patie... (no cited constant with a matching value)
   - [claimed] Edge cases: Handled: historical bodies with CRLF line endings; a "Clinic:" in the middle of a sente... (names no code)
-  - [claimed] How it was verified: `tests/test_issue191.php` passes, and the full suite (`php tests/run.php`, `CLINIC_DB_N... (cited test exists; gate results not available)
+  - [claimed] How it was verified: `tests/test_patient_notification_body.php` passes, and the full suite (`php tests/run.php`, `CLINIC_DB_N... (cited test exists; gate results not available)
   - [claimed] Components: `tests/ui_issue191.mjs` - Chromium check at 1280 and 390 pixels against `ie4727db_test`. (names no code)
   - [claimed] Key parameters: Pattern `^Clinic:[ \t]*\S[^\r\n]*$` with the multiline flag: a whole line that starts w... (no cited constant with a matching value)
   - full per-claim list (16) in the JSON record

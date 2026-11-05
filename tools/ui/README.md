@@ -10,7 +10,7 @@ captures use Playwright Chromium. Both run headless. See
 `docs/UI_ITERATION5_GATE.md` for verdicts, evidence paths and capture differences.
 
 For booking URLs (#144), run `node tools/ui/booking-urls.test.mjs` as the
-acceptance command, then `php tests/run.php test_issue144` and
+acceptance command, then `php tests/run.php test_booking_links` and
 `php tests/run.php`. The browser test uses only `ie4727db_test`, disables mail,
 restores the seed in `finally`, and covers 3/7/12 doctors and slots at 1280x800
 and 390x844 without JavaScript. Raw specialty fixtures have 3/7/12 values;
@@ -203,7 +203,7 @@ Seeded outbox subjects already omit the clinic suffix; the copy regression
 adds a historical suffixed subject in the test database and verifies that
 only its display changes.
 
-For patient dashboard acceptance (#143), run `php tests/run.php test_issue143`
+For patient dashboard acceptance (#143), run `php tests/run.php test_patient_notifications`
 and then `node tests/ui_patient_dashboard.mjs`. The guarded browser test uses
 `ie4727db_test` and verifies distinct patient navigation, recipient isolation,
 escaped subject/body and keyboard reveal without JavaScript, pending past visits,

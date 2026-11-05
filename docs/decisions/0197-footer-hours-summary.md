@@ -30,10 +30,10 @@ Aggregate in SQL with `LAG()` rather than cache the computed text across request
 - `clinic-base/models/doctors.php::clinic_opening_hours_text` - footer entry point with the fallback.
 - `clinic-base/lib/helpers.php::clinic_opening_hours` - now formats day summaries instead of raw slots.
 - `clinic-base/partials/footer.php` - calls `clinic_opening_hours_text()`.
-- `tests/test_issue173.php` - summary formatting, live query, schedule change and database-down cases.
+- `tests/test_footer_opening_hours.php` - summary formatting, live query, schedule change and database-down cases.
 
 ## Breaks or needs follow-up
-- `clinic_schedule_slots()` is removed and `clinic_opening_hours()` now takes day-summary rows; the footer and `tests/test_issue173.php` were the only callers. None otherwise.
+- `clinic_schedule_slots()` is removed and `clinic_opening_hours()` now takes day-summary rows; the footer and `tests/test_footer_opening_hours.php` were the only callers. None otherwise.
 
 ## Problem and constraints
 Code review of #173: the footer loaded every slot for every doctor over 30 days on every page view, and any database error broke every page, including the 404 page. AGENTS.md requires every query to go through `q()` and every echoed value through `e()`.
@@ -65,7 +65,7 @@ The query still runs once per page view. That would start to matter only with fa
 None.
 
 ## How it was verified
-`tests/test_issue173.php` passes all four cases: weekday formatting from summaries, a live schedule change in a fresh request, one summary row per doctor-day with the 20-minute step detected, and a footer rendered with `CLINIC_DB_NAME` pointing at a missing database (exit 0, fallback line, address still shown). `tests/test_index.php`, `tests/test_routing.php` and `tests/test_errors.php` pass.
+`tests/test_footer_opening_hours.php` passes all four cases: weekday formatting from summaries, a live schedule change in a fresh request, one summary row per doctor-day with the 20-minute step detected, and a footer rendered with `CLINIC_DB_NAME` pointing at a missing database (exit 0, fallback line, address still shown). `tests/test_index.php`, `tests/test_routing.php` and `tests/test_errors.php` pass.
 
 ## To change this
 To drop the per-request query, cache `clinic_opening_hours_text()` in a temp file for N minutes and delete it from the schedule editor's save action; cost: one more write path to keep in step. Bugs are likeliest if slot lengths start varying within a day.
@@ -110,11 +110,11 @@ project test harness
 - Not verified: 0 checked, 0 tested, 2 claimed
 - Breaks or needs follow-up: 0 checked, 0 tested, 1 claimed
   - [checked] Components: `clinic-base/models/doctors.php::clinic_schedule_days` - per doctor-day summary query,... (named code exists and changed)
-  - [tested] How it was verified: `tests/test_issue173.php` passes all four cases: weekday formatting from summaries, a l... (test gate passed: project test harness)
+  - [tested] How it was verified: `tests/test_footer_opening_hours.php` passes all four cases: weekday formatting from summaries, a l... (test gate passed: project test harness)
   - [checked] Components: `clinic-base/models/doctors.php::clinic_opening_hours_text` - footer entry point with t... (named code exists and changed)
   - [checked] Components: `clinic-base/lib/helpers.php::clinic_opening_hours` - now formats day summaries instead... (named code exists and changed)
   - [checked] Components: `clinic-base/partials/footer.php` - calls `clinic_opening_hours_text()`. (named code exists and changed)
-  - [claimed] Components: `tests/test_issue173.php` - summary formatting, live query, schedule change and databas... (names no code)
+  - [claimed] Components: `tests/test_footer_opening_hours.php` - summary formatting, live query, schedule change and databas... (names no code)
   - [claimed] Key parameters: 30-day window (`clinic-base/models/doctors.php::clinic_schedule_days`, `INTERVAL 30 DAY... (no cited constant with a matching value)
   - [claimed] Edge cases: Handled: database missing or unreachable (fallback line, exit status 0); a day with one... (names no code)
   - [claimed] Key parameters: Step bounds 1-60 minutes and the 30-minute default (`clinic-base/lib/helpers.php::clini... (no cited constant with a matching value)

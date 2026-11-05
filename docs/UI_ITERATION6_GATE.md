@@ -12,13 +12,13 @@ to have inspected the missing source document.
 | 1. Historical slot reuse | #158 | Fixed: `audit_slot_reuse.php` and `test_slot_reuse` confirm notices reach only the active patient and doctor. |
 | 2. Concurrent appointment state | #159 | Fixed: `audit_reschedule_race.php` and `test_concurrency_reschedule` confirm one mutation wins and no booked slot is stranded. |
 | 3. Delivery after commit | #160 | Fixed: `audit_mail_transaction.php` reports `inTransaction=false` for delivery and finds committed appointment and notices. |
-| 4. Discarded reschedule reason | #161 | Fixed: `test_issue161` passes. |
+| 4. Discarded reschedule reason | #161 | Fixed: `test_reschedule_reason` passes. |
 | 5. Remember-me control | #162 | Fixed: `test_index` confirms the nonfunctional control is absent. |
 | 6. Login throttling across sessions | #163 | Fixed: `test_auth` covers a shared client lockout across fresh sessions. |
 | 7. Mobile action visibility | #164 | Fixed: `ui_mobile_actions_164.mjs` verifies first-row fields and keyboard actions at 320/360/390px. A guarded future appointment fixture makes the patient case deterministic. |
 | 8. Admin filter overflow | #165 | Fixed: `ui_admin_console_165.mjs` checks 320/360/390px and all-page 320px fit. |
-| 9. Elapsed slot priority | #166 | Fixed: `expired-slots.test.mjs` and `test_issue166` check booking and schedule copy. |
-| 10. Booking confirmation | #167 | Fixed: `ui_booking_success_167.mjs` and `test_issue167` check time, dashboard link, and refresh behavior. |
+| 9. Elapsed slot priority | #166 | Fixed: `expired-slots.test.mjs` and `test_booking_slot_generation` check booking and schedule copy. |
+| 10. Booking confirmation | #167 | Fixed: `ui_booking_success_167.mjs` and `test_booking_confirmation` check time, dashboard link, and refresh behavior. |
 
 ## Row-height measurements
 

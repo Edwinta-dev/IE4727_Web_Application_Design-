@@ -25,7 +25,7 @@ Keep the existing forms and server validation. Add an `aria-hidden` visual mark 
 - `clinic-base/book.php`: booking choice markers and optional filter correction.
 - `clinic-base/doctor/schedule.php`: schedule and cancellation markers.
 - `clinic-base/assets/css/style.css`: shared marker and note styles.
-- `tests/test_issue161.php`: keeps the prior reason-field regression aligned with its updated markup.
+- `tests/test_reschedule_reason.php`: keeps the prior reason-field regression aligned with its updated markup.
 - `tools/ui/required-fields-186.test.mjs`: Chromium checks markers, attributes, optional fields, role switching, and no-JavaScript server validation.
 
 ## Breaks or needs follow-up
@@ -105,7 +105,7 @@ whitespace/conflict-marker check, project test harness, php lint changed files, 
   - [checked] Components: `clinic-base/book.php`: booking choice markers and optional filter correction. (named code exists and changed)
   - [checked] Components: `clinic-base/doctor/schedule.php`: schedule and cancellation markers. (named code exists and changed)
   - [checked] Components: `clinic-base/assets/css/style.css`: shared marker and note styles. (named code exists and changed)
-  - [claimed] Components: `tests/test_issue161.php`: keeps the prior reason-field regression aligned with its upd... (names no code)
+  - [claimed] Components: `tests/test_reschedule_reason.php`: keeps the prior reason-field regression aligned with its upd... (names no code)
   - [claimed] Key parameters: The red mark uses `--c-danger`. The note reads `* required`. Chromium acceptance checks... (no cited constant with a matching value)
   - [claimed] Edge cases: Patient allergies, booking time filters, and schedule skip days remain optional. A doct... (names no code)
   - [claimed] How it was verified: `node tools/ui/required-fields-186.test.mjs` runs in Chromium with `CLINIC_DB_NAME=ie47... (no test named)

@@ -24,4 +24,6 @@ foreach (['doctor', 'admin'] as $role) {
     assert_true(strpos($html, '<a class="clinic-logo"') === false, "{$role} logo is not a link");
     assert_true(strpos($html, 'Clinic Appointment Portal</span>') !== false, "{$role} sees the brand name");
 }
+// Do not leak the fake signed-in user into tests that run after this one.
+unset($GLOBALS['_auth_current_user_cache']);
 echo "OK: header logo links home only for guests and patients\n";

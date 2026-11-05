@@ -20,7 +20,7 @@ The doctor form marks the background and photo required, describes the 50-charac
 ## Alternatives considered
 - Trust the browser's `accept` and `minlength` attributes: rejected because crafted POSTs bypass them.
 - Keep the counter in shared `assets/app.js`: possible, but the page-local script keeps this one-form behavior within the issue scope.
-- Save uploads in `assets/img` beside the site's own images: the first version did this and was changed after review. That folder is tracked by git, so real doctors' photos would appear as untracked files an agent could commit, and `tests/test_issue198.php` caps every image there at 250 KB while uploads may be 2 MB, so one real upload would fail the suite.
+- Save uploads in `assets/img` beside the site's own images: the first version did this and was changed after review. That folder is tracked by git, so real doctors' photos would appear as untracked files an agent could commit, and `tests/test_image_size_budget.php` caps every image there at 250 KB while uploads may be 2 MB, so one real upload would fail the suite.
 
 ## Key parameters
 - Background minimum: 50 characters after trimming, using the existing `min` validation rule.

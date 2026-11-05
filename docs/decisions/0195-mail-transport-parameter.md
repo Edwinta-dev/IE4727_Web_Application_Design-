@@ -56,7 +56,7 @@ None.
 - `tools/audit_mail_transaction.php`, `tests/fixtures/mail_delivery.php`, `tests/test_mail_delivery.php`: the only users of the removed global, and its tests.
 
 ## How it was verified
-`php tests/run.php` on `tests/test_mail_delivery.php` (five child runs: off, on/failed, on/sent, on/throw, default, plus the explicit-transport check) and `php -d disable_functions=mail tools/audit_mail_transaction.php`, which printed `inTransaction=false` twice and OK. Full suite with #194 and #195 applied: 107 passed, 1 failed; the failure is `tests/test_issue161.php` checking `clinic-base/book.php` source, a file this branch does not touch, so it predates these changes.
+`php tests/run.php` on `tests/test_mail_delivery.php` (five child runs: off, on/failed, on/sent, on/throw, default, plus the explicit-transport check) and `php -d disable_functions=mail tools/audit_mail_transaction.php`, which printed `inTransaction=false` twice and OK. Full suite with #194 and #195 applied: 107 passed, 1 failed; the failure is `tests/test_reschedule_reason.php` checking `clinic-base/book.php` source, a file this branch does not touch, so it predates these changes.
 
 ## To change this
 To let production pick a transport (for example SMTP), pass a callable at each `deliver_notifications` call in `clinic-base/models/booking.php`; cost: four call sites. Likeliest bug source: a transport whose argument order differs from mail().

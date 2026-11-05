@@ -23,7 +23,7 @@ The registration form submits the selected value to the existing POST handler. T
 - `clinic-base/register.php`: adds the choice to the existing Gender select.
 - `clinic-base/actions/register.php`: accepts the value in patient validation.
 - `schema/002_migrate.sql`: extends `patient.Gender` while retaining existing values and the column name.
-- `tests/test_issue187.php`: checks validation and database round trip.
+- `tests/test_gender_nondisclosure.php`: checks validation and database round trip.
 - `tests/ui_issue187.mjs`: checks selection and full registration in Chromium.
 
 ## Breaks or needs follow-up
@@ -55,7 +55,7 @@ No assistive technology was used for a manual screen-reader pass.
 The PHP and Chromium tests and this decision record are required verification artifacts. No content page was added.
 
 ## How it was verified
-`php tests/run.php test_issue187`, `node tests/ui_issue187.mjs`, and `php tests/run.php` verify the new choice against `ie4727db_test`. Before and after screenshots at 1280×800 and 390×844 are under `UIPROBLEMS/after/iter7/issue187-gender/`.
+`php tests/run.php test_gender_nondisclosure`, `node tests/ui_issue187.mjs`, and `php tests/run.php` verify the new choice against `ie4727db_test`. Before and after screenshots at 1280×800 and 390×844 are under `UIPROBLEMS/after/iter7/issue187-gender/`.
 
 ## To change this
 Update the form option, validation rule, enum migration, and regression tests together.
@@ -101,17 +101,17 @@ whitespace/conflict-marker check, project test harness, php lint changed files, 
   - [checked] Components: `clinic-base/register.php`: adds the choice to the existing Gender select. (named code exists and changed)
   - [checked] Components: `clinic-base/actions/register.php`: accepts the value in patient validation. (named code exists and changed)
   - [checked] Components: `schema/002_migrate.sql`: extends `patient.Gender` while retaining existing values and... (named code exists and changed)
-  - [claimed] Components: `tests/test_issue187.php`: checks validation and database round trip. (names no code)
+  - [claimed] Components: `tests/test_gender_nondisclosure.php`: checks validation and database round trip. (names no code)
   - [claimed] Key parameters: The stored value is exactly `I'd rather not disclose`; the existing values remain `Male... (no cited constant with a matching value)
   - [claimed] Edge cases: An empty or unknown value still fails the patient registration rule. Existing gender va... (names no code)
-  - [claimed] How it was verified: `php tests/run.php test_issue187`, `node tests/ui_issue187.mjs`, and `php tests/run.php... (cited test `test_issue187` not found)
+  - [claimed] How it was verified: `php tests/run.php test_gender_nondisclosure`, `node tests/ui_issue187.mjs`, and `php tests/run.php... (cited test `test_gender_nondisclosure` not found)
   - [claimed] Components: `tests/ui_issue187.mjs`: checks selection and full registration in Chromium. (names no code)
   - full per-claim list (14) in the JSON record
 
 **Consistency**
 
 0 error(s), 1 warning(s) between the rationale above and the change.
-- WARN: 'How it was verified' names a test that does not exist: test_issue187
+- WARN: 'How it was verified' names a test that does not exist: test_gender_nondisclosure
 
 **Commit**
 

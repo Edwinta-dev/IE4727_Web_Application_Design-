@@ -59,7 +59,7 @@ None.
 
 - `clinic-base/book.php` adds the native placeholder to the existing input.
 - `clinic-base/assets/css/style.css` sets its muted placeholder color.
-- `tests/test_issue161.php` preserves its markup assertion for the required reason field.
+- `tests/test_reschedule_reason.php` preserves its markup assertion for the required reason field.
 - `tools/ui/issue202.test.mjs` checks browser rendering and form data at both requested widths.
 
 ## Changes outside the scope
@@ -118,7 +118,7 @@ whitespace/conflict-marker check, project test harness, php lint changed files, 
 - Not verified: 0 checked, 0 tested, 1 claimed
   - [checked] Components: `clinic-base/book.php` adds the native placeholder to the existing input. (named code exists and changed)
   - [checked] Components: `clinic-base/assets/css/style.css` sets its muted placeholder color. (named code exists and changed)
-  - [claimed] Components: `tests/test_issue161.php` preserves its markup assertion for the required reason field. (names no code)
+  - [claimed] Components: `tests/test_reschedule_reason.php` preserves its markup assertion for the required reason field. (names no code)
   - [claimed] Key parameters: The example is `e.g. Cough and mild fever for 3 days`. (no cited constant with a matching value)
   - [claimed] Edge cases: An empty field submits an empty reason in `FormData`, not the example. (names no code)
   - [claimed] How it was verified: `node tools/ui/issue202.test.mjs` checks the empty placeholder, computed color, form da... (no test named)

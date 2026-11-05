@@ -10,7 +10,7 @@ const findings = [
   ['1 · active slot reuse', 'php', ['tests/run.php', 'test_slot_reuse']],
   ['2 · appointment locking', 'php', ['tests/run.php', 'test_concurrency_reschedule']],
   ['3 · mail after commit', 'php', ['tests/run.php', 'test_mail_delivery']],
-  ['4 · reschedule reason', 'php', ['tests/run.php', 'test_issue161']],
+  ['4 · reschedule reason', 'php', ['tests/run.php', 'test_reschedule_reason']],
   ['5 · remember-me control', 'php', ['tests/run.php', 'test_index']],
   ['6 · login throttling', 'php', ['tests/run.php', 'test_auth']],
   ['7 · mobile actions', 'node', ['tests/ui_mobile_actions_164.mjs']],

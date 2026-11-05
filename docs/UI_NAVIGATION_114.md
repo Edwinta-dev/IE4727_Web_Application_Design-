@@ -15,7 +15,7 @@ hover/focus previews raise their background without acquiring current state.
 The latest navigation change is already present from issue #152 (`8cd5891`).
 
 This change adds regression evidence, without changing app routing, guards,
-logout, shared CSS/motion or registration. `tests/test_issue114.php` now also
+logout, shared CSS/motion or registration. `tests/test_role_navigation_tabs.php` now also
 rejects misleading route suffixes and query-string destinations.
 `tests/ui_navigation_114.mjs` covers every existing page in its intended role
 and each public page as visitor, patient, doctor and admin. At 1280×800 and
@@ -57,7 +57,7 @@ inherit `CLINIC_DB_NAME=ie4727db_test`):
 
 ```text
 php -l clinic-base/partials/nav.php
-php -l tests/test_issue114.php
+php -l tests/test_role_navigation_tabs.php
 node --check tests/ui_navigation_114.mjs
 node tools/ui/shoot.mjs --serve --label nav-current-before all
 node tests/ui_navigation_114.mjs
@@ -65,7 +65,7 @@ node tools/ui/shoot.mjs --serve --label nav-current-after index.php patient/home
 node tools/ui/audit.mjs --serve --within .site-header layout,tap-targets,contrast,focus,slop index.php patient/home.php doctor/home.php doctor/schedule.php admin/console.php
 node tools/ui/audit.mjs --serve --within .site-header layout,tap-targets,contrast,focus,slop all
 node tests/ui_register.mjs
-php tests/run.php test_issue114
+php tests/run.php test_role_navigation_tabs
 php tests/run.php
 git diff --check
 ```
@@ -82,4 +82,4 @@ The full `php tests/run.php` finished with **95 passed, 0 failed** and exit 0.
 It emitted nonfatal PHP session/header warnings in unchanged helpers/auth and
 test setup. These were not suppressed or repaired as part of this navigation
 issue. `git diff --check` passed. Touched files are this report,
-`tests/test_issue114.php` and `tests/ui_navigation_114.mjs`.
+`tests/test_role_navigation_tabs.php` and `tests/ui_navigation_114.mjs`.

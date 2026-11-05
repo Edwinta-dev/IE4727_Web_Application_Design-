@@ -55,7 +55,7 @@ The checkbox sits beside the patient allergy entry. Checking it saves any typed 
 - `clinic-base/actions/register.php`: patient-only canonical value before validation and persistence.
 - `clinic-base/assets/app.js`: text area toggle and typed-value restoration.
 - `clinic-base/assets/css/style.css`: checkbox alignment, read-only state, and keyboard focus ring.
-- `tests/test_issue207.php`: registration source checks.
+- `tests/test_registration_allergy_checkbox.php`: registration source checks.
 - `tests/ui_issue207.mjs`: browser toggle, validation redirect, JavaScript-off registration, and JSON persistence.
 
 ## Changes outside the scope
@@ -125,7 +125,7 @@ whitespace/conflict-marker check, project test harness, php lint changed files, 
   - [checked] Components: `clinic-base/actions/register.php`: patient-only canonical value before validation and... (named code exists and changed)
   - [checked] Components: `clinic-base/assets/app.js`: text area toggle and typed-value restoration. (named code exists and changed)
   - [checked] Components: `clinic-base/assets/css/style.css`: checkbox alignment, read-only state, and keyboard f... (named code exists and changed)
-  - [claimed] Components: `tests/test_issue207.php`: registration source checks. (names no code)
+  - [claimed] Components: `tests/test_registration_allergy_checkbox.php`: registration source checks. (names no code)
   - [claimed] Key parameters: Checkbox form field: `NoKnownAllergies`, checked value `1`. (no cited constant with a matching value)
   - [claimed] Edge cases: With JavaScript off, the server accepts a checked box and ignores the text area value. (names no code)
   - [claimed] How it was verified: The before and after screenshots at 1280 and 390 pixels are in `UIPROBLEMS/after/iter8/... (no test named)
