@@ -19,14 +19,6 @@ test('token is stable and field is hidden', function (): void {
     assert_contains(csrf_field(), 'value="' . $first . '"');
 });
 
-test('token rotates explicitly', function (): void {
-    $before = csrf_token();
-    $after = csrf_rotate();
-
-    assert_true($before !== $after, 'CSRF token did not rotate');
-    assert_eq(csrf_token(), $after, 'rotated token was not stored in the session');
-});
-
 $csrfPath = dirname(__DIR__) . '/clinic-base/lib/csrf.php';
 $runner = tempnam(sys_get_temp_dir(), 'csrf-test-');
 if ($runner === false) {

@@ -15,3 +15,7 @@ UIPROBLEMS/
 .ui-sessions-*/
 # Doctor profile photos uploaded at registration (#190); real users' files, never committed.
 clinic-base/assets/uploads/
+
+# Captured stdout/stderr from ad-hoc test runs
+*.out
+*.err

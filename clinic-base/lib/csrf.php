@@ -34,17 +34,6 @@ function csrf_field(): string
 }
 
 /**
- * Rotate the CSRF token after an authentication boundary such as login/logout.
- */
-function csrf_rotate(): string
-{
-    start_session_once();
-    unset($_SESSION['_csrf']);
-
-    return csrf_token();
-}
-
-/**
  * Reject a request whose submitted token does not match the session token.
  */
 function csrf_check(): void

@@ -82,7 +82,7 @@ $helpers = file_get_contents($base . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEP
 if ($auth === false || $helpers === false) {
     $fail('shared authorization files are unreadable');
 }
-foreach (['function require_login', 'function require_role', 'http_response_code(401)', 'http_response_code(403)'] as $needle) {
+foreach (['function require_login', 'http_response_code(401)', 'http_response_code(403)'] as $needle) {
     if (strpos($auth, $needle) === false) {
         $fail('missing authorization primitive: ' . $needle);
     }

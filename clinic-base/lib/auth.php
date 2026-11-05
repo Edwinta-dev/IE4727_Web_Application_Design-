@@ -169,15 +169,6 @@ function require_admin(): void
     }
 }
 
-function require_role(string $role): void
-{
-    $user = current_user();
-    if ($user === null || (string) ($user['role'] ?? '') !== $role) {
-        http_response_code($user === null ? 401 : 403);
-        auth_redirect_to_login('Please sign in with the required role to continue.');
-    }
-}
-
 function is_patient(): bool
 {
     return (current_user()['role'] ?? null) === 'patient';

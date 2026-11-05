@@ -49,20 +49,6 @@ function patient_notification_body(string $body): string
     return (string) preg_replace('/^Clinic:[ \t]*\S[^\r\n]*$/m', 'Clinic Appointment Service', $body);
 }
 
-/** @return list<array<string, mixed>> */
-function recent_notifications(int $limit = 20): array
-{
-    $limit = max(1, min($limit, 100));
-
-    return q_all(
-        'SELECT `notificationID`, `sender`, `recipient`, `Subject`, `Body`,
-                `appointmentID`, `deliveryStatus`, `SentAt`
-         FROM `notifications`
-         ORDER BY `SentAt` DESC, `notificationID` DESC
-         LIMIT ' . $limit
-    );
-}
-
 /**
  * Return the notification log for the administrator outbox.
  *
