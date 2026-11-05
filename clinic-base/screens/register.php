@@ -8,9 +8,9 @@ Posts multipart (for the doctor photo) to actions/register.php.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
 $pageTitle = 'Register - Clinic Appointment Portal';
@@ -29,8 +29,8 @@ foreach ($fields as $field) {
 $noKnownAllergies = old('NoKnownAllergies') === '1';
 $registrationErrors = errors_all();
 
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . '/partials/header.php';
+require dirname(__DIR__) . '/partials/nav.php';
 ?>
 <main id="main-content" class="registration-page">
     <section class="page-intro public-page-intro registration-intro">
@@ -40,7 +40,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </div>
     </section>
 
-    <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
+    <?php require dirname(__DIR__) . '/partials/flash.php'; ?>
 
     <?php if ($registrationErrors !== []): ?>
         <div class="error-summary" role="alert" aria-labelledby="registration-error-title" tabindex="-1">
@@ -178,4 +178,4 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCount();
 });
 </script>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php'; ?>
+<?php require dirname(__DIR__) . '/partials/footer.php'; ?>

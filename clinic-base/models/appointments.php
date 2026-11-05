@@ -7,9 +7,9 @@ and the admin search. All writes are in models/booking.php.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
+require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/mail.php';
+require_once dirname(__DIR__) . '/models/booking.php';
 
 /** @return list<array<string, mixed>> */
 function appointments_for_patient(int $patientId, string $when = 'all'): array

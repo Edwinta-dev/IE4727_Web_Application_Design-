@@ -8,8 +8,8 @@ deliver_notifications() runs after commit and tries PHP mail(), marking rows sen
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once __DIR__ . '/config.php';
+require_once dirname(__DIR__) . '/models/notifications.php';
 
 /** Log only. Call inside the transaction that performs the related mutation. */
 function send_mail(string $toEmail, string $subject, string $body, ?int $appointmentId = null): int

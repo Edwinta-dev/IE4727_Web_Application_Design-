@@ -7,4 +7,4 @@ at index.php and the login redirects (/index.php) working. Everything else lives
 
 declare(strict_types=1);
 
-require __DIR__ . DIRECTORY_SEPARATOR . 'screens' . DIRECTORY_SEPARATOR . 'index.php';
+require __DIR__ . '/screens/index.php';

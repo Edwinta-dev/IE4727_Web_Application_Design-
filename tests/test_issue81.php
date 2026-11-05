@@ -24,7 +24,7 @@ foreach ($pages as $pagePath) {
         throw new RuntimeException($pagePath . ' must use the shared page-intro pattern');
     }
     $header = file_get_contents(dirname(__DIR__) . '/clinic-base/partials/header.php');
-    $hasHeaderImage = str_contains($page, "'partials' . DIRECTORY_SEPARATOR . 'header.php'")
+    $hasHeaderImage = str_contains($page, "'/partials/header.php'")
         && $header !== false && str_contains($header, '<img')
         && str_contains($header, '/assets/img/clinic-logo.svg');
     if (!str_contains($page, '/assets/img/') && !$hasHeaderImage) {

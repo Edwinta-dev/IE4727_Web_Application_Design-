@@ -7,10 +7,10 @@ GET filter by delivery status: logged, sent or failed.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once dirname(__DIR__, 2) . '/lib/auth.php';
+require_once dirname(__DIR__, 2) . '/lib/csrf.php';
+require_once dirname(__DIR__, 2) . '/lib/helpers.php';
+require_once dirname(__DIR__, 2) . '/models/notifications.php';
 
 require_admin();
 
@@ -21,8 +21,8 @@ $notifications = outbox_notifications($statusFilter);
 $todayCount = notifications_generated_today();
 
 $pageTitle = 'Notification Outbox';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . '/partials/header.php';
+require dirname(__DIR__, 2) . '/partials/nav.php';
 ?>
 <main class="admin-outbox">
     <section class="page-intro">
@@ -31,7 +31,7 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
             <p>Messages generated today: <strong><?= e((string) $todayCount) ?></strong></p>
         </div>
     </section>
-    <?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
+    <?php require dirname(__DIR__, 2) . '/partials/flash.php'; ?>
 
     <section class="outbox-filters" aria-labelledby="outbox-filters-heading">
         <h2 id="outbox-filters-heading">Filter messages</h2>
@@ -92,4 +92,4 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
         <?php endif; ?>
     </section>
 </main>
-<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . '/partials/footer.php';

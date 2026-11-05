@@ -9,9 +9,9 @@ inside the transaction; mail delivery is attempted after commit.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mail.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'visit_remarks.php';
+require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/mail.php';
+require_once __DIR__ . '/visit_remarks.php';
 
 // Appointment mutations lock the appointment first, then affected slot rows
 // in ascending slotID order. This shared order keeps cancel, reschedule and

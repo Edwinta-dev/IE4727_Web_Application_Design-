@@ -9,11 +9,11 @@ removes the saved photo if that fails, then signs the new user in.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'validate.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
+require_once dirname(__DIR__) . '/lib/validate.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
+require_once dirname(__DIR__) . '/models/accounts.php';
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

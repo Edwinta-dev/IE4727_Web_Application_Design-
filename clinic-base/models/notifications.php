@@ -7,7 +7,7 @@ Patients and doctors see messages whose recipient equals their stored email (lat
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . '/lib/db.php';
 
 /** Latest messages addressed to this patient's stored email, including unlinked notices.
  * @return list<array<string, mixed>>

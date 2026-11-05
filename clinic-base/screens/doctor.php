@@ -7,9 +7,9 @@ Unknown id returns a 404 page.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/models/doctors.php';
+require_once dirname(__DIR__) . '/models/slots.php';
 
 $idInput = $_GET['id'] ?? '';
 $doctorId = is_string($idInput) && ctype_digit($idInput) ? (int) $idInput : 0;
@@ -25,8 +25,8 @@ $image = trim((string) ($doctor['ImageURL'] ?? ''));
 $image = $image === '' ? '/assets/img/clinic-logo.svg' : '/' . ltrim($image, '/');
 $name = (string) $doctor['FullName'];
 $pageTitle = $name . ' - Doctor Profile';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . '/partials/header.php';
+require dirname(__DIR__) . '/partials/nav.php';
 ?>
 <main id="main-content" class="doctor-profile">
     <aside class="doctor-profile-identity" aria-label="Doctor details">
@@ -82,4 +82,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
         </section>
     </div>
 </main>
-<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__) . '/partials/footer.php';

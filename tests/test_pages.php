@@ -37,7 +37,7 @@ foreach ($pages as $page) {
     }
     // Shared header imagery counts toward the rendered page image requirement.
     $header = file_get_contents($base . '/partials/header.php');
-    $hasHeaderImage = str_contains($contents, "'partials' . DIRECTORY_SEPARATOR . 'header.php'")
+    $hasHeaderImage = preg_match("~require\s+dirname\(__DIR__(?:,\s*\d+)?\)\s*\.\s*'/partials/header\.php'~", $contents) === 1
         && $header !== false && str_contains($header, '<img')
         && str_contains($header, '/assets/img/clinic-logo.svg');
     if (strpos($contents, '/assets/img/') === false && !$hasHeaderImage) {

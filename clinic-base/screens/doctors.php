@@ -7,9 +7,9 @@ Links to each doctor's profile and to book.php.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
+require_once dirname(__DIR__) . '/models/doctors.php';
 
 $specialties = all_specialties();
 $specialtyOptions = array_values(array_filter(
@@ -26,8 +26,8 @@ $doctors = all_doctors($selectedSpecialty !== '' ? $selectedSpecialty : null);
 $bookingWindowEnd = (new DateTimeImmutable('today'))->modify('+' . BROWSE_DAYS . ' days');
 
 $pageTitle = 'Find a Doctor';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . '/partials/header.php';
+require dirname(__DIR__) . '/partials/nav.php';
 ?>
 <main>
     <section class="doctor-directory-intro" aria-labelledby="doctor-directory-heading">
@@ -132,4 +132,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 </main>
 <script src="<?= e(asset_url('/assets/app.js')) ?>" defer></script>
 <?php
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+require dirname(__DIR__) . '/partials/footer.php';

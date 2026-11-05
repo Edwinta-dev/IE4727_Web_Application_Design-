@@ -6,8 +6,8 @@ require_once dirname(__DIR__) . '/clinic-base/lib/helpers.php';
 
 foreach (['console', 'outbox'] as $page) {
     $source = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/' . $page . '.php');
-    assert_eq(substr_count($source, "'partials' . DIRECTORY_SEPARATOR . 'flash.php'"), 1, $page . ' renders shared flash once');
-    assert_true(strpos($source, "'partials' . DIRECTORY_SEPARATOR . 'flash.php'") > strpos($source, '<main'), $page . ' renders flash inside main');
+    assert_eq(substr_count($source, "'/partials/flash.php'"), 1, $page . ' renders shared flash once');
+    assert_true(strpos($source, "'/partials/flash.php'") > strpos($source, '<main'), $page . ' renders flash inside main');
 }
 
 $console = (string) file_get_contents(dirname(__DIR__) . '/clinic-base/screens/admin/console.php');

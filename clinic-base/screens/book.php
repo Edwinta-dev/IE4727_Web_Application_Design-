@@ -11,12 +11,12 @@ Booking posts to actions/book.php; rescheduling posts to actions/appointment.php
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'slots.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
+require_once dirname(__DIR__) . '/models/doctors.php';
+require_once dirname(__DIR__) . '/models/appointments.php';
+require_once dirname(__DIR__) . '/models/slots.php';
 
 $rescheduleRequested = array_key_exists('reschedule', $_GET);
 $rescheduleIdInput = $_GET['reschedule'] ?? '';
@@ -161,8 +161,8 @@ if ($doctorId === 0) {
 }
 
 $pageTitle = $reschedule !== null ? 'Reschedule an Appointment' : 'Book an Appointment';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . '/partials/header.php';
+require dirname(__DIR__) . '/partials/nav.php';
 ?>
 <main>
     <section class="page-intro booking-intro">
@@ -325,4 +325,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 </main>
 <script src="<?= e(asset_url('/assets/booking-slots.js')) ?>" defer></script>
 <?php
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+require dirname(__DIR__) . '/partials/footer.php';

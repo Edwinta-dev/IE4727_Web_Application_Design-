@@ -9,11 +9,11 @@ once started, Start visit (to the visit notes page) and Mark no-show, which post
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once dirname(__DIR__, 2) . '/lib/helpers.php';
+require_once dirname(__DIR__, 2) . '/lib/auth.php';
+require_once dirname(__DIR__, 2) . '/lib/csrf.php';
+require_once dirname(__DIR__, 2) . '/models/appointments.php';
+require_once dirname(__DIR__, 2) . '/models/notifications.php';
 
 require_doctor();
 
@@ -53,8 +53,8 @@ $history = $historyPatientId > 0 ? patient_history_for_doctor($historyPatientId,
 $notifications = notifications_for_doctor($doctorId);
 
 $pageTitle = 'Doctor Day Board';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . '/partials/header.php';
+require dirname(__DIR__, 2) . '/partials/nav.php';
 ?>
 <main id="appointments">
     <section class="page-intro day-board-heading">
@@ -185,4 +185,4 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
 <?php endif; ?>
     </section>
 </main>
-<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . '/partials/footer.php';

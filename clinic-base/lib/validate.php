@@ -7,8 +7,8 @@ validation_failed() saves errors and old input and redirects back. Also checks t
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
+require_once __DIR__ . '/helpers.php';
+require_once dirname(__DIR__) . '/models/accounts.php';
 
 /**
  * Validate submitted form data using pipe-separated or array rules.

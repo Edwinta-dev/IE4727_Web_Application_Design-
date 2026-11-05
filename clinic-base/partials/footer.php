@@ -6,8 +6,8 @@ Site footer: address, phone and opening hours, then closes the document.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'opening_hours.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/models/opening_hours.php';
 ?>
 <footer class="site-footer">
     <div class="footer-details">

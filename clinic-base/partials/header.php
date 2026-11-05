@@ -9,8 +9,8 @@ nav.php closes the header and footer.php closes the document.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
 
 // Doctors and admins work from their own pages; the home page is not a destination for them.
 $logoLinksHome = !is_doctor() && !is_admin();

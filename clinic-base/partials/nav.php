@@ -8,8 +8,8 @@ Log out links to index.php?logout=1.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
 
 $currentPath = parse_url(app_request_uri(), PHP_URL_PATH);
 $currentPath = is_string($currentPath) && $currentPath !== '' ? $currentPath : '/index.php';

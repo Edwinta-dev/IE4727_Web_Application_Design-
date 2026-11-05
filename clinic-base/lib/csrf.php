@@ -7,7 +7,7 @@ csrf_check() runs first in every POST handler and shows a 419 page on mismatch.
 
 declare(strict_types=1);
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 /**
  * Return the request's CSRF token, creating it once per session.

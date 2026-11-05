@@ -9,8 +9,8 @@ Guests get 401, wrong role gets 403. Failed logins are counted in a file:
 declare(strict_types=1);
 // Authorization responses use http_response_code(401) and http_response_code(403).
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'helpers.php';
+require_once dirname(__DIR__) . '/models/accounts.php';
+require_once __DIR__ . '/helpers.php';
 
 defined('AUTH_MAX_FAILURES') || define('AUTH_MAX_FAILURES', 5);
 defined('AUTH_FAILURE_WINDOW') || define('AUTH_FAILURE_WINDOW', 900);

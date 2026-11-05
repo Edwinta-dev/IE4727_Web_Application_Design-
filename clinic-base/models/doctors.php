@@ -6,7 +6,7 @@ Doctor directory with each doctor's next available slot and the specialty list.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . '/lib/db.php';
 require_once dirname(__DIR__) . '/lib/specialties.php';
 
 /** @return list<array<string, mixed>> */

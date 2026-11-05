@@ -8,11 +8,11 @@ Cancel and reschedule buttons post to actions/appointment.php. "Awaiting outcome
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'notifications.php';
+require_once dirname(__DIR__, 2) . '/lib/helpers.php';
+require_once dirname(__DIR__, 2) . '/lib/auth.php';
+require_once dirname(__DIR__, 2) . '/lib/csrf.php';
+require_once dirname(__DIR__, 2) . '/models/appointments.php';
+require_once dirname(__DIR__, 2) . '/models/notifications.php';
 
 require_patient();
 
@@ -27,8 +27,8 @@ $viewId = is_string($viewIdInput) && ctype_digit($viewIdInput) ? (int) $viewIdIn
 $visit = $viewId > 0 ? completed_appointment_for_patient($patientId, $viewId) : null;
 
 $pageTitle = 'My Appointments';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . '/partials/header.php';
+require dirname(__DIR__, 2) . '/partials/nav.php';
 ?>
 <main id="appointments">
     <section class="page-intro">
@@ -254,4 +254,4 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
     </section>
 <?php endif; ?>
 </main>
-<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . '/partials/footer.php';

@@ -6,7 +6,7 @@ Reads a patient profile (Allergies decoded from JSON). The profile update functi
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'db.php';
+require_once dirname(__DIR__) . '/lib/db.php';
 
 /** @return array<string, mixed>|null */
 function find_patient(int $id): ?array

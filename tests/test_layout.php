@@ -23,7 +23,7 @@ foreach (['doctor', 'patient', 'admin'] as $oldDir) {
 
 // The stub does nothing but hand over to the real home page.
 $stub = (string) file_get_contents($base . 'index.php');
-assert_true(substr_count($stub, 'require ') === 1 && strpos($stub, "'screens' . DIRECTORY_SEPARATOR . 'index.php'") !== false, 'index.php only includes screens/index.php');
+assert_true(substr_count($stub, 'require ') === 1 && strpos($stub, "'/screens/index.php'") !== false, 'index.php only includes screens/index.php');
 assert_true(strlen($stub) < 600, 'index.php stays a stub');
 
 // Every page under screens/ reaches the shared code through the right number of dirname() levels.

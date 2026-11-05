@@ -9,12 +9,12 @@ Saving is allowed only from the appointment start time.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'booking.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'patients.php';
+require_once dirname(__DIR__, 2) . '/lib/helpers.php';
+require_once dirname(__DIR__, 2) . '/lib/auth.php';
+require_once dirname(__DIR__, 2) . '/lib/csrf.php';
+require_once dirname(__DIR__, 2) . '/models/appointments.php';
+require_once dirname(__DIR__, 2) . '/models/booking.php';
+require_once dirname(__DIR__, 2) . '/models/patients.php';
 
 require_doctor();
 
@@ -76,8 +76,8 @@ $visitState = visit_notes_state($appointment, $doctorId);
 $visitEligible = $visitState === 'editable';
 $visitRemarks = decode_visit_remarks($appointment['Remarks'], (string) $appointment['Status']);
 $pageTitle = 'Doctor Visit';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . '/partials/header.php';
+require dirname(__DIR__, 2) . '/partials/nav.php';
 ?>
 <main id="visit">
     <section class="page-intro">
@@ -171,4 +171,4 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
     </section>
     </div>
 </main>
-<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . '/partials/footer.php';

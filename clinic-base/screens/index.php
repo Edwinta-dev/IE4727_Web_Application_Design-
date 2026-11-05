@@ -8,10 +8,10 @@ next= carries the page to return to after login. Reached through the root index.
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
+require_once dirname(__DIR__) . '/lib/helpers.php';
+require_once dirname(__DIR__) . '/lib/auth.php';
+require_once dirname(__DIR__) . '/lib/csrf.php';
+require_once dirname(__DIR__) . '/models/doctors.php';
 
 if (isset($_GET['logout'])) {
     logout();
@@ -30,8 +30,8 @@ $homeByRole = [
     'admin' => '/screens/admin/console.php',
 ];
 $home = is_array($user) ? ($homeByRole[(string) ($user['role'] ?? '')] ?? '/index.php') : null;
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__) . '/partials/header.php';
+require dirname(__DIR__) . '/partials/nav.php';
 ?>
 <main>
     <section class="hero-band band split">
@@ -53,7 +53,7 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
             </div>
         </div>
         <section class="member-login" id="login-card" aria-labelledby="member-login-heading">
-        <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
+        <?php require dirname(__DIR__) . '/partials/flash.php'; ?>
 <?php if ($user !== null): ?>
         <h2 id="member-login-heading">Your clinic account</h2>
         <p>Review appointments and continue managing your care.</p>
@@ -156,4 +156,4 @@ require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATO
 </main>
 <script src="<?= e(asset_url('/assets/featured-doctors.js')) ?>" defer></script>
 <?php
-require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+require dirname(__DIR__) . '/partials/footer.php';

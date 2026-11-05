@@ -8,13 +8,13 @@ Repeats the chosen date range in "04 Nov 2026" form under the filters. Also show
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'auth.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'csrf.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'helpers.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'accounts.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'appointments.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'doctors.php';
-require_once dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'stats.php';
+require_once dirname(__DIR__, 2) . '/lib/auth.php';
+require_once dirname(__DIR__, 2) . '/lib/csrf.php';
+require_once dirname(__DIR__, 2) . '/lib/helpers.php';
+require_once dirname(__DIR__, 2) . '/models/accounts.php';
+require_once dirname(__DIR__, 2) . '/models/appointments.php';
+require_once dirname(__DIR__, 2) . '/models/doctors.php';
+require_once dirname(__DIR__, 2) . '/models/stats.php';
 
 require_admin();
 
@@ -69,8 +69,8 @@ $rangeSummary = match (true) {
     default => '',
 };
 $pageTitle = 'Administrator Console';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'header.php';
-require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'nav.php';
+require dirname(__DIR__, 2) . '/partials/header.php';
+require dirname(__DIR__, 2) . '/partials/nav.php';
 ?>
 <main class="admin-console">
     <section class="page-intro">
@@ -79,7 +79,7 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
             <p>Review clinic accounts, appointments and booking patterns.</p>
         </div>
     </section>
-    <?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'flash.php'; ?>
+    <?php require dirname(__DIR__, 2) . '/partials/flash.php'; ?>
     <p><a href="<?= e(url('/screens/admin/outbox.php')) ?>">Open notification outbox</a></p>
 
     <section class="stats-strip" aria-labelledby="stats-heading">
@@ -128,4 +128,4 @@ require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPAR
         <?php if ($appointments !== []): ?><p class="table-scroll-hint" id="appointments-scroll-hint">Swipe or scroll to see appointment times, patients and status. Use arrow keys when the table is focused.</p><?php endif; ?>
         <div class="table-scroll console-table-scroll<?= e($appointments === [] ? ' is-empty' : '') ?>" role="region" aria-labelledby="appointments-heading"<?php if ($appointments !== []): ?> aria-describedby="appointments-scroll-hint" tabindex="0"<?php endif; ?>><table class="staff-table appointment-table"><thead><tr><th>Date/time</th><th>Doctor</th><th>Patient</th><th>Status</th></tr></thead><tbody><?php if ($appointments === []): ?><tr><td colspan="4"><p class="empty-state">No appointments match these filters.</p></td></tr><?php else: ?><?php foreach ($appointments as $appointment): ?><tr><td class="nowrap"><time datetime="<?= e(str_replace(' ', 'T', (string) $appointment['appointmentDateTime'])) ?>"><?= e(fmt_date((string) $appointment['appointmentDateTime'])) ?> at <?= e(fmt_time((string) $appointment['appointmentDateTime'])) ?></time></td><td><?= e($appointment['DoctorName']) ?></td><td><?= e($appointment['PatientName']) ?></td><td class="nowrap"><span class="status-label status-<?= e(strtolower(str_replace(' ', '-', (string) $appointment['Status']))) ?>"><?= e($appointment['Status']) ?></span></td></tr><?php endforeach; ?><?php endif; ?></tbody></table></div></section>
 </main>
-<?php require dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . 'footer.php';
+<?php require dirname(__DIR__, 2) . '/partials/footer.php';

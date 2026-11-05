@@ -13,7 +13,7 @@ assert_true(!str_contains($booking, 'Confirm this appointment with'), 'No repeat
 foreach (['screens/doctor/schedule.php', 'screens/doctor/home.php', 'screens/doctor/visit.php', 'screens/patient/home.php', 'screens/admin/console.php', 'screens/admin/outbox.php'] as $path) {
     $page = (string) file_get_contents($base . $path);
     assert_true(!str_contains($page, 'page-intro-mark'), $path . ': headings omit duplicate logos');
-    assert_contains($page, "'partials' . DIRECTORY_SEPARATOR . 'header.php'", $path . ': shared header remains');
+    assert_contains($page, "'/partials/header.php'", $path . ': shared header remains');
 }
 $schedule = (string) file_get_contents($base . 'screens/doctor/schedule.php');
 assert_contains($schedule, "\$totalSlots === 0 ? 'No slots' : \$totalSlots . ' slots'", 'Calendar totals label empty days without numeric zero counts');
