@@ -2,7 +2,6 @@
 
 :root {
     --ink: var(--c-ink);
-    --muted: #57534e;
     --paper: var(--c-paper);
     --surface: var(--c-surface);
     --line: var(--c-line);
@@ -11,8 +10,6 @@
     --accent: var(--c-accent);
     --success: var(--c-success);
     --danger: var(--c-danger);
-    --warning: #fff7ed;
-    --danger-soft: #fef2f2;
     --space-1: 0.375rem;
     --space-2: 0.75rem;
     --space-3: 1.125rem;
@@ -82,7 +79,7 @@ a:active {
     z-index: 10;
     padding: 0.65rem 1rem;
     background: var(--ink);
-    color: #fff;
+    color: var(--c-on-dark);
 }
 
 .skip-link:focus {
@@ -123,7 +120,7 @@ ol {
 
 .site-header {
     background: var(--brand-dark);
-    color: #fff;
+    color: var(--c-on-dark);
     border-bottom: 0.25rem solid var(--accent);
 }
 
@@ -170,7 +167,7 @@ main,
     margin: 0;
     padding: 0.4rem 0.65rem;
     border: 1px solid currentColor;
-    color: #fff;
+    color: var(--c-on-dark);
     background: transparent;
 }
 
@@ -183,7 +180,7 @@ main,
     align-items: center;
     gap: var(--space-2);
     text-decoration: none;
-    color: #fff;
+    color: var(--c-on-dark);
     font-weight: 700;
 }
 
@@ -211,7 +208,7 @@ main,
     min-width: 2.75rem;
     min-height: 2.75rem;
     padding: 0.55rem 0.75rem;
-    color: #fff;
+    color: var(--c-on-dark);
     text-decoration: none;
     transition: color 160ms ease;
 }
@@ -228,7 +225,7 @@ main,
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-    color: #fff;
+    color: var(--c-on-dark);
 }
 
 .site-nav a:hover::before,
@@ -280,7 +277,7 @@ main,
 .site-header a:visited,
 .site-header a:hover,
 .site-header a:active {
-    color: #fff;
+    color: var(--c-on-dark);
 }
 
 @media (max-width: 42rem) {
@@ -631,7 +628,7 @@ main p { max-width: 70ch; }
     border-left: 1px solid var(--line);
     min-height: 2.75rem;
     border-radius: 0.2rem;
-    background: #f4fbf8;
+    background: var(--c-slot-base);
     padding: var(--space-2) var(--space-3);
     text-decoration: none;
 }
@@ -643,31 +640,31 @@ main p { max-width: 70ch; }
 .slot.taken,
 .slot.blocked,
 .slot.past {
-    color: var(--muted);
+    color: var(--c-muted);
 }
 
 .slot.taken {
     border-left-color: var(--danger);
     border-left-style: dashed;
-    background: #fff5f5;
+    background: var(--c-slot-taken-tint);
 }
 
 .slot.blocked {
     border-left-color: var(--ink);
     border-left-style: double;
-    background: #eef1f3;
+    background: var(--c-slot-inactive);
 }
 
 .slot.past {
-    border-left-color: var(--muted);
+    border-left-color: var(--c-muted);
     border-left-style: dotted;
-    background: #eef1f3;
+    background: var(--c-slot-inactive);
 }
 
 .slot.taken a,
 .slot.blocked a,
 .slot.past a {
-    color: var(--muted);
+    color: var(--c-muted);
     pointer-events: none;
 }
 
@@ -694,13 +691,13 @@ td {
 }
 
 th {
-    background: #e7f3ef;
+    background: var(--c-table-head);
     color: var(--brand-dark);
     font-size: 1rem;
 }
 
 tr:nth-child(even) td {
-    background: #fbfcfd;
+    background: var(--c-table-stripe);
 }
 
 form {
@@ -719,7 +716,7 @@ input,
 select,
 textarea {
     width: 100%;
-    border: 1px solid #aebfca;
+    border: 1px solid var(--c-field-border);
     border-radius: var(--radius-control);
     background: var(--paper);
     color: var(--ink);
@@ -748,8 +745,8 @@ textarea[aria-invalid="true"],
 .error,
 .error-banner {
     color: var(--danger);
-    background: var(--danger-soft);
-    border: 1px solid #e5aaaa;
+    background: var(--c-feedback-danger-soft);
+    border: 1px solid var(--c-feedback-danger-border);
     border-radius: 0.4rem;
     padding: var(--space-2) var(--space-3);
 }
@@ -935,10 +932,10 @@ label:has(input[type="radio"]) {
 .flash-banner {
     width: var(--page-width);
     margin: var(--space-3) auto 0;
-    border: 1px solid #e5c36b;
+    border: 1px solid var(--c-feedback-warning-border);
     border-left: 0.35rem solid var(--accent);
-    background: var(--warning);
-    color: #624b16;
+    background: var(--c-feedback-warning-bg);
+    color: var(--c-feedback-warning-text);
     padding: var(--space-2) var(--space-3);
 }
 
@@ -949,24 +946,24 @@ main .flash {
 
 .flash-success {
     border-color: var(--c-success);
-    background: #eef7ef;
+    background: var(--c-feedback-success-soft);
     color: var(--c-success);
 }
 
 .flash-error {
     border-color: var(--c-danger);
-    background: var(--danger-soft);
+    background: var(--c-feedback-danger-soft);
     color: var(--c-danger);
 }
 
 .empty-state {
-    color: var(--muted);
+    color: var(--c-muted);
     font-style: italic;
 }
 
 .site-footer {
     border-top: 1px solid var(--line);
-    color: var(--muted);
+    color: var(--c-muted);
     padding-block: var(--space-4);
 }
 
@@ -1021,8 +1018,8 @@ main .flash {
 
     html,
     body {
-        background: #fff;
-        color: #000;
+        background: var(--c-print-paper);
+        color: var(--c-print-ink);
         font-size: 10pt;
     }
 
@@ -1057,7 +1054,7 @@ main .flash {
     .print-slip {
         break-inside: avoid;
         page-break-inside: avoid;
-        border: 1px solid #777;
+        border: 1px solid var(--c-print-rule);
         box-shadow: none;
     }
 
@@ -1074,7 +1071,7 @@ main .flash {
     }
 
     a {
-        color: #000;
+        color: var(--c-print-ink);
         text-decoration: none;
     }
 }
@@ -1123,7 +1120,7 @@ main .flash {
 
 .doctor-directory-intro { margin-bottom: var(--space-3); }
 .photo-banner.doctor-directory-banner { height: clamp(15rem, 22vw, 20rem); }
-.doctor-directory-subtitle { max-width: 50rem; margin: var(--space-1) 0 0; color: #fff; }
+.doctor-directory-subtitle { max-width: 50rem; margin: var(--space-1) 0 0; color: var(--c-on-dark); }
 .doctor-directory-intro .specialty-filter { margin: var(--space-2) 0 0; }
 
 .photo-banner .hero-image { object-position: center 42%; }
@@ -1144,11 +1141,11 @@ main .flash {
     right: var(--space-4);
     bottom: var(--space-3);
     left: var(--space-4);
-    color: #fff;
+    color: var(--c-on-dark);
 }
 
-.photo-caption .eyebrow { margin-bottom: var(--space-1); color: #fff; }
-.photo-caption h1 { margin: 0; color: #fff; }
+.photo-caption .eyebrow { margin-bottom: var(--space-1); color: var(--c-on-dark); }
+.photo-caption h1 { margin: 0; color: var(--c-on-dark); }
 
 /* Let the home caption size its shared scrim, including when text wraps.
    Only the space above the text fades; the text sits over uniform black. */
@@ -1183,7 +1180,7 @@ main .flash {
 
 .hero-subtitle > p { margin: 0; }
 .hero-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: var(--space-2); }
-.hero-actions .button:not(.secondary) { color: #fff; }
+.hero-actions .button:not(.secondary) { color: var(--c-on-dark); }
 
 .member-login {
     width: min(100%, 24rem);
@@ -1265,7 +1262,7 @@ main .flash {
 }
 .doctor-carousel-arrow[hidden] { display: none; }
 .doctor-carousel-arrow:disabled {
-    color: var(--muted);
+    color: var(--c-muted);
     background: var(--c-surface);
     border-color: var(--line);
     cursor: default;
@@ -1303,7 +1300,7 @@ main .flash {
 .specialty-item:focus-visible { transform: translateY(-0.15rem) scale(1.025); }
 .specialty-item img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius-tile); object-fit: cover; margin-bottom: var(--space-2); }
 .specialty-item h3 { margin-bottom: var(--space-1); color: var(--brand-dark); }
-.specialty-item p { margin: 0; color: var(--muted); }
+.specialty-item p { margin: 0; color: var(--c-muted); }
 
 @media (prefers-reduced-motion: reduce) {
     .specialty-item { transition: none; }
@@ -1341,7 +1338,7 @@ main .flash {
 .doctor-profile-identity { grid-row: 1; }
 .doctor-profile-portrait { display: block; width: 100%; max-width: 14rem; height: 17.5rem; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 28%; }
 .doctor-profile-identity h1 { margin: var(--space-3) 0 0; }
-.doctor-profile-specialty { margin-top: 0.2rem; color: var(--muted); }
+.doctor-profile-specialty { margin-top: 0.2rem; color: var(--c-muted); }
 .doctor-profile-facts { margin: var(--space-3) 0; }
 .doctor-profile-facts div { display: grid; grid-template-columns: minmax(6.5rem, 0.8fr) minmax(0, 1.5fr); gap: var(--space-2); padding-block: 0.5rem; border-bottom: 1px solid var(--line); }
 .doctor-profile-facts dt { font-weight: 700; }
@@ -1692,8 +1689,8 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .admin-console th, .admin-console td, .admin-outbox th, .admin-outbox td { padding-block: 0.4rem; }
 .day-schedule th, .day-schedule td, .admin-console th, .admin-console td { line-height: 1.95; padding-block: 0; }
 .admin-console table button, .day-schedule table button { box-sizing: border-box; padding-block: 0.25rem; }
-.destructive-action { border-color: var(--c-danger); background: var(--c-danger); color: #fff; min-height: 2.75rem; }
-.destructive-action:hover, .destructive-action:focus-visible { border-color: var(--c-danger-hover); background: var(--c-danger-hover); color: #fff; }
+.destructive-action { border-color: var(--c-danger); background: var(--c-danger); color: var(--c-on-dark); min-height: 2.75rem; }
+.destructive-action:hover, .destructive-action:focus-visible { border-color: var(--c-danger-hover); background: var(--c-danger-hover); color: var(--c-on-dark); }
 .stats-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); }
 .stats-strip > h2 { grid-column: 1 / -1; margin-bottom: 0; }
 .stats-strip .stat-card { min-width: 0; border-top: 1px solid var(--c-line); }
@@ -1788,8 +1785,8 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .booking-slots > p { margin-bottom: var(--space-2); }
 .schedule-grid { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); align-items: start; }
 .schedule-grid .slot { min-height: 2.75rem; border: 1px solid var(--c-line); padding: var(--space-2); }
-.schedule-grid .slot.free { background: #e7f2ed; border-color: var(--c-success); }
-.schedule-grid .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.schedule-grid .slot.free { background: var(--c-feedback-success-bg); border-color: var(--c-success); }
+.schedule-grid .slot.taken { background: var(--c-feedback-danger-bg); border: 2px solid var(--c-danger); }
 .schedule-grid .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
 .schedule-grid .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
 .schedule-grid .slot-time, .schedule-grid .slot-state { display: block; }
@@ -1801,11 +1798,11 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 .schedule-grid .slot form input { margin-bottom: var(--space-2); }
 .schedule-grid .slot button { width: 100%; min-height: 2.75rem; }
 .slot-list .slot { border: 1px solid var(--c-line); }
-.slot-list .slot.free { background: #e7f2ed; border-color: var(--c-success); }
-.slot-list .slot.taken { background: #f7e7e2; border: 2px solid var(--c-danger); }
+.slot-list .slot.free { background: var(--c-feedback-success-bg); border-color: var(--c-success); }
+.slot-list .slot.taken { background: var(--c-feedback-danger-bg); border: 2px solid var(--c-danger); }
 .slot-list .slot.blocked { background: var(--c-surface-band); border: 2px solid var(--c-ink); }
 .slot-list .slot.past { background: var(--c-paper); border: 2px dotted var(--c-muted); }
-.doctor-profile .slot a { background: #e7f2ed; border: 1px solid var(--c-success); }
+.doctor-profile .slot a { background: var(--c-feedback-success-bg); border: 1px solid var(--c-success); }
 .appointments { margin-block: var(--space-5); }
 .appointments table { border-top: 1px solid var(--c-line); }
 .appointments th { background: var(--c-surface-band); }
@@ -1987,8 +1984,8 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 #schedule-editor .schedule-day a:focus-visible { outline: 0.2rem solid var(--c-focus-ring); outline-offset: -0.2rem; border-radius: var(--radius-control); }
 #schedule-editor .slot-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); padding: 0; }
 #schedule-editor .slot-list .slot { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 0 var(--space-2); min-width: 0; border: 1px solid var(--c-line); padding: var(--space-2); }
-#schedule-editor .slot-list .slot.free { background: #e7f2ed; }
-#schedule-editor .slot-list .slot.taken { background: #f7e7e2; }
+#schedule-editor .slot-list .slot.free { background: var(--c-feedback-success-bg); }
+#schedule-editor .slot-list .slot.taken { background: var(--c-feedback-danger-bg); }
 #schedule-editor .slot-list .slot.blocked { background: var(--c-surface-band); }
 #schedule-editor .slot-list .slot.past { background: var(--c-paper); }
 #schedule-editor .slot-list .slot-status { min-width: 0; text-align: right; }
@@ -2258,8 +2255,8 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
     main,
     #appointments,
     .visit-notes {
-        background: #ffffff;
-        color: #000000;
+        background: var(--c-print-paper);
+        color: var(--c-print-ink);
         margin: 0;
         padding: 0;
         width: 100%;
@@ -2270,9 +2267,9 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 
     .medical-slip {
         display: block;
-        background: #ffffff;
-        color: #000000;
-        border: 1px solid #000000;
+        background: var(--c-print-paper);
+        color: var(--c-print-ink);
+        border: 1px solid var(--c-print-ink);
         border-radius: 0;
         padding: 1.5rem;
         margin: 0;
@@ -2282,7 +2279,7 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
     }
 
     .medical-slip * {
-        color: #000000;
+        color: var(--c-print-ink);
     }
 
     .medical-slip .slip-logo {
@@ -2291,25 +2288,25 @@ main > .page-intro:first-child { padding-top: var(--space-4); }
 
     .slip-header {
         display: block;
-        border-bottom: 2px solid #000000;
+        border-bottom: 2px solid var(--c-print-ink);
     }
 
     .slip-metadata,
     .slip-findings {
-        border-bottom: 1px solid #000000;
+        border-bottom: 1px solid var(--c-print-ink);
     }
 
     .slip-title,
     .slip-section-heading {
         font-family: var(--font-display);
-        color: #000000;
+        color: var(--c-print-ink);
     }
 
     .slip-signature-line {
-        border-bottom: 1px solid #000000;
+        border-bottom: 1px solid var(--c-print-ink);
     }
 
     .slip-stamp-placeholder {
-        border: 1px dashed #000000;
+        border: 1px dashed var(--c-print-ink);
     }
 }
