@@ -52,24 +52,6 @@ test('thirty day span has expected weekday count', static function (): void {
     assert_count(generate_slots('2026-09-01', 30, []), 364);
 });
 
-test('today suppresses earlier slots', static function (): void {
-    assert_true(!is_bookable('2026-09-22', '09:00', '2026-09-22 14:00:00'));
-    assert_true(is_bookable('2026-09-22', '14:00', '2026-09-22 14:00:00'));
-});
-
-test('past date is not bookable', static function (): void {
-    assert_true(!is_bookable('2026-09-21', '09:00', '2026-09-22 00:00:00'));
-});
-
-test('future date is bookable', static function (): void {
-    assert_true(is_bookable('2026-09-23', '09:00', '2026-09-22 23:59:59'));
-});
-
-test('midnight boundary is deterministic', static function (): void {
-    assert_true(is_bookable('2026-09-22', '00:00', '2026-09-22 00:00:00'));
-    assert_true(!is_bookable('2026-09-21', '23:59', '2026-09-22 00:00:00'));
-});
-
 test('empty break list keeps the whole day', static function (): void {
     assert_count(generate_slots('2026-09-22', 1, ['breaks' => []]), 16);
 });

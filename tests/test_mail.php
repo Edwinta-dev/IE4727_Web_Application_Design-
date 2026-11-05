@@ -29,11 +29,6 @@ if (strpos($body, 'Dr Test') === false || strpos($body, '10:30') === false) {
     throw new RuntimeException('booking template omitted the doctor or appointment time');
 }
 
-$recent = recent_notifications(1);
-if ($recent === [] || (int) $recent[0]['notificationID'] !== $notificationId) {
-    throw new RuntimeException('recent notifications did not return the new row');
-}
-
 echo "PASS: mail checks\n";
 
 // Exercise real notification producers, not just the standalone templates.

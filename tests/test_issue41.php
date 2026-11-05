@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+// clinic-plus is the separate enhancements fork (see docs/RUNBOOK.md); skip when it is not checked out.
+if (!is_dir(dirname(__DIR__) . '/clinic-plus')) {
+    return;
+}
+
 $book = file_get_contents(dirname(__DIR__) . '/clinic-plus/book.php');
 $fragment = file_get_contents(dirname(__DIR__) . '/clinic-plus/slots_fragment.php');
 if ($book === false || $fragment === false) {

@@ -133,21 +133,6 @@ function generate_slots(string $from, int $days, array $opts = []): array
     return $slots;
 }
 
-/**
- * A slot is bookable when its start is not earlier than the supplied time.
- */
-function is_bookable(string $date, string $time, ?string $now = null): bool
-{
-    try {
-        $slot = new DateTimeImmutable($date . ' ' . $time);
-        $current = new DateTimeImmutable($now ?? 'now');
-    } catch (Exception) {
-        return false;
-    }
-
-    return $slot >= $current;
-}
-
 function slot_time_to_minutes(string $time): int
 {
     if (!preg_match('/^(\d{2}):(\d{2})$/', $time, $matches)) {
